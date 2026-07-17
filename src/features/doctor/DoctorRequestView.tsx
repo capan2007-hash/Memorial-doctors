@@ -1,13 +1,18 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
+import { useRespond } from './useRespond'
 import type { RequestRow, PhotoRow } from '../../types/db'
 
 export function DoctorRequestView() {
   const { id } = useParams()
   const { appUser } = useAuth()
+  const respond = useRespond()
+  const [mode, setMode] = useState<'none' | 'accept' | 'reject'>('none')
+  const [plan, setPlan] = useState('')
+  const [reason, setReason] = useState('')
   const q = useQuery({ queryKey: ['doctor-request', id], enabled: !!id, queryFn: async () => {
     const { data: req } = await supabase.from('request').select('*').eq('id', id!).single()
     const { data: photos } = await supabase.from('photo').select('*').eq('request_id', id!)
@@ -29,6 +34,18 @@ export function DoctorRequestView() {
     })()
   }, [id, appUser])
 
+  const doRespond = async () => {
+    const { data: doc } = await supabase.from('doctor').select('id, tenant_id').eq('app_user_id', appUser!.id).single()
+    if (!doc) return
+    await respond.mutateAsync({
+      tenantId: doc.tenant_id, requestId: q.data!.req.id, doctorId: doc.id,
+      decision: mode === 'accept' ? 'accept' : 'reject',
+      treatmentPlan: mode === 'accept' ? plan : undefined,
+      rejectReason: mode === 'reject' ? reason : undefined,
+    })
+    setMode('none')
+  }
+
   if (!q.data) return <p>Yükleniyor…</p>
   return (
     <div className="space-y-3">
@@ -37,7 +54,24 @@ export function DoctorRequestView() {
       <div className="grid grid-cols-2 gap-2">
         {q.data.photos.map((url, i) => <img key={i} src={url} className="rounded border" />)}
       </div>
-      {/* Yanıt aksiyonları Task 11 */}
+      {mode === 'none' && (
+        <div className="flex gap-2">
+          <button className="flex-1 bg-green-600 text-white rounded p-2" onClick={() => setMode('accept')}>Kabul</button>
+          <button className="flex-1 bg-red-600 text-white rounded p-2" onClick={() => setMode('reject')}>Red</button>
+        </div>
+      )}
+      {mode === 'accept' && (
+        <div className="space-y-2">
+          <textarea className="w-full border rounded p-2" placeholder="Tedavi planı" value={plan} onChange={(e) => setPlan(e.target.value)} />
+          <button disabled={!plan || respond.isPending} className="w-full bg-green-600 text-white rounded p-2 disabled:opacity-40" onClick={doRespond}>Kabul et</button>
+        </div>
+      )}
+      {mode === 'reject' && (
+        <div className="space-y-2">
+          <textarea className="w-full border rounded p-2" placeholder="Red gerekçesi (zorunlu)" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <button disabled={!reason || respond.isPending} className="w-full bg-red-600 text-white rounded p-2 disabled:opacity-40" onClick={doRespond}>Reddet</button>
+        </div>
+      )}
     </div>
   )
 }
