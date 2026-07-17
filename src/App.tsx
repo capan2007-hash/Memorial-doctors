@@ -11,6 +11,8 @@ import { DoctorQueue } from './features/doctor/DoctorQueue'
 import { DoctorRequestView } from './features/doctor/DoctorRequestView'
 import { RequestList } from './features/requests/RequestList'
 import { RequestDetail } from './features/requests/RequestDetail'
+import { DoctorAdmin } from './features/admin/DoctorAdmin'
+import { AllRequests } from './features/admin/AllRequests'
 
 function Home() {
   const { role } = useAuth()
@@ -37,6 +39,8 @@ export default function App() {
             <Route path="/doctor/request/:id" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorRequestView /></RoleGate></Layout></Protected>} />
             <Route path="/requests" element={<Protected><Layout><RequestList /></Layout></Protected>} />
             <Route path="/requests/:id" element={<Protected><Layout><RequestDetail /></Layout></Protected>} />
+            <Route path="/admin/doctors" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DoctorAdmin /></RoleGate></Layout></Protected>} />
+            <Route path="/admin/requests" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><AllRequests /></RoleGate></Layout></Protected>} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
