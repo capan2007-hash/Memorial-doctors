@@ -48,27 +48,57 @@ Mevcut alanlar (ad, soyad, kategori, alt kırılım, operasyon tipi, not, foto) 
 
 ---
 
-## 3. Doktor Profil Kartı Zenginleştirme (FR-46, FR-47, §7.3)
+## 3. Doktor Profil Kartı Zenginleştirme (FR-46, FR-47, FR-48, §7.3)
 
-### 3.1 `doctor` tablosu — mevcut kolonlar zaten var, ekranı bunları kullanacak
+### 3.1 Çoklu yetkinlik modeli — KRİTİK değişiklik (many-to-many)
 
-Şema M1'de zaten şu kolonlara sahip: `photo_url, title, specialty, category_id, subcategory_id, bio, weighted_work(jsonb), score, is_active, app_user_id`. M1.5 bunları **ekranda** kullanır (şu an yalnız title+category yazılıyor). Ek şema değişikliği gerekmeyebilir; `weighted_work` yapısı netleştirilir:
+Bir doktor bir kategori içinde **birden çok alt kırılım** yapabilir ama hepsini değil (ör. plastik cerrah **meme + vücut + yüz** yapar, **burun** yapmaz; **genital estetik** hiç yapmaz). M1'deki tek `doctor.subcategory_id` bunu ifade edemez. Yeni model:
 
 ```
-weighted_work: [{ area: string, level: 'high'|'medium'|'low' }]  + serbest metin notu (bio içine veya ayrı)
+doctor_scope   id, tenant_id, doctor_id,
+               category_id,
+               subcategory_id (nullable — alt-kırılımsız kategoriler için null)
+               unique(doctor_id, category_id, subcategory_id)
 ```
 
-### 3.2 `DoctorAdmin` ekranı zenginleştirme
+- Bir doktorun **1+ scope satırı** olur (yaptığı her kategori/alt-kırılım bir satır).
+- Örnek plastik cerrah: (Plastik, Meme), (Plastik, Vücut), (Plastik, Yüz) — 3 satır; Burun ve Genital için satır **yok**.
+- Alt-kırılımsız kategoriler (Saç Ekimi, Diş, Boy Uzatma…): tek satır (kategori, null).
+- Doktor birden çok kategoriye de yayılabilir (farklı category_id'li satırlar).
+- **Geçiş:** M1'deki `doctor.category_id`/`subcategory_id` kolonları `doctor_scope`'a taşınır (seed doktorları için birer satır); eski kolonlar kaldırılır veya bırakılır (implementation kararı).
 
-Koordinatör bir doktor eklerken/düzenlerken:
-- **Ad, unvan** (title)
-- **Branş** (specialty) — serbest metin
-- **Kategori** + (kategori alt-kırılımlıysa) **alt kırılım** seçimi → **atama bunun üzerinden çalışır** (bugünkü Meme sorununu çözer)
-- **Biyografi** (bio)
-- **Ağırlıklı işler** — etiketli satırlar: alan + seviye(yüksek/orta/düşük), birden çok; M2 AI bağlamını besler
-- **Fotoğraf** (opsiyonel, Storage'a yükleme)
+**Atama mantığı (`resolveAssignees`) değişir:** hedef (category, subcategory) için, o hedefe uyan **scope satırı** olan aktif doktorlar seçilir:
+`aktif && bir scope satırı (category_id = hedef.category AND (subcategory_id = hedef.subcategory OR (hedef.subcategory IS NULL AND subcategory_id IS NULL)))`.
+Bu saf fonksiyon TDD ile güncellenir (imza scope listesi alacak şekilde değişir). `useRequests` (ilk atama) ve `AllRequests` (yeniden atama) bu yeni mantığı kullanır.
+
+### 3.2 Doktor kartı içeriği
+
+Düzenlenebilir alanlar:
+- **Fotoğraf** (Storage'a yükleme)
+- **Ad, unvan** (title), **branş** (specialty)
+- **CV / biyografi** (bio — deneyim, eğitim, öne çıkanlar; çok satırlı)
+- **Yetkinlikler** (`doctor_scope`): kategori seçilir, o kategorinin alt kırılımları **çoklu seçilir** (checkbox); alt-kırılımsız kategoride sadece kategori işaretlenir. Eklenip çıkarılabilir.
+- **Ağırlıklı işler** (`weighted_work`): etiketli satırlar `{ area, level: yüksek|orta|düşük }` + serbest not; M2 AI bağlamını besler (FR-48).
 - **Aktif/Pasif**
-- **Düzenleme:** mevcut doktor kartı güncellenebilir (audit'e yazılır — FR-49).
+- **Düzenleme:** kart güncellenir, değişiklik audit'e yazılır (FR-49).
+
+`weighted_work` yapısı:
+```
+weighted_work: { items: [{ area: string, level: 'high'|'medium'|'low' }], note: string }
+```
+
+### 3.3 Doktor kartı — performans paneli (hesaplanan, salt-okunur)
+
+Kartın alt kısmında, tanımlama alanlarından ayrı, **sonuç** olarak gösterilir (ilk tanımlamada boş/sıfır, zamanla dolar):
+
+| Metrik | Kaynak |
+|--------|--------|
+| Kabul sayısı | `response` (decision=accept, doctor_id) |
+| Red sayısı | `response` (decision=reject, doctor_id) |
+| Ortalama dönüş süresi | avg(`response.responded_at` − `assignment.assigned_at`) |
+| Dönüş skoru | `doctor.score` (M3'te otomatikleşir; M1.5 mevcut değeri gösterir) |
+
+Bu metrikler mevcut M1 verisinden **anlık sorguyla** hesaplanır (yeni tablo gerekmez). Skorun otomatik +1/−1 güncellenmesi ve SLA takibi **M3** kapsamıdır; M1.5 yalnız `doctor.score` değerini ve hesaplanan sayıları/süreyi gösterir.
 
 ### 3.3 Doktor giriş hesabı (davet-bazlı, FR-57)
 
@@ -109,6 +139,8 @@ Böylece koordinatör doktor tanımlama ekranına menüden ulaşır (bugünkü "
 
 ## 6. Domain / Test
 - **Saf domain:** `bmi(weightKg, heightCm)`, demografi/tıbbi alan doğrulaması (zorunlu + "Yok" mantığı), `weighted_work` normalize — TDD birim testleri.
+- **`resolveAssignees` çoklu-yetkinlik güncellemesi (TDD):** doktor artık scope listesiyle temsil edilir; hedef alt kırılım doktorun scope'unda varsa aday. Test: plastik cerrah (meme+vücut+yüz scope'lu) → Meme talebine düşer, Burun talebine **düşmez**; alt-kırılımsız kategori scope'u null-eşleşir. Mevcut `assignment.test.ts` bu modele göre yeniden yazılır.
+- **Performans metrikleri:** kabul/red sayısı + ortalama dönüş süresi hesaplayan saf yardımcı (varsa) test edilir.
 - **Canlı doğrulama:** yeni alanlarla talep → doktor görünümünde tüm bilgiler + foto + (Diş) röntgen; koordinatör alt-kırılımlı doktor tanımlar → o alt kırılımda talep artık atanır; create-doctor ile eklenen doktor giriş yapıp yanıtlayabilir.
 - **İzin sınırı:** aracı yeni alanları/fotoları kendi talebinde görür ama doktor planını görmez (M1 kuralı korunur).
 
