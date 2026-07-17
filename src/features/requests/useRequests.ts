@@ -41,11 +41,13 @@ export function useCreateRequest() {
         (docs as DoctorRow[] ?? []).map((d) => ({ id: d.id, categoryId: d.category_id, subcategoryId: d.subcategory_id, isActive: d.is_active })),
       )
       if (targets.length) {
-        await supabase.from('assignment').insert(
+        const { error: asgErr } = await supabase.from('assignment').insert(
           targets.map((doctor_id) => ({ tenant_id: input.tenantId, request_id: req.id, doctor_id, type: 'simultaneous' })))
-        await supabase.from('request').update({ status: 'assigned', assigned_at: new Date().toISOString() }).eq('id', req.id)
+        if (asgErr) throw asgErr
+        const { error: updErr } = await supabase.from('request').update({ status: 'assigned', assigned_at: new Date().toISOString() }).eq('id', req.id)
+        if (updErr) throw updErr
       }
-      return req.id as string
+      return { requestId: req.id as string, assignedCount: targets.length }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['requests'] }),
   })

@@ -27,8 +27,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!session) { setAppUser(null); setLoading(false); return }
+    let cancelled = false
+    setLoading(true)
     supabase.from('app_user').select('*').eq('id', session.user.id).single()
-      .then(({ data }) => { setAppUser(data as AppUserRow | null); setLoading(false) })
+      .then(({ data }) => { if (!cancelled) { setAppUser(data as AppUserRow | null); setLoading(false) } })
+    return () => { cancelled = true }
   }, [session])
 
   const signIn = async (email: string, password: string) => {

@@ -14,6 +14,7 @@ export function NewRequestWizard() {
   const [operationTypeId, setOperationTypeId] = useState<string | null>(null)
   const [first, setFirst] = useState(''); const [last, setLast] = useState('')
   const [notes, setNotes] = useState(''); const [files, setFiles] = useState<File[]>([])
+  const [warn, setWarn] = useState<string | null>(null)
   const subs = useSubcategories(categoryId)
   const ops = useOperationTypes(categoryId, subcategoryId)
   const create = useCreateRequest()
@@ -23,12 +24,16 @@ export function NewRequestWizard() {
   const canSubmit = first && last && categoryId && (!needsSub || subcategoryId) && files.length > 0
 
   const submit = async () => {
-    await create.mutateAsync({
+    const res = await create.mutateAsync({
       tenantId: appUser!.tenant_id, createdBy: appUser!.id,
       patient: { first_name: first, last_name: last },
       categoryId, subcategoryId: needsSub ? subcategoryId : null,
       operationTypeId, notes, files,
     })
+    if (res.assignedCount === 0) {
+      setWarn('Talep kaydedildi ancak bu kategoride uygun aktif doktor bulunamadı; koordinatör atama yapacaktır.')
+      return
+    }
     nav('/requests')
   }
 
@@ -58,6 +63,7 @@ export function NewRequestWizard() {
       )}
       <textarea className="w-full border rounded p-2" placeholder="Not" value={notes} onChange={(e) => setNotes(e.target.value)} />
       <PhotoUploader files={files} onChange={setFiles} />
+      {warn && <p className="text-amber-700 text-sm">{warn}</p>}
       <button disabled={!canSubmit || create.isPending}
         className="w-full bg-slate-800 text-white rounded p-2 disabled:opacity-40"
         onClick={submit}>{create.isPending ? 'Gönderiliyor…' : 'Gönder'}</button>
