@@ -3,7 +3,8 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { StatusPill } from '../../components/StatusPill'
 import { resolveAssignees } from '../../domain/assignment'
-import type { RequestRow, DoctorRow } from '../../types/db'
+import type { ScopedDoctor } from '../../domain/assignment'
+import type { RequestRow } from '../../types/db'
 
 export function AllRequests() {
   const { appUser } = useAuth()
@@ -15,11 +16,14 @@ export function AllRequests() {
   const reassign = useMutation({
     // Manuel: talebin kategorisindeki (alt kırılıma göre daraltılmış) doktorları yeniden ata (audit'li)
     mutationFn: async (req: RequestRow) => {
-      const { data: docs } = await supabase.from('doctor').select('*').eq('category_id', req.category_id).eq('is_active', true)
-      const targets = resolveAssignees(
-        { categoryId: req.category_id, subcategoryId: req.subcategory_id },
-        (docs as DoctorRow[] ?? []).map((d) => ({ id: d.id, categoryId: d.category_id, subcategoryId: d.subcategory_id, isActive: d.is_active })),
-      )
+      const { data: docs } = await supabase.from('doctor').select('id, is_active').eq('tenant_id', req.tenant_id)
+      const { data: scopes } = await supabase.from('doctor_scope').select('doctor_id, category_id, subcategory_id').eq('tenant_id', req.tenant_id)
+      const scoped: ScopedDoctor[] = (docs ?? []).map((d: any) => ({
+        id: d.id, isActive: d.is_active,
+        scopes: (scopes ?? []).filter((s: any) => s.doctor_id === d.id)
+          .map((s: any) => ({ categoryId: s.category_id, subcategoryId: s.subcategory_id })),
+      }))
+      const targets = resolveAssignees({ categoryId: req.category_id, subcategoryId: req.subcategory_id }, scoped)
       const rows = targets.map((doctorId) => ({ tenant_id: req.tenant_id, request_id: req.id, doctor_id: doctorId, type: 'manual' as const }))
       if (rows.length) await supabase.from('assignment').upsert(rows, { onConflict: 'request_id,doctor_id', ignoreDuplicates: true })
       await supabase.from('audit_log').insert({ tenant_id: req.tenant_id, actor_id: appUser!.id, action: 'reassign', entity: 'request', after: { request_id: req.id } })
