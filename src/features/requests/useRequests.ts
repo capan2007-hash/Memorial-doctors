@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { uploadPhotos } from './usePhotoUpload'
 import { resolveAssignees } from '../../domain/assignment'
-import type { DoctorRow } from '../../types/db'
+import type { DoctorRow, RequestRow, ResponseRow } from '../../types/db'
 
 interface NewRequestInput {
   tenantId: string
@@ -49,4 +49,21 @@ export function useCreateRequest() {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['requests'] }),
   })
+}
+
+export function useMyRequests() {
+  return useQuery({ queryKey: ['requests'], queryFn: async () => {
+    const { data, error } = await supabase.from('request').select('*').order('created_at', { ascending: false })
+    if (error) throw error
+    return data as RequestRow[]
+  }})
+}
+
+export function useRequestDetail(id?: string) {
+  return useQuery({ queryKey: ['request', id], enabled: !!id, queryFn: async () => {
+    const { data: req } = await supabase.from('request').select('*').eq('id', id!).single()
+    // response: RLS gereği agent'a boş döner; sales/coordinator/admin görür
+    const { data: responses } = await supabase.from('response').select('*').eq('request_id', id!)
+    return { req: req as RequestRow, responses: (responses ?? []) as ResponseRow[] }
+  }})
 }

@@ -9,10 +9,13 @@ import { RoleGate } from './components/RoleGate'
 import { NewRequestWizard } from './features/requests/NewRequestWizard'
 import { DoctorQueue } from './features/doctor/DoctorQueue'
 import { DoctorRequestView } from './features/doctor/DoctorRequestView'
+import { RequestList } from './features/requests/RequestList'
+import { RequestDetail } from './features/requests/RequestDetail'
 
 function Home() {
   const { role } = useAuth()
-  return <div className="p-4">Giriş yapıldı. Rol: {role}</div>
+  if (role === 'doctor') return <Navigate to="/doctor" replace />
+  return <Navigate to="/requests" replace />
 }
 
 function Protected({ children }: { children: ReactElement }) {
@@ -32,6 +35,8 @@ export default function App() {
             <Route path="/requests/new" element={<Protected><Layout><RoleGate allow={['agent','sales']}><NewRequestWizard /></RoleGate></Layout></Protected>} />
             <Route path="/doctor" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorQueue /></RoleGate></Layout></Protected>} />
             <Route path="/doctor/request/:id" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorRequestView /></RoleGate></Layout></Protected>} />
+            <Route path="/requests" element={<Protected><Layout><RequestList /></Layout></Protected>} />
+            <Route path="/requests/:id" element={<Protected><Layout><RequestDetail /></Layout></Protected>} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
