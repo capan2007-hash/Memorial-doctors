@@ -7,6 +7,8 @@ import { LoginPage } from './features/auth/LoginPage'
 import { Layout } from './components/Layout'
 import { RoleGate } from './components/RoleGate'
 import { NewRequestWizard } from './features/requests/NewRequestWizard'
+import { DoctorQueue } from './features/doctor/DoctorQueue'
+import { DoctorRequestView } from './features/doctor/DoctorRequestView'
 
 function Home() {
   const { role } = useAuth()
@@ -28,6 +30,8 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={<Protected><Home /></Protected>} />
             <Route path="/requests/new" element={<Protected><Layout><RoleGate allow={['agent','sales']}><NewRequestWizard /></RoleGate></Layout></Protected>} />
+            <Route path="/doctor" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorQueue /></RoleGate></Layout></Protected>} />
+            <Route path="/doctor/request/:id" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorRequestView /></RoleGate></Layout></Protected>} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
