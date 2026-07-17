@@ -4,3 +4,8 @@ dist/
 .env.local
 *.log
 .DS_Store
+.superpowers/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
