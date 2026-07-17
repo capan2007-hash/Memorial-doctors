@@ -90,6 +90,13 @@ Ekle: hasta ad-soyad, kategori/alt kırılım, istenen operasyon, **yaş/boy/kil
 ### 4.3 Koordinatör — atanamayan talepler
 `AllRequests`/gecikme panosunda **`status='submitted'` (atanmadı)** talepler belirgin işaretlenir ("Doktor atanmadı" rozeti) ki takılı kalanlar (ör. alt-kırılımda doktoru olmayan) görülüp manuel atanabilsin.
 
+### 4.4 Rol-farkında navigasyon menüsü (M1 eksiği)
+M1'de `Layout` yalnız uygulama adı + kullanıcı + Çıkış içeriyor; admin ekranları (`/admin/doctors`, `/admin/requests`) yalnız URL ile ulaşılabiliyor. `Layout` header'ına role göre gezinme linkleri eklenir:
+- **satışçı/aracı:** Talepler, Yeni Talep
+- **doktor:** Bekleyen Talepler
+- **koordinatör/admin:** Tüm Talepler, Doktor Yönetimi
+Böylece koordinatör doktor tanımlama ekranına menüden ulaşır (bugünkü "ekran görünmüyor" sorunu).
+
 ---
 
 ## 5. Güvenlik / RLS
