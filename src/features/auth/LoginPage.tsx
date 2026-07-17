@@ -1,51 +1,30 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/auth'
 
-// Geçici placeholder — asıl giriş ekranı Task 8'de gelecek.
 export function LoginPage() {
   const { signIn } = useAuth()
+  const nav = useNavigate()
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  const [pw, setPw] = useState('')
+  const [err, setErr] = useState<string | null>(null)
 
-  const handleSubmit = async (e: FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitting(true)
-    setError(null)
-    const { error } = await signIn(email, password)
-    setSubmitting(false)
-    if (error) setError(error)
+    const { error } = await signIn(email, pw)
+    if (error) setErr('Giriş başarısız: ' + error)
+    else nav('/')
   }
-
   return (
-    <div className="p-4 max-w-sm mx-auto">
-      <h1 className="text-lg font-semibold mb-4">Giriş Yap</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="email"
-          placeholder="E-posta"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border rounded px-3 py-2"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Şifre"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border rounded px-3 py-2"
-          required
-        />
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="bg-blue-600 text-white rounded px-3 py-2 disabled:opacity-50"
-        >
-          {submitting ? 'Giriş yapılıyor…' : 'Giriş Yap'}
-        </button>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+      <form onSubmit={submit} className="w-full max-w-sm space-y-3 bg-white p-6 rounded-xl shadow">
+        <h1 className="text-xl font-semibold">MedTriage</h1>
+        <input className="w-full border rounded p-2" placeholder="E-posta" value={email}
+          onChange={(e) => setEmail(e.target.value)} type="email" />
+        <input className="w-full border rounded p-2" placeholder="Şifre" value={pw}
+          onChange={(e) => setPw(e.target.value)} type="password" />
+        {err && <p className="text-red-600 text-sm">{err}</p>}
+        <button className="w-full bg-slate-800 text-white rounded p-2">Giriş</button>
       </form>
     </div>
   )
