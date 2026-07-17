@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { StatusPill } from '../../components/StatusPill'
+import { resolveAssignees } from '../../domain/assignment'
 import type { RequestRow, DoctorRow } from '../../types/db'
 
 export function AllRequests() {
@@ -12,10 +13,14 @@ export function AllRequests() {
     return data as RequestRow[]
   }})
   const reassign = useMutation({
-    // Manuel: talebin kategorisindeki tüm doktorları yeniden ata (audit'li)
+    // Manuel: talebin kategorisindeki (alt kırılıma göre daraltılmış) doktorları yeniden ata (audit'li)
     mutationFn: async (req: RequestRow) => {
       const { data: docs } = await supabase.from('doctor').select('*').eq('category_id', req.category_id).eq('is_active', true)
-      const rows = (docs as DoctorRow[] ?? []).map((d) => ({ tenant_id: req.tenant_id, request_id: req.id, doctor_id: d.id, type: 'manual' as const }))
+      const targets = resolveAssignees(
+        { categoryId: req.category_id, subcategoryId: req.subcategory_id },
+        (docs as DoctorRow[] ?? []).map((d) => ({ id: d.id, categoryId: d.category_id, subcategoryId: d.subcategory_id, isActive: d.is_active })),
+      )
+      const rows = targets.map((doctorId) => ({ tenant_id: req.tenant_id, request_id: req.id, doctor_id: doctorId, type: 'manual' as const }))
       if (rows.length) await supabase.from('assignment').upsert(rows, { onConflict: 'request_id,doctor_id', ignoreDuplicates: true })
       await supabase.from('audit_log').insert({ tenant_id: req.tenant_id, actor_id: appUser!.id, action: 'reassign', entity: 'request', after: { request_id: req.id } })
       await supabase.from('request').update({ status: 'assigned' }).eq('id', req.id)
