@@ -4,6 +4,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { queryClient } from './lib/queryClient'
 import { AuthProvider, useAuth } from './lib/auth'
 import { LoginPage } from './features/auth/LoginPage'
+import { Layout } from './components/Layout'
+import { RoleGate } from './components/RoleGate'
+import { NewRequestWizard } from './features/requests/NewRequestWizard'
 
 function Home() {
   const { role } = useAuth()
@@ -24,6 +27,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={<Protected><Home /></Protected>} />
+            <Route path="/requests/new" element={<Protected><Layout><RoleGate allow={['agent','sales']}><NewRequestWizard /></RoleGate></Layout></Protected>} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
