@@ -27,6 +27,10 @@ export function useRespond() {
       await supabase.from('request').update({ status }).eq('id', input.requestId)
       return status
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['doctor-queue'] }); qc.invalidateQueries({ queryKey: ['requests'] }) },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ['doctor-queue'] })
+      qc.invalidateQueries({ queryKey: ['requests'] })
+      qc.invalidateQueries({ queryKey: ['doctor-request', variables.requestId] })
+    },
   })
 }

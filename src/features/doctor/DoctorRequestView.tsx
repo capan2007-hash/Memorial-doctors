@@ -13,6 +13,7 @@ export function DoctorRequestView() {
   const [mode, setMode] = useState<'none' | 'accept' | 'reject'>('none')
   const [plan, setPlan] = useState('')
   const [reason, setReason] = useState('')
+  const [respErr, setRespErr] = useState<string | null>(null)
   const q = useQuery({ queryKey: ['doctor-request', id], enabled: !!id, queryFn: async () => {
     const { data: req } = await supabase.from('request').select('*').eq('id', id!).single()
     const { data: photos } = await supabase.from('photo').select('*').eq('request_id', id!)
@@ -37,13 +38,18 @@ export function DoctorRequestView() {
   const doRespond = async () => {
     const { data: doc } = await supabase.from('doctor').select('id, tenant_id').eq('app_user_id', appUser!.id).single()
     if (!doc) return
-    await respond.mutateAsync({
-      tenantId: doc.tenant_id, requestId: q.data!.req.id, doctorId: doc.id,
-      decision: mode === 'accept' ? 'accept' : 'reject',
-      treatmentPlan: mode === 'accept' ? plan : undefined,
-      rejectReason: mode === 'reject' ? reason : undefined,
-    })
-    setMode('none')
+    try {
+      await respond.mutateAsync({
+        tenantId: doc.tenant_id, requestId: q.data!.req.id, doctorId: doc.id,
+        decision: mode === 'accept' ? 'accept' : 'reject',
+        treatmentPlan: mode === 'accept' ? plan : undefined,
+        rejectReason: mode === 'reject' ? reason : undefined,
+      })
+      setRespErr(null)
+      setMode('none')
+    } catch (e) {
+      setRespErr('Yanıt kaydedilemedi: ' + (e as Error).message)
+    }
   }
 
   if (!q.data) return <p>Yükleniyor…</p>
@@ -54,6 +60,7 @@ export function DoctorRequestView() {
       <div className="grid grid-cols-2 gap-2">
         {q.data.photos.map((url, i) => <img key={i} src={url} className="rounded border" />)}
       </div>
+      {respErr && <p className="text-red-600 text-sm">{respErr}</p>}
       {mode === 'none' && (
         <div className="flex gap-2">
           <button className="flex-1 bg-green-600 text-white rounded p-2" onClick={() => setMode('accept')}>Kabul</button>
