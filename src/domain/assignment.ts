@@ -1,20 +1,26 @@
-export interface AssignableDoctor {
-  id: string
+export interface DoctorScope {
   categoryId: string
   subcategoryId: string | null
+}
+export interface ScopedDoctor {
+  id: string
   isActive: boolean
+  scopes: DoctorScope[]
 }
 export interface AssignmentTarget {
   categoryId: string
   subcategoryId: string | null
 }
 
-export function resolveAssignees(
-  target: AssignmentTarget,
-  doctors: AssignableDoctor[],
-): string[] {
+function scopeMatches(scope: DoctorScope, target: AssignmentTarget): boolean {
+  if (scope.categoryId !== target.categoryId) return false
+  return target.subcategoryId == null
+    ? scope.subcategoryId == null
+    : scope.subcategoryId === target.subcategoryId
+}
+
+export function resolveAssignees(target: AssignmentTarget, doctors: ScopedDoctor[]): string[] {
   return doctors
-    .filter((d) => d.isActive && d.categoryId === target.categoryId)
-    .filter((d) => (target.subcategoryId == null ? true : d.subcategoryId === target.subcategoryId))
+    .filter((d) => d.isActive && d.scopes.some((s) => scopeMatches(s, target)))
     .map((d) => d.id)
 }

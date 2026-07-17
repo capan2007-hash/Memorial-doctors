@@ -1,29 +1,37 @@
 import { describe, it, expect } from 'vitest'
-import { resolveAssignees, type AssignableDoctor } from '../assignment'
+import { resolveAssignees, type ScopedDoctor } from '../assignment'
 
-const docs: AssignableDoctor[] = [
-  { id: 'd1', categoryId: 'sac', subcategoryId: null, isActive: true },
-  { id: 'd2', categoryId: 'sac', subcategoryId: null, isActive: true },
-  { id: 'd3', categoryId: 'sac', subcategoryId: null, isActive: false },
-  { id: 'd4', categoryId: 'plastik', subcategoryId: 'burun', isActive: true },
-  { id: 'd5', categoryId: 'plastik', subcategoryId: 'meme', isActive: true },
+const docs: ScopedDoctor[] = [
+  // Saç Ekimi (alt-kırılımsız) doktoru
+  { id: 'd1', isActive: true, scopes: [{ categoryId: 'sac', subcategoryId: null }] },
+  { id: 'd2', isActive: false, scopes: [{ categoryId: 'sac', subcategoryId: null }] },
+  // Plastik cerrah: meme + vücut + yüz yapar, burun YAPMAZ
+  { id: 'd3', isActive: true, scopes: [
+    { categoryId: 'plastik', subcategoryId: 'meme' },
+    { categoryId: 'plastik', subcategoryId: 'vucut' },
+    { categoryId: 'plastik', subcategoryId: 'yuz' },
+  ] },
+  // Sadece burun yapan doktor
+  { id: 'd4', isActive: true, scopes: [{ categoryId: 'plastik', subcategoryId: 'burun' }] },
 ]
 
-describe('resolveAssignees', () => {
-  it('alt kırılımsız kategoride tüm aktif doktorlar', () => {
-    expect(resolveAssignees({ categoryId: 'sac', subcategoryId: null }, docs).sort())
-      .toEqual(['d1', 'd2'])
+describe('resolveAssignees (scope)', () => {
+  it('alt-kırılımsız kategoride null-eşleşen aktif doktorlar', () => {
+    expect(resolveAssignees({ categoryId: 'sac', subcategoryId: null }, docs)).toEqual(['d1'])
   })
   it('pasif doktor atanmaz', () => {
-    expect(resolveAssignees({ categoryId: 'sac', subcategoryId: null }, docs))
-      .not.toContain('d3')
+    expect(resolveAssignees({ categoryId: 'sac', subcategoryId: null }, docs)).not.toContain('d2')
   })
-  it('alt kırılımlı kategoride yalnız o alt kırılımın doktorları', () => {
-    expect(resolveAssignees({ categoryId: 'plastik', subcategoryId: 'burun' }, docs))
-      .toEqual(['d4'])
+  it('Meme talebi: meme yapan plastik cerraha düşer, buruncuya düşmez', () => {
+    expect(resolveAssignees({ categoryId: 'plastik', subcategoryId: 'meme' }, docs).sort()).toEqual(['d3'])
   })
-  it('eşleşme yoksa boş liste', () => {
-    expect(resolveAssignees({ categoryId: 'dis', subcategoryId: null }, docs))
-      .toEqual([])
+  it('Burun talebi: sadece burun yapan doktora düşer (d3 düşmez)', () => {
+    expect(resolveAssignees({ categoryId: 'plastik', subcategoryId: 'burun' }, docs)).toEqual(['d4'])
+  })
+  it('Yüz talebi: d3 düşer', () => {
+    expect(resolveAssignees({ categoryId: 'plastik', subcategoryId: 'yuz' }, docs)).toEqual(['d3'])
+  })
+  it('eşleşme yoksa boş', () => {
+    expect(resolveAssignees({ categoryId: 'plastik', subcategoryId: 'genital' }, docs)).toEqual([])
   })
 })
