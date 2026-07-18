@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Spinner } from '../../components/ui/Spinner'
@@ -98,10 +98,16 @@ export function AiPanel({
   canGiveFeedback?: boolean
   doctorId?: string | null
 }) {
-  const mountedAt = useRef(Date.now())
+  // Veri null kaldıkça React Query yeni render tetiklemez; süre kontrolü
+  // ancak zamanlayıcıyla zorlanan bir render'da yeniden değerlendirilebilir.
+  const [gaveUp, setGaveUp] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setGaveUp(true), POLL_GIVE_UP_MS)
+    return () => clearTimeout(t)
+  }, [requestId])
   const q = useAiEvaluation(requestId)
 
-  if (q.isLoading || (q.data == null && Date.now() - mountedAt.current <= POLL_GIVE_UP_MS)) {
+  if (q.isLoading || (q.data == null && !gaveUp)) {
     return (
       <div className="flex items-center gap-2 text-sm text-slate-500 px-1">
         <Spinner />

@@ -46,6 +46,14 @@ Deno.serve(async (req) => {
     .from('request').select('*').eq('id', requestId).eq('tenant_id', me.tenant_id).single()
   if (!request) return json({ error: 'request not found' }, 404)
 
+  // İdempotenlik: başarılı değerlendirme varsa yeniden üretme — hem token
+  // israfını hem de doktor geri bildiriminden SONRA içeriğin değişmesini önler.
+  const { data: existing } = await admin
+    .from('ai_evaluation').select('status').eq('request_id', request.id).maybeSingle()
+  if (existing && existing.status !== 'failed') {
+    return json({ ok: true, status: existing.status, cached: true }, 200)
+  }
+
   // Hata ne olursa olsun failed kaydı yaz ve 200 dön (FR-11: çağıran beklemiyor).
   const writeFailed = async (msg: string) => {
     await admin.from('ai_evaluation').upsert({
@@ -83,14 +91,14 @@ Deno.serve(async (req) => {
     // Tenant bazlı öğrenme bağlamı (FR-53): son 20 geri bildirim, correct olmayanlar öncelikli.
     const { data: fbRows } = await admin
       .from('ai_feedback')
-      .select('label, note, ai_evaluation:ai_evaluation_id(suitability_note, warnings)')
+      .select('label, note, ai_evaluation:ai_evaluation_id(suitability_note)')
       .eq('tenant_id', request.tenant_id)
       .order('created_at', { ascending: false })
       .limit(20)
     const feedbackHints: FeedbackHint[] = (fbRows ?? [])
       .sort((a: { label: string }, b: { label: string }) =>
         (a.label === 'correct' ? 1 : 0) - (b.label === 'correct' ? 1 : 0))
-      .map((f: { label: 'correct' | 'partial' | 'wrong'; note: string | null; ai_evaluation: { suitability_note: string | null; warnings: unknown } | null }) => ({
+      .map((f: { label: 'correct' | 'partial' | 'wrong'; note: string | null; ai_evaluation: { suitability_note: string | null } | null }) => ({
         label: f.label,
         note: f.note,
         summary: (f.ai_evaluation?.suitability_note ?? '').slice(0, 200) || 'değerlendirme özeti yok',
