@@ -52,13 +52,14 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
   await expect(sales).toHaveURL(/\/requests\/[0-9a-fA-F-]{36}/)
   const requestId = sales.url().split('/').pop()!
 
-  // 2) Doktor kabul eder — kuyruk sayfasını da (Bekleyen Talepler + "Aç") görsel
-  // olarak doğrula, ardından yanıtı doğrudan bu talebin ID'si üzerinden ver.
+  // 2) Doktor kabul eder — kuyruk sayfasını da (Bekleyen Talepler; satırın
+  // kendisi artık talebe giden link) görsel olarak doğrula, ardından yanıtı
+  // doğrudan bu talebin ID'si üzerinden ver.
   const docCtx = await browser.newContext()
   const doc = await docCtx.newPage()
   await login(doc, DOCTOR)
   await doc.goto('/doctor')
-  await expect(doc.getByRole('link', { name: 'Aç' }).first()).toBeVisible()
+  await expect(doc.locator('a[href^="/doctor/request/"]').first()).toBeVisible()
   await doc.goto(`/doctor/request/${requestId}`)
   await doc.getByRole('button', { name: 'Kabul' }).click()
   await doc.getByPlaceholder('Tedavi planı').fill(PLAN_TEXT)
