@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/auth'
 import { useCategories, useSubcategories, useOperationTypes } from '../catalog/useCatalog'
 import { useCreateRequest } from './useRequests'
 import { PhotoUploader } from '../../components/PhotoUploader'
 import { medicalValue, demographicsError } from '../../domain/health'
+import { Button } from '../../components/ui/Button'
+import { saveDraft, loadDraft, clearDraft, isDraftEmpty, type RequestDraft } from './requestDraft'
 
 type Gender = 'female' | 'male' | 'other'
 
@@ -19,21 +21,56 @@ export function NewRequestWizard() {
   const { appUser } = useAuth()
   const nav = useNavigate()
   const cats = useCategories()
-  const [categoryId, setCategoryId] = useState('')
-  const [subcategoryId, setSubcategoryId] = useState<string | null>(null)
-  const [operationTypeId, setOperationTypeId] = useState<string | null>(null)
-  const [first, setFirst] = useState(''); const [last, setLast] = useState('')
-  const [age, setAge] = useState(''); const [weightKg, setWeightKg] = useState(''); const [heightCm, setHeightCm] = useState('')
-  const [gender, setGender] = useState<Gender | ''>('')
-  const [pastSurgeries, setPastSurgeries] = useState<MedicalField>(emptyMedical)
-  const [knownConditions, setKnownConditions] = useState<MedicalField>(emptyMedical)
-  const [medications, setMedications] = useState<MedicalField>(emptyMedical)
-  const [notes, setNotes] = useState(''); const [files, setFiles] = useState<File[]>([])
-  const [xrayFiles, setXrayFiles] = useState<File[]>([])
+  const [initialDraft] = useState<RequestDraft | null>(() => loadDraft())
+  const [draftRestored, setDraftRestored] = useState(!!initialDraft)
+  const [categoryId, setCategoryId] = useState(initialDraft?.categoryId ?? '')
+  const [subcategoryId, setSubcategoryId] = useState<string | null>(initialDraft?.subcategoryId ?? null)
+  const [operationTypeId, setOperationTypeId] = useState<string | null>(initialDraft?.operationTypeId ?? null)
+  const [first, setFirst] = useState(initialDraft?.first ?? ''); const [last, setLast] = useState(initialDraft?.last ?? '')
+  const [age, setAge] = useState(initialDraft?.age ?? ''); const [weightKg, setWeightKg] = useState(initialDraft?.weightKg ?? ''); const [heightCm, setHeightCm] = useState(initialDraft?.heightCm ?? '')
+  const [gender, setGender] = useState<Gender | ''>(initialDraft?.gender ?? '')
+  const [pastSurgeries, setPastSurgeries] = useState<MedicalField>(initialDraft?.pastSurgeries ?? emptyMedical)
+  const [knownConditions, setKnownConditions] = useState<MedicalField>(initialDraft?.knownConditions ?? emptyMedical)
+  const [medications, setMedications] = useState<MedicalField>(initialDraft?.medications ?? emptyMedical)
+  const [notes, setNotes] = useState(initialDraft?.notes ?? ''); const [files, setFiles] = useState<File[]>(initialDraft?.files ?? [])
+  const [xrayFiles, setXrayFiles] = useState<File[]>(initialDraft?.xrayFiles ?? [])
   const [warn, setWarn] = useState<string | null>(null)
   const subs = useSubcategories(categoryId)
   const ops = useOperationTypes(categoryId, subcategoryId)
   const create = useCreateRequest()
+
+  const draftRef = useRef<RequestDraft>({
+    first, last, age, weightKg, heightCm, gender,
+    pastSurgeries, knownConditions, medications,
+    categoryId, subcategoryId, operationTypeId,
+    notes, files, xrayFiles,
+  })
+  draftRef.current = {
+    first, last, age, weightKg, heightCm, gender,
+    pastSurgeries, knownConditions, medications,
+    categoryId, subcategoryId, operationTypeId,
+    notes, files, xrayFiles,
+  }
+  const submittedRef = useRef(false)
+
+  useEffect(() => {
+    return () => {
+      if (!submittedRef.current && !isDraftEmpty(draftRef.current)) {
+        saveDraft(draftRef.current)
+      }
+    }
+  }, [])
+
+  const clearDraftAndReset = () => {
+    clearDraft()
+    setDraftRestored(false)
+    setCategoryId(''); setSubcategoryId(null); setOperationTypeId(null)
+    setFirst(''); setLast('')
+    setAge(''); setWeightKg(''); setHeightCm('')
+    setGender('')
+    setPastSurgeries(emptyMedical); setKnownConditions(emptyMedical); setMedications(emptyMedical)
+    setNotes(''); setFiles([]); setXrayFiles([])
+  }
 
   const selectedCat = cats.data?.find((c) => c.id === categoryId)
   const needsSub = selectedCat?.has_subcategories
@@ -67,6 +104,8 @@ export function NewRequestWizard() {
         xrayFiles: isDental ? xrayFiles : undefined,
       })
       setSubmitErr(null)
+      submittedRef.current = true
+      clearDraft()
       if (res.assignedCount === 0) {
         setWarn('Talep kaydedildi ancak bu kategoride uygun aktif doktor bulunamadı; koordinatör atama yapacaktır.')
         return
@@ -80,6 +119,12 @@ export function NewRequestWizard() {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold">Yeni Talep</h2>
+      {draftRestored && (
+        <div className="flex items-center justify-between gap-2 rounded border border-amber-300 bg-amber-50 p-2 text-sm text-amber-800">
+          <span>Kaydedilmemiş taslak geri yüklendi.</span>
+          <Button variant="ghost" onClick={clearDraftAndReset}>Taslağı temizle</Button>
+        </div>
+      )}
       <input className="w-full border rounded p-2" placeholder="Ad" value={first} onChange={(e) => setFirst(e.target.value)} />
       <input className="w-full border rounded p-2" placeholder="Soyad" value={last} onChange={(e) => setLast(e.target.value)} />
       <input className="w-full border rounded p-2" type="number" placeholder="Yaş" value={age} onChange={(e) => setAge(e.target.value)} />
