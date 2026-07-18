@@ -1,27 +1,63 @@
 import { Link } from 'react-router-dom'
 import { useMyRequests } from './useRequests'
-import { StatusPill } from '../../components/StatusPill'
+import { StatusPill } from '../../components/ui/StatusPill'
+import { Avatar } from '../../components/ui/Avatar'
+import { Spinner } from '../../components/ui/Spinner'
+import { EmptyState } from '../../components/ui/EmptyState'
+import { PageHeader } from '../../components/ui/PageHeader'
+import { Button } from '../../components/ui/Button'
 import { RoleGate } from '../../components/RoleGate'
+import { timeAgo } from '../../lib/format'
 
 export function RequestList() {
   const q = useMyRequests()
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Talepler</h2>
-        <RoleGate allow={['agent','sales']}>
-          <Link to="/requests/new" className="bg-slate-800 text-white rounded px-3 py-1">Yeni Talep</Link>
-        </RoleGate>
-      </div>
-      <ul className="mt-3 space-y-2">
-        {q.data?.map((r) => (
-          <li key={r.id} className="border rounded p-3 bg-white flex justify-between items-center">
-            <Link to={`/requests/${r.id}`} className="text-blue-600 underline">Talep #{r.id.slice(0, 8)}</Link>
-            <StatusPill status={r.status} />
-          </li>
-        ))}
-        {q.data?.length === 0 && <li className="text-slate-500">Talep yok.</li>}
-      </ul>
+      <PageHeader
+        title="Talepler"
+        actions={
+          <RoleGate allow={['agent', 'sales']}>
+            <Link to="/requests/new">
+              <Button variant="primary">Yeni Talep</Button>
+            </Link>
+          </RoleGate>
+        }
+      />
+      {q.isLoading && (
+        <div className="flex justify-center py-10">
+          <Spinner />
+        </div>
+      )}
+      {!q.isLoading && q.data?.length === 0 && (
+        <EmptyState
+          title="Henüz talep yok"
+          description="İlk talebi oluşturmak için Yeni Talep'e tıklayın."
+          action={
+            <Link to="/requests/new">
+              <Button variant="primary">Yeni Talep</Button>
+            </Link>
+          }
+        />
+      )}
+      {!q.isLoading && q.data && q.data.length > 0 && (
+        <ul className="mt-3 space-y-2">
+          {q.data.map((r) => (
+            <li key={r.id}>
+              <Link
+                to={`/requests/${r.id}`}
+                className="flex items-center gap-3 rounded-xl bg-surface-card shadow-card p-3 hover:bg-brand-50 transition"
+              >
+                <Avatar name={r.patientName} size="md" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-900 truncate">{r.patientName}</p>
+                  <p className="text-sm text-slate-500 truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
+                </div>
+                <StatusPill status={r.status} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

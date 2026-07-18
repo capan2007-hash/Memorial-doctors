@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './lib/auth'
 import { LoginPage } from './features/auth/LoginPage'
 import { Layout } from './components/Layout'
 import { RoleGate } from './components/RoleGate'
+import { ToastProvider } from './components/ui/Toast'
 import { NewRequestWizard } from './features/requests/NewRequestWizard'
 import { DoctorQueue } from './features/doctor/DoctorQueue'
 import { DoctorRequestView } from './features/doctor/DoctorRequestView'
@@ -28,22 +29,24 @@ function Protected({ children }: { children: ReactElement }) {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<Protected><Home /></Protected>} />
-            <Route path="/requests/new" element={<Protected><Layout><RoleGate allow={['agent','sales']}><NewRequestWizard /></RoleGate></Layout></Protected>} />
-            <Route path="/doctor" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorQueue /></RoleGate></Layout></Protected>} />
-            <Route path="/doctor/request/:id" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorRequestView /></RoleGate></Layout></Protected>} />
-            <Route path="/requests" element={<Protected><Layout><RequestList /></Layout></Protected>} />
-            <Route path="/requests/:id" element={<Protected><Layout><RequestDetail /></Layout></Protected>} />
-            <Route path="/admin/doctors" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DoctorAdmin /></RoleGate></Layout></Protected>} />
-            <Route path="/admin/requests" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><AllRequests /></RoleGate></Layout></Protected>} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ToastProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={<Protected><Home /></Protected>} />
+              <Route path="/requests/new" element={<Protected><Layout><RoleGate allow={['agent','sales']}><NewRequestWizard /></RoleGate></Layout></Protected>} />
+              <Route path="/doctor" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorQueue /></RoleGate></Layout></Protected>} />
+              <Route path="/doctor/request/:id" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorRequestView /></RoleGate></Layout></Protected>} />
+              <Route path="/requests" element={<Protected><Layout><RequestList /></Layout></Protected>} />
+              <Route path="/requests/:id" element={<Protected><Layout><RequestDetail /></Layout></Protected>} />
+              <Route path="/admin/doctors" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DoctorAdmin /></RoleGate></Layout></Protected>} />
+              <Route path="/admin/requests" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><AllRequests /></RoleGate></Layout></Protected>} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ToastProvider>
   )
 }

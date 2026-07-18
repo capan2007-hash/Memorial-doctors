@@ -9,9 +9,19 @@ import {
   emptyWeightedWork, toWeightedWork,
 } from './useDoctors'
 import type { DoctorScope, DoctorWithScopes, WeightedWork, WeightedWorkLevel } from './useDoctors'
-import type { CategoryRow } from '../../types/db'
+import type { CategoryRow, SubcategoryRow } from '../../types/db'
+import { Card } from '../../components/ui/Card'
+import { PageHeader } from '../../components/ui/PageHeader'
+import { Button } from '../../components/ui/Button'
+import { Field } from '../../components/ui/Field'
+import { Avatar } from '../../components/ui/Avatar'
+import { EmptyState } from '../../components/ui/EmptyState'
+import { Spinner } from '../../components/ui/Spinner'
+import { useToast } from '../../components/ui/Toast'
 
 const levelLabels: Record<WeightedWorkLevel, string> = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
+
+const inputClass = 'w-full rounded-lg border border-slate-300 p-2 focus:outline-none focus:ring-2 focus:ring-brand-600'
 
 function scopeKey(s: DoctorScope) { return `${s.categoryId}::${s.subcategoryId ?? ''}` }
 
@@ -33,7 +43,7 @@ function CategoryScopeRow({ category, scopes, onChange }: {
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
   if (!category.has_subcategories) {
     return (
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-sm text-slate-700">
         <input
           type="checkbox"
           checked={hasScope(scopes, category.id, null)}
@@ -48,7 +58,7 @@ function CategoryScopeRow({ category, scopes, onChange }: {
       <p className="font-medium text-slate-700">{category.name}</p>
       <div className="mt-1 ml-3 flex flex-wrap gap-3">
         {subs.data?.map((sc) => (
-          <label key={sc.id} className="flex items-center gap-2">
+          <label key={sc.id} className="flex items-center gap-2 text-slate-700">
             <input
               type="checkbox"
               checked={hasScope(scopes, category.id, sc.id)}
@@ -66,8 +76,7 @@ function CategoryScopeRow({ category, scopes, onChange }: {
 function ScopeEditor({ scopes, onChange }: { scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void }) {
   const cats = useCategories()
   return (
-    <div className="space-y-2 border rounded p-2 bg-slate-50">
-      <p className="text-xs text-slate-500">Yetkinlikler (kategori / alt kırılım)</p>
+    <div className="space-y-2 rounded-lg border border-slate-200 p-3 bg-surface">
       {cats.data?.map((c) => (
         <CategoryScopeRow key={c.id} category={c} scopes={scopes} onChange={onChange} />
       ))}
@@ -83,58 +92,114 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
   const removeItem = (idx: number) => onChange({ ...value, items: value.items.filter((_, i) => i !== idx) })
   const addItem = () => onChange({ ...value, items: [...value.items, { area: '', level: 'medium' }] })
   return (
-    <div className="space-y-2 border rounded p-2 bg-slate-50">
-      <p className="text-xs text-slate-500">Ağırlıklı işler</p>
+    <div className="space-y-2 rounded-lg border border-slate-200 p-3 bg-surface">
       {value.items.map((it, idx) => (
         <div key={idx} className="flex gap-2">
           <input
-            className="border rounded p-1 flex-1 text-sm" placeholder="Alan (ör. diz protezi)"
+            className={`${inputClass} flex-1 text-sm`} placeholder="Alan (ör. diz protezi)"
             value={it.area} onChange={(e) => updateItem(idx, { area: e.target.value })}
           />
           <select
-            className="border rounded p-1 text-sm" value={it.level}
+            className={`${inputClass} w-auto text-sm`} value={it.level}
             onChange={(e) => updateItem(idx, { level: e.target.value as WeightedWorkLevel })}
           >
             {(['high', 'medium', 'low'] as WeightedWorkLevel[]).map((l) => (
               <option key={l} value={l}>{levelLabels[l]}</option>
             ))}
           </select>
-          <button type="button" className="text-red-600 text-sm" onClick={() => removeItem(idx)}>Sil</button>
+          <Button variant="ghost" type="button" onClick={() => removeItem(idx)}>Sil</Button>
         </div>
       ))}
-      <button type="button" className="underline text-sm" onClick={addItem}>+ Satır ekle</button>
+      <button type="button" className="text-sm text-brand-700 underline" onClick={addItem}>+ Satır ekle</button>
       <textarea
-        className="w-full border rounded p-2 text-sm" placeholder="Serbest not"
+        className={`${inputClass} text-sm`} placeholder="Serbest not"
         value={value.note} onChange={(e) => onChange({ ...value, note: e.target.value })}
       />
     </div>
   )
 }
 
-function DoctorPhoto({ photoUrl, className }: { photoUrl: string | null; className?: string }) {
+/** Katalog kategori/alt kırılım adlarını yetkinlik çipleri için tenant kapsamında çözer (RLS zaten sınırlar). */
+function useScopeLabels() {
+  const cats = useCategories()
+  const subs = useQuery({
+    queryKey: ['all-subcategories'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('subcategory').select('*')
+      if (error) throw error
+      return data as SubcategoryRow[]
+    },
+  })
+  return {
+    categoryName: (id: string) => cats.data?.find((c) => c.id === id)?.name ?? '—',
+    subcategoryName: (id: string) => subs.data?.find((s) => s.id === id)?.name ?? '—',
+  }
+}
+
+function ScopeChips({ scopes }: { scopes: DoctorScope[] }) {
+  const { categoryName, subcategoryName } = useScopeLabels()
+  if (!scopes.length) return <p className="text-xs text-slate-400">Yetkinlik atanmadı</p>
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {scopes.map((s) => (
+        <span key={scopeKey(s)} className="bg-brand-50 text-brand-700 text-xs px-2 py-1 rounded-full">
+          {categoryName(s.categoryId)}{s.subcategoryId ? ` · ${subcategoryName(s.subcategoryId)}` : ''}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+/** Depo yolundan imzalı URL çözüp Avatar'a besler; foto yoksa Avatar baş harfleri gösterir. */
+function DoctorAvatar({ photoUrl, name, size }: { photoUrl: string | null; name: string; size?: 'sm' | 'md' | 'lg' }) {
   const q = useQuery({
     queryKey: ['doctor-photo-signed', photoUrl],
     enabled: !!photoUrl,
     queryFn: () => signDoctorPhoto(photoUrl!),
   })
-  if (!photoUrl) return <div className={`${className} bg-slate-200 rounded flex items-center justify-center text-slate-400 text-xs`}>Foto yok</div>
-  if (!q.data) return <div className={`${className} bg-slate-100 rounded`} />
-  return <img src={q.data} className={`${className} rounded object-cover`} alt="doktor fotoğrafı" />
+  return <Avatar src={photoUrl ? q.data : undefined} name={name} size={size} />
 }
 
-function PerformancePanel({ doctor }: { doctor: DoctorWithScopes }) {
-  const metrics = useDoctorMetrics(doctor.id)
-  const m = metrics.data
+function StatBox({ value, label }: { value: string | number; label: string }) {
   return (
-    <p className="text-xs text-slate-500">
-      Kabul: {m?.acceptCount ?? 0} · Red: {m?.rejectCount ?? 0} · Ort. dönüş:{' '}
-      {m && m.avgResponseMins != null ? `${Math.round(m.avgResponseMins)} dk` : '—'} · Skor: {doctor.score}
-    </p>
+    <Card className="text-center">
+      <p className="font-display text-2xl text-slate-900">{value}</p>
+      <p className="text-xs text-slate-500">{label}</p>
+    </Card>
   )
 }
 
-function NewDoctorForm() {
+function StatsGrid({ doctor }: { doctor: DoctorWithScopes }) {
+  const metrics = useDoctorMetrics(doctor.id)
+  const m = metrics.data
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <StatBox value={m?.acceptCount ?? 0} label="Kabul" />
+      <StatBox value={m?.rejectCount ?? 0} label="Red" />
+      <StatBox value={m && m.avgResponseMins != null ? Math.round(m.avgResponseMins) : '—'} label="Ort. dönüş (dk)" />
+      <StatBox value={doctor.score} label="Skor" />
+    </div>
+  )
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24" className={`h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+      fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  )
+}
+
+function SectionHeading({ children }: { children: string }) {
+  return <h4 className="text-sm font-semibold text-slate-700 pt-3 border-t border-slate-200 first:pt-0 first:border-t-0">{children}</h4>
+}
+
+function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { appUser } = useAuth()
+  const toast = useToast()
   const createDoctor = useCreateDoctor()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -145,7 +210,17 @@ function NewDoctorForm() {
   const [scopes, setScopes] = useState<DoctorScope[]>([])
   const [weightedWork, setWeightedWork] = useState<WeightedWork>(emptyWeightedWork)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
-  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [open, onClose])
+
+  if (!open) return null
 
   const canSubmit = !!email && !!password && !!fullName && scopes.length > 0 && !createDoctor.isPending
 
@@ -155,7 +230,6 @@ function NewDoctorForm() {
   }
 
   const submit = async () => {
-    setError(null)
     try {
       const result = await createDoctor.mutateAsync({ email, password, fullName, title, specialty, bio, weightedWork, scopes })
       const newDoctorId = result?.doctorId ?? result?.doctor?.id
@@ -164,39 +238,74 @@ function NewDoctorForm() {
         await supabase.from('doctor').update({ photo_url: path }).eq('id', newDoctorId)
       }
       reset()
+      toast.show('Doktor oluşturuldu')
+      onClose()
     } catch (e) {
-      setError('Doktor oluşturulamadı: ' + (e as Error).message)
+      toast.show('Doktor oluşturulamadı: ' + (e as Error).message, 'error')
     }
   }
 
   return (
-    <div className="border rounded p-3 bg-white space-y-2">
-      <h3 className="font-medium">Yeni Doktor Ekle</h3>
-      <div className="grid grid-cols-2 gap-2">
-        <input className="border rounded p-2" placeholder="E-posta" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="border rounded p-2" placeholder="Geçici şifre" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <input className="border rounded p-2" placeholder="Ad Soyad" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-        <input className="border rounded p-2" placeholder="Unvan (ör. Op. Dr.)" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <input className="border rounded p-2 col-span-2" placeholder="Branş" value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
+    <div
+      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div className="contents" onClick={(e) => e.stopPropagation()}>
+        <Card
+          title="Yeni Doktor Ekle"
+          className="max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-3"
+        >
+          <SectionHeading>Hesap</SectionHeading>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Field label="E-posta">
+              <input className={inputClass} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </Field>
+            <Field label="Geçici şifre">
+              <input className={inputClass} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </Field>
+          </div>
+
+          <SectionHeading>Profil</SectionHeading>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Field label="Ad Soyad">
+              <input className={inputClass} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            </Field>
+            <Field label="Unvan">
+              <input className={inputClass} placeholder="ör. Op. Dr." value={title} onChange={(e) => setTitle(e.target.value)} />
+            </Field>
+            <Field label="Branş">
+              <input className={inputClass} value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
+            </Field>
+          </div>
+          <Field label="Biyografi">
+            <textarea className={inputClass} placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
+          </Field>
+
+          <SectionHeading>Yetkinlikler</SectionHeading>
+          <ScopeEditor scopes={scopes} onChange={setScopes} />
+          {!scopes.length && <p className="text-amber-600 text-xs">En az bir yetkinlik (kategori/alt kırılım) seçilmeli.</p>}
+
+          <SectionHeading>Ağırlıklı İşler</SectionHeading>
+          <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
+
+          <SectionHeading>Foto</SectionHeading>
+          <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="block text-sm" />
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
+            <Button variant="primary" type="button" disabled={!canSubmit} loading={createDoctor.isPending} onClick={submit}>
+              Oluştur
+            </Button>
+          </div>
+        </Card>
       </div>
-      <textarea className="w-full border rounded p-2" placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
-      <ScopeEditor scopes={scopes} onChange={setScopes} />
-      <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
-      <div>
-        <label className="text-sm text-slate-600">Fotoğraf (opsiyonel)</label>
-        <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="block text-sm" />
-      </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      {!scopes.length && <p className="text-amber-600 text-xs">En az bir yetkinlik (kategori/alt kırılım) seçilmeli.</p>}
-      <button disabled={!canSubmit} className="bg-slate-800 text-white rounded px-3 py-2 disabled:opacity-40" onClick={submit}>
-        {createDoctor.isPending ? 'Oluşturuluyor…' : 'Doktor Oluştur'}
-      </button>
     </div>
   )
 }
 
 function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
   const { appUser } = useAuth()
+  const toast = useToast()
   const updateDoctor = useUpdateDoctor()
   const [expanded, setExpanded] = useState(false)
   const [specialty, setSpecialty] = useState(doctor.specialty ?? '')
@@ -206,7 +315,6 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
   const [weightedWork, setWeightedWork] = useState<WeightedWork>(toWeightedWork(doctor.weighted_work))
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoUrl, setPhotoUrl] = useState<string | null>(doctor.photo_url)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setSpecialty(doctor.specialty ?? ''); setBio(doctor.bio ?? ''); setIsActive(doctor.is_active)
@@ -215,7 +323,6 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
   }, [doctor])
 
   const save = async () => {
-    setError(null)
     try {
       let nextPhotoUrl = photoUrl
       if (photoFile && appUser?.tenant_id) {
@@ -226,64 +333,107 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
       })
       setPhotoFile(null)
       setExpanded(false)
+      toast.show('Kaydedildi')
     } catch (e) {
-      setError('Kaydedilemedi: ' + (e as Error).message)
+      toast.show('Kaydedilemedi: ' + (e as Error).message, 'error')
     }
   }
 
-  const toggleActiveOnly = () => updateDoctor.mutate({ id: doctor.id, isActive: !doctor.is_active, scopes: doctor.scopes })
-
   return (
-    <li className="border rounded p-3 bg-white space-y-2">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <DoctorPhoto photoUrl={doctor.photo_url} className="w-10 h-10" />
-          <div>
-            <p className="font-medium">{doctor.title || '(unvan yok)'} {!doctor.is_active && <span className="text-slate-400 text-sm">(pasif)</span>}</p>
-            <p className="text-sm text-slate-600">{doctor.specialty || '—'}</p>
+    <li>
+      <Card>
+        <div className="flex justify-between items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <DoctorAvatar photoUrl={doctor.photo_url} name={doctor.title || 'Doktor'} />
+            <div className="min-w-0">
+              <p className="font-medium text-slate-900 truncate">{doctor.title || '(unvan yok)'}</p>
+              <p className="text-sm text-slate-500 truncate">{doctor.specialty || '—'}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="flex items-center gap-1.5 text-sm text-slate-600">
+              <span className={`h-2 w-2 rounded-full ${doctor.is_active ? 'bg-green-500' : 'bg-slate-300'}`} />
+              {doctor.is_active ? 'Aktif' : 'Pasif'}
+            </span>
+            <button
+              type="button"
+              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"
+              aria-label={expanded ? 'Kapat' : 'Genişlet'}
+              onClick={() => setExpanded((v) => !v)}
+            >
+              <ChevronIcon open={expanded} />
+            </button>
           </div>
         </div>
-        <div className="flex gap-3 items-center">
-          <button className="underline text-sm" onClick={toggleActiveOnly}>{doctor.is_active ? 'Pasifleştir' : 'Aktifleştir'}</button>
-          <button className="underline text-sm" onClick={() => setExpanded((v) => !v)}>{expanded ? 'Kapat' : 'Düzenle'}</button>
-        </div>
-      </div>
 
-      <PerformancePanel doctor={doctor} />
+        {expanded && (
+          <div className="space-y-3 pt-3 mt-3 border-t border-slate-200">
+            <ScopeChips scopes={doctor.scopes} />
 
-      {expanded && (
-        <div className="space-y-2 pt-2 border-t">
-          <input className="w-full border rounded p-2" placeholder="Branş" value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
-          <textarea className="w-full border rounded p-2" placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
-          <ScopeEditor scopes={scopes} onChange={setScopes} />
-          <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
-          <div className="flex items-center gap-3">
-            <DoctorPhoto photoUrl={photoUrl} className="w-14 h-14" />
-            <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="text-sm" />
+            <Field label="Branş">
+              <input className={inputClass} value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
+            </Field>
+            <Field label="Biyografi">
+              <textarea className={inputClass} placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
+            </Field>
+
+            <SectionHeading>Yetkinlikler</SectionHeading>
+            <ScopeEditor scopes={scopes} onChange={setScopes} />
+
+            <SectionHeading>Ağırlıklı İşler</SectionHeading>
+            <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
+
+            <div className="flex items-center gap-3">
+              <DoctorAvatar photoUrl={photoUrl} name={doctor.title || 'Doktor'} size="lg" />
+              <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="text-sm" />
+            </div>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Aktif
+            </label>
+
+            <SectionHeading>İstatistikler</SectionHeading>
+            <StatsGrid doctor={doctor} />
+
+            <div className="flex justify-end pt-2">
+              <Button variant="primary" type="button" loading={updateDoctor.isPending} onClick={save}>
+                Kaydet
+              </Button>
+            </div>
           </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Aktif
-          </label>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          <button disabled={updateDoctor.isPending} className="bg-slate-800 text-white rounded px-3 py-2 disabled:opacity-40" onClick={save}>
-            {updateDoctor.isPending ? 'Kaydediliyor…' : 'Kaydet'}
-          </button>
-        </div>
-      )}
+        )}
+      </Card>
     </li>
   )
 }
 
 export function DoctorAdmin() {
   const docs = useDoctorsFull()
+  const [dialogOpen, setDialogOpen] = useState(false)
+
   return (
-    <div className="space-y-3">
-      <h2 className="text-lg font-semibold">Doktor Yönetimi</h2>
-      <NewDoctorForm />
-      {docs.isLoading && <p className="text-sm text-slate-500">Yükleniyor…</p>}
-      <ul className="space-y-2">
-        {docs.data?.map((d) => <DoctorCard key={d.id} doctor={d} />)}
-      </ul>
+    <div className="space-y-4">
+      <PageHeader
+        title="Doktor Yönetimi"
+        actions={<Button variant="primary" onClick={() => setDialogOpen(true)}>Yeni Doktor</Button>}
+      />
+
+      {docs.isLoading && (
+        <div className="flex justify-center py-10">
+          <Spinner />
+        </div>
+      )}
+
+      {!docs.isLoading && docs.data?.length === 0 && (
+        <EmptyState title="Henüz doktor yok" description="Yeni Doktor ile ilk kaydı oluşturun." />
+      )}
+
+      {!docs.isLoading && !!docs.data?.length && (
+        <ul className="space-y-3">
+          {docs.data.map((d) => <DoctorCard key={d.id} doctor={d} />)}
+        </ul>
+      )}
+
+      <NewDoctorDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </div>
   )
 }

@@ -5,6 +5,15 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { useRespond } from './useRespond'
 import { PatientInfoCard } from '../requests/PatientInfoCard'
+import { PageHeader } from '../../components/ui/PageHeader'
+import { StatusPill } from '../../components/ui/StatusPill'
+import { Card } from '../../components/ui/Card'
+import { PhotoGrid } from '../../components/ui/PhotoGrid'
+import { Field } from '../../components/ui/Field'
+import { Button } from '../../components/ui/Button'
+import { Spinner } from '../../components/ui/Spinner'
+import { useToast } from '../../components/ui/Toast'
+import { timeAgo } from '../../lib/format'
 import type { RequestRow, PhotoRow } from '../../types/db'
 
 async function signPhotoUrls(photos: PhotoRow[]) {
@@ -19,6 +28,7 @@ export function DoctorRequestView() {
   const { id } = useParams()
   const { appUser } = useAuth()
   const respond = useRespond()
+  const toast = useToast()
   const [mode, setMode] = useState<'none' | 'accept' | 'reject'>('none')
   const [plan, setPlan] = useState('')
   const [reason, setReason] = useState('')
@@ -76,56 +86,101 @@ export function DoctorRequestView() {
       })
       setRespErr(null)
       setMode('none')
+      toast.show('Yanıtınız kaydedildi')
     } catch (e) {
-      setRespErr('Yanıt kaydedilemedi: ' + (e as Error).message)
+      const message = 'Yanıt kaydedilemedi: ' + (e as Error).message
+      setRespErr(message)
+      toast.show(message, 'error')
     }
   }
 
-  if (!q.data) return <p>Yükleniyor…</p>
+  if (!q.data) {
+    return (
+      <div className="flex justify-center py-10">
+        <Spinner />
+      </div>
+    )
+  }
+
+  const { req, patientName, categoryName, subcategoryName, operationName, photos, xrays } = q.data
+  const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
+
   return (
-    <div className="space-y-3">
-      <h2 className="text-lg font-semibold">Talep #{q.data.req.id.slice(0, 8)}</h2>
-      <PatientInfoCard
-        req={q.data.req}
-        patientName={q.data.patientName}
-        categoryName={q.data.categoryName}
-        subcategoryName={q.data.subcategoryName}
-        operationName={q.data.operationName}
+    <div className="space-y-4 pb-24 md:pb-4">
+      <PageHeader
+        title={title}
+        subtitle={`Talep #${req.id.slice(0, 8)} · ${timeAgo(req.created_at)}`}
+        actions={<StatusPill status={req.status} />}
       />
-      <section>
-        <h3 className="font-medium">Fotoğraflar</h3>
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          {q.data.photos.map((url, i) => <img key={i} src={url} className="rounded border" />)}
-        </div>
-      </section>
-      {q.data.xrays.length > 0 && (
-        <section>
-          <h3 className="font-medium">Diş Röntgeni</h3>
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            {q.data.xrays.map((url, i) => <img key={i} src={url} className="rounded border" />)}
-          </div>
-        </section>
+      <PatientInfoCard
+        req={req}
+        patientName={patientName}
+        categoryName={categoryName}
+        subcategoryName={subcategoryName}
+        operationName={operationName}
+      />
+      <Card title="Fotoğraflar">
+        <PhotoGrid urls={photos} title="Fotoğraf" />
+      </Card>
+      {xrays.length > 0 && (
+        <Card title="Diş Röntgeni">
+          <PhotoGrid urls={xrays} title="Röntgen" />
+        </Card>
       )}
-      {respErr && <p className="text-red-600 text-sm">{respErr}</p>}
       {/* AI uyarıları — M2 */}
-      {mode === 'none' && (
-        <div className="flex gap-2">
-          <button className="flex-1 bg-green-600 text-white rounded p-2" onClick={() => setMode('accept')}>Kabul</button>
-          <button className="flex-1 bg-red-600 text-white rounded p-2" onClick={() => setMode('reject')}>Red</button>
-        </div>
-      )}
-      {mode === 'accept' && (
-        <div className="space-y-2">
-          <textarea className="w-full border rounded p-2" placeholder="Tedavi planı" value={plan} onChange={(e) => setPlan(e.target.value)} />
-          <button disabled={!plan || respond.isPending} className="w-full bg-green-600 text-white rounded p-2 disabled:opacity-40" onClick={doRespond}>Kabul et</button>
-        </div>
-      )}
-      {mode === 'reject' && (
-        <div className="space-y-2">
-          <textarea className="w-full border rounded p-2" placeholder="Red gerekçesi (zorunlu)" value={reason} onChange={(e) => setReason(e.target.value)} />
-          <button disabled={!reason || respond.isPending} className="w-full bg-red-600 text-white rounded p-2 disabled:opacity-40" onClick={doRespond}>Reddet</button>
-        </div>
-      )}
+      <div className="sticky bottom-16 md:bottom-0">
+        <Card>
+          {respErr && <p className="text-red-600 text-sm mb-2">{respErr}</p>}
+          {mode === 'none' && (
+            <div className="flex gap-2">
+              <Button variant="primary" className="flex-1" onClick={() => setMode('accept')}>Kabul</Button>
+              <Button variant="danger" className="flex-1" onClick={() => setMode('reject')}>Red</Button>
+            </div>
+          )}
+          {mode === 'accept' && (
+            <div className="space-y-3">
+              <Field label="Tedavi planı">
+                <textarea
+                  className="w-full border border-slate-300 rounded-lg p-2 text-sm"
+                  placeholder="Tedavi planı"
+                  value={plan}
+                  onChange={(e) => setPlan(e.target.value)}
+                />
+              </Field>
+              <Button
+                variant="primary"
+                className="w-full"
+                disabled={!plan}
+                loading={respond.isPending}
+                onClick={doRespond}
+              >
+                Kabul et
+              </Button>
+            </div>
+          )}
+          {mode === 'reject' && (
+            <div className="space-y-3">
+              <Field label="Red gerekçesi">
+                <textarea
+                  className="w-full border border-slate-300 rounded-lg p-2 text-sm"
+                  placeholder="Red gerekçesi (zorunlu)"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                />
+              </Field>
+              <Button
+                variant="danger"
+                className="w-full"
+                disabled={!reason}
+                loading={respond.isPending}
+                onClick={doRespond}
+              >
+                Reddet
+              </Button>
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   )
 }

@@ -72,11 +72,24 @@ export function useCreateRequest() {
   })
 }
 
+export type EnrichedRequestRow = RequestRow & { patientName: string; categoryName: string }
+
 export function useMyRequests() {
-  return useQuery({ queryKey: ['requests'], queryFn: async () => {
+  return useQuery({ queryKey: ['requests'], queryFn: async (): Promise<EnrichedRequestRow[]> => {
     const { data, error } = await supabase.from('request').select('*').order('created_at', { ascending: false })
     if (error) throw error
-    return data as RequestRow[]
+    const requests = data as RequestRow[]
+    const [{ data: patients }, { data: categories }] = await Promise.all([
+      supabase.from('patient').select('id, first_name, last_name'),
+      supabase.from('category').select('id, name'),
+    ])
+    const patientMap = new Map((patients ?? []).map((p: any) => [p.id, `${p.first_name} ${p.last_name}`]))
+    const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c.name as string]))
+    return requests.map((r) => ({
+      ...r,
+      patientName: patientMap.get(r.patient_id) ?? '—',
+      categoryName: categoryMap.get(r.category_id) ?? '—',
+    }))
   }})
 }
 

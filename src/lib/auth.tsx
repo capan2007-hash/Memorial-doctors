@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
+import { clearDraft } from '../features/requests/requestDraft'
 import type { AppUserRow } from '../types/db'
 import type { Role } from '../types/domain'
 
@@ -31,7 +32,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (!session) { loadedUserId.current = null; setAppUser(null); setLoading(false); return }
+    if (!session) {
+      // Oturum kapandı: hasta PII taşıyan form taslağını da temizle —
+      // modül-düzeyi taslak aksi halde ortak cihazda sonraki kullanıcıya sızar.
+      clearDraft()
+      loadedUserId.current = null; setAppUser(null); setLoading(false); return
+    }
+    if (loadedUserId.current !== null && loadedUserId.current !== session.user.id) {
+      // Farklı kullanıcıya geçiş: önceki kullanıcının taslağı görünmesin.
+      clearDraft()
+    }
     if (loadedUserId.current === session.user.id) return // token yenileme: kullanıcı değişmedi
     let cancelled = false
     setLoading(true)
