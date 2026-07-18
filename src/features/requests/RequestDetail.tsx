@@ -9,6 +9,7 @@ import { Avatar } from '../../components/ui/Avatar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Spinner } from '../../components/ui/Spinner'
 import { PatientInfoCard } from './PatientInfoCard'
+import { AiPanel } from '../ai/AiPanel'
 import { timeAgo } from '../../lib/format'
 
 export function RequestDetail() {
@@ -46,8 +47,9 @@ export function RequestDetail() {
           <PhotoGrid urls={xrays} title="Röntgen" />
         </Card>
       )}
-      {/* Doktor planları: yalnız sales/coordinator/admin. Aracıya RLS zaten engeller; UI de gizler. */}
+      {/* Doktor planları + AI değerlendirmesi: yalnız sales/coordinator/admin. Aracıya RLS zaten engeller; UI de gizler. */}
       <RoleGate allow={['sales','coordinator','admin']}>
+        <AiPanel requestId={req.id} />
         <section className="space-y-2">
           <h3 className="font-display text-base text-slate-900">Doktor Teklifleri ({accepted.length})</h3>
           {accepted.map((r) => (

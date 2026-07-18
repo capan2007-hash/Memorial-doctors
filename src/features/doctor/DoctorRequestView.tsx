@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { useRespond } from './useRespond'
+import { useMyDoctorId } from './useMyDoctorId'
+import { AiPanel } from '../ai/AiPanel'
 import { PatientInfoCard } from '../requests/PatientInfoCard'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { StatusPill } from '../../components/ui/StatusPill'
@@ -29,6 +31,7 @@ export function DoctorRequestView() {
   const { appUser } = useAuth()
   const respond = useRespond()
   const toast = useToast()
+  const myDoctorId = useMyDoctorId()
   const [mode, setMode] = useState<'none' | 'accept' | 'reject'>('none')
   const [plan, setPlan] = useState('')
   const [reason, setReason] = useState('')
@@ -127,7 +130,7 @@ export function DoctorRequestView() {
           <PhotoGrid urls={xrays} title="Röntgen" />
         </Card>
       )}
-      {/* AI uyarıları — M2 */}
+      <AiPanel requestId={req.id} canGiveFeedback doctorId={myDoctorId.data} />
       <div className="sticky bottom-16 md:bottom-0">
         <Card>
           {respErr && <p className="text-red-600 text-sm mb-2">{respErr}</p>}
