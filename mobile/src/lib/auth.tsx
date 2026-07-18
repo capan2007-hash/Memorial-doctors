@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
+import { unregisterPush } from '@/features/push/usePushRegistration'
 
 export type Role = 'agent' | 'sales' | 'doctor' | 'coordinator' | 'admin'
 
@@ -91,7 +92,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     return { error: error?.message ?? null }
   }
-  const signOut = async () => { await supabase.auth.signOut() }
+  const signOut = async () => {
+    // Token silme RLS'de aktif session gerektirir — auth.signOut'tan ÖNCE denenmeli.
+    if (doctorId) await unregisterPush(doctorId)
+    await supabase.auth.signOut()
+  }
 
   return (
     <Ctx.Provider

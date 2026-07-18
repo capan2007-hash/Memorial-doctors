@@ -11,11 +11,27 @@ import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
 
-import { AuthProvider } from '@/lib/auth'
+import { AuthProvider, useAuth } from '@/lib/auth'
+import { useNotificationDeepLink, usePushSetup } from '@/features/push/usePushRegistration'
 
 SplashScreen.preventAutoHideAsync()
 
 const queryClient = new QueryClient()
+
+// useAuth() AuthProvider içinde çağrılmalı; push kaydı + bildirim yönlendirmesi
+// bu yüzden ayrı bir iç bileşende yaşar (RootLayout'ta doğrudan değil).
+function RootNavigator() {
+  const { doctorId, tenantId } = useAuth()
+  usePushSetup(doctorId, tenantId)
+  useNotificationDeepLink()
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="(tabs)" />
+    </Stack>
+  )
+}
 
 export default function RootLayout() {
   const [frauncesLoaded] = useFrauncesFonts({ Fraunces_600SemiBold })
@@ -36,10 +52,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="login" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
+        <RootNavigator />
       </AuthProvider>
     </QueryClientProvider>
   )
