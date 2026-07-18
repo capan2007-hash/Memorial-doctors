@@ -37,7 +37,7 @@ export function AllRequests() {
       <ul className="mt-3 space-y-2">
         {reqs.data?.map((r) => (
           <li key={r.id} className="border rounded p-3 bg-white flex justify-between items-center">
-            <span>#{r.id.slice(0, 8)} <StatusPill status={r.status} /></span>
+            <span>#{r.id.slice(0, 8)} <StatusPill status={r.status} />{r.status === 'submitted' && <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 ml-2 inline-block">Doktor atanmadı</span>}</span>
             <button className="underline text-sm" onClick={() => reassign.mutate(r)}>Yeniden ata</button>
           </li>
         ))}
