@@ -1,19 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../lib/auth'
 import { usePendingCount } from './usePendingCount'
+import { useMyDoctorId } from './useMyDoctorId'
 import { Badge } from '../../components/Badge'
 import { StatusPill } from '../../components/ui/StatusPill'
 import type { RequestRow } from '../../types/db'
-
-function useMyDoctorId() {
-  const { appUser } = useAuth()
-  return useQuery({ queryKey: ['my-doctor', appUser?.id], enabled: !!appUser, queryFn: async () => {
-    const { data } = await supabase.from('doctor').select('id').eq('app_user_id', appUser!.id).single()
-    return data?.id as string | undefined
-  }})
-}
 
 export function DoctorQueue() {
   const doc = useMyDoctorId()
