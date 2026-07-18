@@ -48,7 +48,7 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
   // DoctorQueue geçmiş koşulardan kalan (yanıtlanmış/yanıtlanmamış) talepleri de
   // listelediğinden, kuyruktaki "Aç" bağlantısını sırasına güvenerek tıklamak
   // birden çok bekleyen kayıt olduğunda yanlış talebi açabiliyordu.
-  await sales.getByRole('link', { name: /Talep #/ }).first().click()
+  await sales.getByRole('link', { name: new RegExp(SURNAME) }).first().click()
   await expect(sales).toHaveURL(/\/requests\/[0-9a-fA-F-]{36}/)
   const requestId = sales.url().split('/').pop()!
 
@@ -67,7 +67,7 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
 
   // 3) Satışçı planı görür
   await sales.goto('/requests')
-  await sales.getByRole('link', { name: /Talep #/ }).first().click()
+  await sales.getByRole('link', { name: new RegExp(SURNAME) }).first().click()
   await expect(sales).toHaveURL(new RegExp(requestId))
   await expect(sales.getByText(PLAN_TEXT)).toBeVisible()
 
