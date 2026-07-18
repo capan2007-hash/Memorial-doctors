@@ -22,6 +22,7 @@ import { PatientInfoCard } from '@/components/PatientInfoCard'
 import { PhotoStrip } from '@/components/PhotoStrip'
 import { StatusPill } from '@/components/StatusPill'
 import { DecisionBadge } from '@/components/DecisionBadge'
+import { AiPanel } from '@/features/ai/AiPanel'
 import { timeAgo } from '@/domain/format'
 import { colors, fontFamily, radius, spacing } from '@/theme'
 
@@ -110,7 +111,7 @@ export default function RequestDetailScreen() {
           </View>
         )}
 
-        {/* AI paneli — Task 5 */}
+        <AiPanel requestId={req.id} doctorId={doctorId} />
 
         {myResponse && (
           <View style={styles.card}>

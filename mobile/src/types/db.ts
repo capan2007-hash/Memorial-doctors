@@ -55,3 +55,28 @@ export interface ResponseRow {
   treatment_plan: string | null
   responded_at: string
 }
+
+export interface AiEvaluationRow {
+  id: string
+  tenant_id: string
+  request_id: string
+  status: 'ok' | 'warning' | 'failed'
+  warnings: { type: string; confidence: number; rationale: string }[]
+  suitability_note: string | null
+  disclaimer: string
+  model: string
+  model_version: string | null
+  error: string | null
+  created_at: string
+}
+
+export interface AiFeedbackRow {
+  id: string
+  tenant_id: string
+  request_id: string
+  ai_evaluation_id: string
+  doctor_id: string
+  label: 'correct' | 'partial' | 'wrong'
+  note: string | null
+  created_at: string
+}
