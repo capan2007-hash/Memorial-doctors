@@ -26,6 +26,9 @@ Deno.serve(async (req) => {
   if (!body) return json({ error: 'bad json' }, 400)
   const { email, password, fullName, title, specialty, bio, weightedWork, scopes } = body
   if (!email || !password || !fullName) return json({ error: 'missing fields' }, 400)
+  // En az bir yetkinlik zorunlu: doctor.category_id NOT NULL ve scope olmadan
+  // doktor hiçbir talebe düşmez. Ayrıca aşağıdaki yarım-hata riskini azaltır.
+  if (!Array.isArray(scopes) || scopes.length === 0) return json({ error: 'scopes required' }, 400)
 
   const admin = createClient(url, serviceKey)
   const { data: created, error: cErr } = await admin.auth.admin.createUser({
@@ -33,24 +36,38 @@ Deno.serve(async (req) => {
   })
   if (cErr || !created?.user) return json({ error: cErr?.message ?? 'create user failed' }, 400)
   const uid = created.user.id
+
+  // createUser'dan sonraki herhangi bir hata yetim hesap bırakmasın: telafi olarak sil.
+  const fail = async (msg: string) => {
+    await admin.auth.admin.deleteUser(uid).catch(() => {})
+    return json({ error: msg }, 400)
+  }
+
   const { error: auErr } = await admin.from('app_user').insert({
     id: uid, tenant_id: me.tenant_id, role: 'doctor', full_name: fullName,
   })
-  if (auErr) return json({ error: auErr.message }, 400)
-  const primaryCategory = Array.isArray(scopes) && scopes[0]?.categoryId ? scopes[0].categoryId : null
+  if (auErr) return fail(auErr.message)
+
+  const primaryCategory = scopes[0]?.categoryId ?? null
   const { data: doc, error: dErr } = await admin.from('doctor').insert({
     tenant_id: me.tenant_id, app_user_id: uid, title, specialty, bio,
     weighted_work: weightedWork ?? { items: [], note: '' },
     category_id: primaryCategory, is_active: true,
   }).select('id').single()
-  if (dErr || !doc) return json({ error: dErr?.message ?? 'create doctor failed' }, 400)
-  if (Array.isArray(scopes) && scopes.length) {
-    const rows = scopes.map((s: { categoryId: string; subcategoryId: string | null }) => ({
-      tenant_id: me.tenant_id, doctor_id: doc.id,
-      category_id: s.categoryId, subcategory_id: s.subcategoryId ?? null,
-    }))
-    const { error: sErr } = await admin.from('doctor_scope').insert(rows)
-    if (sErr) return json({ error: sErr.message }, 400)
+  if (dErr || !doc) {
+    await admin.from('app_user').delete().eq('id', uid).catch(() => {})
+    return fail(dErr?.message ?? 'create doctor failed')
+  }
+
+  const rows = scopes.map((s: { categoryId: string; subcategoryId: string | null }) => ({
+    tenant_id: me.tenant_id, doctor_id: doc.id,
+    category_id: s.categoryId, subcategory_id: s.subcategoryId ?? null,
+  }))
+  const { error: sErr } = await admin.from('doctor_scope').insert(rows)
+  if (sErr) {
+    await admin.from('doctor').delete().eq('id', doc.id).catch(() => {})
+    await admin.from('app_user').delete().eq('id', uid).catch(() => {})
+    return fail(sErr.message)
   }
   return json({ doctorId: doc.id }, 200)
 })
