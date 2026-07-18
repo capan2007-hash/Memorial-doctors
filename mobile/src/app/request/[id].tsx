@@ -2,7 +2,7 @@
 // galerisi ve kabul/red akışı aynı sözleşmeyle (yalnız response insert; status'u
 // server trigger'ı hesaplar) mobile'a taşındı.
 import { useState } from 'react'
-import { Stack, useLocalSearchParams } from 'expo-router'
+import { Redirect, Stack, useLocalSearchParams } from 'expo-router'
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -30,7 +30,7 @@ type Mode = 'none' | 'accept' | 'reject'
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const { tenantId, doctorId } = useAuth()
+  const { tenantId, doctorId, session, loading } = useAuth()
   const detail = useRequestDetail(id)
   const respond = useRespond()
 
@@ -39,6 +39,18 @@ export default function RequestDetailScreen() {
   const [reason, setReason] = useState('')
   const [respError, setRespError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  // Bu rota (tabs) dışında: soğuk başlangıç bildirimi oturumsuz açabilir.
+  if (!loading && !session) return <Redirect href="/login" />
+
+  if (detail.isError) {
+    return (
+      <View style={styles.center}>
+        <Stack.Screen options={{ headerShown: true, title: '' }} />
+        <Text style={styles.errorText}>Talep yüklenemedi. Bağlantınızı kontrol edin.</Text>
+      </View>
+    )
+  }
 
   if (detail.isLoading || !detail.data) {
     return (

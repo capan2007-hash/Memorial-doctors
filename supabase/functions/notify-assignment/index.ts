@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
   const provided = req.headers.get('x-webhook-secret') ?? ''
   const { data: secretRow } = await admin
     .from('app_secret').select('value').eq('name', 'notify_webhook_secret').single()
-  if (!secretRow || provided !== secretRow.value) return json({ error: 'unauthorized' }, 401)
+  if (!secretRow || !timingSafeEqual(provided, secretRow.value)) return json({ error: 'unauthorized' }, 401)
 
   const body = await req.json().catch(() => null)
   const assignmentId = body?.assignment_id
@@ -34,19 +34,19 @@ Deno.serve(async (req) => {
     if (tokens.length === 0) return json({ ok: true, sent: 0 }, 200)
 
     const request = requestRes.data
-    let title = 'Yeni talep'
+    const title = 'Yeni talep'
+    // Gizlilik: kilit ekranında hasta adı GÖSTERİLMEZ — yalnız operasyon türü.
+    // Ad, uygulama içinde (kimlik doğrulama + RLS arkasında) görünür.
     let message = 'Yeni bir hasta talebi atandı.'
     if (request) {
-      const [patientRes, catRes, opRes] = await Promise.all([
-        admin.from('patient').select('first_name, last_name').eq('id', request.patient_id).single(),
+      const [catRes, opRes] = await Promise.all([
         admin.from('category').select('name').eq('id', request.category_id).single(),
         request.operation_type_id
           ? admin.from('operation_type').select('name').eq('id', request.operation_type_id).single()
           : Promise.resolve({ data: null }),
       ])
-      const name = patientRes.data ? `${patientRes.data.first_name} ${patientRes.data.last_name}` : 'Hasta'
-      const op = opRes.data?.name ?? catRes.data?.name ?? 'operasyon'
-      message = `${name} — ${op}`
+      const op = opRes.data?.name ?? catRes.data?.name
+      if (op) message = `Yeni talep: ${op}`
     }
 
     const pushRes = await fetch('https://exp.host/--/api/v2/push/send', {
@@ -70,4 +70,15 @@ function json(o: unknown, status: number) {
     status,
     headers: { 'Content-Type': 'application/json' },
   })
+}
+
+// Sabit zamanlı karşılaştırma: secret tahmine karşı zamanlama sızıntısını önler.
+function timingSafeEqual(a: string, b: string): boolean {
+  const enc = new TextEncoder()
+  const ab = enc.encode(a)
+  const bb = enc.encode(b)
+  if (ab.length !== bb.length) return false
+  let diff = 0
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i]
+  return diff === 0
 }

@@ -15,21 +15,30 @@ export type DoctorQueueRow = RequestRow & {
 }
 
 async function fetchDoctorQueue(doctorId: string): Promise<DoctorQueueRow[]> {
-  const { data: asgs } = await supabase
+  const { data: asgs, error: asgErr } = await supabase
     .from('assignment')
     .select('request_id, assigned_at')
     .eq('doctor_id', doctorId)
+  // Hata yutulursa ağ kesintisi "Bekleyen talep yok" gibi görünür; fırlat ki
+  // React Query yeniden denesin ve durum yüzeye çıksın.
+  if (asgErr) throw asgErr
   const assignments = asgs ?? []
   const ids = assignments.map((a) => a.request_id as string)
   if (!ids.length) return []
 
-  const [{ data }, { data: patients }, { data: categories }, { data: responses }] = await Promise.all([
+  const [reqRes, patRes, catRes, respRes] = await Promise.all([
     supabase.from('request').select('*').in('id', ids).order('assigned_at', { ascending: false }),
     supabase.from('patient').select('id, first_name, last_name'),
     supabase.from('category').select('id, name'),
     // RLS gereği doktor yalnız kendi response'unu görür (bkz. migration 0002 resp_doctor_read).
     supabase.from('response').select('*').eq('doctor_id', doctorId).in('request_id', ids),
   ])
+  const firstErr = reqRes.error ?? patRes.error ?? catRes.error ?? respRes.error
+  if (firstErr) throw firstErr
+  const { data } = reqRes
+  const { data: patients } = patRes
+  const { data: categories } = catRes
+  const { data: responses } = respRes
 
   const requests = (data ?? []) as RequestRow[]
   const patientMap = new Map((patients ?? []).map((p: any) => [p.id, `${p.first_name} ${p.last_name}`]))
