@@ -11,8 +11,8 @@ const PLAN_TEXT = `Önerilen: FUE 3000 greft (${Date.now()})`
 
 async function login(page: Page, u: { email: string; pw: string }) {
   await page.goto('/login')
-  await page.getByPlaceholder('E-posta').fill(u.email)
-  await page.getByPlaceholder('Şifre').fill(u.pw)
+  await page.getByLabel('E-posta').fill(u.email)
+  await page.getByLabel('Şifre').fill(u.pw)
   await page.getByRole('button', { name: 'Giriş' }).click()
   await expect(page).not.toHaveURL(/login/)
 }
@@ -23,15 +23,18 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
   const sales = await salesCtx.newPage()
   await login(sales, SALES)
   await sales.goto('/requests/new')
-  await sales.getByPlaceholder('Ad', { exact: true }).fill('Test')
-  await sales.getByPlaceholder('Soyad').fill(SURNAME)
-  await sales.getByPlaceholder('Yaş').fill('35')
-  await sales.getByPlaceholder('Boy (cm)').fill('175')
-  await sales.getByPlaceholder('Kilo (kg)').fill('80')
-  // Combobox sırası DOM render sırasıyla eşleşir: Cinsiyet (0), Kategori (1).
-  // Operasyon tipi select'i kategori seçilene kadar render edilmediği için bu adımda yok.
-  await sales.getByRole('combobox').nth(0).selectOption({ label: 'Kadın' })
-  await sales.getByRole('combobox').nth(1).selectOption({ label: 'Saç Ekimi' })
+  // 'Ad' alt dizge olarak 'Soyad' etiketiyle de eşleşir (Playwright getByLabel
+  // varsayılan substring/case-insensitive eşleşme yapar) — exact:true zorunlu.
+  await sales.getByLabel('Ad', { exact: true }).fill('Test')
+  await sales.getByLabel('Soyad').fill(SURNAME)
+  await sales.getByLabel('Yaş').fill('35')
+  await sales.getByLabel('Boy').fill('175')
+  await sales.getByLabel('Kilo').fill('80')
+  // Field sarmalı select'ler artık implicit <label> ile bulunuyor; pozisyonel
+  // nth() kalktı. Operasyon tipi select'i kategori seçilene kadar render
+  // edilmediği için bu adımda yok.
+  await sales.getByLabel('Cinsiyet').selectOption({ label: 'Kadın' })
+  await sales.getByLabel('Kategori').selectOption({ label: 'Saç Ekimi' })
   // Geçmiş ameliyatlar / Bilinen hastalıklar / Düzenli kullanılan ilaçlar — üçü de "Yok" ile geçilir.
   const yokCheckboxes = sales.getByRole('checkbox', { name: 'Yok' })
   await expect(yokCheckboxes).toHaveCount(3)
@@ -62,7 +65,7 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
   await expect(doc.locator('a[href^="/doctor/request/"]').first()).toBeVisible()
   await doc.goto(`/doctor/request/${requestId}`)
   await doc.getByRole('button', { name: 'Kabul' }).click()
-  await doc.getByPlaceholder('Tedavi planı').fill(PLAN_TEXT)
+  await doc.getByLabel('Tedavi planı').fill(PLAN_TEXT)
   await doc.getByRole('button', { name: 'Kabul et' }).click()
   await expect(doc.getByRole('button', { name: 'Kabul et' })).toHaveCount(0)
 
