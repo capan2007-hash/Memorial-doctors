@@ -1,21 +1,36 @@
 import { useParams } from 'react-router-dom'
 import { useRequestDetail } from './useRequests'
 import { RoleGate } from '../../components/RoleGate'
+import { PageHeader } from '../../components/ui/PageHeader'
 import { StatusPill } from '../../components/ui/StatusPill'
+import { Card } from '../../components/ui/Card'
+import { PhotoGrid } from '../../components/ui/PhotoGrid'
+import { Avatar } from '../../components/ui/Avatar'
+import { EmptyState } from '../../components/ui/EmptyState'
+import { Spinner } from '../../components/ui/Spinner'
 import { PatientInfoCard } from './PatientInfoCard'
+import { timeAgo } from '../../lib/format'
 
 export function RequestDetail() {
   const { id } = useParams()
   const q = useRequestDetail(id)
-  if (!q.data) return <p>Yükleniyor…</p>
+  if (!q.data) {
+    return (
+      <div className="flex justify-center py-10">
+        <Spinner />
+      </div>
+    )
+  }
   const { req, responses, patientName, categoryName, subcategoryName, operationName, photos, xrays } = q.data
   const accepted = responses.filter((r) => r.decision === 'accept')
+  const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <h2 className="text-lg font-semibold">Talep #{req.id.slice(0, 8)}</h2>
-        <StatusPill status={req.status} />
-      </div>
+    <div className="space-y-4">
+      <PageHeader
+        title={title}
+        subtitle={`Talep #${req.id.slice(0, 8)} · ${timeAgo(req.created_at)}`}
+        actions={<StatusPill status={req.status} />}
+      />
       <PatientInfoCard
         req={req}
         patientName={patientName}
@@ -23,35 +38,36 @@ export function RequestDetail() {
         subcategoryName={subcategoryName}
         operationName={operationName}
       />
-      <section>
-        <h3 className="font-medium">Fotoğraflar</h3>
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          {photos.map((url, i) => <img key={i} src={url} className="rounded border" />)}
-        </div>
-      </section>
+      <Card title="Fotoğraflar">
+        <PhotoGrid urls={photos} title="Fotoğraf" />
+      </Card>
       {xrays.length > 0 && (
-        <section>
-          <h3 className="font-medium">Diş Röntgeni</h3>
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            {xrays.map((url, i) => <img key={i} src={url} className="rounded border" />)}
-          </div>
-        </section>
+        <Card title="Diş Röntgeni">
+          <PhotoGrid urls={xrays} title="Röntgen" />
+        </Card>
       )}
       {/* Doktor planları: yalnız sales/coordinator/admin. Aracıya RLS zaten engeller; UI de gizler. */}
       <RoleGate allow={['sales','coordinator','admin']}>
-        <section>
-          <h3 className="font-medium">Doktor Teklifleri ({accepted.length})</h3>
+        <section className="space-y-2">
+          <h3 className="font-display text-base text-slate-900">Doktor Teklifleri ({accepted.length})</h3>
           {accepted.map((r) => (
-            <div key={r.id} className="border rounded p-3 bg-white mt-2">
-              <p className="text-sm text-slate-500">Doktor #{r.doctor_id.slice(0, 8)}</p>
-              <p className="whitespace-pre-wrap">{r.treatment_plan}</p>
-            </div>
+            <Card key={r.id}>
+              <div className="flex items-start gap-3">
+                <Avatar name="Doktor" size="sm" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-500">Doktor #{r.doctor_id.slice(0, 8)}</p>
+                  <p className="whitespace-pre-wrap text-sm mt-1">{r.treatment_plan}</p>
+                </div>
+              </div>
+            </Card>
           ))}
-          {accepted.length === 0 && <p className="text-slate-500">Henüz kabul eden doktor yok.</p>}
+          {accepted.length === 0 && <EmptyState title="Henüz kabul eden doktor yok" />}
         </section>
       </RoleGate>
       <RoleGate allow={['agent']}>
-        <p className="text-slate-500 text-sm">Doktor yanıtı hazır olduğunda satış ekibi sizinle paylaşacaktır.</p>
+        <Card>
+          <p className="text-sm text-slate-500">Doktor yanıtı hazır olduğunda satış ekibi sizinle paylaşacaktır.</p>
+        </Card>
       </RoleGate>
     </div>
   )
