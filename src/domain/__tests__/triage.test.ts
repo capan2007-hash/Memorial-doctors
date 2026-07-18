@@ -9,7 +9,6 @@ import {
 
 const ctx: TriageContext = {
   patient: {
-    fullName: 'Ayşe Yılmaz',
     age: 34,
     heightCm: 165,
     weightKg: 62,
@@ -115,10 +114,16 @@ describe('buildSystemPrompt', () => {
   it('rol tanımını içerir', () => {
     expect(prompt).toContain('DAHİLİ triyaj yardımcısısın')
   })
+
+  it('ad/PII yasağı satırını içerir', () => {
+    expect(prompt).toContain(
+      'Hastanın adını asla kullanma; çıktında hastayı tanımlayabilecek kişisel veri (ad, telefon, kimlik numarası) yazma.',
+    )
+  })
 })
 
 describe('buildUserContent', () => {
-  it('2 foto + 1 xray -> 2+1 image bloğu + xray işaret metni + özet bloğu; ad geçmez', () => {
+  it('2 foto + 1 xray -> 2+1 image bloğu + xray işaret metni + özet bloğu', () => {
     const blocks = buildUserContent(ctx, ['https://x/1.jpg', 'https://x/2.jpg'], ['https://x/xray1.jpg'])
 
     expect(blocks).toHaveLength(5)
@@ -129,13 +134,47 @@ describe('buildUserContent', () => {
 
     const summaryBlock = blocks[4] as { type: string; text: string }
     expect(summaryBlock.type).toBe('text')
-    expect(summaryBlock.text).not.toContain('Ayşe Yılmaz')
   })
 
   it('xray yoksa xray işaret metni eklenmez', () => {
     const blocks = buildUserContent(ctx, ['https://x/1.jpg'], [])
     expect(blocks).toHaveLength(2)
     expect(blocks[0]).toEqual({ type: 'image', source: { type: 'url', url: 'https://x/1.jpg' } })
+  })
+
+  it('notlardaki telefon numarasını maskeler', () => {
+    const ctxWithPhone: TriageContext = {
+      ...ctx,
+      patient: { ...ctx.patient, notes: 'Kontrol için ara: 0555 123 45 67' },
+    }
+    const blocks = buildUserContent(ctxWithPhone, [], [])
+    const summaryBlock = blocks[0] as { type: string; text: string }
+    expect(summaryBlock.text).toContain('[maskelendi]')
+    expect(summaryBlock.text).not.toContain('0555 123 45 67')
+  })
+
+  it('notlardaki TC kimlik numarasını maskeler', () => {
+    const ctxWithTc: TriageContext = {
+      ...ctx,
+      patient: { ...ctx.patient, notes: 'TC: 12345678901' },
+    }
+    const blocks = buildUserContent(ctxWithTc, [], [])
+    const summaryBlock = blocks[0] as { type: string; text: string }
+    expect(summaryBlock.text).toContain('[maskelendi]')
+    expect(summaryBlock.text).not.toContain('12345678901')
+  })
+
+  it('geri bildirim ipucundaki (note ve summary) PII maskelenir', () => {
+    const ctxWithFeedbackPii: TriageContext = {
+      ...ctx,
+      feedbackHints: [
+        { label: 'partial', note: 'Hastayı ara: 0555 123 45 67', summary: 'İletişim: a@b.com üzerinden onaylandı' },
+      ],
+    }
+    const blocks = buildUserContent(ctxWithFeedbackPii, [], [])
+    const summaryBlock = blocks[0] as { type: string; text: string }
+    expect(summaryBlock.text).not.toContain('0555 123 45 67')
+    expect(summaryBlock.text).not.toContain('a@b.com')
   })
 })
 

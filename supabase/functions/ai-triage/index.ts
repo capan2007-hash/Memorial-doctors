@@ -69,9 +69,9 @@ Deno.serve(async (req) => {
   if (!apiKey) return await writeFailed('ANTHROPIC_API_KEY tanımlı değil')
 
   try {
-    // Bağlam topla: hasta + operasyon adları + fotoğraflar + atanan doktor kartları + geri bildirim ipuçları.
-    const [patientRes, catRes, subRes, opRes, photosRes, assignRes] = await Promise.all([
-      admin.from('patient').select('first_name, last_name').eq('id', request.patient_id).single(),
+    // Bağlam topla: operasyon adları + fotoğraflar + atanan doktor kartları + geri bildirim ipuçları.
+    // Hasta adı bilerek çekilmiyor (gizlilik K3): AI bağlamı ada ihtiyaç duymaz.
+    const [catRes, subRes, opRes, photosRes, assignRes] = await Promise.all([
       admin.from('category').select('name').eq('id', request.category_id).single(),
       request.subcategory_id
         ? admin.from('subcategory').select('name').eq('id', request.subcategory_id).single()
@@ -114,10 +114,8 @@ Deno.serve(async (req) => {
       else photoUrls.push(signed.signedUrl)
     }
 
-    const patient = patientRes.data
     const ctx: TriageContext = {
       patient: {
-        fullName: patient ? `${patient.first_name} ${patient.last_name}` : '',
         age: request.age, heightCm: request.height_cm, weightKg: request.weight_kg,
         gender: request.gender,
         pastSurgeries: request.past_surgeries, knownConditions: request.known_conditions,
