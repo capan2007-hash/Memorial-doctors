@@ -3,7 +3,15 @@ import { supabase } from '../../lib/supabase'
 import { uploadPhotos } from './usePhotoUpload'
 import { resolveAssignees } from '../../domain/assignment'
 import type { ScopedDoctor } from '../../domain/assignment'
-import type { RequestRow, ResponseRow } from '../../types/db'
+import type { RequestRow, ResponseRow, PhotoRow } from '../../types/db'
+
+async function signPhotoUrls(photos: PhotoRow[]) {
+  const signed = await Promise.all(photos.map(async (p) => {
+    const { data } = await supabase.storage.from('photos').createSignedUrl(p.storage_path, 300)
+    return data?.signedUrl
+  }))
+  return signed.filter(Boolean) as string[]
+}
 
 interface NewRequestInput {
   tenantId: string
@@ -74,9 +82,35 @@ export function useMyRequests() {
 
 export function useRequestDetail(id?: string) {
   return useQuery({ queryKey: ['request', id], enabled: !!id, queryFn: async () => {
-    const { data: req } = await supabase.from('request').select('*').eq('id', id!).single()
+    const { data: reqData } = await supabase.from('request').select('*').eq('id', id!).single()
+    const req = reqData as RequestRow
     // response: RLS gereği agent'a boş döner; sales/coordinator/admin görür
-    const { data: responses } = await supabase.from('response').select('*').eq('request_id', id!)
-    return { req: req as RequestRow, responses: (responses ?? []) as ResponseRow[] }
+    const [{ data: responses }, { data: patient }, { data: category }, { data: subcategory }, { data: operationType }, { data: photoRows }] = await Promise.all([
+      supabase.from('response').select('*').eq('request_id', id!),
+      supabase.from('patient').select('first_name, last_name').eq('id', req.patient_id).single(),
+      supabase.from('category').select('name').eq('id', req.category_id).single(),
+      req.subcategory_id
+        ? supabase.from('subcategory').select('name').eq('id', req.subcategory_id).single()
+        : Promise.resolve({ data: null }),
+      req.operation_type_id
+        ? supabase.from('operation_type').select('name').eq('id', req.operation_type_id).single()
+        : Promise.resolve({ data: null }),
+      supabase.from('photo').select('*').eq('request_id', id!),
+    ])
+    const allPhotos = (photoRows ?? []) as PhotoRow[]
+    const [photos, xrays] = await Promise.all([
+      signPhotoUrls(allPhotos.filter((p) => p.kind === 'photo')),
+      signPhotoUrls(allPhotos.filter((p) => p.kind === 'xray')),
+    ])
+    return {
+      req,
+      responses: (responses ?? []) as ResponseRow[],
+      patientName: patient ? `${patient.first_name} ${patient.last_name}` : '—',
+      categoryName: category?.name as string | undefined,
+      subcategoryName: (subcategory?.name as string | undefined) ?? null,
+      operationName: (operationType?.name as string | undefined) ?? null,
+      photos,
+      xrays,
+    }
   }})
 }
