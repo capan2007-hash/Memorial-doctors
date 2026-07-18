@@ -8,6 +8,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     // Playwright E2E (tests/e2e) vitest ile çalıştırılmaz; ayrı `npm run e2e`.
-    exclude: ['tests/e2e/**', 'node_modules/**', 'dist/**'],
+    // mobile/ ayrı bir Expo uygulamasıdır (jest ile test edilir) — kök vitest dokunmaz.
+    exclude: ['tests/e2e/**', '**/node_modules/**', 'dist/**', 'mobile/**'],
   },
 } as any)
