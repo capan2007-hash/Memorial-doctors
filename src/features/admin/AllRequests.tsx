@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
-import { StatusPill } from '../../components/StatusPill'
+import { StatusPill } from '../../components/ui/StatusPill'
 import { resolveAssignees } from '../../domain/assignment'
 import type { ScopedDoctor } from '../../domain/assignment'
 import type { RequestRow } from '../../types/db'

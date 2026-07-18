@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useRequestDetail } from './useRequests'
 import { RoleGate } from '../../components/RoleGate'
-import { StatusPill } from '../../components/StatusPill'
+import { StatusPill } from '../../components/ui/StatusPill'
 import { PatientInfoCard } from './PatientInfoCard'
 
 export function RequestDetail() {

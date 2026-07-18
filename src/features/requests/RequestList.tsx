@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMyRequests } from './useRequests'
-import { StatusPill } from '../../components/StatusPill'
+import { StatusPill } from '../../components/ui/StatusPill'
 import { RoleGate } from '../../components/RoleGate'
 
 export function RequestList() {

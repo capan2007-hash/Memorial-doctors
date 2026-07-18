@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { usePendingCount } from './usePendingCount'
 import { Badge } from '../../components/Badge'
-import { StatusPill } from '../../components/StatusPill'
+import { StatusPill } from '../../components/ui/StatusPill'
 import type { RequestRow } from '../../types/db'
 
 function useMyDoctorId() {
