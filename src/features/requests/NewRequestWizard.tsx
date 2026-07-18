@@ -207,7 +207,10 @@ export function NewRequestWizard() {
 
         <Card title="Tıbbi Geçmiş">
           <div className="space-y-4">
-            <Field label="Geçmiş ameliyatlar">
+            {/* Field kullanılmıyor: dış <label> içindeki iç <label> geçersiz HTML olur
+                ve başlığa tıklamak "Yok" checkbox'ını yanlışlıkla toggle'lar. */}
+            <div className="space-y-1">
+              <span className="block text-sm font-medium text-slate-700">Geçmiş ameliyatlar</span>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" aria-label="Yok" checked={pastSurgeries.none}
                   onChange={(e) => setPastSurgeries({ ...pastSurgeries, none: e.target.checked })} />
@@ -217,9 +220,10 @@ export function NewRequestWizard() {
                 <textarea className={inputClass} placeholder="Geçmiş ameliyatlar"
                   value={pastSurgeries.text} onChange={(e) => setPastSurgeries({ ...pastSurgeries, text: e.target.value })} />
               )}
-            </Field>
+            </div>
 
-            <Field label="Bilinen hastalıklar">
+            <div className="space-y-1">
+              <span className="block text-sm font-medium text-slate-700">Bilinen hastalıklar</span>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" aria-label="Yok" checked={knownConditions.none}
                   onChange={(e) => setKnownConditions({ ...knownConditions, none: e.target.checked })} />
@@ -229,9 +233,10 @@ export function NewRequestWizard() {
                 <textarea className={inputClass} placeholder="Bilinen hastalıklar"
                   value={knownConditions.text} onChange={(e) => setKnownConditions({ ...knownConditions, text: e.target.value })} />
               )}
-            </Field>
+            </div>
 
-            <Field label="Düzenli kullanılan ilaçlar">
+            <div className="space-y-1">
+              <span className="block text-sm font-medium text-slate-700">Düzenli kullanılan ilaçlar</span>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" aria-label="Yok" checked={medications.none}
                   onChange={(e) => setMedications({ ...medications, none: e.target.checked })} />
@@ -241,7 +246,7 @@ export function NewRequestWizard() {
                 <textarea className={inputClass} placeholder="Düzenli kullanılan ilaçlar"
                   value={medications.text} onChange={(e) => setMedications({ ...medications, text: e.target.value })} />
               )}
-            </Field>
+            </div>
           </div>
         </Card>
 
