@@ -4,7 +4,7 @@ import { useAuth } from '../../lib/auth'
 import { useCategories, useSubcategories, useOperationTypes } from '../catalog/useCatalog'
 import { useCreateRequest } from './useRequests'
 import { PhotoUploader } from '../../components/PhotoUploader'
-import { medicalValue } from '../../domain/health'
+import { medicalValue, demographicsError } from '../../domain/health'
 
 type Gender = 'female' | 'male' | 'other'
 
@@ -42,28 +42,39 @@ export function NewRequestWizard() {
   const ageNum = Number(age); const weightNum = Number(weightKg); const heightNum = Number(heightCm)
   const medicalValid = (m: MedicalField) => m.none || !!m.text.trim()
 
-  const canSubmit = !!first && !!last && ageNum > 0 && weightNum > 0 && heightNum > 0 && !!gender &&
+  // Üç alan da doluyken aralık doğrulaması yap (yazarken erken uyarı vermemek için)
+  const demoError = age && weightKg && heightCm ? demographicsError(ageNum, weightNum, heightNum) : null
+
+  const canSubmit = !!first && !!last && ageNum > 0 && weightNum > 0 && heightNum > 0 && !demoError && !!gender &&
     !!categoryId && (!needsSub || !!subcategoryId) &&
     medicalValid(pastSurgeries) && medicalValid(knownConditions) && medicalValid(medications) &&
     files.length > 0
 
+  const [submitErr, setSubmitErr] = useState<string | null>(null)
+
   const submit = async () => {
-    const res = await create.mutateAsync({
-      tenantId: appUser!.tenant_id, createdBy: appUser!.id,
-      patient: { first_name: first, last_name: last },
-      age: ageNum, weightKg: weightNum, heightCm: heightNum, gender: gender as Gender,
-      pastSurgeries: medicalValue(pastSurgeries.none, pastSurgeries.text) ?? '',
-      knownConditions: medicalValue(knownConditions.none, knownConditions.text) ?? '',
-      medications: medicalValue(medications.none, medications.text) ?? '',
-      categoryId, subcategoryId: needsSub ? subcategoryId : null,
-      operationTypeId, notes, files,
-      xrayFiles: isDental ? xrayFiles : undefined,
-    })
-    if (res.assignedCount === 0) {
-      setWarn('Talep kaydedildi ancak bu kategoride uygun aktif doktor bulunamadı; koordinatör atama yapacaktır.')
-      return
+    try {
+      const res = await create.mutateAsync({
+        tenantId: appUser!.tenant_id, createdBy: appUser!.id,
+        patient: { first_name: first, last_name: last },
+        // DB kolonları integer: gönderimde yuvarla (ör. 172.5 -> 173)
+        age: Math.round(ageNum), weightKg: weightNum, heightCm: Math.round(heightNum), gender: gender as Gender,
+        pastSurgeries: medicalValue(pastSurgeries.none, pastSurgeries.text) ?? '',
+        knownConditions: medicalValue(knownConditions.none, knownConditions.text) ?? '',
+        medications: medicalValue(medications.none, medications.text) ?? '',
+        categoryId, subcategoryId: needsSub ? subcategoryId : null,
+        operationTypeId, notes, files,
+        xrayFiles: isDental ? xrayFiles : undefined,
+      })
+      setSubmitErr(null)
+      if (res.assignedCount === 0) {
+        setWarn('Talep kaydedildi ancak bu kategoride uygun aktif doktor bulunamadı; koordinatör atama yapacaktır.')
+        return
+      }
+      nav('/requests')
+    } catch (e) {
+      setSubmitErr('Talep gönderilemedi: ' + (e as Error).message)
     }
-    nav('/requests')
   }
 
   return (
@@ -147,6 +158,8 @@ export function NewRequestWizard() {
           <PhotoUploader files={xrayFiles} onChange={setXrayFiles} />
         </div>
       )}
+      {demoError && <p className="text-red-600 text-sm">{demoError}</p>}
+      {submitErr && <p className="text-red-600 text-sm">{submitErr}</p>}
       {warn && <p className="text-amber-700 text-sm">{warn}</p>}
       <button disabled={!canSubmit || create.isPending}
         className="w-full bg-slate-800 text-white rounded p-2 disabled:opacity-40"
