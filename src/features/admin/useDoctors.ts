@@ -115,20 +115,17 @@ export function useUpdateDoctor() {
         if (error) throw error
       }
 
-      const { error: delErr } = await supabase.from('doctor_scope').delete().eq('doctor_id', id)
-      if (delErr) throw delErr
-      if (scopes.length) {
-        const rows = scopes.map((s) => ({
-          tenant_id: appUser!.tenant_id, doctor_id: id, category_id: s.categoryId, subcategory_id: s.subcategoryId,
-        }))
-        const { error: insErr } = await supabase.from('doctor_scope').insert(rows)
-        if (insErr) throw insErr
-      }
+      const { error: scopeErr } = await supabase.rpc('set_doctor_scopes', {
+        p_doctor_id: id,
+        p_scopes: scopes,
+      })
+      if (scopeErr) throw scopeErr
 
-      await supabase.from('audit_log').insert({
+      const { error: auditErr } = await supabase.from('audit_log').insert({
         tenant_id: appUser!.tenant_id, actor_id: appUser!.id, action: 'doctor_update', entity: 'doctor',
         after: { doctor_id: id },
       })
+      if (auditErr) throw auditErr
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['doctors'] }),
   })
