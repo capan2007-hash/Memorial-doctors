@@ -13,6 +13,7 @@ import { timeAgo } from '../../lib/format'
 import { resolveAssignees } from '../../domain/assignment'
 import type { ScopedDoctor } from '../../domain/assignment'
 import type { RequestRow } from '../../types/db'
+import { AiAccuracyCard } from '../ai/AiAccuracyCard'
 
 type EnrichedRequestRow = RequestRow & { patientName: string; categoryName: string }
 
@@ -62,6 +63,7 @@ export function AllRequests() {
   return (
     <div>
       <PageHeader title="Tüm Talepler" />
+      <AiAccuracyCard />
       {reqs.isLoading && (
         <div className="flex justify-center py-10">
           <Spinner />
