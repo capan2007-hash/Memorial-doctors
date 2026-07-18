@@ -60,4 +60,22 @@ describe('scrubPii', () => {
   it('null/undefined benzeri boş girişte hata fırlatmaz', () => {
     expect(scrubPii('')).toBe('')
   })
+
+  it('harfe bitişik TC kimlik numarasını maskeler', () => {
+    expect(scrubPii('TC12345678901 kayıtlı')).toBe('TC[maskelendi] kayıtlı')
+  })
+
+  it('öneksiz 5xx cep numarasını maskeler', () => {
+    expect(scrubPii('Tel: 5551234567')).toBe('Tel: [maskelendi]')
+  })
+
+  it('parantezli cep numarasını maskeler', () => {
+    expect(scrubPii('Tel: 0(555) 123 45 67')).toBe('Tel: [maskelendi]')
+  })
+
+  it('Türkçe karakterli e-postayı TAMAMEN maskeler (ad sızmaz)', () => {
+    const out = scrubPii('İletişim: ayşe.yılmaz@example.com')
+    expect(out).toBe('İletişim: [maskelendi]')
+    expect(out).not.toContain('ayş')
+  })
 })

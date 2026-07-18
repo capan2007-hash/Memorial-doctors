@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
+import { safeExt, sanitizeImage } from '../requests/sanitizeImage'
 import type { DoctorRow, DoctorScopeRow } from '../../types/db'
 
 export interface DoctorScope { categoryId: string; subcategoryId: string | null }
@@ -157,8 +158,10 @@ export function useCreateDoctor() {
 
 /** Doktor fotoğrafını tenant-scoped storage yoluna yükler, storage_path döner (doctor.photo_url'e yazılır). */
 export async function uploadDoctorPhoto(tenantId: string, doctorId: string, file: File) {
-  const path = `${tenantId}/doctors/${doctorId}/${crypto.randomUUID()}-${file.name}`
-  const { error } = await supabase.storage.from('photos').upload(path, file)
+  // Hasta fotoğraflarıyla aynı gizlilik deseni: dosya adı taşınmaz, EXIF düşer.
+  const path = `${tenantId}/doctors/${doctorId}/${crypto.randomUUID()}.${safeExt(file)}`
+  const blob = await sanitizeImage(file)
+  const { error } = await supabase.storage.from('photos').upload(path, blob, { contentType: blob.type || file.type })
   if (error) throw error
   return path
 }
