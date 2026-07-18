@@ -11,3 +11,5 @@ export interface PhotoRow { id: string; request_id: string; storage_path: string
 export interface AssignmentRow { id: string; request_id: string; doctor_id: string; type: 'simultaneous' | 'manual'; assigned_at: string; seen_at: string | null }
 export interface ResponseRow { id: string; request_id: string; doctor_id: string; decision: Decision; reject_reason: string | null; treatment_plan: string | null; responded_at: string }
 export interface DoctorScopeRow { id: string; tenant_id: string; doctor_id: string; category_id: string; subcategory_id: string | null }
+export interface AiEvaluationRow { id: string; tenant_id: string; request_id: string; status: 'ok' | 'warning' | 'failed'; warnings: { type: string; confidence: number; rationale: string }[]; suitability_note: string | null; disclaimer: string; model: string; model_version: string | null; error: string | null; created_at: string }
+export interface AiFeedbackRow { id: string; tenant_id: string; request_id: string; ai_evaluation_id: string; doctor_id: string; label: 'correct' | 'partial' | 'wrong'; note: string | null; created_at: string }
