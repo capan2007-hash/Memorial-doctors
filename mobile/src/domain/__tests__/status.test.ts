@@ -1,4 +1,4 @@
-import { STATUS_LABELS, STATUS_COLORS } from '../status'
+import { STATUS_LABELS, STATUS_COLORS, DECISION_LABELS, DECISION_COLORS } from '../status'
 
 describe('STATUS_LABELS', () => {
   it('tüm durumlar için Türkçe etiket döner', () => {
@@ -18,6 +18,23 @@ describe('STATUS_COLORS', () => {
       expect(STATUS_COLORS[status]).toBeDefined()
       expect(STATUS_COLORS[status].bg).toMatch(/^#/)
       expect(STATUS_COLORS[status].text).toMatch(/^#/)
+    }
+  })
+})
+
+describe('DECISION_LABELS', () => {
+  it('kabul/red için Türkçe etiket döner', () => {
+    expect(DECISION_LABELS.accept).toBe('Kabul')
+    expect(DECISION_LABELS.reject).toBe('Red')
+  })
+})
+
+describe('DECISION_COLORS', () => {
+  it('her karar için bg/text renk çifti tanımlı', () => {
+    for (const decision of Object.keys(DECISION_LABELS) as (keyof typeof DECISION_LABELS)[]) {
+      expect(DECISION_COLORS[decision]).toBeDefined()
+      expect(DECISION_COLORS[decision].bg).toMatch(/^#/)
+      expect(DECISION_COLORS[decision].text).toMatch(/^#/)
     }
   })
 })

@@ -1,12 +1,49 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { useRouter } from 'expo-router'
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
 
+import { useAuth } from '@/lib/auth'
+import { useDoctorQueue, type DoctorQueueRow } from '@/features/queue/useDoctorQueue'
+import { QueueRow } from '@/features/queue/QueueRow'
+import { DecisionBadge } from '@/components/DecisionBadge'
 import { colors, fontFamily, spacing } from '@/theme'
 
 export default function HistoryScreen() {
+  const { doctorId } = useAuth()
+  const queue = useDoctorQueue(doctorId)
+  const router = useRouter()
+
   return (
     <View style={styles.root}>
       <Text style={styles.title}>Geçmiş</Text>
-      <Text style={styles.hint}>Yanıtladığınız talepler yakında burada listelenecek.</Text>
+      {queue.isLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.brand[600]} />
+        </View>
+      ) : (
+        <FlatList
+          data={queue.history}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={queue.isFetching && !queue.isLoading} onRefresh={() => queue.refetch()} />
+          }
+          ItemSeparatorComponent={() => <View style={{ height: spacing.two }} />}
+          renderItem={({ item }: { item: DoctorQueueRow }) => (
+            <QueueRow
+              patientName={item.patientName}
+              categoryName={item.categoryName}
+              assignedAt={item.assignedAt}
+              badge={item.myResponse ? <DecisionBadge decision={item.myResponse.decision} /> : null}
+              onPress={() => router.push({ pathname: '/request/[id]', params: { id: item.id } })}
+            />
+          )}
+          ListEmptyComponent={
+            <View style={styles.center}>
+              <Text style={styles.hint}>Yanıtladığınız talep yok</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   )
 }
@@ -14,16 +51,25 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.one,
     backgroundColor: colors.surface,
-    padding: spacing.four,
+    paddingHorizontal: spacing.four,
+    paddingTop: spacing.four,
   },
   title: {
     fontFamily: fontFamily.display,
     fontSize: 20,
     color: colors.slate[900],
+    marginBottom: spacing.three,
+  },
+  listContent: {
+    paddingBottom: spacing.four,
+    flexGrow: 1,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: spacing.six,
   },
   hint: {
     fontFamily: fontFamily.regular,

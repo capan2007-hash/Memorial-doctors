@@ -28,3 +28,17 @@ export const STATUS_COLORS: Record<RequestStatus, { bg: string; text: string }> 
   escalated: { bg: '#FEF3C7', text: '#B45309' },
   closed: { bg: '#E2E8F0', text: '#334155' },
 }
+
+// Doktor yanıt kararı (bkz. /src/types/domain.ts Decision) — kuyruk/geçmiş
+// rozetleri ve talep detayı salt-okunur bloğu için Türkçe etiket + renk.
+export type Decision = 'accept' | 'reject'
+
+export const DECISION_LABELS: Record<Decision, string> = {
+  accept: 'Kabul',
+  reject: 'Red',
+}
+
+export const DECISION_COLORS: Record<Decision, { bg: string; text: string }> = {
+  accept: { bg: '#CCFBF1', text: '#115E59' },
+  reject: { bg: '#FEE2E2', text: '#B91C1C' },
+}
