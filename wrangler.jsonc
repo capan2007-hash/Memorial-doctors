@@ -1,0 +1,10 @@
+{
+  // Cloudflare Workers static hosting: Vite çıktısını (dist) servis eder.
+  // SPA: bilinmeyen yollar index.html'e düşer (react-router client-side).
+  "name": "medtriage",
+  "compatibility_date": "2026-07-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
