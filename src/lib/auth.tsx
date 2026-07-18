@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 import type { AppUserRow } from '../types/db'
@@ -18,6 +18,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [appUser, setAppUser] = useState<AppUserRow | null>(null)
   const [loading, setLoading] = useState(true)
+  // Yüklü app_user'ın kimliği. Sekmeye dönüşte supabase TOKEN_REFRESHED ile
+  // AYNI kullanıcı için yeni bir session objesi verir; bunu hesap değişimi
+  // sanıp loading'i tetiklemek Protected altındaki tüm ağacı unmount edip
+  // form state'ini siliyordu. Aynı kullanıcıysa yeniden yükleme yapmayız.
+  const loadedUserId = useRef<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -26,11 +31,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (!session) { setAppUser(null); setLoading(false); return }
+    if (!session) { loadedUserId.current = null; setAppUser(null); setLoading(false); return }
+    if (loadedUserId.current === session.user.id) return // token yenileme: kullanıcı değişmedi
     let cancelled = false
     setLoading(true)
     supabase.from('app_user').select('*').eq('id', session.user.id).single()
-      .then(({ data }) => { if (!cancelled) { setAppUser(data as AppUserRow | null); setLoading(false) } })
+      .then(({ data }) => {
+        if (!cancelled) {
+          loadedUserId.current = session.user.id
+          setAppUser(data as AppUserRow | null)
+          setLoading(false)
+        }
+      })
     return () => { cancelled = true }
   }, [session])
 
