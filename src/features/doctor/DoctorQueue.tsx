@@ -9,7 +9,7 @@ import type { RequestRow } from '../../types/db'
 
 export function DoctorQueue() {
   const doc = useMyDoctorId()
-  const pending = usePendingCount(doc.data)
+  const pending = usePendingCount(doc.data ?? undefined)
   const list = useQuery({ queryKey: ['doctor-queue', doc.data], enabled: !!doc.data, queryFn: async () => {
     const { data: asgs } = await supabase.from('assignment').select('request_id').eq('doctor_id', doc.data!)
     const ids = (asgs ?? []).map((a) => a.request_id)

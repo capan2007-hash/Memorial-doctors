@@ -42,7 +42,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const location = useLocation()
   const myDoctorId = useMyDoctorId()
   const isDoctor = role === 'doctor'
-  const pendingCount = usePendingCount(isDoctor ? myDoctorId.data : undefined)
+  const pendingCount = usePendingCount(isDoctor ? myDoctorId.data ?? undefined : undefined)
   const links = navLinks(role)
 
   const isActive = (to: string) => location.pathname === to || location.pathname.startsWith(to + '/')
