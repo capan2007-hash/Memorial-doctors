@@ -45,7 +45,11 @@ export function Layout({ children }: { children: ReactNode }) {
   const pendingCount = usePendingCount(isDoctor ? myDoctorId.data ?? undefined : undefined)
   const links = navLinks(role)
 
-  const isActive = (to: string) => location.pathname === to || location.pathname.startsWith(to + '/')
+  // En uzun eşleşen link aktif sayılır: /requests/new'de yalnız 'Yeni Talep'
+  // aktif olur, prefix'i olan '/requests' değil.
+  const matches = (to: string) => location.pathname === to || location.pathname.startsWith(to + '/')
+  const activeTo = links.filter((l) => matches(l.to)).sort((a, b) => b.to.length - a.to.length)[0]?.to
+  const isActive = (to: string) => to === activeTo
 
   return (
     <div className="min-h-screen bg-slate-50">
