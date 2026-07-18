@@ -27,9 +27,9 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
   // varsayılan substring/case-insensitive eşleşme yapar) — exact:true zorunlu.
   await sales.getByLabel('Ad', { exact: true }).fill('Test')
   await sales.getByLabel('Soyad').fill(SURNAME)
-  await sales.getByLabel('Yaş').fill('35')
-  await sales.getByLabel('Boy').fill('175')
-  await sales.getByLabel('Kilo').fill('80')
+  await sales.getByLabel('Yaş', { exact: true }).fill('35')
+  await sales.getByLabel('Boy', { exact: true }).fill('175')
+  await sales.getByLabel('Kilo', { exact: true }).fill('80')
   // Field sarmalı select'ler artık implicit <label> ile bulunuyor; pozisyonel
   // nth() kalktı. Operasyon tipi select'i kategori seçilene kadar render
   // edilmediği için bu adımda yok.
