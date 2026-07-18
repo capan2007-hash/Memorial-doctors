@@ -66,6 +66,8 @@ export function useCreateRequest() {
         const { error: updErr } = await supabase.from('request').update({ status: 'assigned', assigned_at: new Date().toISOString() }).eq('id', req.id)
         if (updErr) throw updErr
       }
+      // AI ön-triyaj: fire-and-forget — FR-11 gereği akışı asla bloklamaz/hata sızdırmaz.
+      void supabase.functions.invoke('ai-triage', { body: { requestId: req.id } }).catch(() => {})
       return { requestId: req.id as string, assignedCount: targets.length }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['requests'] }),
