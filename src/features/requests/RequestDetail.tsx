@@ -2,12 +2,13 @@ import { useParams } from 'react-router-dom'
 import { useRequestDetail } from './useRequests'
 import { RoleGate } from '../../components/RoleGate'
 import { StatusPill } from '../../components/StatusPill'
+import { PatientInfoCard } from './PatientInfoCard'
 
 export function RequestDetail() {
   const { id } = useParams()
   const q = useRequestDetail(id)
   if (!q.data) return <p>Yükleniyor…</p>
-  const { req, responses } = q.data
+  const { req, responses, patientName, categoryName, subcategoryName, operationName, photos, xrays } = q.data
   const accepted = responses.filter((r) => r.decision === 'accept')
   return (
     <div className="space-y-3">
@@ -15,6 +16,27 @@ export function RequestDetail() {
         <h2 className="text-lg font-semibold">Talep #{req.id.slice(0, 8)}</h2>
         <StatusPill status={req.status} />
       </div>
+      <PatientInfoCard
+        req={req}
+        patientName={patientName}
+        categoryName={categoryName}
+        subcategoryName={subcategoryName}
+        operationName={operationName}
+      />
+      <section>
+        <h3 className="font-medium">Fotoğraflar</h3>
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          {photos.map((url, i) => <img key={i} src={url} className="rounded border" />)}
+        </div>
+      </section>
+      {xrays.length > 0 && (
+        <section>
+          <h3 className="font-medium">Diş Röntgeni</h3>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {xrays.map((url, i) => <img key={i} src={url} className="rounded border" />)}
+          </div>
+        </section>
+      )}
       {/* Doktor planları: yalnız sales/coordinator/admin. Aracıya RLS zaten engeller; UI de gizler. */}
       <RoleGate allow={['sales','coordinator','admin']}>
         <section>

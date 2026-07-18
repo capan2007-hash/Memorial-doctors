@@ -4,7 +4,16 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { useRespond } from './useRespond'
+import { PatientInfoCard } from '../requests/PatientInfoCard'
 import type { RequestRow, PhotoRow } from '../../types/db'
+
+async function signPhotoUrls(photos: PhotoRow[]) {
+  const signed = await Promise.all(photos.map(async (p) => {
+    const { data } = await supabase.storage.from('photos').createSignedUrl(p.storage_path, 300)
+    return data?.signedUrl
+  }))
+  return signed.filter(Boolean) as string[]
+}
 
 export function DoctorRequestView() {
   const { id } = useParams()
@@ -15,13 +24,33 @@ export function DoctorRequestView() {
   const [reason, setReason] = useState('')
   const [respErr, setRespErr] = useState<string | null>(null)
   const q = useQuery({ queryKey: ['doctor-request', id], enabled: !!id, queryFn: async () => {
-    const { data: req } = await supabase.from('request').select('*').eq('id', id!).single()
-    const { data: photos } = await supabase.from('photo').select('*').eq('request_id', id!)
-    const signed = await Promise.all(((photos ?? []) as PhotoRow[]).map(async (p) => {
-      const { data } = await supabase.storage.from('photos').createSignedUrl(p.storage_path, 300)
-      return data?.signedUrl
-    }))
-    return { req: req as RequestRow, photos: signed.filter(Boolean) as string[] }
+    const { data: reqData } = await supabase.from('request').select('*').eq('id', id!).single()
+    const req = reqData as RequestRow
+    const [{ data: patient }, { data: category }, { data: subcategory }, { data: operationType }, { data: photoRows }] = await Promise.all([
+      supabase.from('patient').select('first_name, last_name').eq('id', req.patient_id).single(),
+      supabase.from('category').select('name').eq('id', req.category_id).single(),
+      req.subcategory_id
+        ? supabase.from('subcategory').select('name').eq('id', req.subcategory_id).single()
+        : Promise.resolve({ data: null }),
+      req.operation_type_id
+        ? supabase.from('operation_type').select('name').eq('id', req.operation_type_id).single()
+        : Promise.resolve({ data: null }),
+      supabase.from('photo').select('*').eq('request_id', id!),
+    ])
+    const allPhotos = (photoRows ?? []) as PhotoRow[]
+    const [photos, xrays] = await Promise.all([
+      signPhotoUrls(allPhotos.filter((p) => p.kind === 'photo')),
+      signPhotoUrls(allPhotos.filter((p) => p.kind === 'xray')),
+    ])
+    return {
+      req,
+      patientName: patient ? `${patient.first_name} ${patient.last_name}` : '—',
+      categoryName: category?.name as string | undefined,
+      subcategoryName: (subcategory?.name as string | undefined) ?? null,
+      operationName: (operationType?.name as string | undefined) ?? null,
+      photos,
+      xrays,
+    }
   }})
 
   useEffect(() => {
@@ -56,11 +85,29 @@ export function DoctorRequestView() {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold">Talep #{q.data.req.id.slice(0, 8)}</h2>
-      <p className="text-sm text-slate-600">{q.data.req.notes}</p>
-      <div className="grid grid-cols-2 gap-2">
-        {q.data.photos.map((url, i) => <img key={i} src={url} className="rounded border" />)}
-      </div>
+      <PatientInfoCard
+        req={q.data.req}
+        patientName={q.data.patientName}
+        categoryName={q.data.categoryName}
+        subcategoryName={q.data.subcategoryName}
+        operationName={q.data.operationName}
+      />
+      <section>
+        <h3 className="font-medium">Fotoğraflar</h3>
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          {q.data.photos.map((url, i) => <img key={i} src={url} className="rounded border" />)}
+        </div>
+      </section>
+      {q.data.xrays.length > 0 && (
+        <section>
+          <h3 className="font-medium">Diş Röntgeni</h3>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {q.data.xrays.map((url, i) => <img key={i} src={url} className="rounded border" />)}
+          </div>
+        </section>
+      )}
       {respErr && <p className="text-red-600 text-sm">{respErr}</p>}
+      {/* AI uyarıları — M2 */}
       {mode === 'none' && (
         <div className="flex gap-2">
           <button className="flex-1 bg-green-600 text-white rounded p-2" onClick={() => setMode('accept')}>Kabul</button>

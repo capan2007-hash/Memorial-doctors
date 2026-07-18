@@ -25,7 +25,19 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
   await sales.goto('/requests/new')
   await sales.getByPlaceholder('Ad', { exact: true }).fill('Test')
   await sales.getByPlaceholder('Soyad').fill(SURNAME)
-  await sales.getByRole('combobox').first().selectOption({ label: 'Saç Ekimi' })
+  await sales.getByPlaceholder('Yaş').fill('35')
+  await sales.getByPlaceholder('Boy (cm)').fill('175')
+  await sales.getByPlaceholder('Kilo (kg)').fill('80')
+  // Combobox sırası DOM render sırasıyla eşleşir: Cinsiyet (0), Kategori (1).
+  // Operasyon tipi select'i kategori seçilene kadar render edilmediği için bu adımda yok.
+  await sales.getByRole('combobox').nth(0).selectOption({ label: 'Kadın' })
+  await sales.getByRole('combobox').nth(1).selectOption({ label: 'Saç Ekimi' })
+  // Geçmiş ameliyatlar / Bilinen hastalıklar / Düzenli kullanılan ilaçlar — üçü de "Yok" ile geçilir.
+  const yokCheckboxes = sales.getByRole('checkbox', { name: 'Yok' })
+  await expect(yokCheckboxes).toHaveCount(3)
+  for (let i = 0; i < 3; i++) {
+    await yokCheckboxes.nth(i).check()
+  }
   await sales.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
   await sales.getByRole('button', { name: 'Gönder' }).click()
   await expect(sales).toHaveURL(/requests/)
