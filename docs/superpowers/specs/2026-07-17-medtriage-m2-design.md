@@ -70,7 +70,11 @@ BRD FR-8 ve rol tablosu, AI ham çıktısını **doktor + koordinatör** ile sı
 ai_evaluation   id, tenant_id, request_id,
                 status(enum: ok | warning | failed),
                 warnings(jsonb: [{type, confidence(0..1), rationale}]),
-                suitability_note(text),         -- yön gösterici, bağlayıcı değil (FR-9)
+                suitability_note(text),         -- yön gösterici, bağlayıcı değil (FR-9):
+                                                -- hastanın talebi + demografi + tıbbi bilgi + fotoğraflara göre
+                                                -- hangi işlemlerin uygun/önerilebilir olduğu ve nelere dikkat
+                                                -- edilmesi gerektiği hakkında serbest metin AI yorumu
+                                                -- (kullanıcı gereksinimi, 2026-07-18)
                 disclaimer(text not null),      -- zorunlu (FR-10)
                 model(text), model_version(text),
                 error(text),                    -- status=failed durumunda
