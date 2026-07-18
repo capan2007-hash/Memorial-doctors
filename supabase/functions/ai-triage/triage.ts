@@ -2,6 +2,8 @@
 // Hem Deno edge function (ai-triage/index.ts) hem de vitest tarafından
 // göreli yoldan import edilir.
 
+import { scrubPii } from './scrub.ts'
+
 export const MODEL_ID = 'claude-opus-4-8'
 
 export const DISCLAIMER =
@@ -23,7 +25,6 @@ export interface TriageWarning {
 }
 
 export interface TriagePatient {
-  fullName: string
   age: number | null
   heightCm: number | null
   weightKg: number | null
@@ -80,6 +81,8 @@ export function buildSystemPrompt(): string {
       'metinle açıkla.',
     '',
     'Yanıtını daima Türkçe ver ve yalnızca istenen yapılandırılmış şemaya uygun çıktı üret.',
+    '',
+    'Hastanın adını asla kullanma; çıktında hastayı tanımlayabilecek kişisel veri (ad, telefon, kimlik numarası) yazma.',
   ].join('\n')
 }
 
@@ -100,10 +103,10 @@ function buildSummaryText(ctx: TriageContext): string {
   lines.push(`- Cinsiyet: ${patient.gender ?? 'belirtilmemiş'}`)
   lines.push(`- Boy (cm): ${patient.heightCm ?? 'belirtilmemiş'}`)
   lines.push(`- Kilo (kg): ${patient.weightKg ?? 'belirtilmemiş'}`)
-  lines.push(`- Geçirilmiş ameliyatlar: ${patient.pastSurgeries}`)
-  lines.push(`- Bilinen rahatsızlıklar: ${patient.knownConditions}`)
-  lines.push(`- Kullanılan ilaçlar: ${patient.medications}`)
-  lines.push(`- Not: ${patient.notes ?? 'yok'}`)
+  lines.push(`- Geçirilmiş ameliyatlar: ${scrubPii(patient.pastSurgeries)}`)
+  lines.push(`- Bilinen rahatsızlıklar: ${scrubPii(patient.knownConditions)}`)
+  lines.push(`- Kullanılan ilaçlar: ${scrubPii(patient.medications)}`)
+  lines.push(`- Not: ${patient.notes ? scrubPii(patient.notes) : 'yok'}`)
   lines.push('')
   lines.push('İstenen operasyon:')
   lines.push(`- Kategori: ${operation.category}`)
@@ -125,7 +128,9 @@ function buildSummaryText(ctx: TriageContext): string {
     lines.push('')
     lines.push('Geçmiş doktor geri bildirimlerinden ipuçları:')
     feedbackHints.forEach((f) => {
-      lines.push(`- [${f.label}] ${f.summary}${f.note ? ` (${f.note})` : ''}`)
+      const summary = scrubPii(f.summary)
+      const note = f.note ? scrubPii(f.note) : null
+      lines.push(`- [${f.label}] ${summary}${note ? ` (${note})` : ''}`)
     })
   }
 
