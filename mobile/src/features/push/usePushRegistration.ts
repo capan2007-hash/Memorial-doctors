@@ -124,6 +124,9 @@ export function useNotificationDeepLink() {
   const router = useRouter()
 
   useEffect(() => {
+    // Web'de uzak bildirim API'leri yok; deep link dinleyicileri yalnız native.
+    if (Platform.OS === 'web') return
+
     const navigateFromResponse = (response: Notifications.NotificationResponse | null) => {
       const requestId = response?.notification.request.content.data?.requestId as string | undefined
       if (!requestId) return
@@ -131,10 +134,12 @@ export function useNotificationDeepLink() {
     }
 
     // Soğuk başlangıç: uygulama bir bildirime dokunularak açıldıysa.
-    Notifications.getLastNotificationResponseAsync().then((response) => {
-      navigateFromResponse(response)
-      if (response) Notifications.clearLastNotificationResponseAsync().catch(() => {})
-    })
+    Notifications.getLastNotificationResponseAsync()
+      .then((response) => {
+        navigateFromResponse(response)
+        if (response) Notifications.clearLastNotificationResponseAsync().catch(() => {})
+      })
+      .catch(() => {})
 
     // Uygulama açıkken/arka plandayken bildirime dokunma.
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
