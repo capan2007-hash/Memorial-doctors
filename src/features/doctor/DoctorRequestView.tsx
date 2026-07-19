@@ -15,6 +15,7 @@ import { PhotoGrid } from '../../components/ui/PhotoGrid'
 import { Field } from '../../components/ui/Field'
 import { Button } from '../../components/ui/Button'
 import { Spinner } from '../../components/ui/Spinner'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../components/ui/Toast'
 import { timeAgo } from '../../lib/format'
 import type { RequestRow, PhotoRow } from '../../types/db'
@@ -88,6 +89,10 @@ export function DoctorRequestView() {
       setRespErr(message)
       toast.show(message, 'error')
     }
+  }
+
+  if (q.isError || (!q.isLoading && !q.data)) {
+    return <EmptyState title="Talep bulunamadı" description="Bu talep silinmiş veya bağlantı hatalı olabilir." />
   }
 
   if (!q.data) {
