@@ -85,6 +85,35 @@ export function useDoctorMetrics(doctorId?: string) {
   })
 }
 
+export interface DoctorPerformanceRow {
+  doctor_id: string
+  title: string | null
+  specialty: string | null
+  score: number
+  is_active: boolean
+  accept_count: number
+  reject_count: number
+  avg_response_mins: number | null
+  timely_count: number
+  breach_count: number
+  pending_count: number
+}
+
+/** Koordinatör/admin için doktor performans özeti (RPC zaten tenant+role kapsamlı; sales için []). */
+export function useDoctorPerformance(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['doctor-performance', from, to],
+    queryFn: async (): Promise<DoctorPerformanceRow[]> => {
+      const { data, error } = await supabase.rpc('doctor_performance_summary', {
+        p_from: from ?? null,
+        p_to: to ?? null,
+      })
+      if (error) throw error
+      return (data ?? []) as DoctorPerformanceRow[]
+    },
+  })
+}
+
 export interface ScoreEventRow { id: string; delta: 1 | -1; reason: 'timely_response' | 'sla_breach'; created_at: string }
 
 /** Doktorun skor olayları (score_event); from/to verilirse created_at aralığına daraltır (ISO). */
