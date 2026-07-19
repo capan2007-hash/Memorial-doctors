@@ -51,10 +51,12 @@ Deno.serve(async (req) => {
     if (!secretRow || !timingSafeEqual(provided, secretRow.value)) return json({ error: 'unauthorized' }, 401)
 
     let purged = 0
-    // (a) not_completed: yüklemeden retention_days sonra
     const { data: photosA } = await admin.rpc('photos_due_purge')
     for (const p of (photosA ?? []) as { photo_id: string; storage_path: string; tenant_id: string; reason: string }[]) {
-      await admin.storage.from('photos').remove([p.storage_path]).catch(() => {})
+      // Storage silme başarısızsa satırı imha işaretleme: aksi halde disk'te orphan
+      // kalır ama KVKK'da imha sayılır ve deleted_at guard'ı retry'ı engeller.
+      const { error: rmErr } = await admin.storage.from('photos').remove([p.storage_path])
+      if (rmErr) continue
       await admin.from('photo').update({ deleted_at: new Date().toISOString(), deletion_reason: p.reason }).eq('id', p.photo_id)
       await admin.from('audit_log').insert({
         tenant_id: p.tenant_id, actor_id: null, action: 'photo_purged', entity: 'photo',

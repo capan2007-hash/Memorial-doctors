@@ -22,7 +22,10 @@ export function useSetSaleStatus() {
   return useMutation({
     mutationFn: async (input: SetSaleStatusInput) => {
       const update: Record<string, unknown> = { sale_status: input.saleStatus }
+      // sale_done talebi kapatır; not_completed'a geri dönüş kapanışı geri alır
+      // (teklifler yeniden görünür olsun — sale_done olabilmesi için kabul edilmiş teklif vardı).
       if (input.saleStatus === 'sale_done') update.status = 'closed'
+      else if (input.saleStatus === 'not_completed') update.status = 'offers_ready'
       const { error } = await supabase.from('request').update(update).eq('id', input.requestId)
       if (error) throw error
 
