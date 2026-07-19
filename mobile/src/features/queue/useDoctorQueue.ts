@@ -61,6 +61,18 @@ function uniqueSuffix(): string {
   return globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)
 }
 
+interface TenantSla {
+  sla_hours: number
+  sla_reminder_hours: number
+}
+
+async function fetchTenantSla(): Promise<TenantSla> {
+  // RLS tek satırla sınırlar (bkz. web AllRequests.tsx aynı desen); tenant filtresi gerekmez.
+  const { data, error } = await supabase.from('tenant').select('sla_hours, sla_reminder_hours').single()
+  if (error) throw error
+  return data as TenantSla
+}
+
 export function useDoctorQueue(doctorId?: string | null) {
   const qc = useQueryClient()
   const query = useQuery({
@@ -68,6 +80,13 @@ export function useDoctorQueue(doctorId?: string | null) {
     enabled: !!doctorId,
     queryFn: () => fetchDoctorQueue(doctorId!),
   })
+  const tenantSla = useQuery({
+    queryKey: ['tenant-sla'],
+    enabled: !!doctorId,
+    queryFn: fetchTenantSla,
+  })
+  const slaHours = tenantSla.data?.sla_hours ?? 24
+  const reminderHours = tenantSla.data?.sla_reminder_hours ?? 4
 
   useEffect(() => {
     if (!doctorId) return
@@ -90,5 +109,5 @@ export function useDoctorQueue(doctorId?: string | null) {
   const pending = (query.data ?? []).filter((r) => !r.myResponse)
   const history = (query.data ?? []).filter((r) => !!r.myResponse)
 
-  return { ...query, pending, history }
+  return { ...query, pending, history, slaHours, reminderHours }
 }
