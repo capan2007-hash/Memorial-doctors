@@ -11,8 +11,6 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../components/ui/Toast'
 import { timeAgo } from '../../lib/format'
-import { resolveAssignees } from '../../domain/assignment'
-import type { ScopedDoctor } from '../../domain/assignment'
 import { slaInfo, slaLabel } from '../../domain/sla'
 import type { RequestRow } from '../../types/db'
 import { AiAccuracyCard } from '../ai/AiAccuracyCard'
@@ -96,21 +94,14 @@ export function AllRequests() {
       if (req.status === 'closed') {
         throw new Error('Kapanmış talep yeniden atanamaz')
       }
-      const { data: docs } = await supabase.from('doctor').select('id, is_active').eq('tenant_id', req.tenant_id)
-      const { data: scopes } = await supabase.from('doctor_scope').select('doctor_id, category_id, subcategory_id').eq('tenant_id', req.tenant_id)
-      const scoped: ScopedDoctor[] = (docs ?? []).map((d: any) => ({
-        id: d.id, isActive: d.is_active,
-        scopes: (scopes ?? []).filter((s: any) => s.doctor_id === d.id)
-          .map((s: any) => ({ categoryId: s.category_id, subcategoryId: s.subcategory_id })),
-      }))
-      const targets = resolveAssignees({ categoryId: req.category_id, subcategoryId: req.subcategory_id }, scoped)
-      // 0 uygun doktor: durumu/audit'i değiştirme, sadece kullanıcıyı bilgilendir.
-      if (targets.length === 0) return { assigned: false as const }
-      const rows = targets.map((doctorId) => ({ tenant_id: req.tenant_id, request_id: req.id, doctor_id: doctorId, type: 'manual' as const }))
-      await supabase.from('assignment').upsert(rows, { onConflict: 'request_id,doctor_id', ignoreDuplicates: true })
-      await supabase.from('audit_log').insert({ tenant_id: req.tenant_id, actor_id: appUser!.id, action: 'reassign', entity: 'request', after: { request_id: req.id } })
-      await supabase.from('request').update({ status: 'assigned' }).eq('id', req.id)
-      return { assigned: true as const }
+      // Atama + durum + audit sunucu tarafında (migration 0024 RPC'si);
+      // 0 uygun doktor dönerse durum/audit değişmez, kullanıcı bilgilendirilir.
+      const { data: count, error } = await supabase.rpc('assign_request_doctors', {
+        p_request_id: req.id,
+        p_type: 'manual',
+      })
+      if (error) throw error
+      return { assigned: ((count as number) ?? 0) > 0 }
     },
     onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ['all-requests'] })

@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { uploadPhotos } from './usePhotoUpload'
-import { resolveAssignees } from '../../domain/assignment'
-import type { ScopedDoctor } from '../../domain/assignment'
 import { resolvePhotoUrls } from './photoUrl'
 import type { RequestRow, ResponseRow, PhotoRow } from '../../types/db'
 
@@ -63,28 +61,19 @@ export function useCreateRequest() {
       if (input.files.length) await uploadPhotos(input.tenantId, req.id, input.files)
       // röntgenler
       if (input.xrayFiles?.length) await uploadPhotos(input.tenantId, req.id, input.xrayFiles, 'xray')
-      // 4) eşzamanlı atama — scope tabanlı
-      const { data: docs } = await supabase.from('doctor').select('id, is_active').eq('tenant_id', input.tenantId)
-      const { data: scopes } = await supabase.from('doctor_scope').select('doctor_id, category_id, subcategory_id').eq('tenant_id', input.tenantId)
-      const scoped: ScopedDoctor[] = (docs ?? []).map((d: any) => ({
-        id: d.id, isActive: d.is_active,
-        scopes: (scopes ?? []).filter((s: any) => s.doctor_id === d.id)
-          .map((s: any) => ({ categoryId: s.category_id, subcategoryId: s.subcategory_id })),
-      }))
-      const targets = resolveAssignees({ categoryId: input.categoryId, subcategoryId: input.subcategoryId }, scoped)
-      if (targets.length) {
-        const { error: asgErr } = await supabase.from('assignment').insert(
-          targets.map((doctor_id) => ({ tenant_id: input.tenantId, request_id: req.id, doctor_id, type: 'simultaneous' })))
-        if (asgErr) throw asgErr
-        const { error: updErr } = await supabase.from('request').update({ status: 'assigned', assigned_at: new Date().toISOString() }).eq('id', req.id)
-        if (updErr) throw updErr
-      }
+      // 4) eşzamanlı atama — sunucu tarafında (migration 0024): scope eşleşmesi,
+      // durum güncellemesi ve audit tek SECURITY DEFINER RPC'de. Client artık
+      // assignment INSERT edemez (P0-3: doktor kendini keyfi talebe atayamaz).
+      const { data: assignedCount, error: asgErr } = await supabase.rpc('assign_request_doctors', {
+        p_request_id: req.id,
+      })
+      if (asgErr) throw asgErr
       // AI ön-triyaj: fire-and-forget — FR-11 gereği akışı asla bloklamaz/hata sızdırmaz.
       // K5: onam verilmediyse hiç invoke edilmez — yurt dışı aktarım rızasız yapılmaz (edge de savunma amaçlı reddeder).
       if (input.consentGiven) {
         void supabase.functions.invoke('ai-triage', { body: { requestId: req.id } }).catch(() => {})
       }
-      return { requestId: req.id as string, assignedCount: targets.length }
+      return { requestId: req.id as string, assignedCount: (assignedCount as number) ?? 0 }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['requests'] }),
   })

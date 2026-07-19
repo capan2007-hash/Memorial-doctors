@@ -6,8 +6,6 @@ import type { SaleStatus } from '../../types/domain'
 interface SetSaleStatusInput {
   requestId: string
   saleStatus: SaleStatus
-  tenantId: string
-  actorId: string
 }
 
 /**
@@ -26,17 +24,10 @@ export function useSetSaleStatus() {
       // (teklifler yeniden görünür olsun — sale_done olabilmesi için kabul edilmiş teklif vardı).
       if (input.saleStatus === 'sale_done') update.status = 'closed'
       else if (input.saleStatus === 'not_completed') update.status = 'offers_ready'
+      // Audit sunucu tarafında (migration 0025 trg_audit_sale_status) — actor gerçek
+      // auth.uid()'dir; client artık audit yazamaz (P0-4).
       const { error } = await supabase.from('request').update(update).eq('id', input.requestId)
       if (error) throw error
-
-      const { error: auditErr } = await supabase.from('audit_log').insert({
-        tenant_id: input.tenantId,
-        actor_id: input.actorId,
-        action: 'sale_status_change',
-        entity: 'request',
-        after: { sale_status: input.saleStatus },
-      })
-      if (auditErr) throw auditErr
 
       if (input.saleStatus === 'sale_done') {
         void supabase.functions

@@ -69,6 +69,11 @@ Deno.serve(async (req) => {
     await admin.from('app_user').delete().eq('id', uid).catch(() => {})
     return fail(sErr.message)
   }
+  // Denetim: doktor oluşturma da audit'lensin (doctor_update ile simetri).
+  await admin.from('audit_log').insert({
+    tenant_id: me.tenant_id, actor_id: userRes.user.id, action: 'doctor_create', entity: 'doctor',
+    after: { doctor_id: doc.id },
+  }).catch(() => {})
   return json({ doctorId: doc.id }, 200)
 })
 
