@@ -32,8 +32,12 @@ function compareRows(a: DoctorPerformanceRow, b: DoctorPerformanceRow, key: Sort
     const bn = b.title ?? ''
     return an.localeCompare(bn, 'tr')
   }
-  const av = a[key] ?? -Infinity
-  const bv = b[key] ?? -Infinity
+  // null (ör. yanıt süresi yok) en sona: iki null eşit (NaN karşılaştırması olmasın).
+  const av = a[key]
+  const bv = b[key]
+  if (av == null && bv == null) return 0
+  if (av == null) return -1
+  if (bv == null) return 1
   return av - bv
 }
 
