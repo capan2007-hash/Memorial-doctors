@@ -22,6 +22,8 @@ interface NewRequestInput {
   notes?: string
   files: File[]
   xrayFiles?: File[]
+  /** P1: satışçı WhatsApp'ta onam aldığını beyan ederse true — AI ön değerlendirmesi yalnız bu durumda çalışır. */
+  consentGiven?: boolean
 }
 
 export function useCreateRequest() {
@@ -35,12 +37,17 @@ export function useCreateRequest() {
           .insert({
             tenant_id: input.tenantId, first_name: input.patient.first_name,
             last_name: input.patient.last_name, phone: input.patient.phone,
+            created_by: input.createdBy,
           })
           .select().single()
         if (pErr) throw pErr
         patientId = patient.id
       }
       // 2) talep (submitted)
+      // P1: onam beyan edildiyse consent_at/consent_channel/consented_by yazılır — AI kapısı bu alana bakar.
+      const consent = input.consentGiven
+        ? { consent_at: new Date().toISOString(), consent_channel: 'whatsapp', consented_by: input.createdBy }
+        : {}
       const { data: req, error: rErr } = await supabase.from('request').insert({
         tenant_id: input.tenantId, patient_id: patientId, created_by: input.createdBy,
         category_id: input.categoryId, subcategory_id: input.subcategoryId,
@@ -49,6 +56,7 @@ export function useCreateRequest() {
         past_surgeries: input.pastSurgeries, known_conditions: input.knownConditions, medications: input.medications,
         photos_required: input.photosRequired ?? false,
         status: 'submitted', submitted_at: new Date().toISOString(),
+        ...consent,
       }).select().single()
       if (rErr) throw rErr
       // 3) fotoğraflar
@@ -72,7 +80,10 @@ export function useCreateRequest() {
         if (updErr) throw updErr
       }
       // AI ön-triyaj: fire-and-forget — FR-11 gereği akışı asla bloklamaz/hata sızdırmaz.
-      void supabase.functions.invoke('ai-triage', { body: { requestId: req.id } }).catch(() => {})
+      // K5: onam verilmediyse hiç invoke edilmez — yurt dışı aktarım rızasız yapılmaz (edge de savunma amaçlı reddeder).
+      if (input.consentGiven) {
+        void supabase.functions.invoke('ai-triage', { body: { requestId: req.id } }).catch(() => {})
+      }
       return { requestId: req.id as string, assignedCount: targets.length }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['requests'] }),

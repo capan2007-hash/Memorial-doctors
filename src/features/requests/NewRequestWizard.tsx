@@ -44,6 +44,7 @@ export function NewRequestWizard() {
   const [medications, setMedications] = useState<MedicalField>(initialDraft?.medications ?? emptyMedical)
   const [notes, setNotes] = useState(initialDraft?.notes ?? ''); const [files, setFiles] = useState<File[]>(initialDraft?.files ?? [])
   const [xrayFiles, setXrayFiles] = useState<File[]>(initialDraft?.xrayFiles ?? [])
+  const [consentGiven, setConsentGiven] = useState(false)
   const [warn, setWarn] = useState<string | null>(null)
   const [matches, setMatches] = useState<MatchRow[]>([])
   const [selectedPatient, setSelectedPatient] = useState<MatchRow | null>(null)
@@ -98,6 +99,7 @@ export function NewRequestWizard() {
     setGender('')
     setPastSurgeries(emptyMedical); setKnownConditions(emptyMedical); setMedications(emptyMedical)
     setNotes(''); setFiles([]); setXrayFiles([])
+    setConsentGiven(false)
     setMatches([]); setSelectedPatient(null)
   }
 
@@ -147,6 +149,7 @@ export function NewRequestWizard() {
         categoryId, subcategoryId: needsSub ? subcategoryId : null,
         operationTypeId, notes, files,
         xrayFiles: isDental ? xrayFiles : undefined,
+        consentGiven,
       })
       setSubmitErr(null)
       submittedRef.current = true
@@ -338,6 +341,31 @@ export function NewRequestWizard() {
 
         <Card title="Not">
           <textarea className={inputClass} placeholder="Not" value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </Card>
+
+        <Card title="Onam">
+          <div className="space-y-1">
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={consentGiven}
+                onChange={(e) => setConsentGiven(e.target.checked)}
+              />
+              <span>
+                Hastadan aydınlatma metni paylaşıldı ve yurt dışı aktarım dahil açık rıza alındı (WhatsApp).{' '}
+                <a
+                  href="/aydinlatma"
+                  target="_blank"
+                  rel="noopener"
+                  className="text-brand-700 underline hover:text-brand-600"
+                >
+                  Aydınlatma metnini görüntüle
+                </a>
+              </span>
+            </label>
+            <p className="text-sm text-slate-500">İşaretlenmezse yapay zekâ ön değerlendirmesi yapılmaz.</p>
+          </div>
         </Card>
 
         {(demoError || submitErr || warn) && (
