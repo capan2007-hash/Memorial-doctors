@@ -95,6 +95,8 @@ export function useMyRequests() {
   }})
 }
 
+export interface DeletedPhotoInfo { id: string; deletedAt: string }
+
 export function useRequestDetail(id?: string) {
   return useQuery({ queryKey: ['request', id], enabled: !!id, queryFn: async () => {
     const { data: reqData } = await supabase.from('request').select('*').eq('id', id!).single()
@@ -113,10 +115,21 @@ export function useRequestDetail(id?: string) {
       supabase.from('photo').select('*').eq('request_id', id!),
     ])
     const allPhotos = (photoRows ?? []) as PhotoRow[]
+    const activePhotoRows = allPhotos.filter((p) => p.kind === 'photo' && !p.deleted_at)
+    const activeXrayRows = allPhotos.filter((p) => p.kind === 'xray' && !p.deleted_at)
     const [photos, xrays] = await Promise.all([
-      signPhotoUrls(allPhotos.filter((p) => p.kind === 'photo')),
-      signPhotoUrls(allPhotos.filter((p) => p.kind === 'xray')),
+      signPhotoUrls(activePhotoRows),
+      signPhotoUrls(activeXrayRows),
     ])
+    const toDeletedInfo = (rows: PhotoRow[]): DeletedPhotoInfo[] =>
+      rows.filter((p) => p.deleted_at).map((p) => ({ id: p.id, deletedAt: p.deleted_at as string }))
+    const deletedPhotos = toDeletedInfo(allPhotos.filter((p) => p.kind === 'photo'))
+    const deletedXrays = toDeletedInfo(allPhotos.filter((p) => p.kind === 'xray'))
+    // Fotoğraf yaşam döngüsü geri sayımı: hâlâ var olan (silinmemiş) en eski yükleme.
+    const activeRows = allPhotos.filter((p) => !p.deleted_at)
+    const oldestUploadedAt = activeRows.length
+      ? activeRows.reduce((min, p) => (p.uploaded_at < min ? p.uploaded_at : min), activeRows[0].uploaded_at)
+      : null
     return {
       req,
       responses: (responses ?? []) as ResponseRow[],
@@ -126,6 +139,25 @@ export function useRequestDetail(id?: string) {
       operationName: (operationType?.name as string | undefined) ?? null,
       photos,
       xrays,
+      deletedPhotos,
+      deletedXrays,
+      oldestUploadedAt,
     }
   }})
+}
+
+interface TenantPhotoSettings { photo_retention_days: number; photo_op_buffer_days: number }
+
+/** Satış Durumu kartındaki fotoğraf yaşam döngüsü satırı için tenant ayarları (M4). */
+export function useTenantPhotoSettings(tenantId?: string) {
+  return useQuery({
+    queryKey: ['tenant-photo-settings', tenantId],
+    enabled: !!tenantId,
+    queryFn: async (): Promise<TenantPhotoSettings> => {
+      const { data, error } = await supabase.from('tenant')
+        .select('photo_retention_days, photo_op_buffer_days').eq('id', tenantId!).single()
+      if (error) throw error
+      return data as TenantPhotoSettings
+    },
+  })
 }

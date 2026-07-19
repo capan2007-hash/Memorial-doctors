@@ -1,13 +1,22 @@
 import { useEffect, useState } from 'react'
+import { formatDate } from '../../lib/format'
+
+export interface DeletedPhotoTile {
+  id: string
+  deletedAt: string
+}
 
 export function PhotoGrid({
   urls,
   title,
   emptyText,
+  deletedPhotos = [],
 }: {
   urls: string[]
   title?: string
   emptyText?: string
+  /** İmha edilmiş fotoğraflar (deleted_at dolu) — görsel yerine soluk KVKK notu render edilir. */
+  deletedPhotos?: DeletedPhotoTile[]
 }) {
   const [selected, setSelected] = useState<string | null>(null)
   const alt = title ?? 'Fotoğraf'
@@ -21,7 +30,7 @@ export function PhotoGrid({
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [selected])
 
-  if (urls.length === 0) {
+  if (urls.length === 0 && deletedPhotos.length === 0) {
     return emptyText ? <p className="text-sm text-slate-500">{emptyText}</p> : null
   }
 
@@ -32,6 +41,16 @@ export function PhotoGrid({
           <button key={url} type="button" onClick={() => setSelected(url)}>
             <img src={url} alt={alt} className="aspect-square w-full object-cover rounded-lg border" />
           </button>
+        ))}
+        {deletedPhotos.map((p) => (
+          <div
+            key={p.id}
+            className="aspect-square w-full rounded-lg border border-slate-200 bg-slate-100 flex items-center justify-center p-2"
+          >
+            <p className="text-xs text-slate-500 text-center">
+              Fotoğraf KVKK gereği imha edildi ({formatDate(p.deletedAt)})
+            </p>
+          </div>
         ))}
       </div>
       {selected && (
