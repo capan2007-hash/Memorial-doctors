@@ -14,6 +14,8 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { Spinner } from '../../components/ui/Spinner'
 import { PatientInfoCard } from './PatientInfoCard'
 import { AiPanel } from '../ai/AiPanel'
+import { Icon } from '../../components/ui/Icon'
+import { AlertTriangle, Check } from 'lucide-react'
 import { timeAgo, formatDate } from '../../lib/format'
 import { photoLifecycleInfo } from '../../domain/photoLifecycle'
 import type { SaleStatus } from '../../types/domain'
@@ -51,7 +53,7 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
   return (
     <Card title="Satış Durumu">
       <div className="space-y-3">
-        <span className="inline-flex text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+        <span className="inline-flex text-xs font-medium px-2 py-0.5 rounded-full bg-surface-3 border border-line text-ink-secondary">
           {SALE_STATUS_LABEL[req.sale_status]}
         </span>
         <div className="flex flex-wrap gap-2">
@@ -85,7 +87,7 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
           )}
         </div>
         {lifecycle && (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-muted">
             {lifecycle.state === 'active_countdown' && `Fotoğraflar ${lifecycle.daysLeft} gün sonra silinecek`}
             {lifecycle.state === 'archived' && 'Fotoğraflar arşivlendi'}
             {lifecycle.state === 'operation_buffer' && `İmha: ${lifecycle.daysLeft} gün kaldı`}
@@ -124,8 +126,9 @@ export function RequestDetail() {
         actions={<StatusPill status={req.status} />}
       />
       {siblingCount > 0 && (
-        <div className="rounded-lg bg-accent-100 text-accent-700 text-sm px-3 py-2">
-          ⚠ Bu hastanın başka açık talebi var ({siblingCount})
+        <div className="flex items-center gap-2 rounded-control bg-warning-bg border border-warning-border text-warning-text text-sm px-3 py-2">
+          <Icon of={AlertTriangle} size={16} />
+          <span>Bu hastanın başka açık talebi var ({siblingCount})</span>
         </div>
       )}
       <PatientInfoCard
@@ -137,7 +140,8 @@ export function RequestDetail() {
       />
       <Card title="Fotoğraflar">
         {req.photos_required && (
-          <span className="inline-block rounded-full bg-accent-100 text-accent-700 text-xs font-medium px-2 py-0.5 mb-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-warning-bg border border-warning-border text-warning-text text-xs font-medium px-2 py-0.5 mb-2">
+            <Icon of={AlertTriangle} size={13} />
             Fotoğraf yeniden gerekli
           </span>
         )}
@@ -151,25 +155,27 @@ export function RequestDetail() {
       {/* Doktor planları + AI değerlendirmesi: yalnız sales/coordinator/admin. Aracıya RLS zaten engeller; UI de gizler. */}
       <RoleGate allow={['sales','coordinator','admin']}>
         {req.consent_at ? (
-          <p className="text-sm font-medium text-brand-700">
-            Onam alındı ({formatDate(req.consent_at)}, WhatsApp)
+          <p className="flex items-center gap-1.5 text-sm font-medium text-success-text">
+            <Icon of={Check} size={16} />
+            Onam alındı (<span className="tnum">{formatDate(req.consent_at)}</span>, WhatsApp)
           </p>
         ) : (
-          <p className="text-sm font-medium text-accent-700">
+          <p className="flex items-center gap-1.5 text-sm font-medium text-warning-text">
+            <Icon of={AlertTriangle} size={16} />
             Onam alınmadı — yapay zekâ ön değerlendirmesi yapılmadı
           </p>
         )}
         <SaleStatusCard req={req} oldestUploadedAt={oldestUploadedAt} />
         <AiPanel requestId={req.id} />
         <section className="space-y-2">
-          <h3 className="font-display text-base text-slate-900">Doktor Teklifleri ({accepted.length})</h3>
+          <h3 className="font-display text-base text-ink-primary border-b border-line pb-2">Doktor Teklifleri ({accepted.length})</h3>
           {accepted.map((r) => (
             <Card key={r.id}>
               <div className="flex items-start gap-3">
                 <Avatar name="Doktor" size="sm" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-500">Doktor #{r.doctor_id.slice(0, 8)}</p>
-                  <p className="whitespace-pre-wrap text-sm mt-1">{r.treatment_plan}</p>
+                  <p className="text-sm text-ink-muted">Doktor <span className="font-mono">#{r.doctor_id.slice(0, 8)}</span></p>
+                  <p className="whitespace-pre-wrap text-sm text-ink-primary mt-1">{r.treatment_plan}</p>
                 </div>
               </div>
             </Card>
@@ -179,7 +185,7 @@ export function RequestDetail() {
       </RoleGate>
       <RoleGate allow={['agent']}>
         <Card>
-          <p className="text-sm text-slate-500">Doktor yanıtı hazır olduğunda satış ekibi sizinle paylaşacaktır.</p>
+          <p className="text-sm text-ink-secondary">Doktor yanıtı hazır olduğunda satış ekibi sizinle paylaşacaktır.</p>
         </Card>
       </RoleGate>
     </div>

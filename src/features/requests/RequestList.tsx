@@ -45,12 +45,12 @@ export function RequestList() {
             <li key={r.id}>
               <Link
                 to={`/requests/${r.id}`}
-                className="flex items-center gap-3 rounded-xl bg-surface-card shadow-card p-3 hover:bg-brand-50 transition"
+                className="flex items-center gap-3 rounded-card bg-surface-2 border border-line shadow-card p-3 transition ease-premium duration-[var(--dur-base)] hover:shadow-pop hover:-translate-y-px"
               >
                 <Avatar name={r.patientName} size="md" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-900 truncate">{r.patientName}</p>
-                  <p className="text-sm text-slate-500 truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
+                  <p className="font-medium text-ink-primary truncate">{r.patientName}</p>
+                  <p className="text-sm text-ink-muted truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
                 </div>
                 <StatusPill status={r.status} />
               </Link>

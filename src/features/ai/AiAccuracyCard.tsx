@@ -18,9 +18,9 @@ interface LabelStat {
 const LABEL_ORDER: Label[] = ['correct', 'partial', 'wrong']
 
 const LABEL_META: Record<Label, { name: string; textClass: string; barClass: string }> = {
-  correct: { name: 'Doğru', textClass: 'text-brand-700', barClass: 'bg-brand-600' },
-  partial: { name: 'Kısmen doğru', textClass: 'text-accent-700', barClass: 'bg-accent-600' },
-  wrong: { name: 'Yanlış', textClass: 'text-rose-700', barClass: 'bg-rose-600' },
+  correct: { name: 'Doğru', textClass: 'text-success-text', barClass: 'bg-success-text' },
+  partial: { name: 'Kısmen doğru', textClass: 'text-warning-text', barClass: 'bg-warning-text' },
+  wrong: { name: 'Yanlış', textClass: 'text-danger-text', barClass: 'bg-danger-text' },
 }
 
 /** Koordinatör/admin için AI değerlendirmelerine verilen doktor geri bildirimlerinin özeti. */
@@ -45,7 +45,7 @@ export function AiAccuracyCard() {
   return (
     <Card title="AI Doğruluk Raporu" className="mb-4">
       {q.isLoading && (
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+        <div className="flex items-center gap-2 text-sm text-ink-muted">
           <Spinner />
           <span>Yükleniyor…</span>
         </div>
@@ -59,7 +59,7 @@ function AiAccuracyBody({ counts }: { counts: Record<Label, number> }) {
   const total = LABEL_ORDER.reduce((sum, label) => sum + counts[label], 0)
 
   if (total === 0) {
-    return <p className="text-sm text-slate-500">Henüz doktor geri bildirimi yok.</p>
+    return <p className="text-sm text-ink-muted">Henüz doktor geri bildirimi yok.</p>
   }
 
   const stats: LabelStat[] = LABEL_ORDER.map((label) => {
@@ -74,11 +74,11 @@ function AiAccuracyBody({ counts }: { counts: Record<Label, number> }) {
         {stats.map((s) => (
           <div key={s.label} className="text-sm">
             <span className={`font-medium ${s.textClass}`}>{s.name}</span>
-            <span className="text-slate-500"> — {s.count} (%{s.pct})</span>
+            <span className="text-ink-muted tnum"> — {s.count} (%{s.pct})</span>
           </div>
         ))}
       </div>
-      <div className="flex h-3 w-full rounded-full overflow-hidden bg-slate-100">
+      <div className="flex h-3 w-full rounded-full overflow-hidden bg-surface-3">
         {stats
           .filter((s) => s.count > 0)
           .map((s) => (

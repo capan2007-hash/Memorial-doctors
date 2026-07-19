@@ -14,8 +14,11 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { saveDraft, loadDraft, clearDraft, isDraftEmpty, type RequestDraft } from './requestDraft'
 import { missingFields } from './missingFields'
 import { DuplicateMatchPanel, type MatchRow } from './DuplicateMatchPanel'
+import { Icon } from '../../components/ui/Icon'
+import { AlertTriangle, Info, X } from 'lucide-react'
 
-const inputClass = 'w-full rounded-lg border border-slate-300 p-2 focus:outline-none focus:ring-2 focus:ring-brand-600'
+const inputClass =
+  'w-full rounded-control bg-surface-1 border border-line p-2 text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
 
 type Gender = 'female' | 'male' | 'other'
 
@@ -168,8 +171,11 @@ export function NewRequestWizard() {
     <div className="space-y-4 pb-4">
       <PageHeader title="Yeni Talep" />
       {draftRestored && (
-        <div className="flex items-center justify-between gap-2 rounded border border-amber-300 bg-amber-50 p-2 text-sm text-amber-800">
-          <span>Kaydedilmemiş taslak geri yüklendi.</span>
+        <div className="flex items-center justify-between gap-2 rounded-control border border-info-border bg-info-bg p-2 text-sm text-info-text">
+          <span className="flex items-center gap-2">
+            <Icon of={Info} size={16} />
+            Kaydedilmemiş taslak geri yüklendi.
+          </span>
           <Button variant="ghost" onClick={clearDraftAndReset}>Taslağı temizle</Button>
         </div>
       )}
@@ -194,7 +200,7 @@ export function NewRequestWizard() {
               </Field>
               <Field label="Cinsiyet">
                 <select className={inputClass} value={gender} onChange={(e) => setGender(e.target.value as Gender)}>
-                  <option value="">Cinsiyet seç…</option>
+                  <option value="">Cinsiyet seçin</option>
                   <option value="female">Kadın</option>
                   <option value="male">Erkek</option>
                   <option value="other">Diğer</option>
@@ -219,28 +225,29 @@ export function NewRequestWizard() {
         )}
 
         {selectedPatient && (
-          <Card className="border border-brand-100 bg-brand-50">
+          <Card className="border-brand-200 bg-brand-50">
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm text-brand-700">
+                <p className="text-sm text-brand-text">
                   Mevcut hastaya bağlanıyor: <span className="font-medium">{selectedPatient.first_name} {selectedPatient.last_name}</span>
                 </p>
                 <button
                   type="button"
                   aria-label="Seçimi geri al"
-                  className="text-slate-400 hover:text-slate-600"
+                  className="text-ink-muted hover:text-ink-primary rounded-control p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/20"
                   onClick={() => setSelectedPatient(null)}
                 >
-                  ×
+                  <Icon of={X} size={16} />
                 </button>
               </div>
               {selectedPatient.had_deleted_photos && !selectedPatient.has_available_photos && (
-                <p className="text-sm text-amber-700">
+                <p className="flex items-center gap-1.5 text-sm text-warning-text">
+                  <Icon of={AlertTriangle} size={15} />
                   Fotoğraf yeniden gerekli: önceki fotoğraflar KVKK gereği silinmiş, güncel fotoğraf ekleyin.
                 </p>
               )}
               {selectedPatient.has_open_request && (
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-ink-secondary">
                   Bu hastanın doktor yanıtı bekleyen başka talebi var.
                 </p>
               )}
@@ -253,7 +260,7 @@ export function NewRequestWizard() {
             <Field label="Kategori">
               <select className={inputClass} value={categoryId}
                 onChange={(e) => { setCategoryId(e.target.value); setSubcategoryId(null); setOperationTypeId(null) }}>
-                <option value="">Kategori seç…</option>
+                <option value="">Kategori seçin</option>
                 {cats.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </Field>
@@ -261,7 +268,7 @@ export function NewRequestWizard() {
               <Field label="Alt kırılım">
                 <select className={inputClass} value={subcategoryId ?? ''}
                   onChange={(e) => setSubcategoryId(e.target.value || null)}>
-                  <option value="">Alt kırılım seç… (zorunlu)</option>
+                  <option value="">Alt kırılım seçin (zorunlu)</option>
                   {subs.data?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </Field>
@@ -270,7 +277,7 @@ export function NewRequestWizard() {
               <Field label="Operasyon tipi">
                 <select className={inputClass} value={operationTypeId ?? ''}
                   onChange={(e) => setOperationTypeId(e.target.value || null)}>
-                  <option value="">Operasyon tipi (opsiyonel)…</option>
+                  <option value="">Operasyon tipi seçin (opsiyonel)</option>
                   {ops.data?.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
                 </select>
               </Field>
@@ -283,9 +290,9 @@ export function NewRequestWizard() {
             {/* Field kullanılmıyor: dış <label> içindeki iç <label> geçersiz HTML olur
                 ve başlığa tıklamak "Yok" checkbox'ını yanlışlıkla toggle'lar. */}
             <div className="space-y-1">
-              <span className="block text-sm font-medium text-slate-700">Geçmiş ameliyatlar</span>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" aria-label="Yok" checked={pastSurgeries.none}
+              <span className="block text-sm font-medium text-ink-secondary">Geçmiş ameliyatlar</span>
+              <label className="flex items-center gap-2 text-sm text-ink-primary">
+                <input type="checkbox" aria-label="Yok" className="accent-brand-fill" checked={pastSurgeries.none}
                   onChange={(e) => setPastSurgeries({ ...pastSurgeries, none: e.target.checked })} />
                 Yok
               </label>
@@ -296,9 +303,9 @@ export function NewRequestWizard() {
             </div>
 
             <div className="space-y-1">
-              <span className="block text-sm font-medium text-slate-700">Bilinen hastalıklar</span>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" aria-label="Yok" checked={knownConditions.none}
+              <span className="block text-sm font-medium text-ink-secondary">Bilinen hastalıklar</span>
+              <label className="flex items-center gap-2 text-sm text-ink-primary">
+                <input type="checkbox" aria-label="Yok" className="accent-brand-fill" checked={knownConditions.none}
                   onChange={(e) => setKnownConditions({ ...knownConditions, none: e.target.checked })} />
                 Yok
               </label>
@@ -309,9 +316,9 @@ export function NewRequestWizard() {
             </div>
 
             <div className="space-y-1">
-              <span className="block text-sm font-medium text-slate-700">Düzenli kullanılan ilaçlar</span>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" aria-label="Yok" checked={medications.none}
+              <span className="block text-sm font-medium text-ink-secondary">Düzenli kullanılan ilaçlar</span>
+              <label className="flex items-center gap-2 text-sm text-ink-primary">
+                <input type="checkbox" aria-label="Yok" className="accent-brand-fill" checked={medications.none}
                   onChange={(e) => setMedications({ ...medications, none: e.target.checked })} />
                 Yok
               </label>
@@ -326,7 +333,7 @@ export function NewRequestWizard() {
         <Card title="Fotoğraflar">
           <PhotoUploader files={files} onChange={setFiles} />
           {files.length > 0 && (
-            <p className="text-sm text-slate-500">{files.map((f) => f.name).join(', ')}</p>
+            <p className="text-sm text-ink-muted">{files.map((f) => f.name).join(', ')}</p>
           )}
         </Card>
 
@@ -334,7 +341,7 @@ export function NewRequestWizard() {
           <Card title="Diş Röntgeni">
             <PhotoUploader files={xrayFiles} onChange={setXrayFiles} />
             {xrayFiles.length > 0 && (
-              <p className="text-sm text-slate-500">{xrayFiles.map((f) => f.name).join(', ')}</p>
+              <p className="text-sm text-ink-muted">{xrayFiles.map((f) => f.name).join(', ')}</p>
             )}
           </Card>
         )}
@@ -345,10 +352,10 @@ export function NewRequestWizard() {
 
         <Card title="Onam">
           <div className="space-y-1">
-            <label className="flex items-start gap-2 text-sm">
+            <label className="flex items-start gap-2 text-sm text-ink-primary">
               <input
                 type="checkbox"
-                className="mt-0.5"
+                className="mt-0.5 accent-brand-fill"
                 checked={consentGiven}
                 onChange={(e) => setConsentGiven(e.target.checked)}
               />
@@ -358,33 +365,33 @@ export function NewRequestWizard() {
                   href="/aydinlatma"
                   target="_blank"
                   rel="noopener"
-                  className="text-brand-700 underline hover:text-brand-600"
+                  className="text-brand-text underline hover:text-brand-fill-hover"
                 >
                   Aydınlatma metnini görüntüle
                 </a>
               </span>
             </label>
-            <p className="text-sm text-slate-500">İşaretlenmezse yapay zekâ ön değerlendirmesi yapılmaz.</p>
+            <p className="text-sm text-ink-muted">İşaretlenmezse yapay zekâ ön değerlendirmesi yapılmaz.</p>
           </div>
         </Card>
 
         {(demoError || submitErr || warn) && (
           <div className="space-y-1">
-            {demoError && <p className="text-red-600 text-sm">{demoError}</p>}
-            {submitErr && <p className="text-red-600 text-sm">{submitErr}</p>}
-            {warn && <p className="text-amber-700 text-sm">{warn}</p>}
+            {demoError && <p className="text-danger-text text-sm">{demoError}</p>}
+            {submitErr && <p className="text-danger-text text-sm">{submitErr}</p>}
+            {warn && <p className="text-warning-text text-sm">{warn}</p>}
           </div>
         )}
 
         <div className="sticky bottom-0">
-          <Card className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 rounded-card border-t border-line bg-surface-1/95 backdrop-blur px-4 py-3 shadow-card">
             {!canSubmit && missing.length > 0 ? (
-              <p className="text-sm text-slate-500">Eksik: {missing.join(', ')}</p>
+              <p className="text-sm text-danger-text">Eksik: {missing.join(', ')}</p>
             ) : <span />}
             <Button variant="primary" loading={create.isPending} disabled={!canSubmit || create.isPending} onClick={submit}>
               Gönder
             </Button>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
