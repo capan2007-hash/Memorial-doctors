@@ -46,6 +46,11 @@ Deno.serve(async (req) => {
     .from('request').select('*').eq('id', requestId).eq('tenant_id', me.tenant_id).single()
   if (!request) return json({ error: 'request not found' }, 404)
 
+  // KVKK onam kapısı (P1): onam yoksa yurt dışına (Anthropic) HİÇBİR veri gitmez.
+  // Client zaten onamsız invoke etmiyor; bu savunma derinliğidir. Değerlendirme
+  // üretilmez, failed de yazılmaz — talep akışı bundan etkilenmez.
+  if (!request.consent_at) return json({ ok: true, skipped: 'no_consent' }, 200)
+
   // İdempotenlik: başarılı değerlendirme varsa yeniden üretme — hem token
   // israfını hem de doktor geri bildiriminden SONRA içeriğin değişmesini önler.
   const { data: existing } = await admin

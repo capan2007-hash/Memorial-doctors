@@ -14,7 +14,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { Spinner } from '../../components/ui/Spinner'
 import { PatientInfoCard } from './PatientInfoCard'
 import { AiPanel } from '../ai/AiPanel'
-import { timeAgo } from '../../lib/format'
+import { timeAgo, formatDate } from '../../lib/format'
 import { photoLifecycleInfo } from '../../domain/photoLifecycle'
 import type { SaleStatus } from '../../types/domain'
 import type { RequestRow } from '../../types/db'
@@ -150,6 +150,15 @@ export function RequestDetail() {
       )}
       {/* Doktor planları + AI değerlendirmesi: yalnız sales/coordinator/admin. Aracıya RLS zaten engeller; UI de gizler. */}
       <RoleGate allow={['sales','coordinator','admin']}>
+        {req.consent_at ? (
+          <p className="text-sm font-medium text-brand-700">
+            Onam alındı ({formatDate(req.consent_at)}, WhatsApp)
+          </p>
+        ) : (
+          <p className="text-sm font-medium text-accent-700">
+            Onam alınmadı — yapay zekâ ön değerlendirmesi yapılmadı
+          </p>
+        )}
         <SaleStatusCard req={req} oldestUploadedAt={oldestUploadedAt} />
         <AiPanel requestId={req.id} />
         <section className="space-y-2">

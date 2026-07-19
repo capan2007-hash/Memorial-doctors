@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { queryClient } from './lib/queryClient'
 import { AuthProvider, useAuth } from './lib/auth'
 import { LoginPage } from './features/auth/LoginPage'
+import { Aydinlatma } from './pages/Aydinlatma'
 import { Layout } from './components/Layout'
 import { RoleGate } from './components/RoleGate'
 import { ToastProvider } from './components/ui/Toast'
@@ -35,6 +36,7 @@ export default function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/aydinlatma" element={<Aydinlatma />} />
               <Route path="/" element={<Protected><Home /></Protected>} />
               <Route path="/requests/new" element={<Protected><Layout><RoleGate allow={['agent','sales']}><NewRequestWizard /></RoleGate></Layout></Protected>} />
               <Route path="/doctor" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorQueue /></RoleGate></Layout></Protected>} />
