@@ -1,16 +1,29 @@
+@import './styles/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html {
+    color-scheme: light dark;
+  }
+
   body {
-    @apply bg-surface font-sans text-slate-800;
+    @apply bg-surface-0 font-sans text-ink-primary;
+    transition:
+      background-color var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out);
   }
 
   h1,
   h2,
   h3 {
-    @apply font-display;
+    @apply font-display text-ink-primary;
+  }
+
+  /* Tabular rakamlar — skor/SLA/süre hizalı ("klinik enstrüman" dokusu) */
+  .tnum {
+    font-variant-numeric: tabular-nums;
   }
 }
-

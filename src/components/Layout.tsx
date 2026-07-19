@@ -4,6 +4,7 @@ import { useAuth } from '../lib/auth'
 import { navLinks } from '../lib/nav'
 import { useMyDoctorId } from '../features/doctor/useMyDoctorId'
 import { usePendingCount } from '../features/doctor/usePendingCount'
+import { ThemeToggle } from './ui/ThemeToggle'
 
 function PendingBadge({ count }: { count: number }) {
   if (count <= 0) return null
@@ -52,8 +53,8 @@ export function Layout({ children }: { children: ReactNode }) {
   const isActive = (to: string) => to === activeTo
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-brand-700 text-white px-4 py-3 flex justify-between items-center">
+    <div className="min-h-screen bg-surface-0">
+      <header className="bg-brand-fill text-brand-on px-4 py-3 flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Monogram />
           <span className="font-display text-lg font-semibold">MedTriage</span>
@@ -72,6 +73,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </nav>
         <span className="text-sm flex items-center gap-2">
           <span className="hidden sm:inline">{appUser?.full_name}</span>
+          <ThemeToggle />
           <button onClick={signOut} className="underline">Çıkış</button>
         </span>
       </header>

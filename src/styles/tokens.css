@@ -1,0 +1,111 @@
+/* Rafine Klinik — tasarım token'ları. Tek kaynak, iki tema.
+   Açık tema :root'ta; koyu tema :root[data-theme="dark"]'ta ezer.
+   Tailwind bu değişkenleri var() ile okur (tailwind.config.js). */
+
+:root {
+  /* Yüzey (elevation ölçeği) */
+  --surface-0: #f5f7f5; /* sayfa zemini — ılık yeşil-gri */
+  --surface-1: #ffffff; /* panel */
+  --surface-2: #ffffff; /* kart (kenarlıkla ayrışır) */
+  --surface-3: #ffffff; /* popover (yükseltilmiş gölge) */
+
+  /* Metin */
+  --text-primary: #14201d;
+  --text-secondary: #566661;
+  --text-muted: #8a9691;
+  --text-invert: #f5f7f5;
+
+  /* Kenarlık */
+  --border: #e4e8e5;
+  --border-strong: #cdd5d1;
+
+  /* Brand (teal) rampa */
+  --brand-50: #f0fdfa;
+  --brand-100: #c7f0e8;
+  --brand-200: #93e0d2;
+  --brand-300: #55c7b5;
+  --brand-400: #2aa895;
+  --brand-500: #12897a;
+  --brand-600: #0f766e;
+  --brand-700: #115e59;
+  --brand-800: #124a47;
+  --brand-900: #0f3d3a;
+  --on-brand: #ffffff; /* teal zemin üstü metin */
+  /* Semantik: fill = zemin (doygun, iki temada da beyaz metin taşır);
+     text = yüzey üstü teal metin/vurgu (temaya göre uyum sağlar). */
+  --brand-fill: #0f766e;
+  --brand-fill-hover: #115e59;
+  --brand-text: #115e59;
+
+  /* Semantik roller: bg (tint) / border / text */
+  --success-bg: #e3f4ec;
+  --success-border: #a9dcc4;
+  --success-text: #0f6e56;
+  --warning-bg: #fbeed9;
+  --warning-border: #f0cd93;
+  --warning-text: #b45309;
+  --danger-bg: #fbe7ea;
+  --danger-border: #f0b6bf;
+  --danger-text: #b4243a;
+  --info-bg: #e8eef6;
+  --info-border: #b4c9e2;
+  --info-text: #2c5788;
+
+  /* Gölge */
+  --shadow-card: 0 1px 2px rgba(20, 32, 29, 0.06), 0 4px 14px rgba(20, 32, 29, 0.05);
+  --shadow-pop: 0 8px 28px rgba(20, 32, 29, 0.14), 0 2px 8px rgba(20, 32, 29, 0.08);
+
+  /* Radius */
+  --radius-card: 12px;
+  --radius-control: 8px;
+
+  /* Motion */
+  --dur-fast: 150ms;
+  --dur-base: 220ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme='dark'] {
+  --surface-0: #0e1513;
+  --surface-1: #14201d;
+  --surface-2: #1a2825;
+  --surface-3: #21322e;
+
+  --text-primary: #eaf0ed;
+  --text-secondary: #9db0aa;
+  --text-muted: #6e827c;
+  --text-invert: #0e1513;
+
+  --border: #26352f;
+  --border-strong: #33453e;
+
+  /* Brand rampası (zemin doygunluğu) iki temada AYNI kalır — böylece
+     header/buton gibi brand-zeminli öğeler koyuda da beyaz metin taşır.
+     Yalnız yüzey-üstü teal metin (--brand-text) koyu temada aydınlanır. */
+  --brand-fill: #12897a;
+  --brand-fill-hover: #0f766e;
+  --brand-text: #55c7b5;
+
+  --success-bg: #102b22;
+  --success-border: #1f4d3f;
+  --success-text: #6fd6b3;
+  --warning-bg: #2e2410;
+  --warning-border: #5a4413;
+  --warning-text: #f0b45f;
+  --danger-bg: #2e1418;
+  --danger-border: #5a2530;
+  --danger-text: #f0919f;
+  --info-bg: #16212e;
+  --info-border: #2a3f57;
+  --info-text: #9dc0e6;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 10px 34px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+  }
+}
