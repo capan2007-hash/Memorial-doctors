@@ -6,8 +6,6 @@ import type { SaleStatus } from '../../types/domain'
 interface SetSaleStatusInput {
   requestId: string
   saleStatus: SaleStatus
-  tenantId: string
-  actorId: string
 }
 
 /**

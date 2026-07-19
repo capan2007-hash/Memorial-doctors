@@ -36,7 +36,7 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
   function act(saleStatus: SaleStatus, confirmMessage: string) {
     if (!appUser) return
     if (!window.confirm(confirmMessage)) return
-    setSaleStatus.mutate({ requestId: req.id, saleStatus, tenantId: appUser.tenant_id, actorId: appUser.id })
+    setSaleStatus.mutate({ requestId: req.id, saleStatus })
   }
 
   const lifecycle = tenantSettings.data
