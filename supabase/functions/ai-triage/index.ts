@@ -51,6 +51,18 @@ Deno.serve(async (req) => {
   // üretilmez, failed de yazılmaz — talep akışı bundan etkilenmez.
   if (!request.consent_at) return json({ ok: true, skipped: 'no_consent' }, 200)
 
+  // P1-3: tenant başına günlük kota — maliyet istismarını sınırlar (kötü niyetli
+  // kullanıcı sınırsız Opus multimodal çağrısı üretemesin). Son 24 saatte üretilen
+  // değerlendirme sayısı eşiği aşarsa bu talep atlanır (akış yine bloke edilmez).
+  const DAILY_QUOTA = 300
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+  const { count: recentCount } = await admin
+    .from('ai_evaluation').select('id', { count: 'exact', head: true })
+    .eq('tenant_id', request.tenant_id).gte('created_at', since)
+  if ((recentCount ?? 0) >= DAILY_QUOTA) {
+    return json({ ok: true, skipped: 'quota_exceeded' }, 200)
+  }
+
   // İdempotenlik: başarılı değerlendirme varsa yeniden üretme — hem token
   // israfını hem de doktor geri bildiriminden SONRA içeriğin değişmesini önler.
   const { data: existing } = await admin
