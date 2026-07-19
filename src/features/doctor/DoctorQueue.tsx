@@ -4,9 +4,11 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { usePendingCount } from './usePendingCount'
 import { useMyDoctorId } from './useMyDoctorId'
+import { Clock } from 'lucide-react'
 import { Badge } from '../../components/Badge'
 import { StatusPill } from '../../components/ui/StatusPill'
 import { Avatar } from '../../components/ui/Avatar'
+import { Icon } from '../../components/ui/Icon'
 import { Spinner } from '../../components/ui/Spinner'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { PageHeader } from '../../components/ui/PageHeader'
@@ -84,21 +86,32 @@ export function DoctorQueue() {
               <li key={r.id}>
                 <Link
                   to={`/doctor/request/${r.id}`}
-                  className="flex items-center gap-3 bg-surface-card rounded-xl shadow-card p-3 hover:bg-brand-50"
+                  className="flex items-center gap-3 rounded-card bg-surface-2 border border-line shadow-card p-3 transition ease-premium duration-[var(--dur-fast)] hover:shadow-pop hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40"
                 >
-                  {r.seen ? <span className="w-2 h-2" /> : <span className="w-2 h-2 rounded-full bg-brand-600" />}
+                  {r.seen ? (
+                    <span className="w-2 h-2 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <span className="w-2 h-2 shrink-0 rounded-full bg-brand-fill" aria-hidden="true" />
+                  )}
                   <Avatar name={r.patientName} />
                   <div className="flex-1 min-w-0">
-                    <p className={`truncate ${r.seen ? 'font-medium' : 'font-semibold'}`}>{r.patientName}</p>
-                    <p className="text-sm text-slate-500 truncate">{r.categoryName} · {timeAgo(r.assignedAt)}</p>
+                    <p className={`truncate text-ink-primary ${r.seen ? 'font-medium' : 'font-semibold'}`}>{r.patientName}</p>
+                    <p className="text-sm truncate">
+                      <span className="text-ink-secondary">{r.categoryName}</span>
+                      <span className="text-ink-muted"> · </span>
+                      <span className="text-ink-muted tnum">{timeAgo(r.assignedAt)}</span>
+                    </p>
                   </div>
                   {label && (
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        info.state === 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-accent-100 text-accent-700'
+                      className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${
+                        info.state === 'overdue'
+                          ? 'bg-danger-bg text-danger-text'
+                          : 'bg-warning-bg text-warning-text'
                       }`}
                     >
-                      {label}
+                      <Icon of={Clock} size={12} />
+                      <span className="tnum">{label}</span>
                     </span>
                   )}
                   <StatusPill status={r.status} />

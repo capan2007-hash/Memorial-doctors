@@ -10,10 +10,12 @@ import { PatientInfoCard } from '../requests/PatientInfoCard'
 import { resolvePhotoUrls } from '../requests/photoUrl'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { StatusPill } from '../../components/ui/StatusPill'
+import { Check, X } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { PhotoGrid } from '../../components/ui/PhotoGrid'
 import { Field } from '../../components/ui/Field'
 import { Button } from '../../components/ui/Button'
+import { Icon } from '../../components/ui/Icon'
 import { Spinner } from '../../components/ui/Spinner'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../components/ui/Toast'
@@ -130,19 +132,25 @@ export function DoctorRequestView() {
       )}
       <AiPanel requestId={req.id} canGiveFeedback doctorId={myDoctorId.data} />
       <div className="sticky bottom-16 md:bottom-0">
-        <Card>
-          {respErr && <p className="text-red-600 text-sm mb-2">{respErr}</p>}
+        <div className="bg-surface-1/95 border-t border-line backdrop-blur p-4 md:rounded-card md:border md:shadow-card">
+          {respErr && <p className="text-danger-text text-sm mb-2">{respErr}</p>}
           {mode === 'none' && (
             <div className="flex gap-2">
-              <Button variant="primary" className="flex-1" onClick={() => setMode('accept')}>Kabul</Button>
-              <Button variant="danger" className="flex-1" onClick={() => setMode('reject')}>Red</Button>
+              <Button variant="primary" className="flex-1 min-h-[44px]" onClick={() => setMode('accept')}>
+                <Icon of={Check} size={16} />
+                Kabul
+              </Button>
+              <Button variant="danger" className="flex-1 min-h-[44px]" onClick={() => setMode('reject')}>
+                <Icon of={X} size={16} />
+                Red
+              </Button>
             </div>
           )}
           {mode === 'accept' && (
             <div className="space-y-3">
               <Field label="Tedavi planı">
                 <textarea
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm"
+                  className="w-full bg-surface-1 border border-line rounded-control p-2 text-sm text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20"
                   placeholder="Tedavi planı"
                   value={plan}
                   onChange={(e) => setPlan(e.target.value)}
@@ -150,11 +158,12 @@ export function DoctorRequestView() {
               </Field>
               <Button
                 variant="primary"
-                className="w-full"
+                className="w-full min-h-[44px]"
                 disabled={!plan}
                 loading={respond.isPending}
                 onClick={doRespond}
               >
+                <Icon of={Check} size={16} />
                 Kabul et
               </Button>
             </div>
@@ -163,7 +172,7 @@ export function DoctorRequestView() {
             <div className="space-y-3">
               <Field label="Red gerekçesi">
                 <textarea
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm"
+                  className="w-full bg-surface-1 border border-line rounded-control p-2 text-sm text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20"
                   placeholder="Red gerekçesi (zorunlu)"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
@@ -171,16 +180,17 @@ export function DoctorRequestView() {
               </Field>
               <Button
                 variant="danger"
-                className="w-full"
+                className="w-full min-h-[44px]"
                 disabled={!reason}
                 loading={respond.isPending}
                 onClick={doRespond}
               >
+                <Icon of={X} size={16} />
                 Reddet
               </Button>
             </div>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   )
