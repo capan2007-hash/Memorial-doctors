@@ -36,7 +36,7 @@ export function Avatar({
   }
   return (
     <div
-      className={`bg-brand-100 text-brand-700 rounded-full flex items-center justify-center font-medium ${sizeClass}`}
+      className={`bg-surface-2 text-brand-text border border-line rounded-full flex items-center justify-center font-medium ${sizeClass}`}
     >
       {initials(name)}
     </div>

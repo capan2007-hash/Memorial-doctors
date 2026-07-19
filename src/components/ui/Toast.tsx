@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { Check, AlertTriangle, X } from 'lucide-react'
+import { Icon } from './Icon'
 
 type ToastKind = 'success' | 'error'
 
@@ -17,6 +19,11 @@ const ToastContext = createContext<ToastContextValue | null>(null)
 
 const TOAST_DURATION_MS = 4000
 
+const KIND_CLASSES: Record<ToastKind, string> = {
+  success: 'bg-surface-3 border border-line text-ink-primary',
+  error: 'bg-danger-bg border border-danger-border text-danger-text',
+}
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([])
   const nextId = useRef(0)
@@ -26,6 +33,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const pending = timers.current
     return () => { pending.forEach(clearTimeout); pending.clear() }
+  }, [])
+
+  const dismiss = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
   const show = useCallback((message: string, kind: ToastKind = 'success') => {
@@ -41,15 +52,26 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ show }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-50 space-y-2">
+      <div
+        role="status"
+        aria-live="polite"
+        className="fixed bottom-4 right-4 z-50 space-y-2"
+      >
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`rounded-lg px-4 py-3 text-sm text-white shadow-card ${
-              t.kind === 'error' ? 'bg-red-600' : 'bg-brand-700'
-            }`}
+            className={`flex items-center gap-2 rounded-card px-4 py-3 text-sm shadow-pop ${KIND_CLASSES[t.kind]}`}
           >
-            {t.message}
+            <Icon of={t.kind === 'error' ? AlertTriangle : Check} size={16} />
+            <span className="flex-1">{t.message}</span>
+            <button
+              type="button"
+              aria-label="Kapat"
+              onClick={() => dismiss(t.id)}
+              className="text-ink-muted hover:text-ink-primary transition ease-premium duration-[var(--dur-fast)]"
+            >
+              <Icon of={X} size={14} />
+            </button>
           </div>
         ))}
       </div>

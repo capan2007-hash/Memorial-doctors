@@ -10,21 +10,26 @@ export const STATUS_LABELS: Record<RequestStatus, string> = {
   closed: 'Kapandı',
 }
 
-const COLOR: Record<RequestStatus, string> = {
-  draft: 'bg-slate-100 text-slate-600',
-  submitted: 'bg-slate-100 text-slate-600',
-  assigned: 'bg-blue-100 text-blue-700',
-  in_review: 'bg-indigo-100 text-indigo-700',
-  offers_ready: 'bg-brand-100 text-brand-700',
-  escalated: 'bg-accent-100 text-accent-700',
-  closed: 'bg-slate-200 text-slate-700',
+/** Çip zemin/kenarlık/metin + öncü nokta rengi (semantik token'lar). */
+const CHIP: Record<RequestStatus, string> = {
+  offers_ready: 'bg-success-bg border border-success-border text-success-text',
+  escalated: 'bg-danger-bg border border-danger-border text-danger-text',
+  assigned: 'bg-info-bg border border-info-border text-info-text',
+  in_review: 'bg-info-bg border border-info-border text-info-text',
+  submitted: 'bg-surface-2 border border-line text-ink-muted',
+  draft: 'bg-surface-2 border border-line text-ink-muted',
+  closed: 'bg-surface-2 border border-line text-ink-secondary',
 }
 
 export function StatusPill({ status }: { status: RequestStatus }) {
   return (
     <span
-      className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${COLOR[status]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${CHIP[status]}`}
     >
+      <span
+        aria-hidden="true"
+        className="h-1.5 w-1.5 rounded-full bg-current"
+      />
       {STATUS_LABELS[status]}
     </span>
   )
