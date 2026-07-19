@@ -85,6 +85,24 @@ export function useDoctorMetrics(doctorId?: string) {
   })
 }
 
+export interface ScoreEventRow { id: string; delta: 1 | -1; reason: 'timely_response' | 'sla_breach'; created_at: string }
+
+/** Doktorun skor olayları (score_event); from/to verilirse created_at aralığına daraltır (ISO). */
+export function useScoreEvents(doctorId?: string, from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['score-events', doctorId, from, to],
+    enabled: !!doctorId,
+    queryFn: async (): Promise<ScoreEventRow[]> => {
+      let query = supabase.from('score_event').select('id, delta, reason, created_at').eq('doctor_id', doctorId!)
+      if (from) query = query.gte('created_at', from)
+      if (to) query = query.lte('created_at', to)
+      const { data, error } = await query.order('created_at', { ascending: false })
+      if (error) throw error
+      return (data ?? []) as ScoreEventRow[]
+    },
+  })
+}
+
 export interface UpdateDoctorInput {
   id: string
   title?: string | null
