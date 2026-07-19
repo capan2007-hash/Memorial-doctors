@@ -25,7 +25,7 @@ import { DoctorPerformanceDashboard } from './DoctorPerformanceDashboard'
 
 const levelLabels: Record<WeightedWorkLevel, string> = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
 
-const inputClass = 'w-full rounded-lg border border-slate-300 p-2 focus:outline-none focus:ring-2 focus:ring-brand-600'
+const inputClass = 'w-full rounded-control border border-line bg-surface-1 text-ink-primary p-2 focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
 
 function scopeKey(s: DoctorScope) { return `${s.categoryId}::${s.subcategoryId ?? ''}` }
 
@@ -47,7 +47,7 @@ function CategoryScopeRow({ category, scopes, onChange }: {
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
   if (!category.has_subcategories) {
     return (
-      <label className="flex items-center gap-2 text-sm text-slate-700">
+      <label className="flex items-center gap-2 text-sm text-ink-secondary">
         <input
           type="checkbox"
           checked={hasScope(scopes, category.id, null)}
@@ -59,10 +59,10 @@ function CategoryScopeRow({ category, scopes, onChange }: {
   }
   return (
     <div className="text-sm">
-      <p className="font-medium text-slate-700">{category.name}</p>
+      <p className="font-medium text-ink-secondary">{category.name}</p>
       <div className="mt-1 ml-3 flex flex-wrap gap-3">
         {subs.data?.map((sc) => (
-          <label key={sc.id} className="flex items-center gap-2 text-slate-700">
+          <label key={sc.id} className="flex items-center gap-2 text-ink-secondary">
             <input
               type="checkbox"
               checked={hasScope(scopes, category.id, sc.id)}
@@ -71,7 +71,7 @@ function CategoryScopeRow({ category, scopes, onChange }: {
             {sc.name}
           </label>
         ))}
-        {!subs.data?.length && <span className="text-slate-400">Alt kırılım yok</span>}
+        {!subs.data?.length && <span className="text-ink-muted">Alt kırılım yok</span>}
       </div>
     </div>
   )
@@ -80,7 +80,7 @@ function CategoryScopeRow({ category, scopes, onChange }: {
 function ScopeEditor({ scopes, onChange }: { scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void }) {
   const cats = useCategories()
   return (
-    <div className="space-y-2 rounded-lg border border-slate-200 p-3 bg-surface">
+    <div className="space-y-2 rounded-control border border-line p-3 bg-surface-1">
       {cats.data?.map((c) => (
         <CategoryScopeRow key={c.id} category={c} scopes={scopes} onChange={onChange} />
       ))}
@@ -96,7 +96,7 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
   const removeItem = (idx: number) => onChange({ ...value, items: value.items.filter((_, i) => i !== idx) })
   const addItem = () => onChange({ ...value, items: [...value.items, { area: '', level: 'medium' }] })
   return (
-    <div className="space-y-2 rounded-lg border border-slate-200 p-3 bg-surface">
+    <div className="space-y-2 rounded-control border border-line p-3 bg-surface-1">
       {value.items.map((it, idx) => (
         <div key={idx} className="flex gap-2">
           <input
@@ -114,7 +114,7 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
           <Button variant="ghost" type="button" onClick={() => removeItem(idx)}>Sil</Button>
         </div>
       ))}
-      <button type="button" className="text-sm text-brand-700 underline" onClick={addItem}>+ Satır ekle</button>
+      <button type="button" className="text-sm text-brand-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 rounded" onClick={addItem}>+ Satır ekle</button>
       <textarea
         className={`${inputClass} text-sm`} placeholder="Serbest not"
         value={value.note} onChange={(e) => onChange({ ...value, note: e.target.value })}
@@ -142,11 +142,11 @@ function useScopeLabels() {
 
 function ScopeChips({ scopes }: { scopes: DoctorScope[] }) {
   const { categoryName, subcategoryName } = useScopeLabels()
-  if (!scopes.length) return <p className="text-xs text-slate-400">Yetkinlik atanmadı</p>
+  if (!scopes.length) return <p className="text-xs text-ink-muted">Yetkinlik atanmadı</p>
   return (
     <div className="flex flex-wrap gap-1.5">
       {scopes.map((s) => (
-        <span key={scopeKey(s)} className="bg-brand-50 text-brand-700 text-xs px-2 py-1 rounded-full">
+        <span key={scopeKey(s)} className="bg-brand-fill/10 text-brand-text border border-line text-xs px-2 py-1 rounded-full">
           {categoryName(s.categoryId)}{s.subcategoryId ? ` · ${subcategoryName(s.subcategoryId)}` : ''}
         </span>
       ))}
@@ -164,22 +164,30 @@ function DoctorAvatar({ photoUrl, name, size }: { photoUrl: string | null; name:
   return <Avatar src={photoUrl ? q.data : undefined} name={name} size={size} />
 }
 
+/** scoreTier zeminini (score.ts) yüzey-üstü semantik tinte eşler — eşik mantığı tekrarlanmaz. */
+const TIER_TINT: Record<string, { bg: string; text: string }> = {
+  'bg-rose-50': { bg: 'bg-danger-bg', text: 'text-danger-text' },
+  'bg-amber-50': { bg: 'bg-warning-bg', text: 'text-warning-text' },
+  'bg-brand-50': { bg: 'bg-success-bg', text: 'text-success-text' },
+}
+
 function StatBox({ value, label }: { value: string | number; label: string }) {
   return (
     <Card className="text-center">
-      <p className="font-display text-2xl text-slate-900">{value}</p>
-      <p className="text-xs text-slate-500">{label}</p>
+      <p className="font-display text-2xl tnum text-ink-primary">{value}</p>
+      <p className="text-xs text-ink-muted">{label}</p>
     </Card>
   )
 }
 
 function ScoreStatBox({ score }: { score: number }) {
   const tier = scoreTier(score)
+  const tint = TIER_TINT[tier.bg] ?? { bg: 'bg-success-bg', text: 'text-success-text' }
   return (
-    <Card className={`text-center ${tier.bg}`}>
-      <p className={`font-display text-2xl ${tier.text}`}>{score}</p>
-      <p className="text-xs text-slate-500">Skor</p>
-      {tier.label && <p className={`text-[11px] font-semibold mt-0.5 ${tier.text}`}>{tier.label}</p>}
+    <Card className={`text-center ${tint.bg}`}>
+      <p className={`font-display text-2xl tnum ${tint.text}`}>{score}</p>
+      <p className="text-xs text-ink-muted">Skor</p>
+      {tier.label && <p className={`text-[11px] font-semibold mt-0.5 ${tint.text}`}>{tier.label}</p>}
     </Card>
   )
 }
@@ -220,12 +228,12 @@ function ScoreSection({ doctorId }: { doctorId: string }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-slate-600">
-        Zamanında: <span className="font-medium text-brand-700">{totalTimely}</span>
-        {' · '}Geç: <span className="font-medium text-rose-700">{totalLate}</span>
+      <p className="text-sm text-ink-secondary">
+        Zamanında: <span className="font-medium text-success-text tnum">{totalTimely}</span>
+        {' · '}Geç: <span className="font-medium text-danger-text tnum">{totalLate}</span>
       </p>
 
-      <div className="rounded-lg border border-slate-200 p-3 bg-surface space-y-2">
+      <div className="rounded-control border border-line p-3 bg-surface-1 space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -240,7 +248,7 @@ function ScoreSection({ doctorId }: { doctorId: string }) {
             value={customFrom}
             onChange={(e) => { setCustomFrom(e.target.value); setPreset('custom') }}
           />
-          <span className="text-slate-400 text-sm">–</span>
+          <span className="text-ink-muted text-sm">–</span>
           <input
             type="date"
             className={`${inputClass} w-auto text-sm`}
@@ -248,20 +256,20 @@ function ScoreSection({ doctorId }: { doctorId: string }) {
             onChange={(e) => { setCustomTo(e.target.value); setPreset('custom') }}
           />
         </div>
-        <p className="text-sm text-slate-700">
-          Aralıktaki değişim: <span className="text-brand-700 font-medium">+{range.positive}</span>
-          {' '}<span className="text-rose-700 font-medium">−{range.negative}</span>
+        <p className="text-sm text-ink-secondary">
+          Aralıktaki değişim: <span className="text-success-text font-medium tnum">+{range.positive}</span>
+          {' '}<span className="text-danger-text font-medium tnum">−{range.negative}</span>
           {' = '}
-          <span className="font-semibold">net {range.net >= 0 ? `+${range.net}` : range.net}</span>
+          <span className="font-semibold tnum">net {range.net >= 0 ? `+${range.net}` : range.net}</span>
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium text-slate-500 mb-1">Son 6 ay</p>
-        <ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600">
+        <p className="text-xs font-medium text-ink-muted mb-1">Son 6 ay</p>
+        <ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-secondary">
           {monthly.map((m) => (
             <li key={m.key}>
-              {m.label}: <span className={m.net > 0 ? 'text-brand-700' : m.net < 0 ? 'text-rose-700' : 'text-slate-500'}>
+              {m.label}: <span className={`tnum ${m.net > 0 ? 'text-success-text' : m.net < 0 ? 'text-danger-text' : 'text-ink-muted'}`}>
                 {m.net > 0 ? `+${m.net}` : m.net}
               </span>
             </li>
@@ -284,7 +292,7 @@ function ChevronIcon({ open }: { open: boolean }) {
 }
 
 function SectionHeading({ children }: { children: string }) {
-  return <h4 className="text-sm font-semibold text-slate-700 pt-3 border-t border-slate-200 first:pt-0 first:border-t-0">{children}</h4>
+  return <h4 className="text-sm font-semibold text-ink-secondary pt-3 border-t border-line first:pt-0 first:border-t-0">{children}</h4>
 }
 
 function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -373,7 +381,7 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
 
           <SectionHeading>Yetkinlikler</SectionHeading>
           <ScopeEditor scopes={scopes} onChange={setScopes} />
-          {!scopes.length && <p className="text-amber-600 text-xs">En az bir yetkinlik (kategori/alt kırılım) seçilmeli.</p>}
+          {!scopes.length && <p className="text-warning-text text-xs">En az bir yetkinlik (kategori/alt kırılım) seçilmeli.</p>}
 
           <SectionHeading>Ağırlıklı İşler</SectionHeading>
           <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
@@ -436,18 +444,18 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
           <div className="flex items-center gap-3 min-w-0">
             <DoctorAvatar photoUrl={doctor.photo_url} name={doctor.title || 'Doktor'} />
             <div className="min-w-0">
-              <p className="font-medium text-slate-900 truncate">{doctor.title || '(unvan yok)'}</p>
-              <p className="text-sm text-slate-500 truncate">{doctor.specialty || '—'}</p>
+              <p className="font-medium text-ink-primary truncate">{doctor.title || '(unvan yok)'}</p>
+              <p className="text-sm text-ink-muted truncate">{doctor.specialty || '—'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <span className="flex items-center gap-1.5 text-sm text-slate-600">
-              <span className={`h-2 w-2 rounded-full ${doctor.is_active ? 'bg-green-500' : 'bg-slate-300'}`} />
+            <span className="flex items-center gap-1.5 text-sm text-ink-secondary">
+              <span className={`leading-none ${doctor.is_active ? 'text-success-text' : 'text-ink-muted'}`} aria-hidden="true">●</span>
               {doctor.is_active ? 'Aktif' : 'Pasif'}
             </span>
             <button
               type="button"
-              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"
+              className="p-1.5 rounded-control text-ink-muted hover:bg-surface-1 hover:text-ink-secondary transition ease-premium duration-[var(--dur-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40"
               aria-label={expanded ? 'Kapat' : 'Genişlet'}
               onClick={() => setExpanded((v) => !v)}
             >
@@ -457,7 +465,7 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
         </div>
 
         {expanded && (
-          <div className="space-y-3 pt-3 mt-3 border-t border-slate-200">
+          <div className="space-y-3 pt-3 mt-3 border-t border-line">
             <ScopeChips scopes={doctor.scopes} />
 
             <Field label="Branş">
@@ -477,7 +485,7 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
               <DoctorAvatar photoUrl={photoUrl} name={doctor.title || 'Doktor'} size="lg" />
               <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="text-sm" />
             </div>
-            <label className="flex items-center gap-2 text-sm text-slate-700">
+            <label className="flex items-center gap-2 text-sm text-ink-secondary">
               <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Aktif
             </label>
 
