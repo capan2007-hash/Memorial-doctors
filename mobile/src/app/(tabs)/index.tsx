@@ -3,7 +3,8 @@ import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } f
 
 import { useAuth } from '@/lib/auth'
 import { useDoctorQueue, type DoctorQueueRow } from '@/features/queue/useDoctorQueue'
-import { QueueRow } from '@/features/queue/QueueRow'
+import { QueueRow, SlaBadge } from '@/features/queue/QueueRow'
+import { slaInfo, slaLabel } from '@/domain/sla'
 import { colors, fontFamily, spacing } from '@/theme'
 
 export default function PendingQueueScreen() {
@@ -27,14 +28,19 @@ export default function PendingQueueScreen() {
             <RefreshControl refreshing={queue.isFetching && !queue.isLoading} onRefresh={() => queue.refetch()} />
           }
           ItemSeparatorComponent={() => <View style={{ height: spacing.two }} />}
-          renderItem={({ item }: { item: DoctorQueueRow }) => (
-            <QueueRow
-              patientName={item.patientName}
-              categoryName={item.categoryName}
-              assignedAt={item.assignedAt}
-              onPress={() => router.push({ pathname: '/request/[id]', params: { id: item.id } })}
-            />
-          )}
+          renderItem={({ item }: { item: DoctorQueueRow }) => {
+            const info = slaInfo(item.assignedAt, queue.slaHours, queue.reminderHours, !!item.myResponse)
+            const label = slaLabel(info)
+            return (
+              <QueueRow
+                patientName={item.patientName}
+                categoryName={item.categoryName}
+                assignedAt={item.assignedAt}
+                badge={label ? <SlaBadge state={info.state} label={label} /> : null}
+                onPress={() => router.push({ pathname: '/request/[id]', params: { id: item.id } })}
+              />
+            )
+          }}
           ListEmptyComponent={
             <View style={styles.center}>
               <Text style={styles.hint}>Bekleyen talep yok</Text>

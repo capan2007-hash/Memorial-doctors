@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
@@ -7,9 +7,11 @@ import {
   useDoctorsFull, useDoctorMetrics, useUpdateDoctor, useCreateDoctor,
   uploadDoctorPhoto, signDoctorPhoto,
   emptyWeightedWork, toWeightedWork,
+  useScoreEvents,
 } from './useDoctors'
 import type { DoctorScope, DoctorWithScopes, WeightedWork, WeightedWorkLevel } from './useDoctors'
 import type { CategoryRow, SubcategoryRow } from '../../types/db'
+import { netChangeInRange, monthlyNetChanges } from '../../domain/score'
 import { Card } from '../../components/ui/Card'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
@@ -169,6 +171,24 @@ function StatBox({ value, label }: { value: string | number; label: string }) {
   )
 }
 
+/** BRD §6.2 kelepçe: <10 "çalışılmaz" (kırmızı alarm), 10-49 uyarı (amber), >=50 iyi (brand). */
+function scoreTier(score: number): { bg: string; text: string; label?: string } {
+  if (score < 10) return { bg: 'bg-rose-50', text: 'text-rose-700', label: 'Çalışılmaz' }
+  if (score < 50) return { bg: 'bg-amber-50', text: 'text-amber-700' }
+  return { bg: 'bg-brand-50', text: 'text-brand-700' }
+}
+
+function ScoreStatBox({ score }: { score: number }) {
+  const tier = scoreTier(score)
+  return (
+    <Card className={`text-center ${tier.bg}`}>
+      <p className={`font-display text-2xl ${tier.text}`}>{score}</p>
+      <p className="text-xs text-slate-500">Skor</p>
+      {tier.label && <p className={`text-[11px] font-semibold mt-0.5 ${tier.text}`}>{tier.label}</p>}
+    </Card>
+  )
+}
+
 function StatsGrid({ doctor }: { doctor: DoctorWithScopes }) {
   const metrics = useDoctorMetrics(doctor.id)
   const m = metrics.data
@@ -177,7 +197,97 @@ function StatsGrid({ doctor }: { doctor: DoctorWithScopes }) {
       <StatBox value={m?.acceptCount ?? 0} label="Kabul" />
       <StatBox value={m?.rejectCount ?? 0} label="Red" />
       <StatBox value={m && m.avgResponseMins != null ? Math.round(m.avgResponseMins) : '—'} label="Ort. dönüş (dk)" />
-      <StatBox value={doctor.score} label="Skor" />
+      <ScoreStatBox score={doctor.score} />
+    </div>
+  )
+}
+
+type ScorePreset = 'last30d' | 'custom'
+
+function toDateInputValue(d: Date): string {
+  // Yerel saat kullanılır: toISOString (UTC) gece 03:00 öncesi TR'de bir önceki günü gösterirdi.
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${m}-${day}`
+}
+
+function startOfDayIso(dateStr: string): string {
+  return new Date(`${dateStr}T00:00:00.000`).toISOString()
+}
+
+function endOfDayIso(dateStr: string): string {
+  return new Date(`${dateStr}T23:59:59.999`).toISOString()
+}
+
+/** FR-29b: zamanında/geç toplamları + dönemsel skor (preset "Son 1 ay" + serbest aralık) + son 6 ay mini liste.
+ * Tek sorgu ile TÜM olaylar çekilir; aralık/aylık toplamlar istemci tarafında hesaplanır (grafik kütüphanesi yok). */
+function ScoreSection({ doctorId }: { doctorId: string }) {
+  const now = useMemo(() => new Date(), [])
+  const [preset, setPreset] = useState<ScorePreset>('last30d')
+  const [customFrom, setCustomFrom] = useState(() => toDateInputValue(new Date(now.getTime() - 30 * 86_400_000)))
+  const [customTo, setCustomTo] = useState(() => toDateInputValue(now))
+
+  const events = useScoreEvents(doctorId)
+  const rows = events.data ?? []
+
+  const totalTimely = rows.filter((e) => e.delta === 1).length
+  const totalLate = rows.filter((e) => e.delta === -1).length
+
+  const rangeFrom = preset === 'last30d' ? new Date(now.getTime() - 30 * 86_400_000).toISOString() : startOfDayIso(customFrom)
+  const rangeTo = preset === 'last30d' ? now.toISOString() : endOfDayIso(customTo)
+  const range = netChangeInRange(rows, rangeFrom, rangeTo)
+  const monthly = monthlyNetChanges(rows, now, 6)
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-slate-600">
+        Zamanında: <span className="font-medium text-brand-700">{totalTimely}</span>
+        {' · '}Geç: <span className="font-medium text-rose-700">{totalLate}</span>
+      </p>
+
+      <div className="rounded-lg border border-slate-200 p-3 bg-surface space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant={preset === 'last30d' ? 'primary' : 'secondary'}
+            onClick={() => setPreset('last30d')}
+          >
+            Son 1 ay
+          </Button>
+          <input
+            type="date"
+            className={`${inputClass} w-auto text-sm`}
+            value={customFrom}
+            onChange={(e) => { setCustomFrom(e.target.value); setPreset('custom') }}
+          />
+          <span className="text-slate-400 text-sm">–</span>
+          <input
+            type="date"
+            className={`${inputClass} w-auto text-sm`}
+            value={customTo}
+            onChange={(e) => { setCustomTo(e.target.value); setPreset('custom') }}
+          />
+        </div>
+        <p className="text-sm text-slate-700">
+          Aralıktaki değişim: <span className="text-brand-700 font-medium">+{range.positive}</span>
+          {' '}<span className="text-rose-700 font-medium">−{range.negative}</span>
+          {' = '}
+          <span className="font-semibold">net {range.net >= 0 ? `+${range.net}` : range.net}</span>
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs font-medium text-slate-500 mb-1">Son 6 ay</p>
+        <ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600">
+          {monthly.map((m) => (
+            <li key={m.key}>
+              {m.label}: <span className={m.net > 0 ? 'text-brand-700' : m.net < 0 ? 'text-rose-700' : 'text-slate-500'}>
+                {m.net > 0 ? `+${m.net}` : m.net}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
@@ -393,6 +503,9 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
 
             <SectionHeading>İstatistikler</SectionHeading>
             <StatsGrid doctor={doctor} />
+
+            <SectionHeading>Skor Geçmişi</SectionHeading>
+            <ScoreSection doctorId={doctor.id} />
 
             <div className="flex justify-end pt-2">
               <Button variant="primary" type="button" loading={updateDoctor.isPending} onClick={save}>
