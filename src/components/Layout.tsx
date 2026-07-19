@@ -84,6 +84,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <ThemeToggle />
           <button
             onClick={signOut}
+            aria-label="Çıkış"
             className="inline-flex items-center gap-1.5 rounded-control px-2.5 py-1.5 font-medium text-brand-on/90 transition-colors duration-[var(--dur-fast)] ease-premium hover:bg-brand-on/10 hover:text-brand-on"
           >
             <Icon of={LogOut} size={16} />

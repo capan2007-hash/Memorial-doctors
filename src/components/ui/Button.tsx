@@ -7,7 +7,7 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   primary: 'bg-brand-fill hover:bg-brand-fill-hover text-brand-on',
   secondary:
     'bg-surface-2 border border-line text-ink-primary hover:border-line-strong',
-  danger: 'bg-danger-bg border border-danger-border text-danger-text',
+  danger: 'bg-danger-bg border border-danger-border text-danger-text hover:border-danger-text/40',
   ghost: 'text-ink-secondary hover:bg-surface-2',
 }
 
