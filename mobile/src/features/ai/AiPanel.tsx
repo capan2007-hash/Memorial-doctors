@@ -44,6 +44,7 @@ function FeedbackSection({
   const submit = useSubmitAiFeedback()
   const [selected, setSelected] = useState<AiFeedbackRow['label'] | null>(null)
   const [note, setNote] = useState('')
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   if (existing.data) {
     return (
@@ -89,14 +90,18 @@ function FeedbackSection({
         disabled={!selected || submit.isPending}
         onPress={() => {
           if (!selected) return
-          submit.mutate({
-            tenantId,
-            requestId,
-            aiEvaluationId,
-            doctorId,
-            label: selected,
-            note: note || undefined,
-          })
+          setSubmitError(null)
+          submit.mutate(
+            {
+              tenantId,
+              requestId,
+              aiEvaluationId,
+              doctorId,
+              label: selected,
+              note: note || undefined,
+            },
+            { onError: () => setSubmitError('Geri bildirim gönderilemedi') },
+          )
         }}
       >
         {submit.isPending ? (
@@ -105,6 +110,7 @@ function FeedbackSection({
           <Text style={styles.submitButtonText}>Gönder</Text>
         )}
       </Pressable>
+      {submitError && <Text style={styles.feedbackErrorText}>{submitError}</Text>}
     </View>
   )
 }
@@ -279,6 +285,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.slate[600],
     marginTop: spacing.one,
+  },
+  feedbackErrorText: {
+    fontFamily: fontFamily.regular,
+    fontSize: 13,
+    color: colors.danger[600],
   },
   feedbackPrompt: {
     fontFamily: fontFamily.regular,

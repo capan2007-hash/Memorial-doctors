@@ -98,6 +98,9 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
 export function RequestDetail() {
   const { id } = useParams()
   const q = useRequestDetail(id)
+  if (q.isError || (!q.isLoading && !q.data)) {
+    return <EmptyState title="Talep bulunamadı" description="Bu talep silinmiş veya bağlantı hatalı olabilir." />
+  }
   if (!q.data) {
     return (
       <div className="flex justify-center py-10">
