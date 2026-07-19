@@ -12,8 +12,8 @@ Kod tabanı bir MVP için **disiplinli ve sağlam**: feature-folder yapısı, sa
 |---|------|-------|------|
 | P0-1 | Altyapı | **Repo hiçbir uzak sunucuda değil** (git remote yok) + sıfır CI | Disk arızası = 142 commit dahil her şeyin kaybı; merge kapısı yok |
 | P0-2 | Operasyon | **Hata izleme yok** (web/mobil/edge) + **cron'lar sessiz-arızalı** (SLA süpürücü, foto imha — bozulursa kimse duymaz) | Prod hataları ancak kullanıcı şikayetiyle; KVKK imha akışı fark edilmeden durabilir |
-| P0-3 | Güvenlik | `assignment` INSERT politikası doctor_id/rol doğrulamıyor → **doktor kendini tenant'taki HERHANGİ bir talebe atayıp** hasta PII+foto+AI değerlendirmesine erişebilir (tenant içi yatay yükselme; FR-21 yine sağlam — agent'ta doktor kimliği yok) | Need-to-know ihlali |
-| P0-4 | Güvenlik | `audit_log` INSERT'te actor_id/action client kontrolünde → **denetim kaydı sahtelenebilir** (admin adına satır yazılabilir) | KVKK denetim güvenilirliği çöker |
+| ~~P0-3~~ ✅ | Güvenlik | `assignment` INSERT politikası doctor_id/rol doğrulamıyor → doktor kendini keyfi talebe atayabiliyordu | **ÇÖZÜLDÜ** (migration 0024): atama `assign_request_doctors` RPC'ye indi, client INSERT/DELETE kapandı; canlı: doktor self-assign → 403 |
+| ~~P0-4~~ ✅ | Güvenlik | `audit_log` actor client kontrolündeydi → sahtelenebilirdi (ayrıca satışçı/doktor audit'i latent olarak hep patlıyordu) | **ÇÖZÜLDÜ** (0025): client audit tümden kapatıldı, meşru kayıtlar SECURITY DEFINER trigger'larla actor=auth.uid() ile üretiliyor; canlı doğrulandı |
 
 Öneri paketi: GitHub private remote + basit Actions gate (test+build) + Sentry (ücretsiz katman) + 2 cron heartbeat (healthchecks.io) + migration 0024 (assignment WITH CHECK sıkılaştırma, audit'i trigger/definer'a alma).
 
