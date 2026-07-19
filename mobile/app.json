@@ -1,16 +1,25 @@
 {
   "expo": {
     "name": "MedTriage Doktor",
-    "slug": "mobile",
+    "slug": "medtriage-doktor",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "medtriage",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.rememore.medtriage",
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Hasta fotoğraflarını görüntülemek için galeri erişimi gerekir."
+      }
     },
     "android": {
+      "package": "com.rememore.medtriage",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
