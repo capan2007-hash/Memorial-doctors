@@ -2,17 +2,18 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/auth'
 import { Button } from '../../components/ui/Button'
-import { Card } from '../../components/ui/Card'
 import { Field } from '../../components/ui/Field'
 
 const INPUT_CLASSES =
-  'w-full rounded-lg border border-slate-300 p-2 focus:outline-none focus:ring-2 focus:ring-brand-600'
+  'w-full rounded-control border border-line bg-surface-1 p-2 text-ink-primary placeholder:text-ink-muted transition-colors duration-[var(--dur-fast)] ease-premium focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
 
+/** Rafine marka işareti — geometrik teal haç + nokta. */
 function Monogram() {
   return (
-    <span className="h-14 w-14 rounded-lg bg-white/15 flex items-center justify-center">
-      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
-        <path d="M12 5v14M5 12h14" />
+    <span className="flex h-16 w-16 items-center justify-center rounded-card bg-brand-on/10">
+      <svg viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" aria-hidden="true">
+        <path d="M12 4.5v15M4.5 12h15" strokeWidth={2.25} strokeLinecap="round" />
+        <circle cx="12" cy="12" r="3.25" fill="currentColor" stroke="none" opacity={0.9} />
       </svg>
     </span>
   )
@@ -39,16 +40,19 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen md:grid md:grid-cols-2">
-      <div className="bg-brand-700 text-white flex flex-col items-center justify-center gap-3 py-10 md:py-0 px-4">
+    <div className="min-h-screen bg-surface-0 md:grid md:grid-cols-2">
+      <div className="flex flex-col items-center justify-center gap-4 bg-brand-fill px-6 py-12 text-brand-on md:py-0">
         <Monogram />
-        <h1 className="font-display text-3xl md:text-4xl font-semibold">MedTriage</h1>
-        <p className="text-white/80 text-center">Estetik cerrahi talep yönetimi &amp; triyaj</p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">MedTriage</h1>
+        <p className="max-w-xs text-center text-brand-on/80">
+          Estetik cerrahi talep yönetimi &amp; triyaj
+        </p>
       </div>
-      <div className="flex items-center justify-center p-4">
-        <Card className="max-w-sm w-full">
-          <h2 className="font-display text-xl mb-4">Giriş</h2>
-          <form onSubmit={submit} className="space-y-3">
+      <div className="flex items-center justify-center p-6">
+        <div className="w-full max-w-sm rounded-card border border-line bg-surface-2 p-6 shadow-card md:p-8">
+          <h2 className="mb-1 font-display text-xl text-ink-primary">Giriş</h2>
+          <p className="mb-5 text-sm text-ink-muted">Devam etmek için hesabınıza giriş yapın</p>
+          <form onSubmit={submit} className="space-y-4">
             <Field label="E-posta">
               <input
                 className={INPUT_CLASSES}
@@ -71,7 +75,7 @@ export function LoginPage() {
               Giriş
             </Button>
           </form>
-        </Card>
+        </div>
       </div>
     </div>
   )
