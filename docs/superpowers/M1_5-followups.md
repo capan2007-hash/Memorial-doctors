@@ -24,3 +24,12 @@ M1.5 merge'i için kabul edilen, sonraki iterasyona bırakılan işler. İki Imp
 - M2: AI dahili triyaj + geri besleme (spec hazır).
 - M3: skor otomasyonu (+1/−1) + SLA + eskalasyon zamanlayıcısı.
 - M4: KVKK fotoğraf yaşam döngüsü. M5: mükerrer tespiti. M6: native + push.
+
+---
+## 2026-07-19 — Kapatılanlar (polish-hardening turu)
+- ✅ Admin RLS WITH CHECK rol predikatı (doctor/req/patient_admin_all) — migration 0019, canlı doğrulandı (agent doctor INSERT → 403).
+- ✅ Demografi aralık kısıtları (age/height/weight CHECK) — migration 0019 (yaş 200 → 400).
+- ✅ useRequestDetail/DoctorRequestView null guard — "Talep bulunamadı" durumu.
+- ✅ AllRequests reassign: closed guard + 0-doktor toast + hata toast; "Yeniden ata" butonu Link dışına.
+- ✅ Mobil AiPanel geri bildirim hata göstergesi.
+- Kalanlar (düşük değer): tenant-çapraz kategori id doğrulaması; legacy doctor.category_id kaldırma; doctor_scope NULL dedup; Diş kategorisi capability flag; PhotoGrid lightbox focus-trap; paylaşılan cihazda push_token çakışması (M6a).
