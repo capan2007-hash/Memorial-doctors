@@ -10,6 +10,10 @@ interface NewRequestInput {
   tenantId: string
   createdBy: string
   patient: { first_name: string; last_name: string; phone?: string }
+  /** M5: eşleşen mevcut hasta seçilmişse — hasta insert'i atlanır, telefon güncellenmez (kapsam dışı). */
+  existingPatientId?: string
+  /** M5 FR-44: silinmiş foto geçmişi olan hastaya bağlanınca talebe güncel foto zorunluluğu bayrağı. */
+  photosRequired?: boolean
   age: number; weightKg: number; heightCm: number; gender: 'female' | 'male' | 'other'
   pastSurgeries: string; knownConditions: string; medications: string
   categoryId: string
@@ -24,18 +28,26 @@ export function useCreateRequest() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (input: NewRequestInput) => {
-      // 1) hasta
-      const { data: patient, error: pErr } = await supabase.from('patient')
-        .insert({ tenant_id: input.tenantId, first_name: input.patient.first_name, last_name: input.patient.last_name, phone: input.patient.phone })
-        .select().single()
-      if (pErr) throw pErr
+      // 1) hasta — mevcut aday seçilmişse yeni hasta açılmaz
+      let patientId = input.existingPatientId
+      if (!patientId) {
+        const { data: patient, error: pErr } = await supabase.from('patient')
+          .insert({
+            tenant_id: input.tenantId, first_name: input.patient.first_name,
+            last_name: input.patient.last_name, phone: input.patient.phone,
+          })
+          .select().single()
+        if (pErr) throw pErr
+        patientId = patient.id
+      }
       // 2) talep (submitted)
       const { data: req, error: rErr } = await supabase.from('request').insert({
-        tenant_id: input.tenantId, patient_id: patient.id, created_by: input.createdBy,
+        tenant_id: input.tenantId, patient_id: patientId, created_by: input.createdBy,
         category_id: input.categoryId, subcategory_id: input.subcategoryId,
         operation_type_id: input.operationTypeId, notes: input.notes,
         age: input.age, weight_kg: input.weightKg, height_cm: input.heightCm, gender: input.gender,
         past_surgeries: input.pastSurgeries, known_conditions: input.knownConditions, medications: input.medications,
+        photos_required: input.photosRequired ?? false,
         status: 'submitted', submitted_at: new Date().toISOString(),
       }).select().single()
       if (rErr) throw rErr

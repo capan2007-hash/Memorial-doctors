@@ -1,6 +1,7 @@
 export interface MissingInput {
   first: string
   last: string
+  phoneOk: boolean
   ageOk: boolean
   weightOk: boolean
   heightOk: boolean
@@ -17,6 +18,7 @@ export function missingFields(i: MissingInput): string[] {
   const out: string[] = []
   if (!i.first) out.push('Ad')
   if (!i.last) out.push('Soyad')
+  if (!i.phoneOk) out.push('Telefon')
   if (!i.ageOk) out.push('Yaş')
   if (!i.weightOk) out.push('Kilo')
   if (!i.heightOk) out.push('Boy')

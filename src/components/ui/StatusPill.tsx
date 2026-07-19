@@ -1,6 +1,6 @@
 import type { RequestStatus } from '../../types/domain'
 
-const LABEL: Record<RequestStatus, string> = {
+export const STATUS_LABELS: Record<RequestStatus, string> = {
   draft: 'Taslak',
   submitted: 'Gönderildi',
   assigned: 'Atandı',
@@ -25,7 +25,7 @@ export function StatusPill({ status }: { status: RequestStatus }) {
     <span
       className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${COLOR[status]}`}
     >
-      {LABEL[status]}
+      {STATUS_LABELS[status]}
     </span>
   )
 }

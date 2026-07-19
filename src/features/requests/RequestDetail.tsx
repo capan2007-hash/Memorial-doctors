@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useRequestDetail, useTenantPhotoSettings } from './useRequests'
 import { useSetSaleStatus } from './useSetSaleStatus'
+import { useSiblingOpenRequests } from './useSiblingOpenRequests'
 import { useAuth } from '../../lib/auth'
 import { RoleGate } from '../../components/RoleGate'
 import { PageHeader } from '../../components/ui/PageHeader'
@@ -98,6 +99,9 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
 export function RequestDetail() {
   const { id } = useParams()
   const q = useRequestDetail(id)
+  // Hooks koşulsuz çağrılmalı (Rules of Hooks): veri gelmeden patient_id yoksa
+  // hook 'enabled' değil, undefined güvenli — erken return'lerden ÖNCE çağrılır.
+  const siblingOpen = useSiblingOpenRequests(q.data?.req.patient_id, q.data?.req.id)
   if (q.isError || (!q.isLoading && !q.data)) {
     return <EmptyState title="Talep bulunamadı" description="Bu talep silinmiş veya bağlantı hatalı olabilir." />
   }
@@ -109,6 +113,7 @@ export function RequestDetail() {
     )
   }
   const { req, responses, patientName, categoryName, subcategoryName, operationName, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
+  const siblingCount = siblingOpen.data?.length ?? 0
   const accepted = responses.filter((r) => r.decision === 'accept')
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
   return (
@@ -118,6 +123,11 @@ export function RequestDetail() {
         subtitle={`Talep #${req.id.slice(0, 8)} · ${timeAgo(req.created_at)}`}
         actions={<StatusPill status={req.status} />}
       />
+      {siblingCount > 0 && (
+        <div className="rounded-lg bg-accent-100 text-accent-700 text-sm px-3 py-2">
+          ⚠ Bu hastanın başka açık talebi var ({siblingCount})
+        </div>
+      )}
       <PatientInfoCard
         req={req}
         patientName={patientName}
@@ -126,6 +136,11 @@ export function RequestDetail() {
         operationName={operationName}
       />
       <Card title="Fotoğraflar">
+        {req.photos_required && (
+          <span className="inline-block rounded-full bg-accent-100 text-accent-700 text-xs font-medium px-2 py-0.5 mb-2">
+            Fotoğraf yeniden gerekli
+          </span>
+        )}
         <PhotoGrid urls={photos} title="Fotoğraf" deletedPhotos={deletedPhotos} />
       </Card>
       {(xrays.length > 0 || deletedXrays.length > 0) && (
