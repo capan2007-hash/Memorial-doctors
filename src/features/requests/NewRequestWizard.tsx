@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/auth'
+import { supabase } from '../../lib/supabase'
 import { useCategories, useSubcategories, useOperationTypes } from '../catalog/useCatalog'
 import { useCreateRequest } from './useRequests'
 import { PhotoUploader } from '../../components/PhotoUploader'
 import { medicalValue, demographicsError } from '../../domain/health'
+import { normalizePhone } from '../../domain/phone'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Field } from '../../components/ui/Field'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { saveDraft, loadDraft, clearDraft, isDraftEmpty, type RequestDraft } from './requestDraft'
 import { missingFields } from './missingFields'
+import { DuplicateMatchPanel, type MatchRow } from './DuplicateMatchPanel'
 
 const inputClass = 'w-full rounded-lg border border-slate-300 p-2 focus:outline-none focus:ring-2 focus:ring-brand-600'
 
@@ -33,6 +36,7 @@ export function NewRequestWizard() {
   const [subcategoryId, setSubcategoryId] = useState<string | null>(initialDraft?.subcategoryId ?? null)
   const [operationTypeId, setOperationTypeId] = useState<string | null>(initialDraft?.operationTypeId ?? null)
   const [first, setFirst] = useState(initialDraft?.first ?? ''); const [last, setLast] = useState(initialDraft?.last ?? '')
+  const [phone, setPhone] = useState(initialDraft?.phone ?? '')
   const [age, setAge] = useState(initialDraft?.age ?? ''); const [weightKg, setWeightKg] = useState(initialDraft?.weightKg ?? ''); const [heightCm, setHeightCm] = useState(initialDraft?.heightCm ?? '')
   const [gender, setGender] = useState<Gender | ''>(initialDraft?.gender ?? '')
   const [pastSurgeries, setPastSurgeries] = useState<MedicalField>(initialDraft?.pastSurgeries ?? emptyMedical)
@@ -41,18 +45,20 @@ export function NewRequestWizard() {
   const [notes, setNotes] = useState(initialDraft?.notes ?? ''); const [files, setFiles] = useState<File[]>(initialDraft?.files ?? [])
   const [xrayFiles, setXrayFiles] = useState<File[]>(initialDraft?.xrayFiles ?? [])
   const [warn, setWarn] = useState<string | null>(null)
+  const [matches, setMatches] = useState<MatchRow[]>([])
+  const [selectedPatient, setSelectedPatient] = useState<MatchRow | null>(null)
   const subs = useSubcategories(categoryId)
   const ops = useOperationTypes(categoryId, subcategoryId)
   const create = useCreateRequest()
 
   const draftRef = useRef<RequestDraft>({
-    first, last, age, weightKg, heightCm, gender,
+    first, last, phone, age, weightKg, heightCm, gender,
     pastSurgeries, knownConditions, medications,
     categoryId, subcategoryId, operationTypeId,
     notes, files, xrayFiles,
   })
   draftRef.current = {
-    first, last, age, weightKg, heightCm, gender,
+    first, last, phone, age, weightKg, heightCm, gender,
     pastSurgeries, knownConditions, medications,
     categoryId, subcategoryId, operationTypeId,
     notes, files, xrayFiles,
@@ -67,15 +73,32 @@ export function NewRequestWizard() {
     }
   }, [])
 
+  // M5: mükerrer hasta eşleştirme — telefon + ad + soyad girilince debounce'lu RPC.
+  // Zaten "aynı hasta" seçilmişse yeni arama yapılmaz (kullanıcı kararını bozmamak için).
+  useEffect(() => {
+    if (selectedPatient) { setMatches([]); return }
+    if (normalizePhone(phone).length < 7 || !first.trim() || !last.trim()) { setMatches([]); return }
+    let cancelled = false
+    const timer = setTimeout(() => {
+      supabase.rpc('find_patient_matches', { p_phone: phone, p_first: first, p_last: last })
+        .then(({ data, error }) => {
+          if (cancelled || error) return
+          setMatches((data ?? []) as MatchRow[])
+        })
+    }, 400)
+    return () => { cancelled = true; clearTimeout(timer) }
+  }, [phone, first, last, selectedPatient])
+
   const clearDraftAndReset = () => {
     clearDraft()
     setDraftRestored(false)
     setCategoryId(''); setSubcategoryId(null); setOperationTypeId(null)
-    setFirst(''); setLast('')
+    setFirst(''); setLast(''); setPhone('')
     setAge(''); setWeightKg(''); setHeightCm('')
     setGender('')
     setPastSurgeries(emptyMedical); setKnownConditions(emptyMedical); setMedications(emptyMedical)
     setNotes(''); setFiles([]); setXrayFiles([])
+    setMatches([]); setSelectedPatient(null)
   }
 
   const selectedCat = cats.data?.find((c) => c.id === categoryId)
@@ -88,20 +111,24 @@ export function NewRequestWizard() {
   // Üç alan da doluyken aralık doğrulaması yap (yazarken erken uyarı vermemek için)
   const demoError = age && weightKg && heightCm ? demographicsError(ageNum, weightNum, heightNum) : null
 
+  const phoneOk = normalizePhone(phone).length >= 10
   const ageOk = ageNum > 0 && !demoError
   const weightOk = weightNum > 0 && !demoError
   const heightOk = heightNum > 0 && !demoError
   const medicalOk = medicalValid(pastSurgeries) && medicalValid(knownConditions) && medicalValid(medications)
 
-  const canSubmit = !!first && !!last && ageOk && weightOk && heightOk && !!gender &&
+  const canSubmit = !!first && !!last && phoneOk && ageOk && weightOk && heightOk && !!gender &&
     !!categoryId && (!needsSub || !!subcategoryId) &&
     medicalOk && files.length > 0
 
   const missing = missingFields({
-    first, last, ageOk, weightOk, heightOk, gender,
+    first, last, phoneOk, ageOk, weightOk, heightOk, gender,
     categoryId, needsSub: !!needsSub, subcategoryId,
     medicalOk, filesCount: files.length,
   })
+
+  // M5 FR-44: seçilen adayda önceki fotoğraflar silinmişse yeni talebe güncel foto zorunluluğu.
+  const photosRequired = !!selectedPatient && selectedPatient.had_deleted_photos && !selectedPatient.has_available_photos
 
   const [submitErr, setSubmitErr] = useState<string | null>(null)
 
@@ -109,7 +136,9 @@ export function NewRequestWizard() {
     try {
       const res = await create.mutateAsync({
         tenantId: appUser!.tenant_id, createdBy: appUser!.id,
-        patient: { first_name: first, last_name: last },
+        patient: { first_name: first, last_name: last, phone: normalizePhone(phone) },
+        existingPatientId: selectedPatient?.patient_id,
+        photosRequired,
         // DB kolonları integer: gönderimde yuvarla (ör. 172.5 -> 173)
         age: Math.round(ageNum), weightKg: weightNum, heightCm: Math.round(heightNum), gender: gender as Gender,
         pastSurgeries: medicalValue(pastSurgeries.none, pastSurgeries.text) ?? '',
@@ -145,12 +174,15 @@ export function NewRequestWizard() {
       <div className="mx-auto max-w-4xl space-y-4">
         <Card title="Hasta Bilgileri">
           <div className="space-y-3">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <Field label="Ad">
                 <input className={inputClass} placeholder="Ad" value={first} onChange={(e) => setFirst(e.target.value)} />
               </Field>
               <Field label="Soyad">
                 <input className={inputClass} placeholder="Soyad" value={last} onChange={(e) => setLast(e.target.value)} />
+              </Field>
+              <Field label="Telefon">
+                <input className={inputClass} type="tel" placeholder="05XX XXX XX XX" value={phone} onChange={(e) => setPhone(e.target.value)} />
               </Field>
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -174,6 +206,44 @@ export function NewRequestWizard() {
             </div>
           </div>
         </Card>
+
+        {!selectedPatient && matches.length > 0 && (
+          <DuplicateMatchPanel
+            matches={matches}
+            onSelectSame={(m) => { setSelectedPatient(m); setMatches([]) }}
+            onDismiss={() => setMatches([])}
+          />
+        )}
+
+        {selectedPatient && (
+          <Card className="border border-brand-100 bg-brand-50">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm text-brand-700">
+                  Mevcut hastaya bağlanıyor: <span className="font-medium">{selectedPatient.first_name} {selectedPatient.last_name}</span>
+                </p>
+                <button
+                  type="button"
+                  aria-label="Seçimi geri al"
+                  className="text-slate-400 hover:text-slate-600"
+                  onClick={() => setSelectedPatient(null)}
+                >
+                  ×
+                </button>
+              </div>
+              {selectedPatient.had_deleted_photos && !selectedPatient.has_available_photos && (
+                <p className="text-sm text-amber-700">
+                  Fotoğraf yeniden gerekli: önceki fotoğraflar KVKK gereği silinmiş, güncel fotoğraf ekleyin.
+                </p>
+              )}
+              {selectedPatient.has_open_request && (
+                <p className="text-sm text-slate-600">
+                  Bu hastanın doktor yanıtı bekleyen başka talebi var.
+                </p>
+              )}
+            </div>
+          </Card>
+        )}
 
         <Card title="Operasyon">
           <div className="space-y-3">

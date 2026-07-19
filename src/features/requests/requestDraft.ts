@@ -9,6 +9,7 @@ export interface MedicalDraft {
 export interface RequestDraft {
   first: string
   last: string
+  phone: string
   age: string
   weightKg: string
   heightCm: string
@@ -44,7 +45,7 @@ function medicalEmpty(m: MedicalDraft): boolean {
 
 export function isDraftEmpty(d: RequestDraft): boolean {
   return (
-    !d.first && !d.last && !d.age && !d.weightKg && !d.heightCm &&
+    !d.first && !d.last && !d.phone && !d.age && !d.weightKg && !d.heightCm &&
     d.gender === '' &&
     medicalEmpty(d.pastSurgeries) && medicalEmpty(d.knownConditions) && medicalEmpty(d.medications) &&
     !d.categoryId && !d.subcategoryId && !d.operationTypeId &&

@@ -3,7 +3,7 @@ import { missingFields, type MissingInput } from '../missingFields'
 
 function fullInput(): MissingInput {
   return {
-    first: 'Ayşe', last: 'Yılmaz',
+    first: 'Ayşe', last: 'Yılmaz', phoneOk: true,
     ageOk: true, weightOk: true, heightOk: true,
     gender: 'female',
     categoryId: 'cat-1', needsSub: false, subcategoryId: null,
@@ -14,15 +14,20 @@ function fullInput(): MissingInput {
 describe('missingFields', () => {
   it('boş girdi için tüm alanları eksik listeler', () => {
     const empty: MissingInput = {
-      first: '', last: '',
+      first: '', last: '', phoneOk: false,
       ageOk: false, weightOk: false, heightOk: false,
       gender: '',
       categoryId: '', needsSub: false, subcategoryId: null,
       medicalOk: false, filesCount: 0,
     }
     expect(missingFields(empty)).toEqual([
-      'Ad', 'Soyad', 'Yaş', 'Kilo', 'Boy', 'Cinsiyet', 'Kategori', 'Tıbbi geçmiş', 'Fotoğraf',
+      'Ad', 'Soyad', 'Telefon', 'Yaş', 'Kilo', 'Boy', 'Cinsiyet', 'Kategori', 'Tıbbi geçmiş', 'Fotoğraf',
     ])
+  })
+
+  it('yalnız telefon eksikse sadece Telefon döner', () => {
+    const input = { ...fullInput(), phoneOk: false }
+    expect(missingFields(input)).toEqual(['Telefon'])
   })
 
   it('yalnız fotoğraf eksikse sadece Fotoğraf döner', () => {

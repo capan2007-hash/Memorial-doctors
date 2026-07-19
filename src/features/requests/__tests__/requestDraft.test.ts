@@ -3,7 +3,7 @@ import { saveDraft, loadDraft, clearDraft, isDraftEmpty, type RequestDraft } fro
 
 function emptyDraft(): RequestDraft {
   return {
-    first: '', last: '', age: '', weightKg: '', heightCm: '',
+    first: '', last: '', phone: '', age: '', weightKg: '', heightCm: '',
     gender: '',
     pastSurgeries: { none: false, text: '' },
     knownConditions: { none: false, text: '' },
@@ -22,7 +22,7 @@ describe('saveDraft / loadDraft', () => {
     const file = new File(['x'], 'a.jpg')
     const draft: RequestDraft = {
       ...emptyDraft(),
-      first: 'Ayşe', last: 'Yılmaz', age: '29', weightKg: '62', heightCm: '165',
+      first: 'Ayşe', last: 'Yılmaz', phone: '5321112233', age: '29', weightKg: '62', heightCm: '165',
       gender: 'female',
       pastSurgeries: { none: true, text: '' },
       knownConditions: { none: false, text: 'astım' },
@@ -65,5 +65,9 @@ describe('isDraftEmpty', () => {
 
   it('pastSurgeries.none true ise false', () => {
     expect(isDraftEmpty({ ...emptyDraft(), pastSurgeries: { none: true, text: '' } })).toBe(false)
+  })
+
+  it('phone doluysa false', () => {
+    expect(isDraftEmpty({ ...emptyDraft(), phone: '532' })).toBe(false)
   })
 })
