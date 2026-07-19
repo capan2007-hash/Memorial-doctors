@@ -31,3 +31,29 @@ export function formatDate(iso: string): string {
   const year = String(date.getFullYear())
   return `${day}.${month}.${year}`
 }
+
+/** Dakikayı okunur süreye çevirir: <60 → "N dk", aksi halde "H sa M dk". */
+export function formatMins(n: number): string {
+  const rounded = Math.round(n)
+  if (rounded < 60) return `${rounded} dk`
+  const h = Math.floor(rounded / 60)
+  const m = rounded % 60
+  return `${h} sa ${m} dk`
+}
+
+/** <input type="date"> için yerel tarih (toISOString/UTC gece 03:00 öncesi TR'de bir önceki günü gösterirdi). */
+export function toDateInputValue(d: Date): string {
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${m}-${day}`
+}
+
+/** "yyyy-mm-dd" girişini günün başlangıcı olarak ISO'ya çevirir. */
+export function startOfDayIso(dateStr: string): string {
+  return new Date(`${dateStr}T00:00:00.000`).toISOString()
+}
+
+/** "yyyy-mm-dd" girişini günün sonu olarak ISO'ya çevirir. */
+export function endOfDayIso(dateStr: string): string {
+  return new Date(`${dateStr}T23:59:59.999`).toISOString()
+}

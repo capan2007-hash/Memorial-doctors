@@ -11,7 +11,7 @@ import {
 } from './useDoctors'
 import type { DoctorScope, DoctorWithScopes, WeightedWork, WeightedWorkLevel } from './useDoctors'
 import type { CategoryRow, SubcategoryRow } from '../../types/db'
-import { netChangeInRange, monthlyNetChanges } from '../../domain/score'
+import { netChangeInRange, monthlyNetChanges, scoreTier } from '../../domain/score'
 import { Card } from '../../components/ui/Card'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
@@ -20,6 +20,8 @@ import { Avatar } from '../../components/ui/Avatar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Spinner } from '../../components/ui/Spinner'
 import { useToast } from '../../components/ui/Toast'
+import { toDateInputValue, startOfDayIso, endOfDayIso } from '../../lib/format'
+import { DoctorPerformanceDashboard } from './DoctorPerformanceDashboard'
 
 const levelLabels: Record<WeightedWorkLevel, string> = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
 
@@ -171,13 +173,6 @@ function StatBox({ value, label }: { value: string | number; label: string }) {
   )
 }
 
-/** BRD §6.2 kelepçe: <10 "çalışılmaz" (kırmızı alarm), 10-49 uyarı (amber), >=50 iyi (brand). */
-function scoreTier(score: number): { bg: string; text: string; label?: string } {
-  if (score < 10) return { bg: 'bg-rose-50', text: 'text-rose-700', label: 'Çalışılmaz' }
-  if (score < 50) return { bg: 'bg-amber-50', text: 'text-amber-700' }
-  return { bg: 'bg-brand-50', text: 'text-brand-700' }
-}
-
 function ScoreStatBox({ score }: { score: number }) {
   const tier = scoreTier(score)
   return (
@@ -203,21 +198,6 @@ function StatsGrid({ doctor }: { doctor: DoctorWithScopes }) {
 }
 
 type ScorePreset = 'last30d' | 'custom'
-
-function toDateInputValue(d: Date): string {
-  // Yerel saat kullanılır: toISOString (UTC) gece 03:00 öncesi TR'de bir önceki günü gösterirdi.
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${d.getFullYear()}-${m}-${day}`
-}
-
-function startOfDayIso(dateStr: string): string {
-  return new Date(`${dateStr}T00:00:00.000`).toISOString()
-}
-
-function endOfDayIso(dateStr: string): string {
-  return new Date(`${dateStr}T23:59:59.999`).toISOString()
-}
 
 /** FR-29b: zamanında/geç toplamları + dönemsel skor (preset "Son 1 ay" + serbest aralık) + son 6 ay mini liste.
  * Tek sorgu ile TÜM olaylar çekilir; aralık/aylık toplamlar istemci tarafında hesaplanır (grafik kütüphanesi yok). */
@@ -450,7 +430,7 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
   }
 
   return (
-    <li>
+    <li id={`doctor-${doctor.id}`}>
       <Card>
         <div className="flex justify-between items-center gap-3">
           <div className="flex items-center gap-3 min-w-0">
@@ -519,6 +499,11 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
   )
 }
 
+/** Skorlar tablosundan tıklanan doktoru aşağıdaki karta kaydırır; kart bulunamazsa sessizce yok sayar. */
+function scrollToDoctorCard(doctorId: string) {
+  document.getElementById(`doctor-${doctorId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 export function DoctorAdmin() {
   const docs = useDoctorsFull()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -529,6 +514,8 @@ export function DoctorAdmin() {
         title="Doktor Yönetimi"
         actions={<Button variant="primary" onClick={() => setDialogOpen(true)}>Yeni Doktor</Button>}
       />
+
+      <DoctorPerformanceDashboard onSelectDoctor={scrollToDoctorCard} />
 
       {docs.isLoading && (
         <div className="flex justify-center py-10">

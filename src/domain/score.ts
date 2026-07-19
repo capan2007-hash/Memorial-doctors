@@ -35,6 +35,15 @@ export interface MonthlyNet {
   net: number
 }
 
+export interface ScoreTier { bg: string; text: string; label?: string }
+
+/** BRD §6.2 kelepçe: <10 "çalışılmaz" (kırmızı alarm), 10-49 uyarı (amber), >=50 iyi (brand). */
+export function scoreTier(score: number): ScoreTier {
+  if (score < 10) return { bg: 'bg-rose-50', text: 'text-rose-700', label: 'Çalışılmaz' }
+  if (score < 50) return { bg: 'bg-amber-50', text: 'text-amber-700' }
+  return { bg: 'bg-brand-50', text: 'text-brand-700' }
+}
+
 /** Son `monthsBack` ayın (bugün dahil, eskiden yeniye) net skor değişimi — sabit genişlikte, boş aylar 0. */
 export function monthlyNetChanges(events: ScoreEventLite[], now: Date = new Date(), monthsBack = 6): MonthlyNet[] {
   const buckets: MonthlyNet[] = []
