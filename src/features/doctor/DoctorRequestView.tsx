@@ -7,6 +7,7 @@ import { useRespond } from './useRespond'
 import { useMyDoctorId } from './useMyDoctorId'
 import { AiPanel } from '../ai/AiPanel'
 import { PatientInfoCard } from '../requests/PatientInfoCard'
+import { resolvePhotoUrls } from '../requests/photoUrl'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { StatusPill } from '../../components/ui/StatusPill'
 import { Card } from '../../components/ui/Card'
@@ -17,14 +18,6 @@ import { Spinner } from '../../components/ui/Spinner'
 import { useToast } from '../../components/ui/Toast'
 import { timeAgo } from '../../lib/format'
 import type { RequestRow, PhotoRow } from '../../types/db'
-
-async function signPhotoUrls(photos: PhotoRow[]) {
-  const signed = await Promise.all(photos.map(async (p) => {
-    const { data } = await supabase.storage.from('photos').createSignedUrl(p.storage_path, 300)
-    return data?.signedUrl
-  }))
-  return signed.filter(Boolean) as string[]
-}
 
 export function DoctorRequestView() {
   const { id } = useParams()
@@ -52,8 +45,8 @@ export function DoctorRequestView() {
     ])
     const allPhotos = (photoRows ?? []) as PhotoRow[]
     const [photos, xrays] = await Promise.all([
-      signPhotoUrls(allPhotos.filter((p) => p.kind === 'photo')),
-      signPhotoUrls(allPhotos.filter((p) => p.kind === 'xray')),
+      resolvePhotoUrls(allPhotos.filter((p) => p.kind === 'photo' && !p.deleted_at)),
+      resolvePhotoUrls(allPhotos.filter((p) => p.kind === 'xray' && !p.deleted_at)),
     ])
     return {
       req,

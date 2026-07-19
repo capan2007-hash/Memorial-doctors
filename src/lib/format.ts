@@ -21,3 +21,13 @@ export function timeAgo(iso: string, now: Date = new Date()): string {
   const year = String(date.getFullYear())
   return `${day}.${month}.${year}`
 }
+
+/** dd.mm.yyyy biçiminde tarih (imha/arşiv göstergeleri için, M4). */
+export function formatDate(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = String(date.getFullYear())
+  return `${day}.${month}.${year}`
+}

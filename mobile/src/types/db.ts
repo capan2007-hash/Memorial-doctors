@@ -35,6 +35,7 @@ export interface PhotoRow {
   uploaded_at: string
   layer: 'active' | 'archive'
   kind: 'photo' | 'xray'
+  deleted_at?: string | null
 }
 
 export interface AssignmentRow {
