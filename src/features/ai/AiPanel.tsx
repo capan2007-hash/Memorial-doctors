@@ -120,7 +120,7 @@ export function AiPanel({
 
   if (q.isLoading || (q.data == null && !gaveUp)) {
     return (
-      <div className="flex items-center gap-2 text-sm text-ink-muted px-1">
+      <div role="status" aria-live="polite" className="flex items-center gap-2 text-sm text-ink-muted px-1">
         <Spinner />
         <span>AI değerlendirmesi hazırlanıyor…</span>
       </div>
@@ -133,7 +133,7 @@ export function AiPanel({
 
   if (evaluation.status === 'failed') {
     return (
-      <p className="flex items-center gap-2 text-sm text-ink-muted px-1">
+      <p role="status" aria-live="polite" className="flex items-center gap-2 text-sm text-ink-muted px-1">
         <Icon of={AlertTriangle} size={15} />
         AI değerlendirmesi yapılamadı
       </p>
@@ -141,6 +141,7 @@ export function AiPanel({
   }
 
   return (
+    <div aria-live="polite">
     <Card title="AI Triyaj Değerlendirmesi">
       <div className="flex items-center gap-2 bg-info-bg text-info-text text-xs rounded-control px-3 py-2 mb-3">
         <Icon of={Info} size={14} />
@@ -170,5 +171,6 @@ export function AiPanel({
         <FeedbackSection requestId={requestId} aiEvaluationId={evaluation.id} doctorId={doctorId} />
       )}
     </Card>
+    </div>
   )
 }
