@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useRequestDetail, useTenantPhotoSettings } from './useRequests'
 import { useSetSaleStatus } from './useSetSaleStatus'
+import { useSiblingOpenRequests } from './useSiblingOpenRequests'
 import { useAuth } from '../../lib/auth'
 import { RoleGate } from '../../components/RoleGate'
 import { PageHeader } from '../../components/ui/PageHeader'
@@ -109,6 +110,8 @@ export function RequestDetail() {
     )
   }
   const { req, responses, patientName, categoryName, subcategoryName, operationName, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
+  const siblingOpen = useSiblingOpenRequests(req.patient_id, req.id)
+  const siblingCount = siblingOpen.data?.length ?? 0
   const accepted = responses.filter((r) => r.decision === 'accept')
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
   return (
@@ -118,6 +121,11 @@ export function RequestDetail() {
         subtitle={`Talep #${req.id.slice(0, 8)} · ${timeAgo(req.created_at)}`}
         actions={<StatusPill status={req.status} />}
       />
+      {siblingCount > 0 && (
+        <div className="rounded-lg bg-accent-100 text-accent-700 text-sm px-3 py-2">
+          ⚠ Bu hastanın başka açık talebi var ({siblingCount})
+        </div>
+      )}
       <PatientInfoCard
         req={req}
         patientName={patientName}
@@ -126,6 +134,11 @@ export function RequestDetail() {
         operationName={operationName}
       />
       <Card title="Fotoğraflar">
+        {req.photos_required && (
+          <span className="inline-block rounded-full bg-accent-100 text-accent-700 text-xs font-medium px-2 py-0.5 mb-2">
+            Fotoğraf yeniden gerekli
+          </span>
+        )}
         <PhotoGrid urls={photos} title="Fotoğraf" deletedPhotos={deletedPhotos} />
       </Card>
       {(xrays.length > 0 || deletedXrays.length > 0) && (
