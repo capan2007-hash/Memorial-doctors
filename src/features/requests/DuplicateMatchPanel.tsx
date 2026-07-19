@@ -2,6 +2,8 @@ import type { RequestStatus } from '../../types/domain'
 import { STATUS_LABELS } from '../../components/ui/StatusPill'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { Icon } from '../../components/ui/Icon'
+import { AlertTriangle } from 'lucide-react'
 import { formatDate } from '../../lib/format'
 
 /** `find_patient_matches` RPC'sinin döndürdüğü aday hasta satırı (bkz. migration 0020). */
@@ -37,10 +39,11 @@ export function DuplicateMatchPanel({
   if (matches.length === 0) return null
 
   return (
-    <Card className="border border-amber-300 bg-amber-50">
+    <Card className="border-warning-border bg-warning-bg">
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <h4 className="font-display text-sm text-amber-800">
+          <h4 className="flex items-center gap-1.5 font-display text-sm text-warning-text">
+            <Icon of={AlertTriangle} size={15} />
             Bu bilgilerle {matches.length} olası eşleşme
           </h4>
           <Button variant="ghost" onClick={onDismiss}>Farklı kişi (yeni kayıt)</Button>
@@ -48,23 +51,24 @@ export function DuplicateMatchPanel({
 
         <div className="space-y-2">
           {matches.map((m) => (
-            <div key={m.patient_id} className="flex flex-col gap-2 rounded-lg border border-amber-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div key={m.patient_id} className="flex flex-col gap-2 rounded-control border border-line bg-surface-1 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1 text-sm">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium text-slate-900">{m.first_name} {m.last_name}</span>
-                  {m.phone && <span className="text-slate-500">{m.phone}</span>}
+                  <span className="font-medium text-ink-primary">{m.first_name} {m.last_name}</span>
+                  {m.phone && <span className="text-ink-muted tnum">{m.phone}</span>}
                   {m.has_open_request && (
-                    <span className="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2 py-0.5 text-xs font-medium text-danger-text">
+                      <Icon of={AlertTriangle} size={12} />
                       Açık talep var
                     </span>
                   )}
                 </div>
-                <p className="text-slate-500">
-                  {m.request_count} başvuru
+                <p className="text-ink-muted">
+                  <span className="tnum">{m.request_count}</span> başvuru
                   {m.last_status && (
                     <>
                       {' · '}Son: {STATUS_LABELS[m.last_status]}
-                      {m.last_request_at && ` · ${formatDate(m.last_request_at)}`}
+                      {m.last_request_at && <> · <span className="tnum">{formatDate(m.last_request_at)}</span></>}
                     </>
                   )}
                   {' · '}{photoStatusText(m)}

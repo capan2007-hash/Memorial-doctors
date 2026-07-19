@@ -11,17 +11,18 @@ function isEmpty(value: string | number | null | undefined): boolean {
   return value === null || value === undefined || value === ''
 }
 
-function InfoItem({ label, value, full, children }: {
+function InfoItem({ label, value, full, numeric, children }: {
   label: string
   value?: string | number | null
   full?: boolean
+  numeric?: boolean
   children?: ReactNode
 }) {
   return (
     <div className={full ? 'sm:col-span-2' : undefined}>
-      <dt className="text-xs uppercase tracking-wide text-slate-500">{label}</dt>
-      <dd className="text-sm text-slate-800">
-        {children ?? (isEmpty(value) ? <span className="text-slate-400">Belirtilmedi</span> : value)}
+      <dt className="text-xs uppercase tracking-wide text-ink-muted">{label}</dt>
+      <dd className={`text-sm text-ink-primary${numeric ? ' tnum' : ''}`}>
+        {children ?? (isEmpty(value) ? <span className="text-ink-muted">Belirtilmedi</span> : value)}
       </dd>
     </div>
   )
@@ -42,15 +43,15 @@ export function PatientInfoCard({ req, patientName, categoryName, subcategoryNam
         <InfoItem label="Hasta adı" value={patientName} />
         <InfoItem label="Kategori" value={categoryDisplay || null} />
         <InfoItem label="İstenen operasyon" value={operationName} />
-        <InfoItem label="Yaş" value={req.age} />
+        <InfoItem label="Yaş" value={req.age} numeric />
         <InfoItem label="Cinsiyet" value={req.gender ? genderLabel[req.gender] : null} />
-        <InfoItem label="Boy (cm)" value={req.height_cm} />
-        <InfoItem label="Kilo (kg)" value={req.weight_kg} />
+        <InfoItem label="Boy (cm)" value={req.height_cm} numeric />
+        <InfoItem label="Kilo (kg)" value={req.weight_kg} numeric />
         <InfoItem label="BMI">
           {bmiValue === null ? (
-            <span className="text-slate-400">Belirtilmedi</span>
+            <span className="text-ink-muted">Belirtilmedi</span>
           ) : (
-            <span className="inline-flex px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 text-sm font-medium">
+            <span className="inline-flex px-2 py-0.5 rounded-full bg-brand-100 text-brand-text text-sm font-medium tnum">
               {bmiValue}
             </span>
           )}

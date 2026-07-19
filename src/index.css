@@ -1,16 +1,31 @@
+@import './styles/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-surface font-sans text-slate-800;
+  html {
+    color-scheme: light dark;
   }
 
+  body {
+    @apply bg-surface-0 font-sans text-ink-primary;
+    transition:
+      background-color var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out);
+  }
+
+  /* Başlıklar rengi bağlamdan miras alır (açık yüzeyde koyu gövde renginden,
+     brand panelde brand-on'dan) — böylece teal panel başlıkları da okunur. */
   h1,
   h2,
   h3 {
     @apply font-display;
   }
-}
 
+  /* Tabular rakamlar — skor/SLA/süre hizalı ("klinik enstrüman" dokusu) */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}

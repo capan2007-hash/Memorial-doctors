@@ -31,7 +31,7 @@ describe('ToastProvider / useToast', () => {
     expect(screen.getByText('Kaydedildi')).toBeTruthy()
   })
 
-  it('kind=error verildiğinde bg-red-600 sınıfı taşır', () => {
+  it('kind=error verildiğinde danger tonlu (border-danger-border) render eder', () => {
     render(
       <ToastProvider>
         <TestButton message="Hata oluştu" kind="error" />
@@ -40,11 +40,11 @@ describe('ToastProvider / useToast', () => {
     act(() => {
       screen.getByText('Tetikle').click()
     })
-    const toast = screen.getByText('Hata oluştu')
-    expect(toast.className).toContain('bg-red-600')
+    const toast = screen.getByText('Hata oluştu').closest('div')!
+    expect(toast.className).toContain('border-danger-border')
   })
 
-  it('kind belirtilmezse (success) bg-brand-700 sınıfı taşır', () => {
+  it('kind belirtilmezse (success) surface-3 zeminli render eder', () => {
     render(
       <ToastProvider>
         <TestButton message="Kaydedildi" />
@@ -53,8 +53,8 @@ describe('ToastProvider / useToast', () => {
     act(() => {
       screen.getByText('Tetikle').click()
     })
-    const toast = screen.getByText('Kaydedildi')
-    expect(toast.className).toContain('bg-brand-700')
+    const toast = screen.getByText('Kaydedildi').closest('div')!
+    expect(toast.className).toContain('bg-surface-3')
   })
 
   it('4000ms sonra otomatik kaldırılır', () => {

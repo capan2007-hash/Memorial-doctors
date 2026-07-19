@@ -14,6 +14,8 @@ import { timeAgo } from '../../lib/format'
 import { slaInfo, slaLabel } from '../../domain/sla'
 import type { RequestRow } from '../../types/db'
 import { AiAccuracyCard } from '../ai/AiAccuracyCard'
+import { Icon } from '../../components/ui/Icon'
+import { AlertTriangle, Clock } from 'lucide-react'
 
 type EnrichedRequestRow = RequestRow & { patientName: string; categoryName: string; hasAccept: boolean }
 
@@ -125,13 +127,13 @@ export function AllRequests() {
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`text-sm px-3 py-1.5 rounded-full border transition ${
+            className={`text-sm px-3 py-1.5 rounded-control border transition ease-premium duration-[var(--dur-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 ${
               tab === t
-                ? 'bg-brand-600 border-brand-600 text-white'
-                : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
+                ? 'bg-brand-fill border-brand-fill text-brand-on'
+                : 'bg-surface-2 border-line text-ink-secondary hover:border-line-strong'
             }`}
           >
-            {TAB_LABEL[t]} ({counts[t]})
+            {TAB_LABEL[t]} <span className="tnum">({counts[t]})</span>
           </button>
         ))}
       </div>
@@ -152,27 +154,29 @@ export function AllRequests() {
               <li key={r.id} className="flex items-center gap-2">
                 <Link
                   to={`/requests/${r.id}`}
-                  className={`flex flex-1 min-w-0 items-center gap-3 rounded-xl bg-surface-card shadow-card p-3 hover:bg-brand-50 transition ${
-                    rowTab === 'overdue' ? 'border-l-4 border-rose-500' : ''
+                  className={`flex flex-1 min-w-0 items-center gap-3 rounded-card bg-surface-2 border border-line p-3 transition ease-premium duration-[var(--dur-fast)] hover:shadow-pop hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 ${
+                    rowTab === 'overdue' ? 'border-l-4 border-l-danger-border' : ''
                   }`}
                 >
                   <Avatar name={r.patientName} size="md" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-900 truncate">{r.patientName}</p>
-                    <p className="text-sm text-slate-500 truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
+                    <p className="font-medium text-ink-primary hover:text-brand-text truncate">{r.patientName}</p>
+                    <p className="text-sm text-ink-muted truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {r.status === 'submitted' && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-accent-100 text-accent-700">Doktor atanmadı</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-warning-bg text-warning-text">Doktor atanmadı</span>
                     )}
                     {info && rowTab === 'overdue' && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-medium">
-                        {slaLabel(info)}
+                      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-danger-bg text-danger-text font-medium">
+                        <Icon of={AlertTriangle} size={13} />
+                        <span className="tnum">{slaLabel(info)}</span>
                       </span>
                     )}
                     {info && rowTab === 'pending' && info.state === 'warning' && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
-                        {slaLabel(info)}
+                      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-warning-bg text-warning-text font-medium">
+                        <Icon of={Clock} size={13} />
+                        <span className="tnum">{slaLabel(info)}</span>
                       </span>
                     )}
                     <StatusPill status={r.status} />

@@ -23,7 +23,7 @@ describe('Field', () => {
       </Field>,
     )
     const error = screen.getByText('Zorunlu alan')
-    expect(error.className).toContain('text-red-600')
+    expect(error.className).toContain('text-danger-text')
   })
 
   it('shows hint when no error is provided', () => {

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
+import type { LucideIcon } from 'lucide-react'
+import { AlertTriangle, ImageOff, FileWarning, Ruler, Info, Check } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { Icon } from '../../components/ui/Icon'
 import { Spinner } from '../../components/ui/Spinner'
 import { useAiEvaluation, useAiFeedbackFor } from './useAiEvaluation'
 import { useSubmitAiFeedback } from './useAiFeedback'
@@ -13,6 +16,13 @@ const WARNING_LABELS: Record<string, string> = {
   demographics_operation_risk: 'Demografi–operasyon riski',
   missing_data: 'Eksik veri',
   photo_quality: 'Fotoğraf kalitesi',
+}
+
+const WARNING_ICONS: Record<string, LucideIcon> = {
+  photo_operation_mismatch: ImageOff,
+  demographics_operation_risk: Ruler,
+  missing_data: FileWarning,
+  photo_quality: AlertTriangle,
 }
 
 const FEEDBACK_LABELS: Record<AiFeedbackRow['label'], string> = {
@@ -39,27 +49,28 @@ function FeedbackSection({
 
   if (existing.data) {
     return (
-      <div className="mt-4 pt-3 border-t border-slate-100">
-        <span className="inline-block rounded-full bg-brand-100 text-brand-700 text-xs font-medium px-3 py-1">
+      <div className="mt-4 pt-3 border-t border-line">
+        <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 text-brand-text text-xs font-medium px-3 py-1">
+          <Icon of={Check} size={13} />
           Geri bildiriminiz: {FEEDBACK_LABELS[existing.data.label]}
         </span>
         {existing.data.note && (
-          <p className="text-sm text-slate-600 mt-2">{existing.data.note}</p>
+          <p className="text-sm text-ink-secondary mt-2">{existing.data.note}</p>
         )}
       </div>
     )
   }
 
   return (
-    <div className="mt-4 pt-3 border-t border-slate-100 space-y-2">
-      <p className="text-sm text-slate-700">Bu değerlendirme:</p>
+    <div className="mt-4 pt-3 border-t border-line space-y-2">
+      <p className="text-sm text-ink-secondary">Bu değerlendirme:</p>
       <div className="flex gap-2 flex-wrap">
         {FEEDBACK_OPTIONS.map((label) => (
           <Button
             key={label}
             type="button"
             variant="secondary"
-            className={selected === label ? 'ring-2 ring-brand-600' : ''}
+            className={selected === label ? 'ring-2 ring-brand-fill' : ''}
             onClick={() => setSelected(label)}
           >
             {FEEDBACK_LABELS[label]}
@@ -68,7 +79,7 @@ function FeedbackSection({
       </div>
       <input
         type="text"
-        className="w-full border border-slate-300 rounded-lg p-2 text-sm"
+        className="w-full bg-surface-1 border border-line rounded-control p-2 text-sm text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20"
         placeholder="İsteğe bağlı not"
         value={note}
         onChange={(e) => setNote(e.target.value)}
@@ -109,7 +120,7 @@ export function AiPanel({
 
   if (q.isLoading || (q.data == null && !gaveUp)) {
     return (
-      <div className="flex items-center gap-2 text-sm text-slate-500 px-1">
+      <div role="status" aria-live="polite" className="flex items-center gap-2 text-sm text-ink-muted px-1">
         <Spinner />
         <span>AI değerlendirmesi hazırlanıyor…</span>
       </div>
@@ -121,13 +132,20 @@ export function AiPanel({
   const evaluation = q.data
 
   if (evaluation.status === 'failed') {
-    return <p className="text-sm text-slate-500 px-1">AI değerlendirmesi yapılamadı</p>
+    return (
+      <p role="status" aria-live="polite" className="flex items-center gap-2 text-sm text-ink-muted px-1">
+        <Icon of={AlertTriangle} size={15} />
+        AI değerlendirmesi yapılamadı
+      </p>
+    )
   }
 
   return (
+    <div aria-live="polite">
     <Card title="AI Triyaj Değerlendirmesi">
-      <div className="bg-accent-100 text-accent-700 text-xs rounded-lg px-3 py-2 mb-3">
-        Yön göstericidir; nihai karar hekimindir.
+      <div className="flex items-center gap-2 bg-info-bg text-info-text text-xs rounded-control px-3 py-2 mb-3">
+        <Icon of={Info} size={14} />
+        <span>Yön göstericidir; nihai karar hekimindir.</span>
       </div>
       {evaluation.warnings.length > 0 && (
         <ul className="space-y-2 mb-4">
@@ -136,21 +154,23 @@ export function AiPanel({
             .map((w, i) => (
               <li key={i} className="text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-slate-800">{WARNING_LABELS[w.type]}</span>
-                  <span className="inline-block rounded-full bg-accent-100 text-accent-700 text-xs font-medium px-2 py-0.5">
+                  <Icon of={WARNING_ICONS[w.type] ?? AlertTriangle} size={15} className="text-warning-text" />
+                  <span className="font-medium text-ink-primary">{WARNING_LABELS[w.type]}</span>
+                  <span className="inline-block rounded-full bg-warning-bg text-warning-text text-xs font-medium px-2 py-0.5 tnum">
                     %{Math.round(w.confidence * 100)}
                   </span>
                 </div>
-                <p className="text-slate-600 mt-0.5">{w.rationale}</p>
+                <p className="text-ink-secondary mt-0.5 pl-[23px]">{w.rationale}</p>
               </li>
             ))}
         </ul>
       )}
-      <h4 className="font-display text-sm text-slate-900 mb-1">Uygunluk değerlendirmesi</h4>
-      <p className="whitespace-pre-wrap text-sm text-slate-700">{evaluation.suitability_note}</p>
+      <h4 className="font-display text-sm text-ink-primary mb-1">Uygunluk değerlendirmesi</h4>
+      <p className="whitespace-pre-wrap text-sm text-ink-secondary">{evaluation.suitability_note}</p>
       {canGiveFeedback && doctorId && (
         <FeedbackSection requestId={requestId} aiEvaluationId={evaluation.id} doctorId={doctorId} />
       )}
     </Card>
+    </div>
   )
 }

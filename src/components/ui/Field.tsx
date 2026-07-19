@@ -13,12 +13,12 @@ export function Field({
 }) {
   return (
     <label className="block space-y-1">
-      <span className="block text-sm font-medium text-slate-700">{label}</span>
+      <span className="block text-sm text-ink-secondary">{label}</span>
       {children}
       {error ? (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-danger-text">{error}</p>
       ) : hint ? (
-        <p className="text-sm text-slate-500">{hint}</p>
+        <p className="text-sm text-ink-muted">{hint}</p>
       ) : null}
     </label>
   )
