@@ -6,17 +6,8 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { supabase } from '@/lib/supabase'
+import { resolvePhotoUrls } from './photoUrl'
 import type { PhotoRow, RequestRow, ResponseRow } from '@/types/db'
-
-async function signPhotoUrls(photos: PhotoRow[]): Promise<string[]> {
-  const signed = await Promise.all(
-    photos.map(async (p) => {
-      const { data } = await supabase.storage.from('photos').createSignedUrl(p.storage_path, 300)
-      return data?.signedUrl
-    })
-  )
-  return signed.filter((u): u is string => !!u)
-}
 
 export interface RequestDetail {
   req: RequestRow
@@ -54,8 +45,8 @@ export function useRequestDetail(id?: string) {
 
       const allPhotos = (photoRows ?? []) as PhotoRow[]
       const [photos, xrays] = await Promise.all([
-        signPhotoUrls(allPhotos.filter((p) => p.kind === 'photo')),
-        signPhotoUrls(allPhotos.filter((p) => p.kind === 'xray')),
+        resolvePhotoUrls(allPhotos.filter((p) => p.kind === 'photo' && !p.deleted_at)),
+        resolvePhotoUrls(allPhotos.filter((p) => p.kind === 'xray' && !p.deleted_at)),
       ])
       const responseRows = (responses ?? []) as ResponseRow[]
 

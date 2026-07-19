@@ -3,15 +3,8 @@ import { supabase } from '../../lib/supabase'
 import { uploadPhotos } from './usePhotoUpload'
 import { resolveAssignees } from '../../domain/assignment'
 import type { ScopedDoctor } from '../../domain/assignment'
+import { resolvePhotoUrls } from './photoUrl'
 import type { RequestRow, ResponseRow, PhotoRow } from '../../types/db'
-
-async function signPhotoUrls(photos: PhotoRow[]) {
-  const signed = await Promise.all(photos.map(async (p) => {
-    const { data } = await supabase.storage.from('photos').createSignedUrl(p.storage_path, 300)
-    return data?.signedUrl
-  }))
-  return signed.filter(Boolean) as string[]
-}
 
 interface NewRequestInput {
   tenantId: string
@@ -118,8 +111,8 @@ export function useRequestDetail(id?: string) {
     const activePhotoRows = allPhotos.filter((p) => p.kind === 'photo' && !p.deleted_at)
     const activeXrayRows = allPhotos.filter((p) => p.kind === 'xray' && !p.deleted_at)
     const [photos, xrays] = await Promise.all([
-      signPhotoUrls(activePhotoRows),
-      signPhotoUrls(activeXrayRows),
+      resolvePhotoUrls(activePhotoRows),
+      resolvePhotoUrls(activeXrayRows),
     ])
     const toDeletedInfo = (rows: PhotoRow[]): DeletedPhotoInfo[] =>
       rows.filter((p) => p.deleted_at).map((p) => ({ id: p.id, deletedAt: p.deleted_at as string }))
