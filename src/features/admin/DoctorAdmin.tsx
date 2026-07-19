@@ -205,7 +205,10 @@ function StatsGrid({ doctor }: { doctor: DoctorWithScopes }) {
 type ScorePreset = 'last30d' | 'custom'
 
 function toDateInputValue(d: Date): string {
-  return d.toISOString().slice(0, 10)
+  // Yerel saat kullanılır: toISOString (UTC) gece 03:00 öncesi TR'de bir önceki günü gösterirdi.
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${m}-${day}`
 }
 
 function startOfDayIso(dateStr: string): string {
