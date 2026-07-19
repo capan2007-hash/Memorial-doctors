@@ -143,9 +143,8 @@ export interface UpdateDoctorInput {
   scopes: DoctorScope[]
 }
 
-/** Doktor profilini güncelle, yetkinlik (scope) satırlarını yeniden yaz, audit_log'a işle. */
+/** Doktor profilini güncelle, yetkinlik (scope) satırlarını yeniden yaz; audit sunucu tarafında. */
 export function useUpdateDoctor() {
-  const { appUser } = useAuth()
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (input: UpdateDoctorInput) => {
@@ -168,12 +167,7 @@ export function useUpdateDoctor() {
         p_scopes: scopes,
       })
       if (scopeErr) throw scopeErr
-
-      const { error: auditErr } = await supabase.from('audit_log').insert({
-        tenant_id: appUser!.tenant_id, actor_id: appUser!.id, action: 'doctor_update', entity: 'doctor',
-        after: { doctor_id: id },
-      })
-      if (auditErr) throw auditErr
+      // Audit sunucu tarafında (migration 0025 trg_audit_doctor_update).
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['doctors'] }),
   })
