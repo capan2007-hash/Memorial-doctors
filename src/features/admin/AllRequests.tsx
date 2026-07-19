@@ -93,6 +93,9 @@ export function AllRequests() {
   const reassign = useMutation({
     // Manuel: talebin kategorisindeki (alt kırılıma göre daraltılmış) doktorları yeniden ata (audit'li)
     mutationFn: async (req: RequestRow) => {
+      if (req.status === 'closed') {
+        throw new Error('Kapanmış talep yeniden atanamaz')
+      }
       const { data: docs } = await supabase.from('doctor').select('id, is_active').eq('tenant_id', req.tenant_id)
       const { data: scopes } = await supabase.from('doctor_scope').select('doctor_id, category_id, subcategory_id').eq('tenant_id', req.tenant_id)
       const scoped: ScopedDoctor[] = (docs ?? []).map((d: any) => ({
@@ -101,17 +104,24 @@ export function AllRequests() {
           .map((s: any) => ({ categoryId: s.category_id, subcategoryId: s.subcategory_id })),
       }))
       const targets = resolveAssignees({ categoryId: req.category_id, subcategoryId: req.subcategory_id }, scoped)
+      // 0 uygun doktor: durumu/audit'i değiştirme, sadece kullanıcıyı bilgilendir.
+      if (targets.length === 0) return { assigned: false as const }
       const rows = targets.map((doctorId) => ({ tenant_id: req.tenant_id, request_id: req.id, doctor_id: doctorId, type: 'manual' as const }))
-      if (rows.length) await supabase.from('assignment').upsert(rows, { onConflict: 'request_id,doctor_id', ignoreDuplicates: true })
+      await supabase.from('assignment').upsert(rows, { onConflict: 'request_id,doctor_id', ignoreDuplicates: true })
       await supabase.from('audit_log').insert({ tenant_id: req.tenant_id, actor_id: appUser!.id, action: 'reassign', entity: 'request', after: { request_id: req.id } })
       await supabase.from('request').update({ status: 'assigned' }).eq('id', req.id)
+      return { assigned: true as const }
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ['all-requests'] })
-      toast.show('Talep yeniden atandı')
+      if (result.assigned) {
+        toast.show('Talep yeniden atandı')
+      } else {
+        toast.show('Bu kategoriye uygun doktor yok', 'error')
+      }
     },
-    onError: () => {
-      toast.show('Talep yeniden atanamadı', 'error')
+    onError: (e) => {
+      toast.show((e as Error).message || 'Talep yeniden atanamadı', 'error')
     },
   })
   return (
@@ -145,48 +155,49 @@ export function AllRequests() {
       )}
       {!reqs.isLoading && visible.length > 0 && (
         <ul className="mt-3 space-y-2">
-          {visible.map(({ row: r, tab: rowTab, info }) => (
-            <li key={r.id}>
-              <Link
-                to={`/requests/${r.id}`}
-                className={`flex items-center gap-3 rounded-xl bg-surface-card shadow-card p-3 hover:bg-brand-50 transition ${
-                  rowTab === 'overdue' ? 'border-l-4 border-rose-500' : ''
-                }`}
-              >
-                <Avatar name={r.patientName} size="md" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-900 truncate">{r.patientName}</p>
-                  <p className="text-sm text-slate-500 truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {r.status === 'submitted' && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-accent-100 text-accent-700">Doktor atanmadı</span>
-                  )}
-                  {info && rowTab === 'overdue' && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-medium">
-                      {slaLabel(info)}
-                    </span>
-                  )}
-                  {info && rowTab === 'pending' && info.state === 'warning' && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
-                      {slaLabel(info)}
-                    </span>
-                  )}
-                  <StatusPill status={r.status} />
-                  <Button
-                    variant="secondary"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      reassign.mutate(r)
-                    }}
-                  >
-                    Yeniden ata
-                  </Button>
-                </div>
-              </Link>
-            </li>
-          ))}
+          {visible.map(({ row: r, tab: rowTab, info }) => {
+            const isClosed = r.status === 'closed'
+            return (
+              <li key={r.id} className="flex items-center gap-2">
+                <Link
+                  to={`/requests/${r.id}`}
+                  className={`flex flex-1 min-w-0 items-center gap-3 rounded-xl bg-surface-card shadow-card p-3 hover:bg-brand-50 transition ${
+                    rowTab === 'overdue' ? 'border-l-4 border-rose-500' : ''
+                  }`}
+                >
+                  <Avatar name={r.patientName} size="md" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-slate-900 truncate">{r.patientName}</p>
+                    <p className="text-sm text-slate-500 truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {r.status === 'submitted' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-accent-100 text-accent-700">Doktor atanmadı</span>
+                    )}
+                    {info && rowTab === 'overdue' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-medium">
+                        {slaLabel(info)}
+                      </span>
+                    )}
+                    {info && rowTab === 'pending' && info.state === 'warning' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
+                        {slaLabel(info)}
+                      </span>
+                    )}
+                    <StatusPill status={r.status} />
+                  </div>
+                </Link>
+                <Button
+                  variant="secondary"
+                  disabled={isClosed}
+                  title={isClosed ? 'Kapanmış talep yeniden atanamaz' : undefined}
+                  onClick={() => reassign.mutate(r)}
+                >
+                  Yeniden ata
+                </Button>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>
