@@ -27,6 +27,8 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
   // varsayılan substring/case-insensitive eşleşme yapar) — exact:true zorunlu.
   await sales.getByLabel('Ad', { exact: true }).fill('Test')
   await sales.getByLabel('Soyad').fill(SURNAME)
+  // Benzersiz telefon: mükerrer eşleşme paneli bu koşuda tetiklenmesin.
+  await sales.getByLabel('Telefon').fill(`05${Date.now().toString().slice(-9)}`)
   await sales.getByLabel('Yaş', { exact: true }).fill('35')
   await sales.getByLabel('Boy', { exact: true }).fill('175')
   await sales.getByLabel('Kilo', { exact: true }).fill('80')

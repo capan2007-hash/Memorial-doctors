@@ -99,6 +99,9 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
 export function RequestDetail() {
   const { id } = useParams()
   const q = useRequestDetail(id)
+  // Hooks koşulsuz çağrılmalı (Rules of Hooks): veri gelmeden patient_id yoksa
+  // hook 'enabled' değil, undefined güvenli — erken return'lerden ÖNCE çağrılır.
+  const siblingOpen = useSiblingOpenRequests(q.data?.req.patient_id, q.data?.req.id)
   if (q.isError || (!q.isLoading && !q.data)) {
     return <EmptyState title="Talep bulunamadı" description="Bu talep silinmiş veya bağlantı hatalı olabilir." />
   }
@@ -110,7 +113,6 @@ export function RequestDetail() {
     )
   }
   const { req, responses, patientName, categoryName, subcategoryName, operationName, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
-  const siblingOpen = useSiblingOpenRequests(req.patient_id, req.id)
   const siblingCount = siblingOpen.data?.length ?? 0
   const accepted = responses.filter((r) => r.decision === 'accept')
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
