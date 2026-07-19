@@ -22,8 +22,8 @@ Kod tabanı bir MVP için **disiplinli ve sağlam**: feature-folder yapısı, sa
 | # | Alan | Bulgu |
 |---|------|-------|
 | P1-1 | Mimari | `useCreateRequest` 6+ ardışık yazmayı client'ta transaction'sız yapıyor (hasta→talep→foto→atama): ortada patlarsa **yetim hasta / fotoğrafsız talep**; "tekrar Gönder" mükerrer kayıt. Atama kararı da client'ta (yarış riski + güven sınırı). → Tek RPC/edge function'a indirilmeli |
-| P1-2 | Güvenlik | Satışçı/aracı kendi talebini **her statüde silebiliyor** — cascade tedavi planlarını ve AI kayıtlarını da götürür (kanıt imhası). → DELETE'i draft/submitted'a kısıtla |
-| P1-3 | Güvenlik | `ai-triage` rate limit'siz: onamı kendisi yazabilen kullanıcı sınırsız Opus çağrısı üretebilir (maliyet istismarı). → kota + sunucu tarafı onam yazımı |
+| ~~P1-2~~ ✅ | Güvenlik | Satışçı/aracı kendi talebini her statüde silebiliyordu (kanıt imhası) | **ÇÖZÜLDÜ** (0026): req_creator FOR ALL → select/insert/update'e bölündü, DELETE kalktı; canlı: satışçı DELETE → 0 satır, kayıt korunur |
+| ~~P1-3~~ ✅ | Güvenlik | `ai-triage` rate limit'siz (maliyet istismarı) | **ÇÖZÜLDÜ** (ai-triage v7): tenant başına 24 saatte 300 değerlendirme kotası, aşımda skip:quota_exceeded |
 | P1-4 | Bakım | **DB tipleri el yazması ve iki ayrı kopya** (web+mobil), her sorgu denetimsiz cast — 23 migration'lık şemayla kayma derlemede yakalanmaz. → `supabase gen types` |
 | P1-5 | Bakım | Web↔mobil "kabul edilmiş kopyalar" **çoktan sapmış** (health/status farklı içerik; AiPanel 156 vs 349 satır). → CI diff-bekçisi veya paylaşılan paket |
 | P1-6 | UX | Taslak yalnız bellekte: **sayfa yenilenince form+fotoğraflar kaybolur**, beforeunload uyarısı yok; upload progress yok. → localStorage taslak + guard + ilerleme |
