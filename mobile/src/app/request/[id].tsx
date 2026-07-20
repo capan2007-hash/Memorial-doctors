@@ -2,7 +2,7 @@
 // galerisi ve kabul/red akışı aynı sözleşmeyle (yalnız response insert; status'u
 // server trigger'ı hesaplar) mobile'a taşındı.
 import { useState } from 'react'
-import { Redirect, Stack, useLocalSearchParams } from 'expo-router'
+import { Redirect, Stack, router, useLocalSearchParams } from 'expo-router'
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -14,8 +14,10 @@ import {
   TextInput,
   View,
 } from 'react-native'
+import { Check, ChevronLeft, X } from 'lucide-react-native'
 
 import { useAuth } from '@/lib/auth'
+import { useTheme } from '@/lib/theme'
 import { useRequestDetail } from '@/features/request/useRequestDetail'
 import { useRespond } from '@/features/request/useRespond'
 import { PatientInfoCard } from '@/components/PatientInfoCard'
@@ -24,13 +26,15 @@ import { StatusPill } from '@/components/StatusPill'
 import { DecisionBadge } from '@/components/DecisionBadge'
 import { AiPanel } from '@/features/ai/AiPanel'
 import { timeAgo } from '@/domain/format'
-import { colors, fontFamily, radius, spacing } from '@/theme'
+import { fontFamily, radius, spacing, type Palette } from '@/theme'
 
 type Mode = 'none' | 'accept' | 'reject'
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { tenantId, doctorId, session, loading } = useAuth()
+  const { colors } = useTheme()
+  const styles = makeStyles(colors)
   const detail = useRequestDetail(id)
   const respond = useRespond()
 
@@ -40,13 +44,32 @@ export default function RequestDetailScreen() {
   const [respError, setRespError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
+  const screenOptions = {
+    headerShown: true,
+    title: '',
+    headerStyle: { backgroundColor: colors.surface0 },
+    headerShadowVisible: false,
+    headerTintColor: colors.textPrimary,
+    headerLeft: () => (
+      <Pressable
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel="Geri"
+        hitSlop={8}
+        style={styles.backButton}
+      >
+        <ChevronLeft color={colors.textPrimary} size={26} strokeWidth={2} />
+      </Pressable>
+    ),
+  } as const
+
   // Bu rota (tabs) dışında: soğuk başlangıç bildirimi oturumsuz açabilir.
   if (!loading && !session) return <Redirect href="/login" />
 
   if (detail.isError) {
     return (
       <View style={styles.center}>
-        <Stack.Screen options={{ headerShown: true, title: '' }} />
+        <Stack.Screen options={screenOptions} />
         <Text style={styles.errorText}>Talep yüklenemedi. Bağlantınızı kontrol edin.</Text>
       </View>
     )
@@ -55,8 +78,8 @@ export default function RequestDetailScreen() {
   if (detail.isLoading || !detail.data) {
     return (
       <View style={styles.center}>
-        <Stack.Screen options={{ headerShown: true, title: '' }} />
-        <ActivityIndicator color={colors.brand[600]} />
+        <Stack.Screen options={screenOptions} />
+        <ActivityIndicator color={colors.brandFill} />
       </View>
     )
   }
@@ -85,7 +108,7 @@ export default function RequestDetailScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Stack.Screen options={{ headerShown: true, title: '' }} />
+      <Stack.Screen options={screenOptions} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
@@ -148,10 +171,12 @@ export default function RequestDetailScreen() {
           {mode === 'none' && (
             <View style={styles.actionRow}>
               <Pressable style={[styles.button, styles.acceptButton]} onPress={() => setMode('accept')}>
-                <Text style={styles.buttonText}>Kabul</Text>
+                <Check color={colors.brandOn} size={18} strokeWidth={2} />
+                <Text style={styles.acceptButtonText}>Kabul</Text>
               </Pressable>
               <Pressable style={[styles.button, styles.rejectButton]} onPress={() => setMode('reject')}>
-                <Text style={styles.buttonText}>Red</Text>
+                <X color={colors.dangerText} size={18} strokeWidth={2} />
+                <Text style={styles.rejectButtonText}>Red</Text>
               </Pressable>
             </View>
           )}
@@ -161,7 +186,7 @@ export default function RequestDetailScreen() {
               <TextInput
                 style={styles.textArea}
                 placeholder="Tedavi planı"
-                placeholderTextColor={colors.slate[400]}
+                placeholderTextColor={colors.textMuted}
                 value={plan}
                 onChangeText={setPlan}
                 multiline
@@ -171,7 +196,14 @@ export default function RequestDetailScreen() {
                 disabled={!plan || respond.isPending}
                 onPress={submit}
               >
-                {respond.isPending ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.buttonText}>Kabul et</Text>}
+                {respond.isPending ? (
+                  <ActivityIndicator color={colors.brandOn} />
+                ) : (
+                  <>
+                    <Check color={colors.brandOn} size={18} strokeWidth={2} />
+                    <Text style={styles.acceptButtonText}>Kabul et</Text>
+                  </>
+                )}
               </Pressable>
             </View>
           )}
@@ -181,7 +213,7 @@ export default function RequestDetailScreen() {
               <TextInput
                 style={styles.textArea}
                 placeholder="Red gerekçesi (zorunlu)"
-                placeholderTextColor={colors.slate[400]}
+                placeholderTextColor={colors.textMuted}
                 value={reason}
                 onChangeText={setReason}
                 multiline
@@ -191,7 +223,14 @@ export default function RequestDetailScreen() {
                 disabled={!reason || respond.isPending}
                 onPress={submit}
               >
-                {respond.isPending ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.buttonText}>Reddet</Text>}
+                {respond.isPending ? (
+                  <ActivityIndicator color={colors.dangerText} />
+                ) : (
+                  <>
+                    <X color={colors.dangerText} size={18} strokeWidth={2} />
+                    <Text style={styles.rejectButtonText}>Reddet</Text>
+                  </>
+                )}
               </Pressable>
             </View>
           )}
@@ -201,122 +240,142 @@ export default function RequestDetailScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface,
-  },
-  scrollContent: {
-    padding: spacing.four,
-    gap: spacing.three,
-    paddingBottom: spacing.six,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.two,
-  },
-  title: {
-    fontFamily: fontFamily.display,
-    fontSize: 19,
-    color: colors.slate[900],
-  },
-  subtitle: {
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-    color: colors.slate[500],
-    marginTop: 2,
-  },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.three,
-    gap: spacing.two,
-  },
-  cardTitle: {
-    fontFamily: fontFamily.display,
-    fontSize: 17,
-    color: colors.slate[900],
-  },
-  emptyText: {
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-    color: colors.slate[500],
-  },
-  value: {
-    fontFamily: fontFamily.regular,
-    fontSize: 14,
-    color: colors.slate[800],
-  },
-  decisionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  successText: {
-    fontFamily: fontFamily.medium,
-    color: colors.brand[700],
-    textAlign: 'center',
-  },
-  actionBar: {
-    borderTopWidth: 1,
-    borderTopColor: colors.slate[200],
-    backgroundColor: colors.card,
-    padding: spacing.three,
-    gap: spacing.two,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: spacing.two,
-  },
-  gap: {
-    gap: spacing.two,
-  },
-  label: {
-    fontFamily: fontFamily.medium,
-    color: colors.slate[700],
-  },
-  textArea: {
-    borderWidth: 1,
-    borderColor: colors.slate[300],
-    borderRadius: radius.md,
-    padding: spacing.two,
-    minHeight: 80,
-    textAlignVertical: 'top',
-    fontFamily: fontFamily.regular,
-    color: colors.slate[900],
-    backgroundColor: colors.card,
-  },
-  button: {
-    flex: 1,
-    borderRadius: radius.md,
-    paddingVertical: spacing.two,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  acceptButton: {
-    backgroundColor: colors.brand[600],
-  },
-  rejectButton: {
-    backgroundColor: colors.danger[600],
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontFamily: fontFamily.semibold,
-    fontSize: 15,
-  },
-  errorText: {
-    color: colors.danger[600],
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-  },
-})
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: colors.surface0,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surface0,
+    },
+    backButton: {
+      width: 44,
+      height: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: -8,
+    },
+    scrollContent: {
+      padding: spacing.four,
+      gap: spacing.three,
+      paddingBottom: spacing.six,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.two,
+    },
+    title: {
+      fontFamily: fontFamily.display,
+      fontSize: 19,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      fontFamily: fontFamily.regular,
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    card: {
+      backgroundColor: colors.surface2,
+      borderRadius: radius.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      padding: spacing.three,
+      gap: spacing.two,
+    },
+    cardTitle: {
+      fontFamily: fontFamily.display,
+      fontSize: 17,
+      color: colors.textPrimary,
+    },
+    emptyText: {
+      fontFamily: fontFamily.regular,
+      fontSize: 13,
+      color: colors.textMuted,
+    },
+    value: {
+      fontFamily: fontFamily.regular,
+      fontSize: 14,
+      color: colors.textPrimary,
+    },
+    decisionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    successText: {
+      fontFamily: fontFamily.medium,
+      color: colors.brandText,
+      textAlign: 'center',
+    },
+    actionBar: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+      backgroundColor: colors.surface1,
+      padding: spacing.three,
+      gap: spacing.two,
+    },
+    actionRow: {
+      flexDirection: 'row',
+      gap: spacing.two,
+    },
+    gap: {
+      gap: spacing.two,
+    },
+    label: {
+      fontFamily: fontFamily.medium,
+      color: colors.textSecondary,
+    },
+    textArea: {
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      borderRadius: radius.sm,
+      padding: spacing.two,
+      minHeight: 80,
+      textAlignVertical: 'top',
+      fontFamily: fontFamily.regular,
+      color: colors.textPrimary,
+      backgroundColor: colors.surface1,
+    },
+    button: {
+      flex: 1,
+      flexDirection: 'row',
+      gap: spacing.one,
+      minHeight: 44,
+      borderRadius: radius.sm,
+      paddingVertical: spacing.two,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    acceptButton: {
+      backgroundColor: colors.brandFill,
+    },
+    rejectButton: {
+      backgroundColor: colors.dangerBg,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.dangerBorder,
+    },
+    buttonDisabled: {
+      opacity: 0.5,
+    },
+    acceptButtonText: {
+      color: colors.brandOn,
+      fontFamily: fontFamily.semibold,
+      fontSize: 15,
+    },
+    rejectButtonText: {
+      color: colors.dangerText,
+      fontFamily: fontFamily.semibold,
+      fontSize: 15,
+    },
+    errorText: {
+      color: colors.dangerText,
+      fontFamily: fontFamily.regular,
+      fontSize: 13,
+    },
+  })

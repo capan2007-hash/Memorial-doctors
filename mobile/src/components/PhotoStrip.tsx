@@ -3,10 +3,13 @@
 import { useState } from 'react'
 import { Image } from 'expo-image'
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { X } from 'lucide-react-native'
 
-import { colors, radius, spacing } from '@/theme'
+import { useTheme } from '@/lib/theme'
+import { radius, spacing } from '@/theme'
 
 export function PhotoStrip({ urls, altLabel }: { urls: string[]; altLabel: string }) {
+  const { colors } = useTheme()
   const [selected, setSelected] = useState<string | null>(null)
 
   if (urls.length === 0) return null
@@ -16,7 +19,15 @@ export function PhotoStrip({ urls, altLabel }: { urls: string[]; altLabel: strin
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
         {urls.map((url) => (
           <Pressable key={url} onPress={() => setSelected(url)}>
-            <Image source={{ uri: url }} style={styles.thumb} contentFit="cover" accessibilityLabel={altLabel} />
+            <Image
+              source={{ uri: url }}
+              style={[
+                styles.thumb,
+                { backgroundColor: colors.surface2, borderColor: colors.border },
+              ]}
+              contentFit="cover"
+              accessibilityLabel={altLabel}
+            />
           </Pressable>
         ))}
       </ScrollView>
@@ -26,8 +37,14 @@ export function PhotoStrip({ urls, altLabel }: { urls: string[]; altLabel: strin
           {selected ? (
             <Image source={{ uri: selected }} style={styles.fullImage} contentFit="contain" accessibilityLabel={altLabel} />
           ) : null}
-          <Pressable style={styles.closeButton} onPress={() => setSelected(null)}>
-            <Text style={styles.closeButtonText}>Kapat</Text>
+          <Pressable
+            style={styles.closeButton}
+            onPress={() => setSelected(null)}
+            accessibilityRole="button"
+            accessibilityLabel="Kapat"
+            hitSlop={8}
+          >
+            <X color="#FFFFFF" size={22} strokeWidth={2} />
           </Pressable>
         </Pressable>
       </Modal>
@@ -43,8 +60,8 @@ const styles = StyleSheet.create({
   thumb: {
     width: 96,
     height: 96,
-    borderRadius: radius.md,
-    backgroundColor: colors.slate[100],
+    borderRadius: radius.sm,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   overlay: {
     flex: 1,
@@ -60,13 +77,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 56,
     right: spacing.four,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: radius.full,
-    paddingHorizontal: spacing.three,
-    paddingVertical: spacing.one,
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
   },
 })

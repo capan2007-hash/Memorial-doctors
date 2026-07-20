@@ -5,9 +5,11 @@
 // olduğundan web'deki canGiveFeedback prop'u yerine yalnız doctorId kontrol edilir.
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { AlertTriangle, Info, SlashIcon } from 'lucide-react-native'
 
 import { useAuth } from '@/lib/auth'
-import { colors, fontFamily, radius, spacing } from '@/theme'
+import { useTheme } from '@/lib/theme'
+import { fontFamily, radius, spacing, type Palette } from '@/theme'
 import type { AiFeedbackRow } from '@/types/db'
 import { useAiEvaluation, useAiFeedbackFor } from './useAiEvaluation'
 import { useSubmitAiFeedback } from './useAiFeedback'
@@ -40,6 +42,8 @@ function FeedbackSection({
   aiEvaluationId: string
   doctorId: string
 }) {
+  const { colors } = useTheme()
+  const styles = makeStyles(colors)
   const existing = useAiFeedbackFor(aiEvaluationId, doctorId)
   const submit = useSubmitAiFeedback()
   const [selected, setSelected] = useState<AiFeedbackRow['label'] | null>(null)
@@ -70,6 +74,8 @@ function FeedbackSection({
               key={label}
               style={[styles.feedbackButton, isSelected && styles.feedbackButtonSelected]}
               onPress={() => setSelected(label)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSelected }}
             >
               <Text style={[styles.feedbackButtonText, isSelected && styles.feedbackButtonTextSelected]}>
                 {FEEDBACK_LABELS[label]}
@@ -81,7 +87,7 @@ function FeedbackSection({
       <TextInput
         style={styles.noteInput}
         placeholder="İsteğe bağlı not"
-        placeholderTextColor={colors.slate[400]}
+        placeholderTextColor={colors.textMuted}
         value={note}
         onChangeText={setNote}
       />
@@ -105,7 +111,7 @@ function FeedbackSection({
         }}
       >
         {submit.isPending ? (
-          <ActivityIndicator color="#FFFFFF" />
+          <ActivityIndicator color={colors.brandOn} />
         ) : (
           <Text style={styles.submitButtonText}>Gönder</Text>
         )}
@@ -117,6 +123,8 @@ function FeedbackSection({
 
 export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?: string | null }) {
   const { tenantId } = useAuth()
+  const { colors } = useTheme()
+  const styles = makeStyles(colors)
   // Veri null kaldıkça React Query yeni render tetiklemez; süre kontrolü
   // ancak zamanlayıcıyla zorlanan bir render'da yeniden değerlendirilebilir.
   const [gaveUp, setGaveUp] = useState(false)
@@ -129,7 +137,7 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
   if (q.isLoading || (q.data == null && !gaveUp)) {
     return (
       <View style={styles.loadingRow}>
-        <ActivityIndicator color={colors.slate[500]} />
+        <ActivityIndicator color={colors.textSecondary} />
         <Text style={styles.loadingText}>AI değerlendirmesi hazırlanıyor…</Text>
       </View>
     )
@@ -140,13 +148,19 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
   const evaluation = q.data
 
   if (evaluation.status === 'failed') {
-    return <Text style={styles.failedText}>AI değerlendirmesi yapılamadı</Text>
+    return (
+      <View style={styles.failedRow}>
+        <SlashIcon color={colors.textMuted} size={16} strokeWidth={1.75} />
+        <Text style={styles.failedText}>AI değerlendirmesi yapılamadı</Text>
+      </View>
+    )
   }
 
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>AI Triyaj Değerlendirmesi</Text>
       <View style={styles.band}>
+        <Info color={colors.infoText} size={16} strokeWidth={1.75} />
         <Text style={styles.bandText}>Yön göstericidir; nihai karar hekimindir.</Text>
       </View>
       {evaluation.warnings.length > 0 && (
@@ -156,6 +170,7 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
             .map((w, i) => (
               <View key={i} style={styles.warningItem}>
                 <View style={styles.warningHeaderRow}>
+                  <AlertTriangle color={colors.warningText} size={16} strokeWidth={1.75} />
                   <Text style={styles.warningLabel}>{WARNING_LABELS[w.type]}</Text>
                   <View style={styles.confidenceBadge}>
                     <Text style={styles.confidenceBadgeText}>%{Math.round(w.confidence * 100)}</Text>
@@ -180,170 +195,187 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
   )
 }
 
-const styles = StyleSheet.create({
-  loadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.one,
-    paddingHorizontal: spacing.half,
-  },
-  loadingText: {
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-    color: colors.slate[500],
-  },
-  failedText: {
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-    color: colors.slate[500],
-    paddingHorizontal: spacing.half,
-  },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.three,
-    gap: spacing.two,
-  },
-  cardTitle: {
-    fontFamily: fontFamily.display,
-    fontSize: 17,
-    color: colors.slate[900],
-  },
-  band: {
-    backgroundColor: colors.accent[100],
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.two,
-    paddingVertical: spacing.one,
-  },
-  bandText: {
-    fontFamily: fontFamily.medium,
-    fontSize: 12,
-    color: colors.accent[700],
-  },
-  gap: {
-    gap: spacing.two,
-  },
-  warningItem: {
-    gap: 2,
-  },
-  warningHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.one,
-  },
-  warningLabel: {
-    fontFamily: fontFamily.semibold,
-    fontSize: 14,
-    color: colors.slate[800],
-  },
-  confidenceBadge: {
-    borderRadius: radius.full,
-    backgroundColor: colors.accent[100],
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  confidenceBadgeText: {
-    fontFamily: fontFamily.semibold,
-    fontSize: 11,
-    color: colors.accent[700],
-  },
-  rationale: {
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-    color: colors.slate[600],
-  },
-  suitabilityHeading: {
-    fontFamily: fontFamily.display,
-    fontSize: 15,
-    color: colors.slate[900],
-  },
-  suitabilityNote: {
-    fontFamily: fontFamily.regular,
-    fontSize: 14,
-    color: colors.slate[700],
-  },
-  feedbackDivider: {
-    borderTopWidth: 1,
-    borderTopColor: colors.slate[100],
-    paddingTop: spacing.two,
-    marginTop: spacing.half,
-  },
-  feedbackBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.brand[100],
-    borderRadius: radius.full,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-  feedbackBadgeText: {
-    fontFamily: fontFamily.medium,
-    fontSize: 12,
-    color: colors.brand[700],
-  },
-  feedbackNoteText: {
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-    color: colors.slate[600],
-    marginTop: spacing.one,
-  },
-  feedbackErrorText: {
-    fontFamily: fontFamily.regular,
-    fontSize: 13,
-    color: colors.danger[600],
-  },
-  feedbackPrompt: {
-    fontFamily: fontFamily.regular,
-    fontSize: 14,
-    color: colors.slate[700],
-  },
-  feedbackButtonsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.one,
-  },
-  feedbackButton: {
-    borderWidth: 1,
-    borderColor: colors.slate[300],
-    borderRadius: radius.md,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  feedbackButtonSelected: {
-    borderColor: colors.brand[600],
-    borderWidth: 2,
-    backgroundColor: colors.brand[50],
-  },
-  feedbackButtonText: {
-    fontFamily: fontFamily.medium,
-    fontSize: 13,
-    color: colors.slate[700],
-  },
-  feedbackButtonTextSelected: {
-    color: colors.brand[700],
-  },
-  noteInput: {
-    borderWidth: 1,
-    borderColor: colors.slate[300],
-    borderRadius: radius.md,
-    padding: spacing.two,
-    fontFamily: fontFamily.regular,
-    fontSize: 14,
-    color: colors.slate[900],
-    backgroundColor: colors.card,
-  },
-  submitButton: {
-    backgroundColor: colors.brand[600],
-    borderRadius: radius.md,
-    paddingVertical: spacing.two,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  submitButtonText: {
-    color: '#FFFFFF',
-    fontFamily: fontFamily.semibold,
-    fontSize: 14,
-  },
-})
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    loadingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one,
+      paddingHorizontal: spacing.half,
+    },
+    loadingText: {
+      fontFamily: fontFamily.regular,
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    failedRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one,
+      paddingHorizontal: spacing.half,
+    },
+    failedText: {
+      fontFamily: fontFamily.regular,
+      fontSize: 13,
+      color: colors.textMuted,
+    },
+    card: {
+      backgroundColor: colors.surface2,
+      borderRadius: radius.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      padding: spacing.three,
+      gap: spacing.two,
+    },
+    cardTitle: {
+      fontFamily: fontFamily.display,
+      fontSize: 17,
+      color: colors.textPrimary,
+    },
+    band: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one,
+      backgroundColor: colors.infoBg,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.two,
+      paddingVertical: spacing.one,
+    },
+    bandText: {
+      flex: 1,
+      fontFamily: fontFamily.medium,
+      fontSize: 12,
+      color: colors.infoText,
+    },
+    gap: {
+      gap: spacing.two,
+    },
+    warningItem: {
+      gap: 2,
+    },
+    warningHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one,
+    },
+    warningLabel: {
+      flex: 1,
+      fontFamily: fontFamily.semibold,
+      fontSize: 14,
+      color: colors.textPrimary,
+    },
+    confidenceBadge: {
+      borderRadius: radius.full,
+      backgroundColor: colors.warningBg,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+    },
+    confidenceBadgeText: {
+      fontFamily: fontFamily.semibold,
+      fontSize: 11,
+      color: colors.warningText,
+      fontVariant: ['tabular-nums'],
+    },
+    rationale: {
+      fontFamily: fontFamily.regular,
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    suitabilityHeading: {
+      fontFamily: fontFamily.display,
+      fontSize: 15,
+      color: colors.textPrimary,
+    },
+    suitabilityNote: {
+      fontFamily: fontFamily.regular,
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    feedbackDivider: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+      paddingTop: spacing.two,
+      marginTop: spacing.half,
+    },
+    feedbackBadge: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.brandFill,
+      borderRadius: radius.full,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+    },
+    feedbackBadgeText: {
+      fontFamily: fontFamily.medium,
+      fontSize: 12,
+      color: colors.brandOn,
+    },
+    feedbackNoteText: {
+      fontFamily: fontFamily.regular,
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginTop: spacing.one,
+    },
+    feedbackErrorText: {
+      fontFamily: fontFamily.regular,
+      fontSize: 13,
+      color: colors.dangerText,
+    },
+    feedbackPrompt: {
+      fontFamily: fontFamily.regular,
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    feedbackButtonsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.one,
+    },
+    feedbackButton: {
+      minHeight: 44,
+      justifyContent: 'center',
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      backgroundColor: colors.surface1,
+      borderRadius: radius.full,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+    },
+    feedbackButtonSelected: {
+      borderColor: colors.brandFill,
+      backgroundColor: colors.brandFill,
+    },
+    feedbackButtonText: {
+      fontFamily: fontFamily.medium,
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    feedbackButtonTextSelected: {
+      color: colors.brandOn,
+    },
+    noteInput: {
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      borderRadius: radius.sm,
+      padding: spacing.two,
+      fontFamily: fontFamily.regular,
+      fontSize: 14,
+      color: colors.textPrimary,
+      backgroundColor: colors.surface1,
+    },
+    submitButton: {
+      minHeight: 44,
+      backgroundColor: colors.brandFill,
+      borderRadius: radius.sm,
+      paddingVertical: spacing.two,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonDisabled: {
+      opacity: 0.5,
+    },
+    submitButtonText: {
+      color: colors.brandOn,
+      fontFamily: fontFamily.semibold,
+      fontSize: 14,
+    },
+  })

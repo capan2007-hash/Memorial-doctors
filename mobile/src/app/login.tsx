@@ -1,9 +1,11 @@
 import { Redirect } from 'expo-router'
+import { Plus } from 'lucide-react-native'
 import { useState } from 'react'
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
-import { colors, fontFamily, radius, spacing } from '@/theme'
+import { useTheme } from '@/lib/theme'
+import { fontFamily, radius, spacing } from '@/theme'
 
 export default function LoginScreen() {
   const { session, signIn } = useAuth()
@@ -11,6 +13,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const { colors } = useTheme()
 
   if (session) return <Redirect href="/(tabs)" />
 
@@ -26,25 +29,30 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.root}
+      style={[styles.root, { backgroundColor: colors.surface0 }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.hero}>
+      <View style={[styles.hero, { backgroundColor: colors.brandFill }]}>
         <View style={styles.monogram}>
-          <Text style={styles.monogramText}>+</Text>
+          <Plus color={colors.brandOn} size={30} strokeWidth={2.25} />
         </View>
-        <Text style={styles.brandTitle}>MedTriage</Text>
-        <Text style={styles.brandSubtitle}>Estetik cerrahi talep yönetimi &amp; triyaj</Text>
+        <Text style={[styles.brandTitle, { color: colors.brandOn }]}>MedTriage</Text>
+        <Text style={[styles.brandSubtitle, { color: colors.brandOn }]}>
+          Estetik cerrahi talep yönetimi &amp; triyaj
+        </Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Giriş</Text>
+        <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Giriş</Text>
 
-        <Text style={styles.label}>E-posta</Text>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>E-posta</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            { backgroundColor: colors.surface1, borderColor: colors.border, color: colors.textPrimary },
+          ]}
           placeholder="E-posta"
-          placeholderTextColor={colors.slate[400]}
+          placeholderTextColor={colors.textMuted}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -52,26 +60,30 @@ export default function LoginScreen() {
           keyboardType="email-address"
         />
 
-        <Text style={styles.label}>Şifre</Text>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>Şifre</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            { backgroundColor: colors.surface1, borderColor: colors.border, color: colors.textPrimary },
+          ]}
           placeholder="Şifre"
-          placeholderTextColor={colors.slate[400]}
+          placeholderTextColor={colors.textMuted}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text style={[styles.error, { color: colors.dangerText }]}>{error}</Text> : null}
 
         <Pressable
-          style={[styles.button, submitting && styles.buttonDisabled]}
+          style={[styles.button, { backgroundColor: colors.brandFill }, submitting && styles.buttonDisabled]}
           onPress={submit}
           disabled={submitting}
+          accessibilityRole="button"
         >
           {submitting ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color={colors.brandOn} />
           ) : (
-            <Text style={styles.buttonText}>Giriş</Text>
+            <Text style={[styles.buttonText, { color: colors.brandOn }]}>Giriş</Text>
           )}
         </Pressable>
       </View>
@@ -82,10 +94,8 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.surface,
   },
   hero: {
-    backgroundColor: colors.brand[700],
     paddingVertical: spacing.six,
     paddingHorizontal: spacing.four,
     alignItems: 'center',
@@ -99,20 +109,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  monogramText: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    fontFamily: fontFamily.semibold,
-  },
   brandTitle: {
-    color: '#FFFFFF',
     fontSize: 28,
     fontFamily: fontFamily.display,
   },
   brandSubtitle: {
-    color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
     fontFamily: fontFamily.regular,
+    opacity: 0.85,
   },
   card: {
     flex: 1,
@@ -123,43 +127,37 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontFamily: fontFamily.display,
-    color: colors.slate[900],
     marginBottom: spacing.two,
   },
   label: {
     fontFamily: fontFamily.medium,
-    color: colors.slate[700],
     marginBottom: spacing.half,
     marginTop: spacing.one,
   },
   input: {
-    borderWidth: 1,
-    borderColor: colors.slate[300],
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.two,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.three,
     paddingVertical: spacing.two,
     fontFamily: fontFamily.regular,
-    color: colors.slate[900],
-    backgroundColor: colors.card,
+    minHeight: 48,
   },
   error: {
-    color: colors.danger[600],
     fontFamily: fontFamily.regular,
     marginTop: spacing.one,
   },
   button: {
-    backgroundColor: colors.brand[600],
     borderRadius: radius.md,
     paddingVertical: spacing.two,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: spacing.three,
+    minHeight: 48,
   },
   buttonDisabled: {
     opacity: 0.7,
   },
   buttonText: {
-    color: '#FFFFFF',
     fontFamily: fontFamily.semibold,
     fontSize: 16,
   },

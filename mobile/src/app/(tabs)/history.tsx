@@ -1,23 +1,26 @@
 import { useRouter } from 'expo-router'
+import { Inbox } from 'lucide-react-native'
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
 import { useDoctorQueue, type DoctorQueueRow } from '@/features/queue/useDoctorQueue'
 import { QueueRow } from '@/features/queue/QueueRow'
 import { DecisionBadge } from '@/components/DecisionBadge'
-import { colors, fontFamily, spacing } from '@/theme'
+import { useTheme } from '@/lib/theme'
+import { fontFamily, spacing } from '@/theme'
 
 export default function HistoryScreen() {
   const { doctorId } = useAuth()
   const queue = useDoctorQueue(doctorId)
   const router = useRouter()
+  const { colors } = useTheme()
 
   return (
-    <View style={styles.root}>
-      <Text style={styles.title}>Geçmiş</Text>
+    <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
+      <Text style={[styles.title, { color: colors.textPrimary }]}>Geçmiş</Text>
       {queue.isLoading ? (
         <View style={styles.center}>
-          <ActivityIndicator color={colors.brand[600]} />
+          <ActivityIndicator color={colors.brandText} />
         </View>
       ) : (
         <FlatList
@@ -39,7 +42,8 @@ export default function HistoryScreen() {
           )}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Text style={styles.hint}>Yanıtladığınız talep yok</Text>
+              <Inbox color={colors.textMuted} size={40} strokeWidth={1.5} />
+              <Text style={[styles.hint, { color: colors.textMuted }]}>Yanıtladığınız talep yok</Text>
             </View>
           }
         />
@@ -51,14 +55,12 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.surface,
     paddingHorizontal: spacing.four,
     paddingTop: spacing.four,
   },
   title: {
     fontFamily: fontFamily.display,
     fontSize: 20,
-    color: colors.slate[900],
     marginBottom: spacing.three,
   },
   listContent: {
@@ -69,11 +71,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: spacing.two,
     paddingTop: spacing.six,
   },
   hint: {
     fontFamily: fontFamily.regular,
-    color: colors.slate[500],
     textAlign: 'center',
   },
 })
