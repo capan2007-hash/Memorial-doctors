@@ -4,7 +4,8 @@ import type { ReactNode } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { bmi } from '@/domain/health'
-import { colors, fontFamily, radius, spacing } from '@/theme'
+import { useTheme } from '@/lib/theme'
+import { fontFamily, radius, spacing, type Palette } from '@/theme'
 import type { RequestRow } from '@/types/db'
 
 const GENDER_LABEL: Record<NonNullable<RequestRow['gender']>, string> = {
@@ -17,13 +18,31 @@ function isEmpty(value: string | number | null | undefined): boolean {
   return value === null || value === undefined || value === ''
 }
 
-function InfoItem({ label, value, children }: { label: string; value?: string | number | null; children?: ReactNode }) {
+function InfoItem({
+  label,
+  value,
+  numeric,
+  children,
+  styles,
+}: {
+  label: string
+  value?: string | number | null
+  numeric?: boolean
+  children?: ReactNode
+  styles: ReturnType<typeof makeStyles>
+}) {
+  const empty = isEmpty(value)
   return (
     <View style={styles.item}>
       <Text style={styles.label}>{label}</Text>
       {children ?? (
-        <Text style={isEmpty(value) ? styles.valueEmpty : styles.value}>
-          {isEmpty(value) ? 'Belirtilmedi' : value}
+        <Text
+          style={[
+            empty ? styles.valueEmpty : styles.value,
+            numeric && !empty && styles.numeric,
+          ]}
+        >
+          {empty ? 'Belirtilmedi' : value}
         </Text>
       )}
     </View>
@@ -43,6 +62,8 @@ export function PatientInfoCard({
   subcategoryName?: string | null
   operationName?: string | null
 }) {
+  const { colors } = useTheme()
+  const styles = makeStyles(colors)
   const bmiValue = req.weight_kg && req.height_cm ? bmi(req.weight_kg, req.height_cm) : null
   const categoryDisplay = [categoryName, subcategoryName].filter(Boolean).join(' / ')
 
@@ -50,14 +71,14 @@ export function PatientInfoCard({
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Hasta Bilgileri</Text>
       <View style={styles.grid}>
-        <InfoItem label="Hasta adı" value={patientName} />
-        <InfoItem label="Kategori" value={categoryDisplay || null} />
-        <InfoItem label="İstenen operasyon" value={operationName} />
-        <InfoItem label="Yaş" value={req.age} />
-        <InfoItem label="Cinsiyet" value={req.gender ? GENDER_LABEL[req.gender] : null} />
-        <InfoItem label="Boy (cm)" value={req.height_cm} />
-        <InfoItem label="Kilo (kg)" value={req.weight_kg} />
-        <InfoItem label="BMI">
+        <InfoItem label="Hasta adı" value={patientName} styles={styles} />
+        <InfoItem label="Kategori" value={categoryDisplay || null} styles={styles} />
+        <InfoItem label="İstenen operasyon" value={operationName} styles={styles} />
+        <InfoItem label="Yaş" value={req.age} numeric styles={styles} />
+        <InfoItem label="Cinsiyet" value={req.gender ? GENDER_LABEL[req.gender] : null} styles={styles} />
+        <InfoItem label="Boy (cm)" value={req.height_cm} numeric styles={styles} />
+        <InfoItem label="Kilo (kg)" value={req.weight_kg} numeric styles={styles} />
+        <InfoItem label="BMI" styles={styles}>
           {bmiValue === null ? (
             <Text style={styles.valueEmpty}>Belirtilmedi</Text>
           ) : (
@@ -68,73 +89,80 @@ export function PatientInfoCard({
         </InfoItem>
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label="Geçmiş ameliyatlar" value={req.past_surgeries} />
+        <InfoItem label="Geçmiş ameliyatlar" value={req.past_surgeries} styles={styles} />
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label="Bilinen hastalıklar" value={req.known_conditions} />
+        <InfoItem label="Bilinen hastalıklar" value={req.known_conditions} styles={styles} />
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label="Düzenli ilaçlar" value={req.medications} />
+        <InfoItem label="Düzenli ilaçlar" value={req.medications} styles={styles} />
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label="Not" value={req.notes} />
+        <InfoItem label="Not" value={req.notes} styles={styles} />
       </View>
     </View>
   )
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.three,
-    gap: spacing.three,
-  },
-  cardTitle: {
-    fontFamily: fontFamily.display,
-    fontSize: 17,
-    color: colors.slate[900],
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.three,
-  },
-  fullWidth: {
-    width: '100%',
-  },
-  item: {
-    width: '45%',
-    gap: 2,
-  },
-  label: {
-    fontFamily: fontFamily.medium,
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-    color: colors.slate[500],
-  },
-  value: {
-    fontFamily: fontFamily.regular,
-    fontSize: 14,
-    color: colors.slate[800],
-  },
-  valueEmpty: {
-    fontFamily: fontFamily.regular,
-    fontSize: 14,
-    color: colors.slate[400],
-  },
-  bmiBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.brand[100],
-    borderRadius: radius.full,
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    marginTop: 2,
-  },
-  bmiBadgeText: {
-    fontFamily: fontFamily.semibold,
-    fontSize: 13,
-    color: colors.brand[700],
-  },
-})
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface2,
+      borderRadius: radius.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      padding: spacing.three,
+      gap: spacing.three,
+    },
+    cardTitle: {
+      fontFamily: fontFamily.display,
+      fontSize: 17,
+      color: colors.textPrimary,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.three,
+    },
+    fullWidth: {
+      width: '100%',
+    },
+    item: {
+      width: '45%',
+      gap: 2,
+    },
+    label: {
+      fontFamily: fontFamily.medium,
+      fontSize: 11,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      color: colors.textMuted,
+    },
+    value: {
+      fontFamily: fontFamily.regular,
+      fontSize: 14,
+      color: colors.textPrimary,
+    },
+    numeric: {
+      fontVariant: ['tabular-nums'],
+    },
+    valueEmpty: {
+      fontFamily: fontFamily.regular,
+      fontSize: 14,
+      color: colors.textMuted,
+    },
+    bmiBadge: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.successBg,
+      borderRadius: radius.full,
+      paddingHorizontal: 10,
+      paddingVertical: 2,
+      marginTop: 2,
+    },
+    bmiBadgeText: {
+      fontFamily: fontFamily.semibold,
+      fontSize: 13,
+      color: colors.successText,
+      fontVariant: ['tabular-nums'],
+    },
+  })
