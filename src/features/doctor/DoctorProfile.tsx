@@ -19,6 +19,8 @@ import { Avatar } from '../../components/ui/Avatar'
 import { Spinner } from '../../components/ui/Spinner'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../components/ui/Toast'
+import { Icon } from '../../components/ui/Icon'
+import { Upload } from 'lucide-react'
 import { formatMins } from '../../lib/format'
 
 const levelLabels: Record<WeightedWorkLevel, string> = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
@@ -276,15 +278,16 @@ export function DoctorProfile() {
         <div className="flex items-center gap-4">
           <ProfileAvatar photoUrl={photoUrl} name={title || 'Doktor'} />
           <div>
-            <label className="inline-block">
-              <span className="sr-only">Fotoğraf seç</span>
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-control border border-line bg-surface-2 px-3 py-1.5 text-sm text-ink-primary transition-colors duration-[var(--dur-fast)] ease-premium hover:border-line-strong">
+              <Icon of={Upload} size={15} />
+              Fotoğraf seç
               <input
                 type="file" accept="image/*"
                 onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
-                className="block text-sm text-ink-secondary"
+                className="sr-only"
               />
             </label>
-            {photoFile && <p className="text-xs text-ink-muted mt-1">Kaydet'e basınca yüklenecek: {photoFile.name}</p>}
+            {photoFile && <p className="mt-1 text-xs text-ink-muted">Kaydet'e basınca yüklenecek: {photoFile.name}</p>}
           </div>
         </div>
 
