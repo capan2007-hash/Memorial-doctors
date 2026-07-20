@@ -20,7 +20,7 @@ import { Spinner } from '../../components/ui/Spinner'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../components/ui/Toast'
 import { Icon } from '../../components/ui/Icon'
-import { Upload } from 'lucide-react'
+import { Upload, Check, Plus } from 'lucide-react'
 import { formatMins } from '../../lib/format'
 
 const levelLabels: Record<WeightedWorkLevel, string> = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
@@ -40,49 +40,74 @@ function toggleScope(scopes: DoctorScope[], entry: DoctorScope): DoctorScope[] {
   return [...scopes, entry]
 }
 
-/** Tek kategori satırı: alt kırılım yoksa kategori çipi, varsa alt kırılım çip listesi (DoctorAdmin deseni). */
-function CategoryScopeRow({ category, scopes, onChange }: {
+/** Seçilebilir yetkinlik çipi: gizli checkbox + pill; seçiliyken teal tint + onay işareti. */
+function ScopeChip({ checked, label, onToggle }: { checked: boolean; label: string; onToggle: () => void }) {
+  return (
+    <label
+      className={`inline-flex cursor-pointer select-none items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors duration-[var(--dur-fast)] ease-premium ${
+        checked
+          ? 'border-brand-fill bg-brand-fill/10 font-medium text-brand-text'
+          : 'border-line bg-surface-1 text-ink-secondary hover:border-line-strong hover:text-ink-primary'
+      }`}
+    >
+      <input type="checkbox" checked={checked} onChange={onToggle} className="sr-only" />
+      <span
+        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
+          checked ? 'border-brand-fill bg-brand-fill text-brand-on' : 'border-line-strong'
+        }`}
+      >
+        {checked && <Icon of={Check} size={11} />}
+      </span>
+      {label}
+    </label>
+  )
+}
+
+/** Alt kırılımı olan kategori: küçük başlık + alt kırılım çipleri. */
+function GroupedScope({ category, scopes, onChange }: {
   category: CategoryRow; scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void
 }) {
-  const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
-  if (!category.has_subcategories) {
-    return (
-      <label className="flex items-center gap-2 text-sm text-ink-secondary">
-        <input
-          type="checkbox"
-          checked={hasScope(scopes, category.id, null)}
-          onChange={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: null }))}
-        />
-        {category.name}
-      </label>
-    )
-  }
+  const subs = useSubcategories(category.id)
   return (
-    <div className="text-sm">
-      <p className="font-medium text-ink-secondary">{category.name}</p>
-      <div className="mt-1 ml-3 flex flex-wrap gap-3">
+    <div className="space-y-2">
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{category.name}</p>
+      <div className="flex flex-wrap gap-2">
         {subs.data?.map((sc) => (
-          <label key={sc.id} className="flex items-center gap-2 text-ink-secondary">
-            <input
-              type="checkbox"
-              checked={hasScope(scopes, category.id, sc.id)}
-              onChange={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
-            />
-            {sc.name}
-          </label>
+          <ScopeChip
+            key={sc.id}
+            label={sc.name}
+            checked={hasScope(scopes, category.id, sc.id)}
+            onToggle={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
+          />
         ))}
-        {!subs.data?.length && <span className="text-ink-muted">Alt kırılım yok</span>}
+        {!subs.data?.length && <span className="text-sm text-ink-muted">Alt kırılım yok</span>}
       </div>
     </div>
   )
 }
 
+/** Alt kırılımsız kategoriler tek çip satırında; alt kırılımlılar ayrı başlıklı gruplar. */
 function ScopeEditor({ scopes, onChange }: { scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void }) {
   const cats = useCategories()
+  const list = cats.data ?? []
+  const standalone = list.filter((c) => !c.has_subcategories)
+  const grouped = list.filter((c) => c.has_subcategories)
   return (
-    <div className="space-y-2 rounded-control border border-line p-3 bg-surface-1">
-      {cats.data?.map((c) => (
-        <CategoryScopeRow key={c.id} category={c} scopes={scopes} onChange={onChange} />
+    <div className="space-y-5">
+      {standalone.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {standalone.map((c) => (
+            <ScopeChip
+              key={c.id}
+              label={c.name}
+              checked={hasScope(scopes, c.id, null)}
+              onToggle={() => onChange(toggleScope(scopes, { categoryId: c.id, subcategoryId: null }))}
+            />
+          ))}
+        </div>
+      )}
+      {grouped.map((c) => (
+        <GroupedScope key={c.id} category={c} scopes={scopes} onChange={onChange} />
       ))}
     </div>
   )
@@ -96,35 +121,44 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
   const removeItem = (idx: number) => onChange({ ...value, items: value.items.filter((_, i) => i !== idx) })
   const addItem = () => onChange({ ...value, items: [...value.items, { area: '', level: 'medium' }] })
   return (
-    <div className="space-y-2 rounded-control border border-line p-3 bg-surface-1">
-      {value.items.map((it, idx) => (
-        <div key={idx} className="flex gap-2">
-          <input
-            className={`${inputClass} flex-1 text-sm`} placeholder="Alan (ör. rinoplasti)"
-            value={it.area} onChange={(e) => updateItem(idx, { area: e.target.value })}
-          />
-          <select
-            className={`${inputClass} w-auto text-sm`} value={it.level}
-            onChange={(e) => updateItem(idx, { level: e.target.value as WeightedWorkLevel })}
-          >
-            {(['high', 'medium', 'low'] as WeightedWorkLevel[]).map((l) => (
-              <option key={l} value={l}>{levelLabels[l]}</option>
-            ))}
-          </select>
-          <Button variant="ghost" type="button" onClick={() => removeItem(idx)}>Sil</Button>
+    <div className="space-y-3">
+      {value.items.length === 0 ? (
+        <p className="text-sm text-ink-muted">Henüz ağırlıklı iş eklemediniz.</p>
+      ) : (
+        <div className="space-y-2">
+          {value.items.map((it, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <input
+                className={`${inputClass} flex-1 text-sm`} placeholder="Alan (ör. rinoplasti)"
+                value={it.area} onChange={(e) => updateItem(idx, { area: e.target.value })}
+              />
+              <select
+                className={`${inputClass} w-auto shrink-0 text-sm`} value={it.level}
+                onChange={(e) => updateItem(idx, { level: e.target.value as WeightedWorkLevel })}
+              >
+                {(['high', 'medium', 'low'] as WeightedWorkLevel[]).map((l) => (
+                  <option key={l} value={l}>{levelLabels[l]}</option>
+                ))}
+              </select>
+              <Button variant="ghost" type="button" onClick={() => removeItem(idx)}>Sil</Button>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
       <button
         type="button"
-        className="text-sm text-brand-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 rounded"
+        className="inline-flex items-center gap-1.5 rounded-control border border-dashed border-line-strong px-3 py-1.5 text-sm text-brand-text transition-colors duration-[var(--dur-fast)] ease-premium hover:bg-brand-fill/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40"
         onClick={addItem}
       >
-        + Satır ekle
+        <Icon of={Plus} size={15} /> Satır ekle
       </button>
-      <textarea
-        className={`${inputClass} text-sm`} placeholder="Serbest not"
-        value={value.note} onChange={(e) => onChange({ ...value, note: e.target.value })}
-      />
+      <div className="pt-1">
+        <label className="mb-1 block text-xs font-medium text-ink-muted">Serbest not</label>
+        <textarea
+          className={`${inputClass} text-sm`} placeholder="Öne çıkan deneyim, ilgi alanı…"
+          value={value.note} onChange={(e) => onChange({ ...value, note: e.target.value })}
+        />
+      </div>
     </div>
   )
 }
@@ -150,9 +184,9 @@ function MetricTile({ value, label, tint }: { value: string | number; label: str
   const bg = tint === 'danger' ? 'bg-danger-bg' : ''
   const valueColor = tint === 'danger' ? 'text-danger-text' : 'text-ink-primary'
   return (
-    <div className={`rounded-control border border-line p-3 text-center ${bg}`}>
+    <div className={`rounded-control border border-line p-4 text-center ${bg}`}>
       <p className={`font-display text-2xl tnum ${valueColor}`}>{value}</p>
-      <p className="text-xs text-ink-muted mt-0.5">{label}</p>
+      <p className="text-xs text-ink-muted mt-1">{label}</p>
     </div>
   )
 }
@@ -161,9 +195,9 @@ function ScoreTile({ score }: { score: number }) {
   const tier = scoreTier(score)
   const tint = TIER_TINT[tier.bg] ?? { bg: 'bg-success-bg', text: 'text-success-text' }
   return (
-    <div className={`rounded-control border border-line p-3 text-center ${tint.bg}`}>
+    <div className={`rounded-control border border-line p-4 text-center ${tint.bg}`}>
       <p className={`font-display text-2xl tnum ${tint.text}`}>{score}</p>
-      <p className="text-xs text-ink-muted mt-0.5">Skor</p>
+      <p className="text-xs text-ink-muted mt-1">Skor</p>
       {tier.label && <p className={`text-[11px] font-semibold mt-0.5 ${tint.text}`}>{tier.label}</p>}
     </div>
   )
@@ -174,7 +208,7 @@ function PerformanceSection({ perf }: { perf: OwnPerformance }) {
   const answered = perf.accept_count + perf.reject_count
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <MetricTile value={incoming} label="Gelen" />
         <MetricTile value={answered} label="Cevaplanan" />
         <MetricTile value={perf.avg_response_mins != null ? formatMins(perf.avg_response_mins) : '—'} label="Ort. yanıt" />
@@ -315,8 +349,13 @@ export function DoctorProfile() {
         </div>
       </Card>
 
-      <Card title="Yetkinlikler (verebileceğim tedaviler)" className="space-y-3">
-        <p className="text-sm text-ink-secondary">Bu tedaviler için yeni talepler size gönderilir.</p>
+      <Card title="Yetkinlikler (verebileceğim tedaviler)" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm text-ink-secondary">Bu tedaviler için yeni talepler size gönderilir.</p>
+          <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-ink-secondary tnum">
+            {scopes.length} seçili
+          </span>
+        </div>
         <ScopeEditor scopes={scopes} onChange={setScopesState} />
         {!scopes.length && <p className="text-warning-text text-xs">En az bir yetkinlik seçilmeli.</p>}
         <div className="flex justify-end pt-1">
