@@ -16,6 +16,7 @@ import { RequestList } from './features/requests/RequestList'
 import { RequestDetail } from './features/requests/RequestDetail'
 import { DoctorAdmin } from './features/admin/DoctorAdmin'
 import { AllRequests } from './features/admin/AllRequests'
+import { DuplicateReview } from './features/admin/DuplicateReview'
 
 function Home() {
   const { role } = useAuth()
@@ -47,6 +48,7 @@ export default function App() {
               <Route path="/requests/:id" element={<Protected><Layout><RequestDetail /></Layout></Protected>} />
               <Route path="/admin/doctors" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DoctorAdmin /></RoleGate></Layout></Protected>} />
               <Route path="/admin/requests" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><AllRequests /></RoleGate></Layout></Protected>} />
+              <Route path="/admin/duplicates" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DuplicateReview /></RoleGate></Layout></Protected>} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
