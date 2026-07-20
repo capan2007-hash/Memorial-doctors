@@ -8,7 +8,10 @@ export function navLinks(role: Role | null): NavLink[] {
     case 'agent':
       return [{ to: '/requests', label: 'Talepler' }, { to: '/requests/new', label: 'Yeni Talep' }]
     case 'doctor':
-      return [{ to: '/doctor', label: 'Bekleyen Talepler' }]
+      return [
+        { to: '/doctor', label: 'Bekleyen Talepler' },
+        { to: '/profil', label: 'Profilim' },
+      ]
     case 'coordinator':
     case 'admin':
       return [{ to: '/admin/requests', label: 'Tüm Talepler' }, { to: '/admin/doctors', label: 'Doktor Yönetimi' }]

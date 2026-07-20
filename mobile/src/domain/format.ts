@@ -22,3 +22,12 @@ export function timeAgo(iso: string, now: Date = new Date()): string {
   const year = String(date.getFullYear())
   return `${day}.${month}.${year}`
 }
+
+/** Kaynak: /src/lib/format.ts formatMins (web) — dakikayı "{n} dk" / "{h} sa {m} dk" olarak biçimler. */
+export function formatMins(n: number): string {
+  const rounded = Math.round(n)
+  if (rounded < 60) return `${rounded} dk`
+  const h = Math.floor(rounded / 60)
+  const m = rounded % 60
+  return `${h} sa ${m} dk`
+}
