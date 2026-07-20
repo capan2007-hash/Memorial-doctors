@@ -8,6 +8,7 @@ function emptyDraft(): RequestDraft {
     pastSurgeries: { none: false, text: '' },
     knownConditions: { none: false, text: '' },
     medications: { none: false, text: '' },
+    smokingStatus: '', smokingCigs: '', smokingYears: '', alcoholStatus: '', alcoholDrinks: '',
     categoryId: '', subcategoryId: null, operationTypeId: null,
     notes: '', files: [], xrayFiles: [],
   }
