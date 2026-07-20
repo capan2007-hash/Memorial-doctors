@@ -11,6 +11,7 @@ import { ToastProvider } from './components/ui/Toast'
 import { NewRequestWizard } from './features/requests/NewRequestWizard'
 import { DoctorQueue } from './features/doctor/DoctorQueue'
 import { DoctorRequestView } from './features/doctor/DoctorRequestView'
+import { DoctorProfile } from './features/doctor/DoctorProfile'
 import { RequestList } from './features/requests/RequestList'
 import { RequestDetail } from './features/requests/RequestDetail'
 import { DoctorAdmin } from './features/admin/DoctorAdmin'
@@ -41,6 +42,7 @@ export default function App() {
               <Route path="/requests/new" element={<Protected><Layout><RoleGate allow={['agent','sales']}><NewRequestWizard /></RoleGate></Layout></Protected>} />
               <Route path="/doctor" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorQueue /></RoleGate></Layout></Protected>} />
               <Route path="/doctor/request/:id" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorRequestView /></RoleGate></Layout></Protected>} />
+              <Route path="/profil" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorProfile /></RoleGate></Layout></Protected>} />
               <Route path="/requests" element={<Protected><Layout><RequestList /></Layout></Protected>} />
               <Route path="/requests/:id" element={<Protected><Layout><RequestDetail /></Layout></Protected>} />
               <Route path="/admin/doctors" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DoctorAdmin /></RoleGate></Layout></Protected>} />
