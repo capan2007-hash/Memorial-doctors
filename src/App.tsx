@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { queryClient } from './lib/queryClient'
 import { AuthProvider, useAuth } from './lib/auth'
 import { LoginPage } from './features/auth/LoginPage'
+import { ResetPasswordPage } from './features/auth/ResetPasswordPage'
 import { Aydinlatma } from './pages/Aydinlatma'
 import { Layout } from './components/Layout'
 import { RoleGate } from './components/RoleGate'
@@ -17,6 +18,7 @@ import { RequestDetail } from './features/requests/RequestDetail'
 import { DoctorAdmin } from './features/admin/DoctorAdmin'
 import { AllRequests } from './features/admin/AllRequests'
 import { DuplicateReview } from './features/admin/DuplicateReview'
+import { UserAdmin } from './features/admin/UserAdmin'
 
 function Home() {
   const { role } = useAuth()
@@ -38,6 +40,7 @@ export default function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/reset" element={<ResetPasswordPage />} />
               <Route path="/aydinlatma" element={<Aydinlatma />} />
               <Route path="/" element={<Protected><Home /></Protected>} />
               <Route path="/requests/new" element={<Protected><Layout><RoleGate allow={['agent','sales']}><NewRequestWizard /></RoleGate></Layout></Protected>} />
@@ -49,6 +52,7 @@ export default function App() {
               <Route path="/admin/doctors" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DoctorAdmin /></RoleGate></Layout></Protected>} />
               <Route path="/admin/requests" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><AllRequests /></RoleGate></Layout></Protected>} />
               <Route path="/admin/duplicates" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DuplicateReview /></RoleGate></Layout></Protected>} />
+              <Route path="/admin/users" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><UserAdmin /></RoleGate></Layout></Protected>} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
