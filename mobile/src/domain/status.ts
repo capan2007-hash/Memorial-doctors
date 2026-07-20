@@ -19,14 +19,17 @@ export const STATUS_LABELS: Record<RequestStatus, string> = {
   closed: 'Kapandı',
 }
 
-export const STATUS_COLORS: Record<RequestStatus, { bg: string; text: string }> = {
-  draft: { bg: '#F1F5F9', text: '#475569' },
-  submitted: { bg: '#F1F5F9', text: '#475569' },
-  assigned: { bg: '#DBEAFE', text: '#1D4ED8' },
-  in_review: { bg: '#E0E7FF', text: '#4338CA' },
-  offers_ready: { bg: '#CCFBF1', text: '#115E59' },
-  escalated: { bg: '#FEF3C7', text: '#B45309' },
-  closed: { bg: '#E2E8F0', text: '#334155' },
+import type { Role } from '@/theme'
+
+// Durum → semantik rol (renk temadan çözülür — roleColors). state-dot çipleri için.
+export const STATUS_ROLE: Record<RequestStatus, Role> = {
+  draft: 'neutral',
+  submitted: 'neutral',
+  assigned: 'info',
+  in_review: 'info',
+  offers_ready: 'success',
+  escalated: 'danger',
+  closed: 'neutral',
 }
 
 // Doktor yanıt kararı (bkz. /src/types/domain.ts Decision) — kuyruk/geçmiş
@@ -38,7 +41,7 @@ export const DECISION_LABELS: Record<Decision, string> = {
   reject: 'Red',
 }
 
-export const DECISION_COLORS: Record<Decision, { bg: string; text: string }> = {
-  accept: { bg: '#CCFBF1', text: '#115E59' },
-  reject: { bg: '#FEE2E2', text: '#B91C1C' },
+export const DECISION_ROLE: Record<Decision, Role> = {
+  accept: 'success',
+  reject: 'danger',
 }

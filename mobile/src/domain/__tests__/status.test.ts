@@ -1,4 +1,6 @@
-import { STATUS_LABELS, STATUS_COLORS, DECISION_LABELS, DECISION_COLORS } from '../status'
+import { STATUS_LABELS, STATUS_ROLE, DECISION_LABELS, DECISION_ROLE } from '../status'
+
+const ROLES = ['success', 'warning', 'danger', 'info', 'neutral', 'brand']
 
 describe('STATUS_LABELS', () => {
   it('tüm durumlar için Türkçe etiket döner', () => {
@@ -12,12 +14,10 @@ describe('STATUS_LABELS', () => {
   })
 })
 
-describe('STATUS_COLORS', () => {
-  it('her durum için bg/text renk çifti tanımlı', () => {
+describe('STATUS_ROLE', () => {
+  it('her durum için geçerli semantik rol tanımlı', () => {
     for (const status of Object.keys(STATUS_LABELS) as (keyof typeof STATUS_LABELS)[]) {
-      expect(STATUS_COLORS[status]).toBeDefined()
-      expect(STATUS_COLORS[status].bg).toMatch(/^#/)
-      expect(STATUS_COLORS[status].text).toMatch(/^#/)
+      expect(ROLES).toContain(STATUS_ROLE[status])
     }
   })
 })
@@ -29,12 +29,10 @@ describe('DECISION_LABELS', () => {
   })
 })
 
-describe('DECISION_COLORS', () => {
-  it('her karar için bg/text renk çifti tanımlı', () => {
+describe('DECISION_ROLE', () => {
+  it('her karar için geçerli semantik rol tanımlı', () => {
     for (const decision of Object.keys(DECISION_LABELS) as (keyof typeof DECISION_LABELS)[]) {
-      expect(DECISION_COLORS[decision]).toBeDefined()
-      expect(DECISION_COLORS[decision].bg).toMatch(/^#/)
-      expect(DECISION_COLORS[decision].text).toMatch(/^#/)
+      expect(ROLES).toContain(DECISION_ROLE[decision])
     }
   })
 })
