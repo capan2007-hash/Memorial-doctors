@@ -26,6 +26,12 @@ export interface RequestRow {
   past_surgeries: string
   known_conditions: string
   medications: string
+  smoking_status: 'never' | 'former' | 'current' | null
+  smoking_cigs_per_day: number | null
+  smoking_years: number | null
+  smoking_pack_years: number | null
+  alcohol_status: 'never' | 'occasional' | 'regular' | null
+  alcohol_drinks_per_week: number | null
 }
 
 export interface PhotoRow {
