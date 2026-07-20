@@ -1,24 +1,32 @@
 import type { ReactNode } from 'react'
+import { ChevronRight, Clock } from 'lucide-react-native'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { timeAgo } from '@/domain/format'
 import type { SlaInfo } from '@/domain/sla'
-import { colors, fontFamily, radius, spacing } from '@/theme'
+import { useTheme } from '@/lib/theme'
+import { fontFamily, radius, roleColors, spacing } from '@/theme'
 
 // FR-24/25/26/29: kuyruk satırı SLA geri sayım rozeti (bkz. web DoctorQueue.tsx aynı desen).
 export function SlaBadge({ state, label }: { state: SlaInfo['state']; label: string }) {
-  const bg = state === 'overdue' ? colors.danger[100] : colors.accent[100]
-  const text = state === 'overdue' ? colors.danger[700] : colors.accent[700]
+  const { colors } = useTheme()
+  const role = state === 'overdue' ? 'danger' : 'warning'
+  const c = roleColors(colors, role)
   return (
-    <View style={[slaBadgeStyles.root, { backgroundColor: bg }]}>
-      <Text style={[slaBadgeStyles.text, { color: text }]}>{label}</Text>
+    <View style={[slaBadgeStyles.root, { backgroundColor: c.bg, borderColor: c.border }]}>
+      <Clock color={c.text} size={12} strokeWidth={2} />
+      <Text style={[slaBadgeStyles.text, { color: c.text }]}>{label}</Text>
     </View>
   )
 }
 
 const slaBadgeStyles = StyleSheet.create({
   root: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.half,
     borderRadius: radius.full,
+    borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 10,
     paddingVertical: 4,
     alignSelf: 'flex-end',
@@ -42,21 +50,33 @@ export function QueueRow({
   onPress: () => void
   badge?: ReactNode
 }) {
+  const { colors } = useTheme()
   return (
-    <Pressable style={({ pressed }) => [styles.row, pressed && styles.rowPressed]} onPress={onPress}>
+    <Pressable
+      style={({ pressed }) => [
+        styles.row,
+        {
+          backgroundColor: colors.surface2,
+          borderColor: colors.border,
+          borderRadius: radius.md,
+        },
+        pressed && { backgroundColor: colors.surface1 },
+      ]}
+      onPress={onPress}
+    >
       <View style={styles.main}>
-        <Text style={styles.name} numberOfLines={1}>
+        <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
           {patientName}
         </Text>
-        <Text style={styles.meta} numberOfLines={1}>
+        <Text style={[styles.meta, { color: colors.textSecondary }]} numberOfLines={1}>
           {categoryName}
         </Text>
       </View>
       <View style={styles.aside}>
         {badge}
-        <Text style={styles.time}>{timeAgo(assignedAt)}</Text>
+        <Text style={[styles.time, { color: colors.textMuted }]}>{timeAgo(assignedAt)}</Text>
       </View>
-      <Text style={styles.chevron}>›</Text>
+      <ChevronRight color={colors.textMuted} size={20} strokeWidth={1.75} />
     </Pressable>
   )
 }
@@ -66,12 +86,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.two,
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
     padding: spacing.three,
-  },
-  rowPressed: {
-    backgroundColor: colors.brand[50],
+    minHeight: 64,
   },
   main: {
     flex: 1,
@@ -81,12 +98,10 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: fontFamily.semibold,
     fontSize: 16,
-    color: colors.slate[900],
   },
   meta: {
     fontFamily: fontFamily.regular,
     fontSize: 13,
-    color: colors.slate[500],
   },
   aside: {
     alignItems: 'flex-end',
@@ -95,11 +110,6 @@ const styles = StyleSheet.create({
   time: {
     fontFamily: fontFamily.regular,
     fontSize: 12,
-    color: colors.slate[400],
-  },
-  chevron: {
-    fontSize: 22,
-    color: colors.slate[300],
-    fontFamily: fontFamily.regular,
+    fontVariant: ['tabular-nums'],
   },
 })
