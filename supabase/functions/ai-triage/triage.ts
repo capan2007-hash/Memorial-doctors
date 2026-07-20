@@ -33,6 +33,10 @@ export interface TriagePatient {
   knownConditions: string
   medications: string
   notes: string | null
+  smokingStatus: string | null
+  smokingPackYears: number | null
+  alcoholStatus: string | null
+  alcoholDrinksPerWeek: number | null
 }
 
 export interface TriageOperation {
@@ -72,7 +76,9 @@ export function buildSystemPrompt(): string {
       'demografi/tıbbi bilgileri arasındaki tutarlılığı değerlendirmek. Aşağıdaki dört uyarı tipinden ' +
       'hangilerinin geçerli olduğunu belirle:',
     '- photo_operation_mismatch: fotoğraflar, talep edilen operasyonla tutarsız görünüyor.',
-    '- demographics_operation_risk: yaş, boy, kilo veya cinsiyet talep edilen operasyon için risk oluşturabilir.',
+    '- demographics_operation_risk: yaş, boy, kilo, cinsiyet veya yaşam tarzı (yoğun sigara — yüksek ' +
+      'paket-yıl — ve/veya ağır alkol kullanımı yara iyileşmesi, anestezi ve kanama riskini artırır) ' +
+      'talep edilen operasyon için risk oluşturabilir.',
     '- missing_data: değerlendirme için gerekli bilgi (fotoğraf, tıbbi geçmiş vb.) eksik.',
     '- photo_quality: fotoğraf kalitesi (bulanıklık, açı, ışık) değerlendirmeyi güçleştiriyor.',
     '',
@@ -84,6 +90,14 @@ export function buildSystemPrompt(): string {
     '',
     'Hastanın adını asla kullanma; çıktında hastayı tanımlayabilecek kişisel veri (ad, telefon, kimlik numarası) yazma.',
   ].join('\n')
+}
+
+function smokingLabel(s: string | null): string {
+  return s === 'current' ? 'aktif içici' : s === 'former' ? 'bıraktı' : s === 'never' ? 'hiç kullanmadı' : 'belirtilmemiş'
+}
+
+function alcoholLabel(s: string | null): string {
+  return s === 'regular' ? 'düzenli' : s === 'occasional' ? 'sosyal' : s === 'never' ? 'hiç' : 'belirtilmemiş'
 }
 
 function formatWeightedWork(weightedWork: unknown): string {
@@ -106,6 +120,14 @@ function buildSummaryText(ctx: TriageContext): string {
   lines.push(`- Geçirilmiş ameliyatlar: ${scrubPii(patient.pastSurgeries)}`)
   lines.push(`- Bilinen rahatsızlıklar: ${scrubPii(patient.knownConditions)}`)
   lines.push(`- Kullanılan ilaçlar: ${scrubPii(patient.medications)}`)
+  lines.push(
+    `- Sigara: ${smokingLabel(patient.smokingStatus)}` +
+      (patient.smokingPackYears != null ? `, ${patient.smokingPackYears} paket-yıl` : ''),
+  )
+  lines.push(
+    `- Alkol: ${alcoholLabel(patient.alcoholStatus)}` +
+      (patient.alcoholDrinksPerWeek != null ? `, ${patient.alcoholDrinksPerWeek}/hafta` : ''),
+  )
   lines.push(`- Not: ${patient.notes ? scrubPii(patient.notes) : 'yok'}`)
   lines.push('')
   lines.push('İstenen operasyon:')

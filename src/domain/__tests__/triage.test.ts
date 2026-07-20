@@ -17,6 +17,10 @@ const ctx: TriageContext = {
     knownConditions: 'Diyabet',
     medications: 'Metformin',
     notes: 'Sigara kullanmıyor',
+    smokingStatus: 'current',
+    smokingPackYears: 10,
+    alcoholStatus: 'regular',
+    alcoholDrinksPerWeek: 14,
   },
   operation: {
     category: 'plastik',
