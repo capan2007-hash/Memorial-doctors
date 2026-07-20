@@ -5,9 +5,11 @@ const SALES = { email: process.env.E2E_SALES_EMAIL!, pw: process.env.E2E_SALES_P
 const DOCTOR = { email: process.env.E2E_DOCTOR_EMAIL!, pw: process.env.E2E_DOCTOR_PW! }
 const AGENT = { email: process.env.E2E_AGENT_EMAIL!, pw: process.env.E2E_AGENT_PW! }
 
-// Her koşuda ayırt edici olması için zaman damgalı hasta soyadı.
-const SURNAME = `Hasta${Date.now()}`
-const PLAN_TEXT = `Önerilen: FUE 3000 greft (${Date.now()})`
+// Her koşuda ayırt edici RASTGELE ALFA soyad: mükerrer denetimi (route_new_request,
+// isim benzerliği>0.3) zaman damgalı isimleri birbirine benzetip talebi koordinatöre
+// yönlendiriyordu; rastgele alfa token ortak sayısal önek bırakmaz, benzerlik ~0.18<0.3.
+const SURNAME = `X${Math.random().toString(36).slice(2, 12)}`
+const PLAN_TEXT = `Önerilen: FUE 3000 greft (${Math.random().toString(36).slice(2, 8)})`
 
 async function login(page: Page, u: { email: string; pw: string }) {
   await page.goto('/login')
@@ -43,6 +45,9 @@ test('satışçı talep girer, doktor kabul eder, satışçı planı görür; ar
   for (let i = 0; i < 3; i++) {
     await yokCheckboxes.nth(i).check()
   }
+  // Sigara/alkol durumu zorunlu (miktar yalnız aktif/düzenli iken) — "Hiç" ile geç.
+  await sales.getByLabel('Sigara').selectOption({ label: 'Hiç kullanmadı' })
+  await sales.getByLabel('Alkol').selectOption({ label: 'Hiç' })
   await sales.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
   await sales.getByRole('button', { name: 'Gönder' }).click()
   await expect(sales).toHaveURL(/requests/)
