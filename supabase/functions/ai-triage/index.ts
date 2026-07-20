@@ -178,6 +178,9 @@ Deno.serve(async (req) => {
     }, { onConflict: 'request_id' })
     if (upErr) return await writeFailed(upErr.message)
 
+    // Billing Faz 1: token kullanımı + USD maliyeti kaydı (best-effort, akışı bloklamaz).
+    await recordUsage(admin, request.tenant_id, 'triage', request.id, MODEL_ID, response.usage)
+
     return json({ ok: true, status: result.status }, 200)
   } catch (e) {
     return await writeFailed(e instanceof Error ? e.message : String(e))
@@ -189,4 +192,30 @@ function json(o: unknown, status: number) {
     status,
     headers: { ...cors, 'Content-Type': 'application/json' },
   })
+}
+
+// Billing Faz 1: bir Anthropic çağrısının token+maliyetini ai_usage'a yazar (best-effort).
+// deno-lint-ignore no-explicit-any
+async function recordUsage(admin: any, tenantId: string, service: string, requestId: string, model: string, usage: any) {
+  try {
+    if (!usage) return
+    const inTok = usage.input_tokens ?? 0
+    const outTok = usage.output_tokens ?? 0
+    const cacheW = usage.cache_creation_input_tokens ?? 0
+    const cacheR = usage.cache_read_input_tokens ?? 0
+    const { data: p } = await admin.from('model_price').select('*').eq('model', model).maybeSingle()
+    let cost = 0
+    if (p) {
+      const inP = Number(p.input_usd_per_mtok) / 1e6
+      const outP = Number(p.output_usd_per_mtok) / 1e6
+      cost = inTok * inP + outTok * outP
+        + cacheW * inP * Number(p.cache_write_multiplier)
+        + cacheR * inP * Number(p.cache_read_multiplier)
+    }
+    await admin.from('ai_usage').insert({
+      tenant_id: tenantId, service, request_id: requestId, model,
+      input_tokens: inTok, output_tokens: outTok, cache_write_tokens: cacheW, cache_read_tokens: cacheR,
+      cost_usd: cost,
+    })
+  } catch { /* yut — maliyet kaydı asla akışı bozmaz */ }
 }
