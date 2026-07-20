@@ -157,6 +157,11 @@ export function NewRequestWizard() {
       setSubmitErr(null)
       submittedRef.current = true
       clearDraft()
+      // Mükerrer-şüphesi: doktora gitmedi, koordinatör onayına gitti (bloke etmez).
+      if (res.routed === 'coordinator') {
+        setWarn('Bu hastanın aktif bir talebi var — kayıt koordinatör onayına gönderildi.')
+        return
+      }
       if (res.assignedCount === 0) {
         setWarn('Talep kaydedildi ancak bu kategoride uygun aktif doktor bulunamadı; koordinatör atama yapacaktır.')
         return

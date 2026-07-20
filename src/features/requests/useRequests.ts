@@ -61,19 +61,30 @@ export function useCreateRequest() {
       if (input.files.length) await uploadPhotos(input.tenantId, req.id, input.files)
       // röntgenler
       if (input.xrayFiles?.length) await uploadPhotos(input.tenantId, req.id, input.xrayFiles, 'xray')
-      // 4) eşzamanlı atama — sunucu tarafında (migration 0024): scope eşleşmesi,
-      // durum güncellemesi ve audit tek SECURITY DEFINER RPC'de. Client artık
-      // assignment INSERT edemez (P0-3: doktor kendini keyfi talebe atayamaz).
-      const { data: assignedCount, error: asgErr } = await supabase.rpc('assign_request_doctors', {
+      // 4) Yönlendirme sunucuda (migration 0029): hastanın AÇIK başka talebi
+      // telefon/isimle eşleşiyorsa mükerrer-şüphesi (pending, koordinatöre; doktora
+      // atanmaz), yoksa assign_request_doctors çalışır. Atama fan-out'u yine
+      // sunucu-taraflı (P0-3: client assignment INSERT edemez).
+      const { data: routeRes, error: routeErr } = await supabase.rpc('route_new_request', {
         p_request_id: req.id,
       })
-      if (asgErr) throw asgErr
-      // AI ön-triyaj: fire-and-forget — FR-11 gereği akışı asla bloklamaz/hata sızdırmaz.
-      // K5: onam verilmediyse hiç invoke edilmez — yurt dışı aktarım rızasız yapılmaz (edge de savunma amaçlı reddeder).
-      if (input.consentGiven) {
+      if (routeErr) throw routeErr
+      const routed = routeRes as { routed: 'coordinator' | 'doctors'; assignedCount?: number; parentId?: string }
+      // AI görsel karşılaştırma: yalnız pending (koordinatöre) + onam varsa fire-and-forget.
+      if (routed.routed === 'coordinator' && input.consentGiven) {
+        void supabase.functions.invoke('duplicate-vision', { body: { requestId: req.id } }).catch(() => {})
+      }
+      // AI ön-triyaj: yalnız doktora giden talepte anlamlı — fire-and-forget (FR-11).
+      // K5: onam verilmediyse hiç invoke edilmez (edge de savunma amaçlı reddeder).
+      if (routed.routed === 'doctors' && input.consentGiven) {
         void supabase.functions.invoke('ai-triage', { body: { requestId: req.id } }).catch(() => {})
       }
-      return { requestId: req.id as string, assignedCount: (assignedCount as number) ?? 0 }
+      return {
+        requestId: req.id as string,
+        routed: routed.routed,
+        assignedCount: routed.assignedCount ?? 0,
+        parentId: routed.parentId,
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['requests'] }),
   })
