@@ -17,6 +17,11 @@ export interface RequestDraft {
   pastSurgeries: MedicalDraft
   knownConditions: MedicalDraft
   medications: MedicalDraft
+  smokingStatus: string
+  smokingCigs: string
+  smokingYears: string
+  alcoholStatus: string
+  alcoholDrinks: string
   categoryId: string
   subcategoryId: string | null
   operationTypeId: string | null
@@ -48,6 +53,7 @@ export function isDraftEmpty(d: RequestDraft): boolean {
     !d.first && !d.last && !d.phone && !d.age && !d.weightKg && !d.heightCm &&
     d.gender === '' &&
     medicalEmpty(d.pastSurgeries) && medicalEmpty(d.knownConditions) && medicalEmpty(d.medications) &&
+    !d.smokingStatus && !d.smokingCigs && !d.smokingYears && !d.alcoholStatus && !d.alcoholDrinks &&
     !d.categoryId && !d.subcategoryId && !d.operationTypeId &&
     !d.notes && d.files.length === 0 && d.xrayFiles.length === 0
   )

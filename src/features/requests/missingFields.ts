@@ -10,6 +10,7 @@ export interface MissingInput {
   needsSub: boolean
   subcategoryId: string | null
   medicalOk: boolean
+  lifestyleOk: boolean
   filesCount: number
 }
 
@@ -26,6 +27,7 @@ export function missingFields(i: MissingInput): string[] {
   if (!i.categoryId) out.push('Kategori')
   if (i.needsSub && !i.subcategoryId) out.push('Alt kırılım')
   if (!i.medicalOk) out.push('Tıbbi geçmiş')
+  if (!i.lifestyleOk) out.push('Sigara/alkol bilgisi')
   if (i.filesCount === 0) out.push('Fotoğraf')
   return out
 }
