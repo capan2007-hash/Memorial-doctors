@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
   }
 
   const { error: auErr } = await admin.from('app_user').insert({
-    id: uid, tenant_id: me.tenant_id, role: 'doctor', full_name: fullName,
+    id: uid, tenant_id: me.tenant_id, role: 'doctor', full_name: fullName, email,
   })
   if (auErr) return fail(auErr.message)
 
