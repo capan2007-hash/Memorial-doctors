@@ -137,6 +137,8 @@ Deno.serve(async (req) => {
         gender: request.gender,
         pastSurgeries: request.past_surgeries, knownConditions: request.known_conditions,
         medications: request.medications, notes: request.notes,
+        smokingStatus: request.smoking_status, smokingPackYears: request.smoking_pack_years,
+        alcoholStatus: request.alcohol_status, alcoholDrinksPerWeek: request.alcohol_drinks_per_week,
       },
       operation: {
         category: catRes.data?.name ?? 'bilinmiyor',

@@ -18,6 +18,24 @@ function isEmpty(value: string | number | null | undefined): boolean {
   return value === null || value === undefined || value === ''
 }
 
+// Etiketler webdeki domain/lifestyle.ts ile aynı (mobil kopya).
+const SMOKING_LABEL: Record<NonNullable<RequestRow['smoking_status']>, string> = {
+  never: 'Hiç kullanmadı', former: 'Bıraktı', current: 'Aktif içici',
+}
+const ALCOHOL_LABEL: Record<NonNullable<RequestRow['alcohol_status']>, string> = {
+  never: 'Hiç', occasional: 'Sosyal', regular: 'Düzenli',
+}
+function smokingDisplay(req: RequestRow): string | null {
+  if (!req.smoking_status) return null
+  const base = SMOKING_LABEL[req.smoking_status]
+  return req.smoking_pack_years != null ? `${base} · ${req.smoking_pack_years} paket-yıl` : base
+}
+function alcoholDisplay(req: RequestRow): string | null {
+  if (!req.alcohol_status) return null
+  const base = ALCOHOL_LABEL[req.alcohol_status]
+  return req.alcohol_drinks_per_week != null ? `${base} · ${req.alcohol_drinks_per_week}/hafta` : base
+}
+
 function InfoItem({
   label,
   value,
@@ -96,6 +114,10 @@ export function PatientInfoCard({
       </View>
       <View style={styles.fullWidth}>
         <InfoItem label="Düzenli ilaçlar" value={req.medications} styles={styles} />
+      </View>
+      <View style={styles.grid}>
+        <InfoItem label="Sigara" value={smokingDisplay(req)} styles={styles} />
+        <InfoItem label="Alkol" value={alcoholDisplay(req)} styles={styles} />
       </View>
       <View style={styles.fullWidth}>
         <InfoItem label="Not" value={req.notes} styles={styles} />

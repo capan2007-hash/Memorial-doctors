@@ -7,7 +7,7 @@ function fullInput(): MissingInput {
     ageOk: true, weightOk: true, heightOk: true,
     gender: 'female',
     categoryId: 'cat-1', needsSub: false, subcategoryId: null,
-    medicalOk: true, filesCount: 1,
+    medicalOk: true, lifestyleOk: true, filesCount: 1,
   }
 }
 
@@ -18,11 +18,16 @@ describe('missingFields', () => {
       ageOk: false, weightOk: false, heightOk: false,
       gender: '',
       categoryId: '', needsSub: false, subcategoryId: null,
-      medicalOk: false, filesCount: 0,
+      medicalOk: false, lifestyleOk: false, filesCount: 0,
     }
     expect(missingFields(empty)).toEqual([
-      'Ad', 'Soyad', 'Telefon', 'Yaş', 'Kilo', 'Boy', 'Cinsiyet', 'Kategori', 'Tıbbi geçmiş', 'Fotoğraf',
+      'Ad', 'Soyad', 'Telefon', 'Yaş', 'Kilo', 'Boy', 'Cinsiyet', 'Kategori', 'Tıbbi geçmiş', 'Sigara/alkol bilgisi', 'Fotoğraf',
     ])
+  })
+
+  it('yalnız sigara/alkol eksikse sadece o döner', () => {
+    const input = { ...fullInput(), lifestyleOk: false }
+    expect(missingFields(input)).toEqual(['Sigara/alkol bilgisi'])
   })
 
   it('yalnız telefon eksikse sadece Telefon döner', () => {

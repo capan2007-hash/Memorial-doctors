@@ -1,7 +1,20 @@
 import type { ReactNode } from 'react'
 import { bmi } from '../../domain/health'
+import { smokingStatusLabel, alcoholStatusLabel } from '../../domain/lifestyle'
 import { Card } from '../../components/ui/Card'
 import type { RequestRow } from '../../types/db'
+
+function smokingDisplay(req: RequestRow): string | null {
+  if (!req.smoking_status) return null
+  const base = smokingStatusLabel(req.smoking_status)
+  return req.smoking_pack_years != null ? `${base} · ${req.smoking_pack_years} paket-yıl` : base
+}
+
+function alcoholDisplay(req: RequestRow): string | null {
+  if (!req.alcohol_status) return null
+  const base = alcoholStatusLabel(req.alcohol_status)
+  return req.alcohol_drinks_per_week != null ? `${base} · ${req.alcohol_drinks_per_week}/hafta` : base
+}
 
 const genderLabel: Record<NonNullable<RequestRow['gender']>, string> = {
   female: 'Kadın', male: 'Erkek', other: 'Diğer',
@@ -59,6 +72,8 @@ export function PatientInfoCard({ req, patientName, categoryName, subcategoryNam
         <InfoItem label="Geçmiş ameliyatlar" value={req.past_surgeries} full />
         <InfoItem label="Bilinen hastalıklar" value={req.known_conditions} full />
         <InfoItem label="Düzenli ilaçlar" value={req.medications} full />
+        <InfoItem label="Sigara" value={smokingDisplay(req)} />
+        <InfoItem label="Alkol" value={alcoholDisplay(req)} />
         <InfoItem label="Not" value={req.notes} full />
       </dl>
     </Card>

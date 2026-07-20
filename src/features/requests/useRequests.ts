@@ -14,6 +14,12 @@ interface NewRequestInput {
   photosRequired?: boolean
   age: number; weightKg: number; heightCm: number; gender: 'female' | 'male' | 'other'
   pastSurgeries: string; knownConditions: string; medications: string
+  /** Yaşam tarzı (sigara/alkol) — cerrahi/anestezi risk girdisi. Miktar yalnız ilgili durumda dolu. */
+  smokingStatus?: 'never' | 'former' | 'current' | null
+  smokingCigsPerDay?: number | null
+  smokingYears?: number | null
+  alcoholStatus?: 'never' | 'occasional' | 'regular' | null
+  alcoholDrinksPerWeek?: number | null
   categoryId: string
   subcategoryId: string | null
   operationTypeId: string | null
@@ -52,6 +58,11 @@ export function useCreateRequest() {
         operation_type_id: input.operationTypeId, notes: input.notes,
         age: input.age, weight_kg: input.weightKg, height_cm: input.heightCm, gender: input.gender,
         past_surgeries: input.pastSurgeries, known_conditions: input.knownConditions, medications: input.medications,
+        smoking_status: input.smokingStatus ?? null,
+        smoking_cigs_per_day: input.smokingCigsPerDay ?? null,
+        smoking_years: input.smokingYears ?? null,
+        alcohol_status: input.alcoholStatus ?? null,
+        alcohol_drinks_per_week: input.alcoholDrinksPerWeek ?? null,
         photos_required: input.photosRequired ?? false,
         status: 'submitted', submitted_at: new Date().toISOString(),
         ...consent,

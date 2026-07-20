@@ -6,6 +6,7 @@ import { useCategories, useSubcategories, useOperationTypes } from '../catalog/u
 import { useCreateRequest } from './useRequests'
 import { PhotoUploader } from '../../components/PhotoUploader'
 import { medicalValue, demographicsError } from '../../domain/health'
+import { packYears, lifestyleComplete, type SmokingStatus, type AlcoholStatus } from '../../domain/lifestyle'
 import { normalizePhone } from '../../domain/phone'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
@@ -45,6 +46,11 @@ export function NewRequestWizard() {
   const [pastSurgeries, setPastSurgeries] = useState<MedicalField>(initialDraft?.pastSurgeries ?? emptyMedical)
   const [knownConditions, setKnownConditions] = useState<MedicalField>(initialDraft?.knownConditions ?? emptyMedical)
   const [medications, setMedications] = useState<MedicalField>(initialDraft?.medications ?? emptyMedical)
+  const [smokingStatus, setSmokingStatus] = useState(initialDraft?.smokingStatus ?? '')
+  const [smokingCigs, setSmokingCigs] = useState(initialDraft?.smokingCigs ?? '')
+  const [smokingYears, setSmokingYears] = useState(initialDraft?.smokingYears ?? '')
+  const [alcoholStatus, setAlcoholStatus] = useState(initialDraft?.alcoholStatus ?? '')
+  const [alcoholDrinks, setAlcoholDrinks] = useState(initialDraft?.alcoholDrinks ?? '')
   const [notes, setNotes] = useState(initialDraft?.notes ?? ''); const [files, setFiles] = useState<File[]>(initialDraft?.files ?? [])
   const [xrayFiles, setXrayFiles] = useState<File[]>(initialDraft?.xrayFiles ?? [])
   const [consentGiven, setConsentGiven] = useState(false)
@@ -58,12 +64,14 @@ export function NewRequestWizard() {
   const draftRef = useRef<RequestDraft>({
     first, last, phone, age, weightKg, heightCm, gender,
     pastSurgeries, knownConditions, medications,
+    smokingStatus, smokingCigs, smokingYears, alcoholStatus, alcoholDrinks,
     categoryId, subcategoryId, operationTypeId,
     notes, files, xrayFiles,
   })
   draftRef.current = {
     first, last, phone, age, weightKg, heightCm, gender,
     pastSurgeries, knownConditions, medications,
+    smokingStatus, smokingCigs, smokingYears, alcoholStatus, alcoholDrinks,
     categoryId, subcategoryId, operationTypeId,
     notes, files, xrayFiles,
   }
@@ -101,6 +109,7 @@ export function NewRequestWizard() {
     setAge(''); setWeightKg(''); setHeightCm('')
     setGender('')
     setPastSurgeries(emptyMedical); setKnownConditions(emptyMedical); setMedications(emptyMedical)
+    setSmokingStatus(''); setSmokingCigs(''); setSmokingYears(''); setAlcoholStatus(''); setAlcoholDrinks('')
     setNotes(''); setFiles([]); setXrayFiles([])
     setConsentGiven(false)
     setMatches([]); setSelectedPatient(null)
@@ -121,15 +130,16 @@ export function NewRequestWizard() {
   const weightOk = weightNum > 0 && !demoError
   const heightOk = heightNum > 0 && !demoError
   const medicalOk = medicalValid(pastSurgeries) && medicalValid(knownConditions) && medicalValid(medications)
+  const lifestyleOk = lifestyleComplete({ smokingStatus, smokingCigs, smokingYears, alcoholStatus, alcoholDrinks })
 
   const canSubmit = !!first && !!last && phoneOk && ageOk && weightOk && heightOk && !!gender &&
     !!categoryId && (!needsSub || !!subcategoryId) &&
-    medicalOk && files.length > 0
+    medicalOk && lifestyleOk && files.length > 0
 
   const missing = missingFields({
     first, last, phoneOk, ageOk, weightOk, heightOk, gender,
     categoryId, needsSub: !!needsSub, subcategoryId,
-    medicalOk, filesCount: files.length,
+    medicalOk, lifestyleOk, filesCount: files.length,
   })
 
   // M5 FR-44: seçilen adayda önceki fotoğraflar silinmişse yeni talebe güncel foto zorunluluğu.
@@ -149,6 +159,11 @@ export function NewRequestWizard() {
         pastSurgeries: medicalValue(pastSurgeries.none, pastSurgeries.text) ?? '',
         knownConditions: medicalValue(knownConditions.none, knownConditions.text) ?? '',
         medications: medicalValue(medications.none, medications.text) ?? '',
+        smokingStatus: (smokingStatus || null) as SmokingStatus | null,
+        smokingCigsPerDay: smokingStatus === 'current' || smokingStatus === 'former' ? Number(smokingCigs) : null,
+        smokingYears: smokingStatus === 'current' || smokingStatus === 'former' ? Number(smokingYears) : null,
+        alcoholStatus: (alcoholStatus || null) as AlcoholStatus | null,
+        alcoholDrinksPerWeek: alcoholStatus === 'regular' ? Number(alcoholDrinks) : null,
         categoryId, subcategoryId: needsSub ? subcategoryId : null,
         operationTypeId, notes, files,
         xrayFiles: isDental ? xrayFiles : undefined,
@@ -330,6 +345,59 @@ export function NewRequestWizard() {
               {!medications.none && (
                 <textarea className={inputClass} placeholder="Düzenli kullanılan ilaçlar"
                   value={medications.text} onChange={(e) => setMedications({ ...medications, text: e.target.value })} />
+              )}
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Sigara & Alkol">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Field label="Sigara">
+                <select className={inputClass} value={smokingStatus}
+                  onChange={(e) => setSmokingStatus(e.target.value)}>
+                  <option value="">Seçin</option>
+                  <option value="never">Hiç kullanmadı</option>
+                  <option value="former">Bıraktı</option>
+                  <option value="current">Aktif içici</option>
+                </select>
+              </Field>
+              {(smokingStatus === 'current' || smokingStatus === 'former') && (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="Günlük adet">
+                      <input type="number" min={0} max={200} className={inputClass} placeholder="ör. 20"
+                        value={smokingCigs} onChange={(e) => setSmokingCigs(e.target.value)} />
+                    </Field>
+                    <Field label="Kaç yıldır">
+                      <input type="number" min={0} max={100} className={inputClass} placeholder="ör. 10"
+                        value={smokingYears} onChange={(e) => setSmokingYears(e.target.value)} />
+                    </Field>
+                  </div>
+                  {packYears(Number(smokingCigs), Number(smokingYears)) != null && (
+                    <p className="text-sm text-ink-secondary">
+                      ≈ <span className="font-medium text-ink-primary tnum">{packYears(Number(smokingCigs), Number(smokingYears))}</span> paket-yıl
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Field label="Alkol">
+                <select className={inputClass} value={alcoholStatus}
+                  onChange={(e) => setAlcoholStatus(e.target.value)}>
+                  <option value="">Seçin</option>
+                  <option value="never">Hiç</option>
+                  <option value="occasional">Sosyal (ara sıra)</option>
+                  <option value="regular">Düzenli</option>
+                </select>
+              </Field>
+              {alcoholStatus === 'regular' && (
+                <Field label="Haftalık standart içki">
+                  <input type="number" min={0} max={200} className={inputClass} placeholder="ör. 14"
+                    value={alcoholDrinks} onChange={(e) => setAlcoholDrinks(e.target.value)} />
+                </Field>
               )}
             </div>
           </div>

@@ -6,8 +6,11 @@ const COORD = { email: process.env.E2E_COORD_EMAIL!, pw: process.env.E2E_COORD_P
 
 const TS = Date.now()
 const PHONE = `05${TS.toString().slice(-9)}` // iki talep aynı telefon → deterministik eşleşme
-const LAST_A = `MukA${TS}` // 1. talep (doktora gider)
-const LAST_B = `MukB${TS}` // 2. talep (mükerrer-şüphesi, koordinatöre)
+// Rastgele ALFA soyadlar (zaman damgası rakamı YOK): #1'in birikmiş test kayıtlarıyla
+// isim benzerliğiyle yanlışlıkla eşleşip koordinatöre gitmesini önler. #1↔#2 eşleşmesi
+// TELEFON üzerinden (aynı PHONE) sağlanır, isme gerek yok.
+const LAST_A = `A${Math.random().toString(36).slice(2, 11)}` // 1. talep (doktora gider)
+const LAST_B = `B${Math.random().toString(36).slice(2, 11)}` // 2. talep (mükerrer-şüphesi, koordinatöre)
 
 async function login(page: Page, u: { email: string; pw: string }) {
   await page.goto('/login')
@@ -30,6 +33,8 @@ async function fillWizard(p: Page, last: string) {
   const yok = p.getByRole('checkbox', { name: 'Yok' })
   await expect(yok).toHaveCount(3)
   for (let i = 0; i < 3; i++) await yok.nth(i).check()
+  await p.getByLabel('Sigara').selectOption({ label: 'Hiç kullanmadı' })
+  await p.getByLabel('Alkol').selectOption({ label: 'Hiç' })
   await p.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
   await p.getByRole('button', { name: 'Gönder' }).click()
 }
