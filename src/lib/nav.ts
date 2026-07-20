@@ -14,7 +14,7 @@ export function navLinks(role: Role | null): NavLink[] {
       ]
     case 'coordinator':
     case 'admin':
-      return [{ to: '/admin/requests', label: 'Tüm Talepler' }, { to: '/admin/doctors', label: 'Doktor Yönetimi' }]
+      return [{ to: '/admin/requests', label: 'Tüm Talepler' }, { to: '/admin/duplicates', label: 'Mükerrer Talep' }, { to: '/admin/doctors', label: 'Doktor Yönetimi' }]
     default:
       return []
   }
