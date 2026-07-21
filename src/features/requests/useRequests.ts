@@ -81,15 +81,9 @@ export function useCreateRequest() {
       })
       if (routeErr) throw routeErr
       const routed = routeRes as { routed: 'coordinator' | 'doctors'; assignedCount?: number; parentId?: string }
-      // AI görsel karşılaştırma: yalnız pending (koordinatöre) + onam varsa fire-and-forget.
-      if (routed.routed === 'coordinator' && input.consentGiven) {
-        void supabase.functions.invoke('duplicate-vision', { body: { requestId: req.id } }).catch(() => {})
-      }
-      // AI ön-triyaj: yalnız doktora giden talepte anlamlı — fire-and-forget (FR-11).
-      // K5: onam verilmediyse hiç invoke edilmez (edge de savunma amaçlı reddeder).
-      if (routed.routed === 'doctors' && input.consentGiven) {
-        void supabase.functions.invoke('ai-triage', { body: { requestId: req.id } }).catch(() => {})
-      }
+      // AI tetiklemesi (ai-triage / duplicate-vision) artık SUNUCUDA: route_new_request
+      // onam varsa pg_net ile ilgili edge fn'i çağırır. İstemci fire-and-forget invoke'u
+      // tarayıcı navigasyonuyla iptal olabildiğinden kaldırıldı (güvenilirlik).
       return {
         requestId: req.id as string,
         routed: routed.routed,
