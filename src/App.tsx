@@ -19,6 +19,7 @@ import { DoctorAdmin } from './features/admin/DoctorAdmin'
 import { AllRequests } from './features/admin/AllRequests'
 import { DuplicateReview } from './features/admin/DuplicateReview'
 import { UserAdmin } from './features/admin/UserAdmin'
+import { Billing } from './features/admin/Billing'
 
 function Home() {
   const { role } = useAuth()
@@ -49,10 +50,11 @@ export default function App() {
               <Route path="/profil" element={<Protected><Layout><RoleGate allow={['doctor']}><DoctorProfile /></RoleGate></Layout></Protected>} />
               <Route path="/requests" element={<Protected><Layout><RequestList /></Layout></Protected>} />
               <Route path="/requests/:id" element={<Protected><Layout><RequestDetail /></Layout></Protected>} />
-              <Route path="/admin/doctors" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DoctorAdmin /></RoleGate></Layout></Protected>} />
-              <Route path="/admin/requests" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><AllRequests /></RoleGate></Layout></Protected>} />
-              <Route path="/admin/duplicates" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><DuplicateReview /></RoleGate></Layout></Protected>} />
-              <Route path="/admin/users" element={<Protected><Layout><RoleGate allow={['coordinator','admin']}><UserAdmin /></RoleGate></Layout></Protected>} />
+              <Route path="/admin/doctors" element={<Protected><Layout><RoleGate allow={['coordinator','admin','super_admin']}><DoctorAdmin /></RoleGate></Layout></Protected>} />
+              <Route path="/admin/requests" element={<Protected><Layout><RoleGate allow={['coordinator','admin','super_admin']}><AllRequests /></RoleGate></Layout></Protected>} />
+              <Route path="/admin/duplicates" element={<Protected><Layout><RoleGate allow={['coordinator','admin','super_admin']}><DuplicateReview /></RoleGate></Layout></Protected>} />
+              <Route path="/admin/users" element={<Protected><Layout><RoleGate allow={['coordinator','admin','super_admin']}><UserAdmin /></RoleGate></Layout></Protected>} />
+              <Route path="/admin/billing" element={<Protected><Layout><RoleGate allow={['super_admin']}><Billing /></RoleGate></Layout></Protected>} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
