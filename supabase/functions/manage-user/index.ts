@@ -9,7 +9,8 @@ const cors = {
 // Sıfırla/pasifleştir yetkisi (src/domain/userRoles.ts canManageTarget ile BİREBİR):
 // admin herkesi; koordinatör yalnız operasyonel (sales/agent/doctor).
 function canManage(callerRole: string, targetRole: string): boolean {
-  if (callerRole === 'admin') return true
+  if (callerRole === 'super_admin') return true
+  if (callerRole === 'admin') return targetRole !== 'super_admin'
   if (callerRole === 'coordinator') return ['sales', 'agent', 'doctor'].includes(targetRole)
   return false
 }
@@ -28,7 +29,7 @@ Deno.serve(async (req) => {
     if (!userRes?.user) return json({ error: 'unauthorized' }, 401)
     const callerId = userRes.user.id
     const { data: me } = await caller.from('app_user').select('tenant_id, role').eq('id', callerId).single()
-    if (!me || !['coordinator', 'admin'].includes(me.role)) return json({ error: 'forbidden' }, 403)
+    if (!me || !['coordinator', 'admin', 'super_admin'].includes(me.role)) return json({ error: 'forbidden' }, 403)
 
     const body = await req.json().catch(() => null)
     if (!body) return json({ error: 'bad json' }, 400)
@@ -70,6 +71,20 @@ Deno.serve(async (req) => {
       await admin.from('audit_log').insert({
         tenant_id: me.tenant_id, actor_id: callerId, action: 'user_set_active', entity: 'app_user',
         after: { user_id: userId, is_active: isActive },
+      }).then(() => {}, () => {})
+      return json({ ok: true }, 200)
+    }
+
+    // Doktor silme (soft): app_user + doctor pasif + auth hesap ban (geçmiş korunur).
+    if (action === 'delete_doctor') {
+      if (target.role !== 'doctor') return json({ error: 'target not a doctor' }, 400)
+      await admin.from('app_user').update({ is_active: false }).eq('id', userId)
+      await admin.from('doctor').update({ is_active: false }).eq('app_user_id', userId)
+      // Auth hesabını süresiz banla (giriş yapamaz); satırlar silinmez.
+      await admin.auth.admin.updateUserById(userId, { ban_duration: '876000h' }).then(() => {}, () => {})
+      await admin.from('audit_log').insert({
+        tenant_id: me.tenant_id, actor_id: callerId, action: 'doctor_delete', entity: 'doctor',
+        after: { user_id: userId },
       }).then(() => {}, () => {})
       return json({ ok: true }, 200)
     }

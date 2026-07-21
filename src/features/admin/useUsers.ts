@@ -56,6 +56,7 @@ export function useCreateUser() {
 export type ManageAction =
   | { userId: string; action: 'reset_password'; password: string }
   | { userId: string; action: 'set_active'; isActive: boolean }
+  | { userId: string; action: 'delete_doctor' }
 
 export function useManageUser() {
   const qc = useQueryClient()

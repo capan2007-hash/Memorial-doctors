@@ -9,6 +9,7 @@ const cors = {
 // RBAC: hangi rol hangi rolleri oluşturabilir (src/domain/userRoles.ts ile BİREBİR).
 // Doktor bu fn'den açılmaz — DoctorAdmin/create-doctor kullanılır (yetkinlik/scope).
 const CREATABLE: Record<string, string[]> = {
+  super_admin: ['sales', 'agent', 'coordinator', 'admin', 'super_admin'],
   admin: ['sales', 'agent', 'coordinator', 'admin'],
   coordinator: ['sales', 'agent'],
 }
@@ -28,7 +29,7 @@ Deno.serve(async (req) => {
     const { data: userRes } = await caller.auth.getUser()
     if (!userRes?.user) return json({ error: 'unauthorized' }, 401)
     const { data: me } = await caller.from('app_user').select('tenant_id, role').eq('id', userRes.user.id).single()
-    if (!me || !['coordinator', 'admin'].includes(me.role)) return json({ error: 'forbidden' }, 403)
+    if (!me || !['coordinator', 'admin', 'super_admin'].includes(me.role)) return json({ error: 'forbidden' }, 403)
 
     const body = await req.json().catch(() => null)
     if (!body) return json({ error: 'bad json' }, 400)

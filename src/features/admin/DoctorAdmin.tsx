@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Trash2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
+import { useManageUser } from './useUsers'
 import { useCategories, useSubcategories } from '../catalog/useCatalog'
 import {
   useDoctorsFull, useDoctorMetrics, useUpdateDoctor, useCreateDoctor,
@@ -20,6 +22,7 @@ import { Avatar } from '../../components/ui/Avatar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Spinner } from '../../components/ui/Spinner'
 import { useToast } from '../../components/ui/Toast'
+import { Icon } from '../../components/ui/Icon'
 import { toDateInputValue, startOfDayIso, endOfDayIso } from '../../lib/format'
 import { DoctorPerformanceDashboard } from './DoctorPerformanceDashboard'
 
@@ -401,11 +404,49 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
   )
 }
 
+function ConfirmDeleteDialog({ loading, onConfirm, onClose }: {
+  loading: boolean; onConfirm: () => void; onClose: () => void
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-card border border-line bg-surface-2 p-5 shadow-pop" onClick={(e) => e.stopPropagation()}>
+        <h3 className="mb-3 font-display text-lg text-ink-primary">Doktoru sil?</h3>
+        <p className="mb-4 text-sm text-ink-secondary">
+          Hesabı pasifleştirilecek ve giriş engellenecek; geçmiş kayıtlar korunur.
+        </p>
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
+          <Button variant="danger" type="button" loading={loading} onClick={onConfirm}>Sil</Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
-  const { appUser } = useAuth()
+  const { appUser, role } = useAuth()
   const toast = useToast()
+  const qc = useQueryClient()
+  const manageUser = useManageUser()
   const updateDoctor = useUpdateDoctor()
   const [expanded, setExpanded] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const canDelete = role === 'admin' || role === 'super_admin'
+
+  const doDelete = async () => {
+    if (!doctor.app_user_id) {
+      toast.show('Bu doktorun bağlı bir hesabı yok', 'error')
+      return
+    }
+    try {
+      await manageUser.mutateAsync({ userId: doctor.app_user_id, action: 'delete_doctor' })
+      toast.show('Doktor silindi')
+      qc.invalidateQueries({ queryKey: ['doctors'] })
+      setConfirmDelete(false)
+    } catch (e) {
+      toast.show('Doktor silinemedi: ' + (e as Error).message, 'error')
+    }
+  }
   const [specialty, setSpecialty] = useState(doctor.specialty ?? '')
   const [bio, setBio] = useState(doctor.bio ?? '')
   const [isActive, setIsActive] = useState(doctor.is_active)
@@ -453,6 +494,16 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
               <span className={`leading-none ${doctor.is_active ? 'text-success-text' : 'text-ink-muted'}`} aria-hidden="true">●</span>
               {doctor.is_active ? 'Aktif' : 'Pasif'}
             </span>
+            {canDelete && (
+              <Button
+                variant="ghost"
+                type="button"
+                className="text-danger-text hover:bg-danger-bg"
+                onClick={() => setConfirmDelete(true)}
+              >
+                <Icon of={Trash2} size={15} /> Sil
+              </Button>
+            )}
             <button
               type="button"
               className="p-1.5 rounded-control text-ink-muted hover:bg-surface-1 hover:text-ink-secondary transition ease-premium duration-[var(--dur-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40"
@@ -503,6 +554,13 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
           </div>
         )}
       </Card>
+      {confirmDelete && (
+        <ConfirmDeleteDialog
+          loading={manageUser.isPending}
+          onConfirm={doDelete}
+          onClose={() => setConfirmDelete(false)}
+        />
+      )}
     </li>
   )
 }

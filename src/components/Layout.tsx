@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import type { LucideIcon } from 'lucide-react'
-import { ListChecks, Plus, Users, Inbox, LogOut, UserCircle, CopyCheck, UserCog } from 'lucide-react'
+import { ListChecks, Plus, Users, Inbox, LogOut, UserCircle, CopyCheck, UserCog, Receipt } from 'lucide-react'
 import { useAuth } from '../lib/auth'
 import { navLinks } from '../lib/nav'
 import { useMyDoctorId } from '../features/doctor/useMyDoctorId'
@@ -19,6 +19,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   '/admin/duplicates': CopyCheck,
   '/admin/doctors': Users,
   '/admin/users': UserCog,
+  '/admin/billing': Receipt,
 }
 
 const navIcon = (to: string): LucideIcon => NAV_ICONS[to] ?? ListChecks
