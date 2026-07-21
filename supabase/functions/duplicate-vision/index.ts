@@ -13,22 +13,20 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'method' }, 405)
   const url = Deno.env.get('SUPABASE_URL')!
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!
-  const authHeader = req.headers.get('Authorization') ?? ''
+  const admin = createClient(url, serviceKey)
 
-  const caller = createClient(url, anonKey, { global: { headers: { Authorization: authHeader } } })
-  const { data: userRes } = await caller.auth.getUser()
-  if (!userRes?.user) return json({ error: 'unauthorized' }, 401)
-  const { data: me } = await caller.from('app_user').select('tenant_id').eq('id', userRes.user.id).single()
-  if (!me) return json({ error: 'forbidden' }, 403)
+  // Kimlik: x-webhook-secret (route_new_request'in pg_net çağrısı). verify_jwt=false.
+  const provided = req.headers.get('x-webhook-secret') ?? ''
+  const { data: secretRow } = await admin
+    .from('app_secret').select('value').eq('name', 'notify_webhook_secret').single()
+  if (!secretRow || !timingSafeEqual(provided, secretRow.value)) return json({ error: 'unauthorized' }, 401)
 
   const body = await req.json().catch(() => null)
   const requestId = body?.requestId
   if (typeof requestId !== 'string' || !requestId) return json({ error: 'requestId required' }, 400)
 
-  const admin = createClient(url, serviceKey)
   const { data: request } = await admin.from('request').select('*')
-    .eq('id', requestId).eq('tenant_id', me.tenant_id).single()
+    .eq('id', requestId).single()
   if (!request) return json({ error: 'request not found' }, 404)
   if (!request.duplicate_of_request_id) return json({ ok: true, skipped: 'not_pending' }, 200)
 
@@ -117,6 +115,17 @@ Deno.serve(async (req) => {
 
 function json(o: unknown, status: number) {
   return new Response(JSON.stringify(o), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
+}
+
+// Sabit zamanlı karşılaştırma.
+function timingSafeEqual(a: string, b: string): boolean {
+  const enc = new TextEncoder()
+  const ab = enc.encode(a)
+  const bb = enc.encode(b)
+  if (ab.length !== bb.length) return false
+  let diff = 0
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i]
+  return diff === 0
 }
 
 // Billing Faz 1: bir Anthropic çağrısının token+maliyetini ai_usage'a yazar (best-effort).
