@@ -1,4 +1,4 @@
-export type Role = 'agent' | 'sales' | 'doctor' | 'coordinator' | 'admin'
+export type Role = 'agent' | 'sales' | 'doctor' | 'coordinator' | 'admin' | 'super_admin'
 export type RequestStatus =
   | 'draft' | 'submitted' | 'assigned' | 'in_review'
   | 'offers_ready' | 'escalated' | 'closed'
