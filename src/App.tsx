@@ -20,6 +20,7 @@ import { AllRequests } from './features/admin/AllRequests'
 import { DuplicateReview } from './features/admin/DuplicateReview'
 import { UserAdmin } from './features/admin/UserAdmin'
 import { Billing } from './features/admin/Billing'
+import { ActivityTimeline } from './features/activity/ActivityTimeline'
 
 function Home() {
   const { role } = useAuth()
@@ -55,6 +56,7 @@ export default function App() {
               <Route path="/admin/duplicates" element={<Protected><Layout><RoleGate allow={['coordinator','admin','super_admin']}><DuplicateReview /></RoleGate></Layout></Protected>} />
               <Route path="/admin/users" element={<Protected><Layout><RoleGate allow={['coordinator','admin','super_admin']}><UserAdmin /></RoleGate></Layout></Protected>} />
               <Route path="/admin/billing" element={<Protected><Layout><RoleGate allow={['super_admin']}><Billing /></RoleGate></Layout></Protected>} />
+              <Route path="/akis" element={<Protected><Layout><RoleGate allow={['sales','admin','super_admin']}><ActivityTimeline /></RoleGate></Layout></Protected>} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
