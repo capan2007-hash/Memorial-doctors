@@ -6,8 +6,13 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import {
   activityRoleLabel,
   caseTypeLabel,
+  dayGroupLabel,
+  dayKey,
   doctorCountText,
   formatActivityDateTime,
+  relativeTime,
+  roleAccentTone,
+  type ActivityTone,
 } from '../../domain/activity'
 import { useActivityTimeline, type ActivityEntry } from './useActivity'
 
@@ -17,35 +22,85 @@ function roleIcon(role: string): LucideIcon {
   return UserRound
 }
 
-/** Tek timeline düğümü: sol rayda ikon + bağlantı çizgisi, sağda cümle + doktor rozeti. */
-function TimelineNode({ entry, isLast }: { entry: ActivityEntry; isLast: boolean }) {
+/** Role tonuna göre literal Tailwind sınıfları (JIT için tam string). */
+const TONE: Record<ActivityTone, { strip: string; dot: string; icon: string; badge: string; ping: string }> = {
+  info: {
+    strip: 'bg-info-border',
+    dot: 'bg-info-bg border-info-border',
+    icon: 'text-info-text',
+    badge: 'bg-info-bg text-info-text border-info-border',
+    ping: 'bg-info-border',
+  },
+  warning: {
+    strip: 'bg-warning-border',
+    dot: 'bg-warning-bg border-warning-border',
+    icon: 'text-warning-text',
+    badge: 'bg-warning-bg text-warning-text border-warning-border',
+    ping: 'bg-warning-border',
+  },
+  brand: {
+    strip: 'bg-brand-fill',
+    dot: 'bg-brand-fill/10 border-brand-fill/40',
+    icon: 'text-brand-text',
+    badge: 'bg-brand-fill/10 text-brand-text border-brand-fill/30',
+    ping: 'bg-brand-fill/40',
+  },
+}
+
+interface Node {
+  entry: ActivityEntry
+  index: number
+}
+
+function TimelineNode({ node, isLastInGroup }: { node: Node; isLastInGroup: boolean }) {
+  const { entry, index } = node
+  const tone = TONE[roleAccentTone(entry.creator_role)]
   const Icon = roleIcon(entry.creator_role)
   const caseType = caseTypeLabel(entry.category_name, entry.subcategory_name)
+  const isNewest = index === 0
+  const delay = Math.min(index, 12) * 45
+
   return (
-    <li className="flex gap-3">
-      {/* Ray: ikon + aşağıya akan çizgi */}
-      <div className="flex w-7 flex-shrink-0 flex-col items-center">
-        <span className="z-10 flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface-2">
-          <Icon className="h-3.5 w-3.5 text-ink-secondary" strokeWidth={1.75} />
-        </span>
-        {!isLast && <span className="w-px flex-1 bg-line" aria-hidden />}
+    <li className="activity-in flex gap-3" style={{ animationDelay: `${delay}ms` }}>
+      {/* Ray: renkli dot (+ en yeniye nabız) + aşağı akan çizgi */}
+      <div className="flex w-8 flex-shrink-0 flex-col items-center pt-0.5">
+        <div className="relative">
+          {isNewest && (
+            <span className={`activity-ping pointer-events-none absolute inset-0 rounded-full ${tone.ping}`} aria-hidden />
+          )}
+          <span className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border ${tone.dot}`}>
+            <Icon className={`h-4 w-4 ${tone.icon}`} strokeWidth={1.75} />
+          </span>
+        </div>
+        {!isLastInGroup && <span className="mt-1 w-px flex-1 bg-line" aria-hidden />}
       </div>
 
-      {/* İçerik */}
-      <div className="flex-1 pb-5">
-        <div className="rounded-card border border-line bg-surface-1 p-3">
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="font-medium text-ink-primary">
-              {activityRoleLabel(entry.creator_role)} {entry.creator_name}
+      {/* İçerik kartı: sol renkli şerit + role rozeti + doktor sayısı */}
+      <div className="flex-1 pb-4">
+        <div className="relative overflow-hidden rounded-card border border-line bg-surface-1 p-3 pl-4 shadow-card transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-pop">
+          <span className={`absolute inset-y-0 left-0 w-1 ${tone.strip}`} aria-hidden />
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${tone.badge}`}
+            >
+              <Icon className="h-3 w-3" strokeWidth={2} />
+              {activityRoleLabel(entry.creator_role)}
             </span>
-            <span className="tnum text-xs text-ink-muted">{formatActivityDateTime(entry.created_at)}</span>
+            <span className="font-medium text-ink-primary">{entry.creator_name}</span>
+            <span className="ml-auto text-xs text-ink-muted">{relativeTime(entry.created_at)}</span>
           </div>
-          <p className="mt-1 text-sm text-ink-secondary">
-            bir <span className="font-medium text-ink-primary">{caseType}</span> vakası girişi yaptı
+
+          <p className="mt-1.5 text-sm text-ink-secondary">
+            bir <span className="font-semibold text-ink-primary">{caseType}</span> vakası girişi yaptı
           </p>
-          <div className="mt-2 inline-flex items-center gap-1 rounded-control bg-brand-fill/10 px-2 py-0.5 text-xs font-medium text-brand-text">
-            <Stethoscope className="h-3 w-3" strokeWidth={2} />
-            {doctorCountText(entry.doctor_count)}
+
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1 rounded-control bg-brand-fill px-2 py-0.5 text-xs font-semibold text-white">
+              <Stethoscope className="h-3.5 w-3.5" strokeWidth={2} />
+              {doctorCountText(entry.doctor_count)}
+            </span>
+            <span className="tnum text-[11px] text-ink-muted">{formatActivityDateTime(entry.created_at)}</span>
           </div>
         </div>
       </div>
@@ -53,13 +108,55 @@ function TimelineNode({ entry, isLast }: { entry: ActivityEntry; isLast: boolean
   )
 }
 
+function GroupHeader({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-2 pb-2 pt-1">
+      <span className="rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-ink-secondary">
+        {label}
+      </span>
+      <span className="h-px flex-1 bg-line" aria-hidden />
+    </div>
+  )
+}
+
+interface Group {
+  key: string
+  label: string
+  nodes: Node[]
+}
+
 export function ActivityTimeline() {
   const q = useActivityTimeline()
   const entries = q.data?.pages.flat() ?? []
+  const now = new Date()
+
+  // Girişleri güne göre grupla (sıra korunur: en yeni → eski).
+  const groups: Group[] = []
+  entries.forEach((entry, index) => {
+    const key = dayKey(entry.created_at)
+    let g = groups[groups.length - 1]
+    if (!g || g.key !== key) {
+      g = { key, label: dayGroupLabel(entry.created_at, now), nodes: [] }
+      groups.push(g)
+    }
+    g.nodes.push({ entry, index })
+  })
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Akış" subtitle="Doktorlara yönlendirilen talep girişleri — en yeni önce." />
+      <PageHeader
+        title="Akış"
+        subtitle="Doktorlara yönlendirilen talep girişleri — en yeni önce."
+        actions={
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-1 text-xs font-medium text-ink-secondary">
+            <span className="relative flex h-2 w-2">
+              <span className="activity-ping absolute inset-0 rounded-full bg-success-text" aria-hidden />
+              <span className="relative h-2 w-2 rounded-full bg-success-text" />
+            </span>
+            Canlı
+          </span>
+        }
+      />
 
       {q.isLoading && (
         <div className="flex justify-center py-10">
@@ -80,13 +177,16 @@ export function ActivityTimeline() {
         />
       )}
 
-      {entries.length > 0 && (
-        <ol className="mt-1">
-          {entries.map((e, i) => (
-            <TimelineNode key={e.request_id} entry={e} isLast={i === entries.length - 1} />
-          ))}
-        </ol>
-      )}
+      {groups.map((group) => (
+        <div key={group.key}>
+          <GroupHeader label={group.label} />
+          <ol>
+            {group.nodes.map((node, i) => (
+              <TimelineNode key={node.entry.request_id} node={node} isLastInGroup={i === group.nodes.length - 1} />
+            ))}
+          </ol>
+        </div>
+      ))}
 
       {q.hasNextPage && (
         <div className="flex justify-center pt-1">

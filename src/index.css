@@ -29,3 +29,41 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* Aktivite Akışı — canlı "akan" giriş: kartlar sırayla aşağıdan yukarı belirir. */
+@keyframes activity-flow-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.activity-in {
+  animation: activity-flow-in var(--dur-base) var(--ease-out) both;
+}
+
+/* En yeni giriş: dot çevresinde kısa nabız halkası (dikkat çeker, dağıtmaz). */
+@keyframes activity-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+.activity-ping {
+  animation: activity-ping 1.8s var(--ease-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-in,
+  .activity-ping {
+    animation: none;
+  }
+}
