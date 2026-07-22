@@ -5,7 +5,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 import { unregisterPush } from '@/features/push/usePushRegistration'
 
-export type Role = 'agent' | 'sales' | 'doctor' | 'coordinator' | 'admin'
+export type Role = 'agent' | 'sales' | 'doctor' | 'coordinator' | 'admin' | 'super_admin'
 
 interface AppUserRow {
   id: string

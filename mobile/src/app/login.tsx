@@ -8,14 +8,20 @@ import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing } from '@/theme'
 
 export default function LoginScreen() {
-  const { session, signIn } = useAuth()
+  const { session, role, loading, signIn } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const { colors } = useTheme()
 
-  if (session) return <Redirect href="/(tabs)" />
+  // Oturum varsa role göre yönlendir; rol henüz yükleniyorsa bekle (grup layout'ları da guard'lar).
+  if (session && !loading) {
+    if (role === 'coordinator' || role === 'admin' || role === 'super_admin') {
+      return <Redirect href="/(admin)/talepler" />
+    }
+    return <Redirect href="/(tabs)" />
+  }
 
   const submit = async () => {
     setSubmitting(true)

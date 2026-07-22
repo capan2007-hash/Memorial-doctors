@@ -1,17 +1,18 @@
 import { Redirect, Tabs } from 'expo-router'
-import { BarChart3, Clock, Inbox, LogOut, Settings, UserCircle } from 'lucide-react-native'
+import { ClipboardList, Copy, LogOut, Settings, Stethoscope, Users } from 'lucide-react-native'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing } from '@/theme'
 
+/** Koordinatör grubuna erişimi olmayan (agent/sales) için basit engel ekranı. */
 function BlockedScreen() {
   const { signOut } = useAuth()
   const { colors } = useTheme()
   return (
     <View style={[styles.blocked, { backgroundColor: colors.surface0 }]}>
-      <Text style={[styles.blockedText, { color: colors.textSecondary }]}>Bu uygulama doktorlar içindir.</Text>
+      <Text style={[styles.blockedText, { color: colors.textSecondary }]}>Bu panel koordinatör ekibi içindir.</Text>
       <Pressable
         style={[styles.signOutButton, { backgroundColor: colors.brandFill }]}
         onPress={signOut}
@@ -24,7 +25,7 @@ function BlockedScreen() {
   )
 }
 
-export default function TabsLayout() {
+export default function AdminTabsLayout() {
   const { session, role, loading } = useAuth()
   const { colors } = useTheme()
 
@@ -37,8 +38,9 @@ export default function TabsLayout() {
   }
 
   if (!session) return <Redirect href="/login" />
-  if (role === 'coordinator' || role === 'admin' || role === 'super_admin') return <Redirect href="/(admin)/talepler" />
-  if (role !== 'doctor') return <BlockedScreen />
+  if (role === 'doctor') return <Redirect href="/(tabs)" />
+  const allowed = role === 'coordinator' || role === 'admin' || role === 'super_admin'
+  if (!allowed) return <BlockedScreen />
 
   return (
     <Tabs
@@ -57,35 +59,35 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="talepler"
         options={{
-          title: 'Bekleyen',
-          tabBarIcon: ({ color, size }) => <Inbox color={color} size={size} strokeWidth={1.75} />,
+          title: 'Talepler',
+          tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
-        name="history"
+        name="mukerrer"
         options={{
-          title: 'Geçmiş',
-          tabBarIcon: ({ color, size }) => <Clock color={color} size={size} strokeWidth={1.75} />,
+          title: 'Mükerrer',
+          tabBarIcon: ({ color, size }) => <Copy color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
-        name="dashboard"
+        name="doktorlar"
         options={{
-          title: 'Panel',
-          tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} strokeWidth={1.75} />,
+          title: 'Doktorlar',
+          tabBarIcon: ({ color, size }) => <Stethoscope color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="kullanicilar"
         options={{
-          title: 'Profil',
-          tabBarIcon: ({ color, size }) => <UserCircle color={color} size={size} strokeWidth={1.75} />,
+          title: 'Kullanıcılar',
+          tabBarIcon: ({ color, size }) => <Users color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="ayarlar"
         options={{
           title: 'Ayarlar',
           tabBarIcon: ({ color, size }) => <Settings color={color} size={size} strokeWidth={1.75} />,
@@ -96,11 +98,7 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   blocked: {
     flex: 1,
     alignItems: 'center',
@@ -108,11 +106,7 @@ const styles = StyleSheet.create({
     gap: spacing.three,
     padding: spacing.four,
   },
-  blockedText: {
-    fontFamily: fontFamily.medium,
-    fontSize: 16,
-    textAlign: 'center',
-  },
+  blockedText: { fontFamily: fontFamily.medium, fontSize: 16, textAlign: 'center' },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -122,7 +116,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.two,
     minHeight: 44,
   },
-  signOutButtonText: {
-    fontFamily: fontFamily.semibold,
-  },
+  signOutButtonText: { fontFamily: fontFamily.semibold },
 })
