@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Image } from 'expo-image'
 import { useQuery } from '@tanstack/react-query'
-import { Award, Check, Save, UserCircle } from 'lucide-react-native'
+import { Check, Save, UserCircle } from 'lucide-react-native'
 import {
   ActivityIndicator,
   Alert,
@@ -17,21 +17,17 @@ import {
 
 import { supabase } from '@/lib/supabase'
 import { useTheme } from '@/lib/theme'
-import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
-import { formatMins } from '@/domain/format'
-import { scoreTier } from '@/domain/score'
+import { fontFamily, radius, spacing, type Palette } from '@/theme'
 import {
   hasScope,
   toggleScope,
   useCategories,
   useOwnDoctor,
-  useOwnPerformance,
   useSetOwnScopes,
   useSubcategories,
   useUpdateOwnProfile,
   type CategoryRow,
   type DoctorScope,
-  type OwnPerformance,
 } from '@/features/profile/useOwnProfile'
 
 /** Doktor fotoğrafı: depo yolu imzalanır (photos bucket); yoksa baş harf rozeti. Salt görüntü. */
@@ -138,66 +134,9 @@ function ScopeChip({
   )
 }
 
-function MetricTile({
-  value,
-  label,
-  role,
-  note,
-  colors,
-}: {
-  value: string | number
-  label: string
-  role?: 'danger' | 'warning' | 'success'
-  note?: string
-  colors: Palette
-}) {
-  const tint = role ? roleColors(colors, role) : null
-  return (
-    <View
-      style={[
-        styles.tile,
-        {
-          backgroundColor: tint ? tint.bg : colors.surface1,
-          borderColor: tint ? tint.border : colors.border,
-        },
-      ]}
-    >
-      <Text style={[styles.tileValue, { color: tint ? tint.text : colors.textPrimary }]}>{value}</Text>
-      <Text style={[styles.tileLabel, { color: colors.textMuted }]}>{label}</Text>
-      {note ? <Text style={[styles.tileNote, { color: tint ? tint.text : colors.textSecondary }]}>{note}</Text> : null}
-    </View>
-  )
-}
-
-function PerformanceSection({ perf, colors }: { perf: OwnPerformance; colors: Palette }) {
-  const incoming = perf.accept_count + perf.reject_count + perf.pending_count
-  const answered = perf.accept_count + perf.reject_count
-  const tier = scoreTier(perf.score)
-  return (
-    <View style={styles.tileGrid}>
-      <MetricTile value={perf.score} label="Skor" role={tier.role} note={tier.label} colors={colors} />
-      <MetricTile value={incoming} label="Gelen" colors={colors} />
-      <MetricTile value={answered} label="Cevaplanan" colors={colors} />
-      <MetricTile
-        value={perf.avg_response_mins != null ? formatMins(perf.avg_response_mins) : '—'}
-        label="Ort. yanıt"
-        colors={colors}
-      />
-      <MetricTile value={perf.timely_count} label="Zamanında" colors={colors} />
-      <MetricTile
-        value={perf.breach_count}
-        label="Hedef dışı"
-        role={perf.breach_count > 0 ? 'danger' : undefined}
-        colors={colors}
-      />
-    </View>
-  )
-}
-
 export default function ProfileScreen() {
   const { colors } = useTheme()
   const own = useOwnDoctor()
-  const perf = useOwnPerformance()
   const cats = useCategories()
   const updateProfile = useUpdateOwnProfile()
   const setScopes = useSetOwnScopes()
@@ -374,23 +313,6 @@ export default function ProfileScreen() {
             )}
           </Pressable>
         </View>
-
-        {/* Performansım */}
-        <View style={cardStyle}>
-          <View style={styles.cardHeader}>
-            <Award color={colors.textSecondary} size={18} strokeWidth={1.75} />
-            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Performansım</Text>
-          </View>
-          {perf.isLoading ? (
-            <View style={styles.perfLoading}>
-              <ActivityIndicator color={colors.brandText} />
-            </View>
-          ) : perf.data ? (
-            <PerformanceSection perf={perf.data} colors={colors} />
-          ) : (
-            <Text style={[styles.helperText, { color: colors.textMuted }]}>Henüz performans verisi yok.</Text>
-          )}
-        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   )
@@ -458,23 +380,4 @@ const styles = StyleSheet.create({
   chipText: { fontFamily: fontFamily.medium, fontSize: 13 },
   scopeEmpty: { fontFamily: fontFamily.regular, fontSize: 13 },
   warnText: { fontFamily: fontFamily.medium, fontSize: 12 },
-  tileGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.two, marginTop: spacing.half },
-  tile: {
-    flexGrow: 1,
-    flexBasis: '30%',
-    minWidth: 96,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.two,
-    paddingHorizontal: spacing.one,
-    alignItems: 'center',
-  },
-  tileValue: {
-    fontFamily: fontFamily.display,
-    fontSize: 22,
-    fontVariant: ['tabular-nums'],
-  },
-  tileLabel: { fontFamily: fontFamily.regular, fontSize: 12, marginTop: 2, textAlign: 'center' },
-  tileNote: { fontFamily: fontFamily.semibold, fontSize: 11, marginTop: 2 },
-  perfLoading: { paddingVertical: spacing.four, alignItems: 'center' },
 })

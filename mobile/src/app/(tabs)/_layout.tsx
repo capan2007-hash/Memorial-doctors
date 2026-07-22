@@ -1,5 +1,5 @@
 import { Redirect, Tabs } from 'expo-router'
-import { Clock, Inbox, LogOut, Settings, UserCircle } from 'lucide-react-native'
+import { BarChart3, Clock, Inbox, LogOut, Settings, UserCircle } from 'lucide-react-native'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
@@ -67,6 +67,13 @@ export default function TabsLayout() {
         options={{
           title: 'Geçmiş',
           tabBarIcon: ({ color, size }) => <Clock color={color} size={size} strokeWidth={1.75} />,
+        }}
+      />
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: 'Panel',
+          tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen

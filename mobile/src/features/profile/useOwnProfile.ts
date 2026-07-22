@@ -132,6 +132,30 @@ export function useOwnPerformance() {
   })
 }
 
+export interface OwnRanks {
+  score_rank: number | null
+  score_total: number
+  score_pct: number | null
+  response_rank: number | null
+  response_total: number
+  response_pct: number | null
+}
+
+/** Doktorun aynı klinikteki aktif doktorlar arasında puan + yanıt hızı sırası (own_doctor_ranks RPC). */
+export function useOwnRanks() {
+  const { doctorId } = useAuth()
+  return useQuery({
+    queryKey: ['own-ranks', doctorId],
+    enabled: !!doctorId,
+    queryFn: async (): Promise<OwnRanks | null> => {
+      const { data, error } = await supabase.rpc('own_doctor_ranks')
+      if (error) throw error
+      const rows = (data ?? []) as OwnRanks[]
+      return rows[0] ?? null
+    },
+  })
+}
+
 export interface UpdateOwnProfileInput {
   title: string | null
   specialty: string | null
