@@ -1,10 +1,33 @@
 // Kaynak: /src/features/admin/useDoctors.ts (web) — mobil doktor yönetimi veri katmanı.
 // Foto yükleme + skor geçmişi (Faz 3b) hariç mirror.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { decode } from 'base64-arraybuffer'
+import * as ImageManipulator from 'expo-image-manipulator'
+import * as ImagePicker from 'expo-image-picker'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 import type { DoctorScope } from '@/features/profile/scope'
+
+export type WeightedWorkLevel = 'high' | 'medium' | 'low'
+export interface WeightedWorkItem {
+  area: string
+  level: WeightedWorkLevel
+}
+export interface WeightedWork {
+  items: WeightedWorkItem[]
+  note: string
+}
+export const emptyWeightedWork: WeightedWork = { items: [], note: '' }
+
+/** doctor.weighted_work (jsonb) her zaman { items, note } gelmeyebilir (eski `[]` default) — güvenle normalize et. */
+export function toWeightedWork(raw: unknown): WeightedWork {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw) && Array.isArray((raw as WeightedWork).items)) {
+    const w = raw as WeightedWork
+    return { items: w.items, note: w.note ?? '' }
+  }
+  return emptyWeightedWork
+}
 
 export interface DoctorRow {
   id: string
@@ -95,6 +118,8 @@ export interface UpdateDoctorInput {
   specialty?: string | null
   bio?: string | null
   isActive?: boolean
+  weightedWork?: WeightedWork
+  photoUrl?: string | null
   scopes: DoctorScope[]
 }
 
@@ -109,6 +134,8 @@ export function useUpdateDoctor() {
       if (rest.specialty !== undefined) update.specialty = rest.specialty
       if (rest.bio !== undefined) update.bio = rest.bio
       if (rest.isActive !== undefined) update.is_active = rest.isActive
+      if (rest.weightedWork !== undefined) update.weighted_work = rest.weightedWork
+      if (rest.photoUrl !== undefined) update.photo_url = rest.photoUrl
       if (Object.keys(update).length) {
         const { error } = await supabase.from('doctor').update(update).eq('id', id)
         if (error) throw error
@@ -127,7 +154,7 @@ export interface CreateDoctorInput {
   title: string
   specialty: string
   bio: string
-  weightedWork: { items: []; note: string }
+  weightedWork: WeightedWork
   scopes: DoctorScope[]
 }
 
@@ -142,4 +169,65 @@ export function useCreateDoctor() {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['doctors'] }),
   })
+}
+
+export interface ScoreEventRow {
+  id: string
+  delta: number
+  reason: 'timely_response' | 'sla_breach'
+  created_at: string
+}
+
+/** Doktorun skor olayları (score_event) — en yeni → eski. */
+export function useScoreEvents(doctorId?: string) {
+  return useQuery({
+    queryKey: ['score-events', doctorId],
+    enabled: !!doctorId,
+    queryFn: async (): Promise<ScoreEventRow[]> => {
+      const { data, error } = await supabase
+        .from('score_event')
+        .select('id, delta, reason, created_at')
+        .eq('doctor_id', doctorId!)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return (data ?? []) as ScoreEventRow[]
+    },
+  })
+}
+
+function randomId(): string {
+  return `${Date.now().toString(36)}${Math.floor(Math.random() * 1e9).toString(36)}`
+}
+
+/**
+ * Galeriden foto seç → yeniden kodla (resize + jpeg, EXIF düşer) → tenant-scoped
+ * storage yoluna yükle; storage_path döner. Kullanıcı iptal ederse null.
+ */
+export async function pickAndUploadDoctorPhoto(tenantId: string, doctorId: string): Promise<string | null> {
+  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync()
+  if (!perm.granted) throw new Error('Galeri izni gerekli')
+  const res = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    quality: 1,
+  })
+  if (res.canceled || !res.assets?.length) return null
+  const manip = await ImageManipulator.manipulateAsync(res.assets[0].uri, [{ resize: { width: 1024 } }], {
+    compress: 0.8,
+    format: ImageManipulator.SaveFormat.JPEG,
+    base64: true,
+  })
+  if (!manip.base64) throw new Error('Görsel işlenemedi')
+  const path = `${tenantId}/doctors/${doctorId}/${randomId()}.jpg`
+  const { error } = await supabase.storage
+    .from('photos')
+    .upload(path, decode(manip.base64), { contentType: 'image/jpeg', upsert: true })
+  if (error) throw error
+  return path
+}
+
+/** Depoda saklanan yoldan 5 dk geçerli imzalı görüntüleme URL'i üretir. */
+export async function signDoctorPhoto(storagePath: string): Promise<string | null> {
+  const { data, error } = await supabase.storage.from('photos').createSignedUrl(storagePath, 300)
+  if (error) throw error
+  return data?.signedUrl ?? null
 }
