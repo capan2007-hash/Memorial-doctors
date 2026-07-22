@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Briefcase, Building2, Stethoscope, UserRound, type LucideIcon } from 'lucide-react'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
@@ -125,14 +126,63 @@ interface Group {
   nodes: Node[]
 }
 
+type Filter = 'all' | 'sales' | 'agent'
+
+const FILTERS: { key: Filter; label: string; activeClass: string }[] = [
+  { key: 'all', label: 'Tümü', activeClass: 'border-brand-fill bg-brand-fill text-white' },
+  { key: 'sales', label: 'Satışçı', activeClass: 'border-info-border bg-info-bg text-info-text' },
+  { key: 'agent', label: 'Acenta', activeClass: 'border-warning-border bg-warning-bg text-warning-text' },
+]
+
+function FilterChips({
+  value,
+  counts,
+  onChange,
+}: {
+  value: Filter
+  counts: Record<Filter, number>
+  onChange: (f: Filter) => void
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {FILTERS.map((f) => {
+        const active = value === f.key
+        return (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => onChange(f.key)}
+            aria-pressed={active}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition ${
+              active ? f.activeClass : 'border-line bg-surface-1 text-ink-secondary hover:border-line-strong'
+            }`}
+          >
+            {f.label}
+            <span className={`tnum ${active ? 'opacity-80' : 'text-ink-muted'}`}>{counts[f.key]}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 export function ActivityTimeline() {
   const q = useActivityTimeline()
+  const [filter, setFilter] = useState<Filter>('all')
   const entries = q.data?.pages.flat() ?? []
   const now = new Date()
 
-  // Girişleri güne göre grupla (sıra korunur: en yeni → eski).
+  const counts: Record<Filter, number> = {
+    all: entries.length,
+    sales: entries.filter((e) => e.creator_role === 'sales').length,
+    agent: entries.filter((e) => e.creator_role === 'agent').length,
+  }
+
+  const filtered = filter === 'all' ? entries : entries.filter((e) => e.creator_role === filter)
+
+  // Süzülmüş girişleri güne göre grupla (sıra korunur: en yeni → eski).
   const groups: Group[] = []
-  entries.forEach((entry, index) => {
+  filtered.forEach((entry, index) => {
     const key = dayKey(entry.created_at)
     let g = groups[groups.length - 1]
     if (!g || g.key !== key) {
@@ -158,6 +208,8 @@ export function ActivityTimeline() {
         }
       />
 
+      {entries.length > 0 && <FilterChips value={filter} counts={counts} onChange={setFilter} />}
+
       {q.isLoading && (
         <div className="flex justify-center py-10">
           <Spinner />
@@ -175,6 +227,10 @@ export function ActivityTimeline() {
           title="Henüz akış yok"
           description="Doktorlara yönlendirilen talepler burada, en yeni önce, akış halinde görünür."
         />
+      )}
+
+      {entries.length > 0 && filtered.length === 0 && (
+        <EmptyState title="Bu filtrede giriş yok" description="Seçili role ait talep girişi bulunamadı." />
       )}
 
       {groups.map((group) => (
