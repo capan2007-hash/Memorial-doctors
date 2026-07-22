@@ -22,24 +22,37 @@ Deno.serve(async (req) => {
     const { data: me } = await caller.from('app_user').select('role').eq('id', userRes.user.id).single()
     if (!me || me.role !== 'super_admin') return json({ error: 'forbidden' }, 403)
 
+    const admin = createClient(url, serviceKey)
     const body = await req.json().catch(() => ({}))
+
+    // Faz 3: aylık altyapı maliyetini ayarla.
+    if (body?.action === 'set_infra') {
+      const v = Number(body.infraMonthlyUsd)
+      if (!(v >= 0)) return json({ error: 'invalid amount' }, 400)
+      await admin.from('platform_config').update({ infra_monthly_usd: v, updated_at: new Date().toISOString() }).eq('id', 1)
+      return json({ ok: true, infraMonthlyUsd: v }, 200)
+    }
+
     const period = body?.period === 'month' ? 'month' : 'week'
-    // week = ISO hafta başı (Pzt 00:00 UTC), month = ay başı.
     const now = new Date()
     let start: Date
     if (period === 'month') {
       start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
     } else {
-      const day = now.getUTCDay() || 7 // Pazar=7
+      const day = now.getUTCDay() || 7
       start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (day - 1)))
     }
     const startIso = start.toISOString()
 
-    const admin = createClient(url, serviceKey)
-    const [{ data: tenants }, { data: usage }] = await Promise.all([
+    const [{ data: tenants }, { data: usage }, { data: cfg }] = await Promise.all([
       admin.from('tenant').select('id, name'),
       admin.from('ai_usage').select('tenant_id, service, cost_usd, input_tokens, output_tokens').gte('created_at', startIso),
+      admin.from('platform_config').select('infra_monthly_usd').eq('id', 1).maybeSingle(),
     ])
+
+    const infraMonthly = Number(cfg?.infra_monthly_usd ?? 0)
+    // Dönem altyapı maliyeti: ay=tam, hafta=aylık×7/30 (prorate).
+    const infraPeriod = period === 'month' ? infraMonthly : infraMonthly * (7 / 30)
 
     type Svc = { service: string; cost: number; calls: number; inTok: number; outTok: number }
     const byTenant = new Map<string, Map<string, Svc>>()
@@ -54,23 +67,33 @@ Deno.serve(async (req) => {
       byTenant.set(u.tenant_id, tMap)
     }
 
+    // Toplam AI çağrısı (altyapı tahsis tabanı).
+    let totalCalls = 0
+    for (const tMap of byTenant.values()) for (const s of tMap.values()) totalCalls += s.calls
+
+    const r6 = (n: number) => Math.round(n * 1e6) / 1e6
     const companies = (tenants ?? []).map((t: { id: string; name: string }) => {
       const services = Array.from((byTenant.get(t.id) ?? new Map<string, Svc>()).values())
-        .map((s) => ({ service: s.service, cost: Math.round(s.cost * 1e6) / 1e6, calls: s.calls, inTok: s.inTok, outTok: s.outTok }))
-      const totalCost = services.reduce((a, s) => a + s.cost, 0)
+        .map((s) => ({ service: s.service, cost: r6(s.cost), calls: s.calls, inTok: s.inTok, outTok: s.outTok }))
+      const aiCost = services.reduce((a, s) => a + s.cost, 0)
+      const calls = services.reduce((a, s) => a + s.calls, 0)
+      // Altyapı: firmanın AI-çağrı payına göre (0 çağrı → 0 pay).
+      const infraCost = totalCalls > 0 ? r6(infraPeriod * (calls / totalCalls)) : 0
+      const totalCost = r6(aiCost + infraCost)
       return {
         tenantId: t.id, name: t.name, services,
-        totalCost: Math.round(totalCost * 1e6) / 1e6,
-        weeklyCharge: Math.round(totalCost * 2 * 1e6) / 1e6, // haftalık 2× (reseller markup)
+        aiCost: r6(aiCost), infraCost, calls,
+        totalCost, weeklyCharge: r6(totalCost * 2),
       }
     })
-    const grandTotalCost = companies.reduce((a, c) => a + c.totalCost, 0)
+    const grandTotalCost = r6(companies.reduce((a, c) => a + c.totalCost, 0))
 
     return json({
       period, periodStart: startIso, currency: 'USD',
+      infraMonthlyUsd: infraMonthly,
       companies,
-      grandTotalCost: Math.round(grandTotalCost * 1e6) / 1e6,
-      grandTotalCharge: Math.round(grandTotalCost * 2 * 1e6) / 1e6,
+      grandTotalCost,
+      grandTotalCharge: r6(grandTotalCost * 2),
     }, 200)
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : String(e) }, 500)
