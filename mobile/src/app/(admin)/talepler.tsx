@@ -37,7 +37,12 @@ function FilterTabs({
   colors: Palette
 }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabRow}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.tabScroll}
+      contentContainerStyle={styles.tabRow}
+    >
       {TABS.map((t) => {
         const active = value === t
         return (
@@ -223,7 +228,14 @@ export default function TaleplerScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   tnum: { fontVariant: ['tabular-nums'] },
-  tabRow: { gap: spacing.one, paddingHorizontal: spacing.four, paddingVertical: spacing.three },
+  // Yatay ScrollView dikeyde esnemesin (flexGrow:0) ve çipler gerilmesin (alignItems).
+  tabScroll: { flexGrow: 0, flexShrink: 0 },
+  tabRow: {
+    gap: spacing.one,
+    paddingHorizontal: spacing.four,
+    paddingVertical: spacing.three,
+    alignItems: 'center',
+  },
   tab: {
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: radius.full,
