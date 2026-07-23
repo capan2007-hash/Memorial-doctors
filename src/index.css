@@ -14,8 +14,9 @@
   --sc-card-foreground: 0 0% 3.9%;
   --sc-popover: 0 0% 100%;
   --sc-popover-foreground: 0 0% 3.9%;
-  --sc-primary: 0 0% 9%;
-  --sc-primary-foreground: 0 0% 98%;
+  /* Primary + focus ring markanın teal'i (--brand-fill #0f766e ≈ hsl(175 77% 26%)). */
+  --sc-primary: 175 77% 26%;
+  --sc-primary-foreground: 0 0% 100%;
   --sc-secondary: 0 0% 96.1%;
   --sc-secondary-foreground: 0 0% 9%;
   --sc-muted: 0 0% 96.1%;
@@ -26,7 +27,7 @@
   --sc-destructive-foreground: 0 0% 98%;
   --sc-border: 0 0% 89.8%;
   --sc-input: 0 0% 89.8%;
-  --sc-ring: 0 0% 3.9%;
+  --sc-ring: 175 77% 26%;
   --sc-radius: 0.5rem;
 }
 
@@ -37,8 +38,9 @@
   --sc-card-foreground: 0 0% 98%;
   --sc-popover: 0 0% 3.9%;
   --sc-popover-foreground: 0 0% 98%;
-  --sc-primary: 0 0% 98%;
-  --sc-primary-foreground: 0 0% 9%;
+  /* Primary + focus ring koyu tema teal'i (--brand-fill #12897a ≈ hsl(172 77% 30%)). */
+  --sc-primary: 172 77% 30%;
+  --sc-primary-foreground: 0 0% 100%;
   --sc-secondary: 0 0% 14.9%;
   --sc-secondary-foreground: 0 0% 98%;
   --sc-muted: 0 0% 14.9%;
@@ -49,7 +51,7 @@
   --sc-destructive-foreground: 0 0% 98%;
   --sc-border: 0 0% 14.9%;
   --sc-input: 0 0% 14.9%;
-  --sc-ring: 0 0% 83.1%;
+  --sc-ring: 172 77% 30%;
 }
 
 @layer base {
