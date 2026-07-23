@@ -11,11 +11,11 @@ import { Button } from '../../components/ui/Button'
 import { PhotoGrid } from '../../components/ui/PhotoGrid'
 import { Avatar } from '../../components/ui/Avatar'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { Spinner } from '../../components/ui/Spinner'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { PatientInfoCard } from './PatientInfoCard'
 import { AiPanel } from '../ai/AiPanel'
 import { Icon } from '../../components/ui/Icon'
-import { AlertTriangle, Check } from 'lucide-react'
+import { AlertTriangle, Check, Clock } from 'lucide-react'
 import { timeAgo, formatDate } from '../../lib/format'
 import { photoLifecycleInfo } from '../../domain/photoLifecycle'
 import type { SaleStatus } from '../../types/domain'
@@ -52,8 +52,17 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
 
   return (
     <Card title="Satış Durumu">
-      <div className="space-y-3">
-        <span className="inline-flex text-xs font-medium px-2 py-0.5 rounded-full bg-surface-3 border border-line text-ink-secondary">
+      <div className="space-y-3.5">
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+            req.sale_status === 'operation_done'
+              ? 'border-success-border bg-success-bg text-success-text'
+              : req.sale_status === 'sale_done'
+                ? 'border-brand-fill/25 bg-brand-fill/10 text-brand-text'
+                : 'border-line bg-surface-3 text-ink-secondary'
+          }`}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
           {SALE_STATUS_LABEL[req.sale_status]}
         </span>
         <div className="flex flex-wrap gap-2">
@@ -87,7 +96,8 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
           )}
         </div>
         {lifecycle && (
-          <p className="text-sm text-ink-muted">
+          <p className="flex items-center gap-1.5 border-t border-line pt-3 text-sm text-ink-muted">
+            <Icon of={Clock} size={14} />
             {lifecycle.state === 'active_countdown' && `Fotoğraflar ${lifecycle.daysLeft} gün sonra silinecek`}
             {lifecycle.state === 'archived' && 'Fotoğraflar arşivlendi'}
             {lifecycle.state === 'operation_buffer' && `İmha: ${lifecycle.daysLeft} gün kaldı`}
@@ -109,8 +119,21 @@ export function RequestDetail() {
   }
   if (!q.data) {
     return (
-      <div className="flex justify-center py-10">
-        <Spinner />
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-2/3 max-w-md" />
+          <Skeleton className="h-4 w-40" />
+        </div>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card md:p-5">
+            <Skeleton className="mb-3 h-5 w-32" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
@@ -126,9 +149,14 @@ export function RequestDetail() {
         actions={<StatusPill status={req.status} />}
       />
       {siblingCount > 0 && (
-        <div className="flex items-center gap-2 rounded-control bg-warning-bg border border-warning-border text-warning-text text-sm px-3 py-2">
-          <Icon of={AlertTriangle} size={16} />
-          <span>Bu hastanın başka açık talebi var ({siblingCount})</span>
+        <div className="flex items-start gap-2.5 rounded-card border border-warning-border bg-warning-bg px-3.5 py-3 text-sm text-warning-text">
+          <span className="mt-px shrink-0">
+            <Icon of={AlertTriangle} size={16} />
+          </span>
+          <p>
+            <span className="font-semibold">Bu hastanın başka açık talebi var</span> ({siblingCount}) — mükerrer
+            kayıt olabilir.
+          </p>
         </div>
       )}
       <PatientInfoCard
@@ -155,27 +183,43 @@ export function RequestDetail() {
       {/* Doktor planları + AI değerlendirmesi: yalnız sales/coordinator/admin. Aracıya RLS zaten engeller; UI de gizler. */}
       <RoleGate allow={['sales','coordinator','admin']}>
         {req.consent_at ? (
-          <p className="flex items-center gap-1.5 text-sm font-medium text-success-text">
-            <Icon of={Check} size={16} />
-            Onam alındı (<span className="tnum">{formatDate(req.consent_at)}</span>, WhatsApp)
-          </p>
+          <div className="flex items-start gap-2.5 rounded-card border border-success-border bg-success-bg px-3.5 py-3 text-sm text-success-text">
+            <span className="mt-px shrink-0">
+              <Icon of={Check} size={16} />
+            </span>
+            <p>
+              <span className="font-semibold">Onam alındı</span> ·{' '}
+              <span className="tnum">{formatDate(req.consent_at)}</span> · WhatsApp
+            </p>
+          </div>
         ) : (
-          <p className="flex items-center gap-1.5 text-sm font-medium text-warning-text">
-            <Icon of={AlertTriangle} size={16} />
-            Onam alınmadı — yapay zekâ ön değerlendirmesi yapılmadı
-          </p>
+          <div className="flex items-start gap-2.5 rounded-card border border-warning-border bg-warning-bg px-3.5 py-3 text-sm text-warning-text">
+            <span className="mt-px shrink-0">
+              <Icon of={AlertTriangle} size={16} />
+            </span>
+            <p>
+              <span className="font-semibold">Onam alınmadı</span> — yapay zekâ ön değerlendirmesi yapılmadı
+            </p>
+          </div>
         )}
         <SaleStatusCard req={req} oldestUploadedAt={oldestUploadedAt} />
         <AiPanel requestId={req.id} />
         <section className="space-y-2">
-          <h3 className="font-display text-base text-ink-primary border-b border-line pb-2">Doktor Teklifleri ({accepted.length})</h3>
+          <h3 className="flex items-center gap-2 border-b border-line pb-2 font-display text-base text-ink-primary">
+            Doktor Teklifleri
+            <span className="tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-fill/12 px-1.5 text-xs font-semibold text-brand-text">
+              {accepted.length}
+            </span>
+          </h3>
           {accepted.map((r) => (
-            <Card key={r.id}>
+            <Card key={r.id} hover>
               <div className="flex items-start gap-3">
                 <Avatar name="Doktor" size="sm" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-ink-muted">Doktor <span className="font-mono">#{r.doctor_id.slice(0, 8)}</span></p>
-                  <p className="whitespace-pre-wrap text-sm text-ink-primary mt-1">{r.treatment_plan}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-ink-secondary">
+                    Doktor <span className="font-mono text-ink-muted">#{r.doctor_id.slice(0, 8)}</span>
+                  </p>
+                  <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-ink-primary">{r.treatment_plan}</p>
                 </div>
               </div>
             </Card>
