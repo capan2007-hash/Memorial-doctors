@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { Button } from '../../components/ui/Button'
 import { Field } from '../../components/ui/Field'
-
-const INPUT_CLASSES =
-  'w-full rounded-control border border-line bg-surface-1 p-2 text-ink-primary placeholder:text-ink-muted transition-colors duration-[var(--dur-fast)] ease-premium focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
+import { Input } from '@/components/shadcn/input'
 
 function Monogram() {
   return (
@@ -78,11 +76,11 @@ export function ResetPasswordPage() {
           ) : (
             <form onSubmit={submit} className="mt-4 space-y-4">
               <Field label="Yeni şifre">
-                <input className={INPUT_CLASSES} type="password" placeholder="Yeni şifre"
+                <Input type="password" placeholder="Yeni şifre" autoComplete="new-password"
                   value={pw} onChange={(e) => setPw(e.target.value)} />
               </Field>
               <Field label="Yeni şifre (tekrar)" error={err ?? undefined}>
-                <input className={INPUT_CLASSES} type="password" placeholder="Yeni şifre (tekrar)"
+                <Input type="password" placeholder="Yeni şifre (tekrar)" autoComplete="new-password"
                   value={pw2} onChange={(e) => setPw2(e.target.value)} />
               </Field>
               <Button type="submit" variant="primary" loading={submitting} className="w-full">
