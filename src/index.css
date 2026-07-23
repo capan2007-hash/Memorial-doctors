@@ -4,53 +4,52 @@
 @tailwind components;
 @tailwind utilities;
 
-/* shadcn/ui token'ları (izole; --sc-* önekli, neutral taban). Yalnız değişken
-   tanımı — gövde/tema override'ı YOK; mevcut Rafine Klinik teması etkilenmez.
-   shadcn bileşenleri src/components/shadcn/ altında bu token'ları kullanır. */
+/* shadcn/ui token'ları (--sc-* önekli) — BİRLEŞİK tema: değerler mevcut "Rafine
+   Klinik" paletiyle birebir eşlenir (surface/ink/line/brand → HSL). Böylece shadcn
+   bileşenleri mevcut ekranlarla görsel olarak uyumlu; primary = marka teal.
+   Gövde/tema override'ı YOK; mevcut token sistemi bozulmadan yan yana çalışır. */
 :root {
-  --sc-background: 0 0% 100%;
-  --sc-foreground: 0 0% 3.9%;
-  --sc-card: 0 0% 100%;
-  --sc-card-foreground: 0 0% 3.9%;
+  --sc-background: 120 11% 96.5%; /* surface-0 */
+  --sc-foreground: 165 23% 10%; /* text-primary */
+  --sc-card: 0 0% 100%; /* surface-1/2 (beyaz) */
+  --sc-card-foreground: 165 23% 10%;
   --sc-popover: 0 0% 100%;
-  --sc-popover-foreground: 0 0% 3.9%;
-  /* Primary + focus ring markanın teal'i (--brand-fill #0f766e ≈ hsl(175 77% 26%)). */
-  --sc-primary: 175 77% 26%;
+  --sc-popover-foreground: 165 23% 10%;
+  --sc-primary: 175 77% 26%; /* brand-fill #0f766e */
   --sc-primary-foreground: 0 0% 100%;
-  --sc-secondary: 0 0% 96.1%;
-  --sc-secondary-foreground: 0 0% 9%;
-  --sc-muted: 0 0% 96.1%;
-  --sc-muted-foreground: 0 0% 45.1%;
-  --sc-accent: 0 0% 96.1%;
-  --sc-accent-foreground: 0 0% 9%;
-  --sc-destructive: 0 84.2% 60.2%;
-  --sc-destructive-foreground: 0 0% 98%;
-  --sc-border: 0 0% 89.8%;
-  --sc-input: 0 0% 89.8%;
-  --sc-ring: 175 77% 26%;
-  --sc-radius: 0.5rem;
+  --sc-secondary: 140 10% 94%;
+  --sc-secondary-foreground: 165 23% 10%;
+  --sc-muted: 140 10% 94%;
+  --sc-muted-foreground: 155 5% 56.5%; /* text-muted */
+  --sc-accent: 140 10% 94%;
+  --sc-accent-foreground: 165 23% 10%;
+  --sc-destructive: 351 67% 42%; /* danger */
+  --sc-destructive-foreground: 0 0% 100%;
+  --sc-border: 135 8% 90%; /* line */
+  --sc-input: 135 8% 90%;
+  --sc-ring: 175 77% 26%; /* teal focus */
+  --sc-radius: 0.625rem;
 }
 
 :root[data-theme='dark'] {
-  --sc-background: 0 0% 3.9%;
-  --sc-foreground: 0 0% 98%;
-  --sc-card: 0 0% 3.9%;
-  --sc-card-foreground: 0 0% 98%;
-  --sc-popover: 0 0% 3.9%;
-  --sc-popover-foreground: 0 0% 98%;
-  /* Primary + focus ring koyu tema teal'i (--brand-fill #12897a ≈ hsl(172 77% 30%)). */
-  --sc-primary: 172 77% 30%;
+  --sc-background: 163 20% 7%; /* surface-0 koyu */
+  --sc-foreground: 150 17% 93%; /* text-primary koyu */
+  --sc-card: 167 21% 13%; /* surface-2 koyu */
+  --sc-card-foreground: 150 17% 93%;
+  --sc-popover: 167 21% 13%;
+  --sc-popover-foreground: 150 17% 93%;
+  --sc-primary: 172 77% 30%; /* brand-fill koyu #12897a */
   --sc-primary-foreground: 0 0% 100%;
-  --sc-secondary: 0 0% 14.9%;
-  --sc-secondary-foreground: 0 0% 98%;
-  --sc-muted: 0 0% 14.9%;
-  --sc-muted-foreground: 0 0% 63.9%;
-  --sc-accent: 0 0% 14.9%;
-  --sc-accent-foreground: 0 0% 98%;
-  --sc-destructive: 0 62.8% 30.6%;
-  --sc-destructive-foreground: 0 0% 98%;
-  --sc-border: 0 0% 14.9%;
-  --sc-input: 0 0% 14.9%;
+  --sc-secondary: 166 20% 16%;
+  --sc-secondary-foreground: 150 17% 93%;
+  --sc-muted: 166 20% 16%;
+  --sc-muted-foreground: 162 8% 47%; /* text-muted koyu */
+  --sc-accent: 166 20% 16%;
+  --sc-accent-foreground: 150 17% 93%;
+  --sc-destructive: 0 62.8% 30.6%; /* buton için okunur koyu kırmızı */
+  --sc-destructive-foreground: 0 0% 100%;
+  --sc-border: 156 16% 18%;
+  --sc-input: 156 16% 18%;
   --sc-ring: 172 77% 30%;
 }
 
