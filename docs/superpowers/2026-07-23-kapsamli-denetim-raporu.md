@@ -2,6 +2,15 @@
 
 **Yöntem:** 4 paralel denetim ajanı (backend/güvenlik · web · mobil · test-CI) + canlı Supabase güvenlik/performans advisor taraması + kritik bulguların elle doğrulaması. Tüm bulgular gerçek kod okunarak üretildi; en ciddi olanlar ayrıca canlı DB'de doğrulandı.
 
+## ✅ Uygulanan düzeltmeler (23.07.2026 — Step 1)
+- **K2** `find_patient_matches` rol guard'ı (0039) — doktor artık hasta PII tarayamıyor. *Doğrulandı: doctor JWT→0, sales JWT→1 satır.*
+- **K1** storage `photos` SELECT kapsamlı erişim (0040) — `can_read_photo_object()` ile rol+talep kapsamı; arşiv daima edge-fn'e. *Doğrulandı: 9/9 fonksiyon-düzeyi senaryo.*
+- **K3-kısmi** `photo-url` (super_admin yetki bug'ı + top-level try/catch) ve `notify-sla` (hata loglama) — deploy edildi.
+- **0037/0038** `activity_timeline`/`own_doctor_ranks` public/anon revoke (0039). *Doğrulandı: proacl'de anon yok.*
+- **Kalan Step 1:** Leaked-password koruması → Supabase panelinden tek tık (Auth → Password → HaveIBeenPwned).
+
+---
+
 **Genel karar:** Kod tabanı disiplinli (RLS/RPC katmanı olgun, domain testleri örnek düzeyde, cross-tenant sızıntı YOK, rol yükseltme engelleri sunucu tarafında doğru). Ancak üç sistemik zayıflık var: (1) tenant-İÇİ aşırı erişim (storage + bir RPC hasta PII'sini role bakmadan açıyor), (2) hata yolları görünmez (Sentry yok, hatalar "boş liste" olarak maskeleniyor), (3) iş mantığının ağırlık merkezi (SQL/RPC + edge fn) tamamen testsiz ve e2e CI dışında.
 
 ---
