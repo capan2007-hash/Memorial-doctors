@@ -58,8 +58,13 @@ Deno.serve(async (req) => {
       }))),
     })
     const pushJson = await pushRes.json().catch(() => null)
+    // Expo push başarısızlığını Supabase log'una yaz (aksi hâlde SLA bildirimi sessizce kaybolur).
+    if (!pushRes.ok) {
+      console.error('notify-sla push send failed:', pushRes.status, JSON.stringify(pushJson))
+    }
     return json({ ok: true, sent: to.length, expo: pushJson?.data ?? null }, 200)
   } catch (e) {
+    console.error('notify-sla error:', e instanceof Error ? e.message : String(e))
     return json({ ok: false, error: e instanceof Error ? e.message : String(e) }, 200)
   }
 })
