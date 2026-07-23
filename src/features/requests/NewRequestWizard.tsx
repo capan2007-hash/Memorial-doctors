@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AlertTriangle, Info, User, X } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
 import { useCategories, useSubcategories, useOperationTypes } from '../catalog/useCatalog'
@@ -11,15 +13,13 @@ import { normalizePhone } from '../../domain/phone'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Field } from '../../components/ui/Field'
-import { PageHeader } from '../../components/ui/PageHeader'
+import { Input } from '@/components/shadcn/input'
+import { Textarea } from '@/components/shadcn/textarea'
+import { Checkbox } from '@/components/shadcn/checkbox'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/shadcn/select'
 import { saveDraft, loadDraft, clearDraft, isDraftEmpty, type RequestDraft } from './requestDraft'
 import { missingFields } from './missingFields'
 import { DuplicateMatchPanel, type MatchRow } from './DuplicateMatchPanel'
-import { Icon } from '../../components/ui/Icon'
-import { AlertTriangle, Info, X } from 'lucide-react'
-
-const inputClass =
-  'w-full rounded-control bg-surface-1 border border-line p-2 text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
 
 type Gender = 'female' | 'male' | 'other'
 
@@ -29,6 +29,60 @@ interface MedicalField {
 }
 
 const emptyMedical: MedicalField = { none: false, text: '' }
+const NONE = '__none__'
+
+/** Etiketli shadcn Select — native <select>'lerin premium karşılığı. */
+function LabeledSelect({
+  label,
+  value,
+  onChange,
+  placeholder,
+  children,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  placeholder: string
+  children: ReactNode
+}) {
+  return (
+    <div className="space-y-1.5">
+      <span className="block text-sm font-medium text-foreground">{label}</span>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>{children}</SelectContent>
+      </Select>
+    </div>
+  )
+}
+
+/** Tıbbi geçmiş bloğu: "Yok" onay kutusu + koşullu metin alanı. */
+function MedicalBlock({
+  label,
+  value,
+  onChange,
+  id,
+}: {
+  label: string
+  value: MedicalField
+  onChange: (v: MedicalField) => void
+  id: string
+}) {
+  return (
+    <div className="space-y-2">
+      <span className="block text-sm font-medium text-foreground">{label}</span>
+      <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-foreground">
+        <Checkbox id={id} checked={value.none} onCheckedChange={(c) => onChange({ ...value, none: c === true })} />
+        Yok
+      </label>
+      {!value.none && (
+        <Textarea placeholder={label} value={value.text} onChange={(e) => onChange({ ...value, text: e.target.value })} />
+      )}
+    </div>
+  )
+}
 
 export function NewRequestWizard() {
   const { appUser } = useAuth()
@@ -86,7 +140,6 @@ export function NewRequestWizard() {
   }, [])
 
   // M5: mükerrer hasta eşleştirme — telefon + ad + soyad girilince debounce'lu RPC.
-  // Zaten "aynı hasta" seçilmişse yeni arama yapılmaz (kullanıcı kararını bozmamak için).
   useEffect(() => {
     if (selectedPatient) { setMatches([]); return }
     if (normalizePhone(phone).length < 7 || !first.trim() || !last.trim()) { setMatches([]); return }
@@ -122,7 +175,6 @@ export function NewRequestWizard() {
   const ageNum = Number(age); const weightNum = Number(weightKg); const heightNum = Number(heightCm)
   const medicalValid = (m: MedicalField) => m.none || !!m.text.trim()
 
-  // Üç alan da doluyken aralık doğrulaması yap (yazarken erken uyarı vermemek için)
   const demoError = age && weightKg && heightCm ? demographicsError(ageNum, weightNum, heightNum) : null
 
   const phoneOk = normalizePhone(phone).length >= 10
@@ -142,7 +194,6 @@ export function NewRequestWizard() {
     medicalOk, lifestyleOk, filesCount: files.length,
   })
 
-  // M5 FR-44: seçilen adayda önceki fotoğraflar silinmişse yeni talebe güncel foto zorunluluğu.
   const photosRequired = !!selectedPatient && selectedPatient.had_deleted_photos && !selectedPatient.has_available_photos
 
   const [submitErr, setSubmitErr] = useState<string | null>(null)
@@ -154,7 +205,6 @@ export function NewRequestWizard() {
         patient: { first_name: first, last_name: last, phone: normalizePhone(phone) },
         existingPatientId: selectedPatient?.patient_id,
         photosRequired,
-        // DB kolonları integer: gönderimde yuvarla (ör. 172.5 -> 173)
         age: Math.round(ageNum), weightKg: weightNum, heightCm: Math.round(heightNum), gender: gender as Gender,
         pastSurgeries: medicalValue(pastSurgeries.none, pastSurgeries.text) ?? '',
         knownConditions: medicalValue(knownConditions.none, knownConditions.text) ?? '',
@@ -172,7 +222,6 @@ export function NewRequestWizard() {
       setSubmitErr(null)
       submittedRef.current = true
       clearDraft()
-      // Mükerrer-şüphesi: doktora gitmedi, koordinatör onayına gitti (bloke etmez).
       if (res.routed === 'coordinator') {
         setWarn('Bu hastanın aktif bir talebi var — kayıt koordinatör onayına gönderildi.')
         return
@@ -187,284 +236,235 @@ export function NewRequestWizard() {
     }
   }
 
+  const packYearsVal = packYears(Number(smokingCigs), Number(smokingYears))
+
   return (
-    <div className="space-y-4 pb-4">
-      <PageHeader title="Yeni Talep" />
+    <div className="mx-auto max-w-3xl space-y-5 pb-28">
+      {/* Premium başlık */}
+      <div className="flex items-start gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-fill/10 text-brand-text">
+          <User className="h-5 w-5" strokeWidth={1.75} />
+        </span>
+        <div>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">Yeni Talep</h1>
+          <p className="text-sm text-muted-foreground">Hasta bilgilerini girin; sistem uygun doktorlara otomatik yönlendirir.</p>
+        </div>
+      </div>
+
       {draftRestored && (
-        <div className="flex items-center justify-between gap-2 rounded-control border border-info-border bg-info-bg p-2 text-sm text-info-text">
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-info-border bg-info-bg px-3 py-2 text-sm text-info-text">
           <span className="flex items-center gap-2">
-            <Icon of={Info} size={16} />
+            <Info className="h-4 w-4" strokeWidth={1.75} />
             Kaydedilmemiş taslak geri yüklendi.
           </span>
-          <Button variant="ghost" onClick={clearDraftAndReset}>Taslağı temizle</Button>
+          <Button variant="ghost" onClick={clearDraftAndReset}>
+            Taslağı temizle
+          </Button>
         </div>
       )}
 
-      <div className="mx-auto max-w-4xl space-y-4">
-        <Card title="Hasta Bilgileri">
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <Field label="Ad">
-                <input className={inputClass} placeholder="Ad" value={first} onChange={(e) => setFirst(e.target.value)} />
-              </Field>
-              <Field label="Soyad">
-                <input className={inputClass} placeholder="Soyad" value={last} onChange={(e) => setLast(e.target.value)} />
-              </Field>
-              <Field label="Telefon">
-                <input className={inputClass} type="tel" placeholder="05XX XXX XX XX" value={phone} onChange={(e) => setPhone(e.target.value)} />
-              </Field>
-            </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-              <Field label="Yaş">
-                <input className={inputClass} type="number" placeholder="Yaş" value={age} onChange={(e) => setAge(e.target.value)} />
-              </Field>
-              <Field label="Cinsiyet">
-                <select className={inputClass} value={gender} onChange={(e) => setGender(e.target.value as Gender)}>
-                  <option value="">Cinsiyet seçin</option>
-                  <option value="female">Kadın</option>
-                  <option value="male">Erkek</option>
-                  <option value="other">Diğer</option>
-                </select>
-              </Field>
-              <Field label="Boy">
-                <input className={inputClass} type="number" placeholder="Boy (cm)" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} />
-              </Field>
-              <Field label="Kilo">
-                <input className={inputClass} type="number" placeholder="Kilo (kg)" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} />
-              </Field>
-            </div>
-          </div>
-        </Card>
-
-        {!selectedPatient && matches.length > 0 && (
-          <DuplicateMatchPanel
-            matches={matches}
-            onSelectSame={(m) => { setSelectedPatient(m); setMatches([]) }}
-            onDismiss={() => setMatches([])}
-          />
-        )}
-
-        {selectedPatient && (
-          <Card className="border-brand-200 bg-brand-50">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-sm text-brand-text">
-                  Mevcut hastaya bağlanıyor: <span className="font-medium">{selectedPatient.first_name} {selectedPatient.last_name}</span>
-                </p>
-                <button
-                  type="button"
-                  aria-label="Seçimi geri al"
-                  className="text-ink-muted hover:text-ink-primary rounded-control p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/20"
-                  onClick={() => setSelectedPatient(null)}
-                >
-                  <Icon of={X} size={16} />
-                </button>
-              </div>
-              {selectedPatient.had_deleted_photos && !selectedPatient.has_available_photos && (
-                <p className="flex items-center gap-1.5 text-sm text-warning-text">
-                  <Icon of={AlertTriangle} size={15} />
-                  Fotoğraf yeniden gerekli: önceki fotoğraflar KVKK gereği silinmiş, güncel fotoğraf ekleyin.
-                </p>
-              )}
-              {selectedPatient.has_open_request && (
-                <p className="text-sm text-ink-secondary">
-                  Bu hastanın doktor yanıtı bekleyen başka talebi var.
-                </p>
-              )}
-            </div>
-          </Card>
-        )}
-
-        <Card title="Operasyon">
-          <div className="space-y-3">
-            <Field label="Kategori">
-              <select className={inputClass} value={categoryId}
-                onChange={(e) => { setCategoryId(e.target.value); setSubcategoryId(null); setOperationTypeId(null) }}>
-                <option value="">Kategori seçin</option>
-                {cats.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+      <Card title="Hasta Bilgileri">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <Field label="Ad">
+              <Input placeholder="Ad" value={first} onChange={(e) => setFirst(e.target.value)} />
             </Field>
-            {needsSub && (
-              <Field label="Alt kırılım">
-                <select className={inputClass} value={subcategoryId ?? ''}
-                  onChange={(e) => setSubcategoryId(e.target.value || null)}>
-                  <option value="">Alt kırılım seçin (zorunlu)</option>
-                  {subs.data?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              </Field>
-            )}
-            {categoryId && (
-              <Field label="Operasyon tipi">
-                <select className={inputClass} value={operationTypeId ?? ''}
-                  onChange={(e) => setOperationTypeId(e.target.value || null)}>
-                  <option value="">Operasyon tipi seçin (opsiyonel)</option>
-                  {ops.data?.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-                </select>
-              </Field>
-            )}
+            <Field label="Soyad">
+              <Input placeholder="Soyad" value={last} onChange={(e) => setLast(e.target.value)} />
+            </Field>
+            <Field label="Telefon">
+              <Input type="tel" placeholder="05XX XXX XX XX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </Field>
           </div>
-        </Card>
-
-        <Card title="Tıbbi Geçmiş">
-          <div className="space-y-4">
-            {/* Field kullanılmıyor: dış <label> içindeki iç <label> geçersiz HTML olur
-                ve başlığa tıklamak "Yok" checkbox'ını yanlışlıkla toggle'lar. */}
-            <div className="space-y-1">
-              <span className="block text-sm font-medium text-ink-secondary">Geçmiş ameliyatlar</span>
-              <label className="flex items-center gap-2 text-sm text-ink-primary">
-                <input type="checkbox" aria-label="Yok" className="accent-brand-fill" checked={pastSurgeries.none}
-                  onChange={(e) => setPastSurgeries({ ...pastSurgeries, none: e.target.checked })} />
-                Yok
-              </label>
-              {!pastSurgeries.none && (
-                <textarea className={inputClass} placeholder="Geçmiş ameliyatlar"
-                  value={pastSurgeries.text} onChange={(e) => setPastSurgeries({ ...pastSurgeries, text: e.target.value })} />
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <span className="block text-sm font-medium text-ink-secondary">Bilinen hastalıklar</span>
-              <label className="flex items-center gap-2 text-sm text-ink-primary">
-                <input type="checkbox" aria-label="Yok" className="accent-brand-fill" checked={knownConditions.none}
-                  onChange={(e) => setKnownConditions({ ...knownConditions, none: e.target.checked })} />
-                Yok
-              </label>
-              {!knownConditions.none && (
-                <textarea className={inputClass} placeholder="Bilinen hastalıklar"
-                  value={knownConditions.text} onChange={(e) => setKnownConditions({ ...knownConditions, text: e.target.value })} />
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <span className="block text-sm font-medium text-ink-secondary">Düzenli kullanılan ilaçlar</span>
-              <label className="flex items-center gap-2 text-sm text-ink-primary">
-                <input type="checkbox" aria-label="Yok" className="accent-brand-fill" checked={medications.none}
-                  onChange={(e) => setMedications({ ...medications, none: e.target.checked })} />
-                Yok
-              </label>
-              {!medications.none && (
-                <textarea className={inputClass} placeholder="Düzenli kullanılan ilaçlar"
-                  value={medications.text} onChange={(e) => setMedications({ ...medications, text: e.target.value })} />
-              )}
-            </div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <Field label="Yaş">
+              <Input type="number" placeholder="Yaş" value={age} onChange={(e) => setAge(e.target.value)} />
+            </Field>
+            <LabeledSelect label="Cinsiyet" value={gender} onChange={(v) => setGender(v as Gender)} placeholder="Seçin">
+              <SelectItem value="female">Kadın</SelectItem>
+              <SelectItem value="male">Erkek</SelectItem>
+              <SelectItem value="other">Diğer</SelectItem>
+            </LabeledSelect>
+            <Field label="Boy (cm)">
+              <Input type="number" placeholder="Boy" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} />
+            </Field>
+            <Field label="Kilo (kg)">
+              <Input type="number" placeholder="Kilo" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} />
+            </Field>
           </div>
-        </Card>
+        </div>
+      </Card>
 
-        <Card title="Sigara & Alkol">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Field label="Sigara">
-                <select className={inputClass} value={smokingStatus}
-                  onChange={(e) => setSmokingStatus(e.target.value)}>
-                  <option value="">Seçin</option>
-                  <option value="never">Hiç kullanmadı</option>
-                  <option value="former">Bıraktı</option>
-                  <option value="current">Aktif içici</option>
-                </select>
-              </Field>
-              {(smokingStatus === 'current' || smokingStatus === 'former') && (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <Field label="Günlük adet">
-                      <input type="number" min={0} max={200} className={inputClass} placeholder="ör. 20"
-                        value={smokingCigs} onChange={(e) => setSmokingCigs(e.target.value)} />
-                    </Field>
-                    <Field label="Kaç yıldır">
-                      <input type="number" min={0} max={100} className={inputClass} placeholder="ör. 10"
-                        value={smokingYears} onChange={(e) => setSmokingYears(e.target.value)} />
-                    </Field>
-                  </div>
-                  {packYears(Number(smokingCigs), Number(smokingYears)) != null && (
-                    <p className="text-sm text-ink-secondary">
-                      ≈ <span className="font-medium text-ink-primary tnum">{packYears(Number(smokingCigs), Number(smokingYears))}</span> paket-yıl
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
+      {!selectedPatient && matches.length > 0 && (
+        <DuplicateMatchPanel
+          matches={matches}
+          onSelectSame={(m) => { setSelectedPatient(m); setMatches([]) }}
+          onDismiss={() => setMatches([])}
+        />
+      )}
 
-            <div className="space-y-2">
-              <Field label="Alkol">
-                <select className={inputClass} value={alcoholStatus}
-                  onChange={(e) => setAlcoholStatus(e.target.value)}>
-                  <option value="">Seçin</option>
-                  <option value="never">Hiç</option>
-                  <option value="occasional">Sosyal (ara sıra)</option>
-                  <option value="regular">Düzenli</option>
-                </select>
-              </Field>
-              {alcoholStatus === 'regular' && (
-                <Field label="Haftalık standart içki">
-                  <input type="number" min={0} max={200} className={inputClass} placeholder="ör. 14"
-                    value={alcoholDrinks} onChange={(e) => setAlcoholDrinks(e.target.value)} />
-                </Field>
-              )}
-            </div>
+      {selectedPatient && (
+        <div className="space-y-2 rounded-lg border border-brand-fill/30 bg-brand-fill/5 p-4">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm text-brand-text">
+              Mevcut hastaya bağlanıyor:{' '}
+              <span className="font-semibold">{selectedPatient.first_name} {selectedPatient.last_name}</span>
+            </p>
+            <button
+              type="button"
+              aria-label="Seçimi geri al"
+              className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              onClick={() => setSelectedPatient(null)}
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-        </Card>
-
-        <Card title="Fotoğraflar">
-          <PhotoUploader files={files} onChange={setFiles} />
-          {files.length > 0 && (
-            <p className="text-sm text-ink-muted">{files.map((f) => f.name).join(', ')}</p>
+          {selectedPatient.had_deleted_photos && !selectedPatient.has_available_photos && (
+            <p className="flex items-center gap-1.5 text-sm text-warning-text">
+              <AlertTriangle className="h-4 w-4" strokeWidth={1.75} />
+              Fotoğraf yeniden gerekli: önceki fotoğraflar KVKK gereği silinmiş, güncel fotoğraf ekleyin.
+            </p>
           )}
-        </Card>
+          {selectedPatient.has_open_request && (
+            <p className="text-sm text-muted-foreground">Bu hastanın doktor yanıtı bekleyen başka talebi var.</p>
+          )}
+        </div>
+      )}
 
-        {isDental && (
-          <Card title="Diş Röntgeni">
-            <PhotoUploader files={xrayFiles} onChange={setXrayFiles} />
-            {xrayFiles.length > 0 && (
-              <p className="text-sm text-ink-muted">{xrayFiles.map((f) => f.name).join(', ')}</p>
+      <Card title="Operasyon">
+        <div className="space-y-4">
+          <LabeledSelect
+            label="Kategori"
+            value={categoryId}
+            onChange={(v) => { setCategoryId(v); setSubcategoryId(null); setOperationTypeId(null) }}
+            placeholder="Kategori seçin"
+          >
+            {cats.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+          </LabeledSelect>
+          {needsSub && (
+            <LabeledSelect
+              label="Alt kırılım"
+              value={subcategoryId ?? ''}
+              onChange={(v) => setSubcategoryId(v || null)}
+              placeholder="Alt kırılım seçin (zorunlu)"
+            >
+              {subs.data?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+            </LabeledSelect>
+          )}
+          {categoryId && (
+            <LabeledSelect
+              label="Operasyon tipi (opsiyonel)"
+              value={operationTypeId ?? NONE}
+              onChange={(v) => setOperationTypeId(v === NONE ? null : v)}
+              placeholder="Operasyon tipi seçin"
+            >
+              <SelectItem value={NONE}>Seçilmedi</SelectItem>
+              {ops.data?.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+            </LabeledSelect>
+          )}
+        </div>
+      </Card>
+
+      <Card title="Tıbbi Geçmiş">
+        <div className="space-y-5">
+          <MedicalBlock id="past" label="Geçmiş ameliyatlar" value={pastSurgeries} onChange={setPastSurgeries} />
+          <MedicalBlock id="cond" label="Bilinen hastalıklar" value={knownConditions} onChange={setKnownConditions} />
+          <MedicalBlock id="meds" label="Düzenli kullanılan ilaçlar" value={medications} onChange={setMedications} />
+        </div>
+      </Card>
+
+      <Card title="Sigara & Alkol">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="space-y-3">
+            <LabeledSelect label="Sigara" value={smokingStatus} onChange={setSmokingStatus} placeholder="Seçin">
+              <SelectItem value="never">Hiç kullanmadı</SelectItem>
+              <SelectItem value="former">Bıraktı</SelectItem>
+              <SelectItem value="current">Aktif içici</SelectItem>
+            </LabeledSelect>
+            {(smokingStatus === 'current' || smokingStatus === 'former') && (
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <Field label="Günlük adet">
+                    <Input type="number" min={0} max={200} placeholder="ör. 20" value={smokingCigs} onChange={(e) => setSmokingCigs(e.target.value)} />
+                  </Field>
+                  <Field label="Kaç yıldır">
+                    <Input type="number" min={0} max={100} placeholder="ör. 10" value={smokingYears} onChange={(e) => setSmokingYears(e.target.value)} />
+                  </Field>
+                </div>
+                {packYearsVal != null && (
+                  <p className="text-sm text-muted-foreground">
+                    ≈ <span className="tnum font-semibold text-foreground">{packYearsVal}</span> paket-yıl
+                  </p>
+                )}
+              </div>
             )}
-          </Card>
-        )}
+          </div>
+          <div className="space-y-3">
+            <LabeledSelect label="Alkol" value={alcoholStatus} onChange={setAlcoholStatus} placeholder="Seçin">
+              <SelectItem value="never">Hiç</SelectItem>
+              <SelectItem value="occasional">Sosyal (ara sıra)</SelectItem>
+              <SelectItem value="regular">Düzenli</SelectItem>
+            </LabeledSelect>
+            {alcoholStatus === 'regular' && (
+              <Field label="Haftalık standart içki">
+                <Input type="number" min={0} max={200} placeholder="ör. 14" value={alcoholDrinks} onChange={(e) => setAlcoholDrinks(e.target.value)} />
+              </Field>
+            )}
+          </div>
+        </div>
+      </Card>
 
-        <Card title="Not">
-          <textarea className={inputClass} placeholder="Not" value={notes} onChange={(e) => setNotes(e.target.value)} />
+      <Card title="Fotoğraflar">
+        <PhotoUploader files={files} onChange={setFiles} />
+        {files.length > 0 && <p className="mt-2 text-sm text-muted-foreground">{files.map((f) => f.name).join(', ')}</p>}
+      </Card>
+
+      {isDental && (
+        <Card title="Diş Röntgeni">
+          <PhotoUploader files={xrayFiles} onChange={setXrayFiles} />
+          {xrayFiles.length > 0 && <p className="mt-2 text-sm text-muted-foreground">{xrayFiles.map((f) => f.name).join(', ')}</p>}
         </Card>
+      )}
 
-        <Card title="Onam">
-          <div className="space-y-1">
-            <label className="flex items-start gap-2 text-sm text-ink-primary">
-              <input
-                type="checkbox"
-                className="mt-0.5 accent-brand-fill"
-                checked={consentGiven}
-                onChange={(e) => setConsentGiven(e.target.checked)}
-              />
-              <span>
-                Hastadan aydınlatma metni paylaşıldı ve yurt dışı aktarım dahil açık rıza alındı (WhatsApp).{' '}
-                <a
-                  href="/aydinlatma"
-                  target="_blank"
-                  rel="noopener"
-                  className="text-brand-text underline hover:text-brand-fill-hover"
-                >
-                  Aydınlatma metnini görüntüle
-                </a>
-              </span>
-            </label>
-            <p className="text-sm text-ink-muted">İşaretlenmezse yapay zekâ ön değerlendirmesi yapılmaz.</p>
-          </div>
-        </Card>
+      <Card title="Not">
+        <Textarea placeholder="Ek not (opsiyonel)" value={notes} onChange={(e) => setNotes(e.target.value)} />
+      </Card>
 
-        {(demoError || submitErr || warn) && (
-          <div className="space-y-1">
-            {demoError && <p className="text-danger-text text-sm">{demoError}</p>}
-            {submitErr && <p className="text-danger-text text-sm">{submitErr}</p>}
-            {warn && <p className="text-warning-text text-sm">{warn}</p>}
-          </div>
-        )}
+      <Card title="Onam">
+        <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
+          <Checkbox className="mt-0.5" checked={consentGiven} onCheckedChange={(c) => setConsentGiven(c === true)} />
+          <span>
+            Hastadan aydınlatma metni paylaşıldı ve yurt dışı aktarım dahil açık rıza alındı (WhatsApp).{' '}
+            <a href="/aydinlatma" target="_blank" rel="noopener" className="font-medium text-brand-text underline underline-offset-2 hover:text-brand-fill">
+              Aydınlatma metnini görüntüle
+            </a>
+          </span>
+        </label>
+        <p className="mt-2 text-sm text-muted-foreground">İşaretlenmezse yapay zekâ ön değerlendirmesi yapılmaz.</p>
+      </Card>
 
-        <div className="sticky bottom-0">
-          <div className="flex items-center justify-between gap-4 rounded-card border-t border-line bg-surface-1/95 backdrop-blur px-4 py-3 shadow-card">
-            {!canSubmit && missing.length > 0 ? (
-              <p className="text-sm text-danger-text">Eksik: {missing.join(', ')}</p>
-            ) : <span />}
-            <Button variant="primary" loading={create.isPending} disabled={!canSubmit || create.isPending} onClick={submit}>
-              Gönder
-            </Button>
-          </div>
+      {(demoError || submitErr || warn) && (
+        <div className="space-y-1">
+          {demoError && <p className="text-sm text-destructive">{demoError}</p>}
+          {submitErr && <p className="text-sm text-destructive">{submitErr}</p>}
+          {warn && <p className="text-sm text-warning-text">{warn}</p>}
+        </div>
+      )}
+
+      {/* Yapışkan gönder çubuğu */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/90 backdrop-blur">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          {!canSubmit && missing.length > 0 ? (
+            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-warning-text" strokeWidth={1.75} />
+              <span className="line-clamp-1">Eksik: {missing.join(', ')}</span>
+            </p>
+          ) : (
+            <span className="text-sm text-muted-foreground">Tüm zorunlu alanlar tamam.</span>
+          )}
+          <Button variant="primary" loading={create.isPending} disabled={!canSubmit || create.isPending} onClick={submit} className="shrink-0">
+            Gönder
+          </Button>
         </div>
       </div>
     </div>
