@@ -1,14 +1,17 @@
 import type { ButtonHTMLAttributes } from 'react'
-import { Spinner } from './Spinner'
+import { Loader2 } from 'lucide-react'
+import { Button as ShadButton } from '@/components/shadcn/button'
 
+// Mevcut API (primary/secondary/danger/ghost + loading) korunur; altta shadcn
+// button render edilir (birleşik teal tema, tutarlı odak/hover). Böylece tüm
+// ekranlardaki <Button> kullanımı tek noktadan shadcn'e yükselir.
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost'
 
-const VARIANT_CLASSES: Record<Variant, string> = {
-  primary: 'bg-brand-fill hover:bg-brand-fill-hover text-brand-on',
-  secondary:
-    'bg-surface-2 border border-line text-ink-primary hover:border-line-strong',
-  danger: 'bg-danger-bg border border-danger-border text-danger-text hover:border-danger-text/40',
-  ghost: 'text-ink-secondary hover:bg-surface-2',
+const VARIANT_MAP: Record<Variant, 'default' | 'secondary' | 'destructive' | 'ghost'> = {
+  primary: 'default',
+  secondary: 'secondary',
+  danger: 'destructive',
+  ghost: 'ghost',
 }
 
 export function Button({
@@ -16,20 +19,16 @@ export function Button({
   loading = false,
   disabled,
   children,
-  className = '',
+  className,
   ...rest
 }: {
   variant?: Variant
   loading?: boolean
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button
-      className={`inline-flex items-center justify-center gap-2 rounded-control px-4 py-2 text-sm font-medium disabled:opacity-40 transition ease-premium duration-[var(--dur-fast)] active:scale-[0.98] ${VARIANT_CLASSES[variant]} ${className}`}
-      disabled={disabled || loading}
-      {...rest}
-    >
-      {loading && <Spinner />}
+    <ShadButton variant={VARIANT_MAP[variant]} disabled={disabled || loading} className={className} {...rest}>
+      {loading && <Loader2 className="size-4 animate-spin" />}
       {children}
-    </button>
+    </ShadButton>
   )
 }
