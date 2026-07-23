@@ -1,23 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowRight, Lock, Mail, ShieldCheck, Sparkles } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
-import { Button } from '../../components/ui/Button'
-import { Button as ShadButton } from '@/components/shadcn/button'
-import { Field } from '../../components/ui/Field'
+import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
-
-/** Rafine marka işareti — geometrik teal haç + nokta. */
-function Monogram() {
-  return (
-    <span className="flex h-16 w-16 items-center justify-center rounded-card bg-brand-on/10">
-      <svg viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" aria-hidden="true">
-        <path d="M12 4.5v15M4.5 12h15" strokeWidth={2.25} strokeLinecap="round" />
-        <circle cx="12" cy="12" r="3.25" fill="currentColor" stroke="none" opacity={0.9} />
-      </svg>
-    </span>
-  )
-}
+import { Label } from '@/components/shadcn/label'
 
 export function LoginPage() {
   const { signIn } = useAuth()
@@ -26,7 +14,6 @@ export function LoginPage() {
   const [pw, setPw] = useState('')
   const [err, setErr] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  // "Şifremi unuttum" modu (Faz 2 — SMTP yapılandırılınca e-posta gider).
   const [mode, setMode] = useState<'login' | 'reset'>('login')
   const [resetInfo, setResetInfo] = useState<string | null>(null)
 
@@ -46,80 +33,134 @@ export function LoginPage() {
     e.preventDefault()
     setErr(null)
     setSubmitting(true)
-    await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset',
-    })
+    await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/reset' })
     setSubmitting(false)
-    // Kullanıcı sayımı sızdırmamak için nötr mesaj (hesap var/yok belli olmaz).
     setResetInfo('Bu e-posta kayıtlıysa şifre sıfırlama bağlantısı gönderildi. Gelen kutunuzu kontrol edin.')
   }
 
   return (
-    <div className="min-h-screen bg-background md:grid md:grid-cols-2">
-      <div className="flex flex-col items-center justify-center gap-4 bg-brand-fill px-6 py-12 text-brand-on md:py-0">
-        <Monogram />
-        <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">MedTriage</h1>
-        <p className="max-w-xs text-center text-brand-on/80">Estetik cerrahi talep yönetimi &amp; triyaj</p>
+    <div className="grid min-h-screen bg-background lg:grid-cols-[1.1fr_1fr]">
+      {/* Sol marka paneli — gradyan + yumuşak ışık + öne çıkan değer önermesi */}
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-brand-500 via-brand-700 to-brand-900 p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        <div
+          className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full opacity-40 blur-3xl"
+          style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.35), transparent 70%)' }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full opacity-20 blur-3xl"
+          style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.5), transparent 70%)' }}
+        />
+        <div className="relative flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 backdrop-blur">
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" aria-hidden>
+              <path d="M12 4.5v15M4.5 12h15" strokeWidth={2.25} strokeLinecap="round" />
+              <circle cx="12" cy="12" r="3.25" fill="currentColor" stroke="none" opacity={0.9} />
+            </svg>
+          </span>
+          <span className="font-display text-xl font-semibold tracking-tight">MedTriage</span>
+        </div>
+
+        <div className="relative space-y-6">
+          <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight xl:text-5xl">
+            Estetik cerrahi taleplerini <span className="text-white/70">saniyeler içinde</span> triyaj edin.
+          </h1>
+          <ul className="space-y-3 text-white/85">
+            <li className="flex items-center gap-3">
+              <Sparkles className="h-5 w-5 shrink-0 text-white/70" strokeWidth={1.75} /> AI destekli triyaj ve mükerrer tespiti
+            </li>
+            <li className="flex items-center gap-3">
+              <ShieldCheck className="h-5 w-5 shrink-0 text-white/70" strokeWidth={1.75} /> Hasta verisi için uçtan uca gizlilik
+            </li>
+          </ul>
+        </div>
+
+        <p className="relative text-sm text-white/60">© {new Date().getFullYear()} Rememore · MedTriage</p>
       </div>
-      <div className="flex items-center justify-center p-6">
-        <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 shadow-sm md:p-8">
-          {mode === 'login' ? (
-            <>
-              <h2 className="mb-1 font-display text-xl text-foreground">Giriş</h2>
-              <p className="mb-5 text-sm text-muted-foreground">Devam etmek için hesabınıza giriş yapın</p>
-              <form onSubmit={submit} className="space-y-4">
-                <Field label="E-posta">
-                  <Input placeholder="E-posta" value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" />
-                </Field>
-                <Field label="Şifre" error={err ?? undefined}>
-                  <Input placeholder="Şifre" value={pw} onChange={(e) => setPw(e.target.value)} type="password" autoComplete="current-password" />
-                </Field>
-                <Button type="submit" variant="primary" loading={submitting} className="w-full">
-                  Giriş
-                </Button>
-              </form>
-              <ShadButton
-                variant="link"
-                type="button"
-                className="mt-3 h-auto p-0 text-sm"
-                onClick={() => {
-                  setMode('reset')
-                  setErr(null)
-                  setResetInfo(null)
-                }}
-              >
-                Şifremi unuttum?
-              </ShadButton>
-            </>
-          ) : (
-            <>
-              <h2 className="mb-1 font-display text-xl text-foreground">Şifre sıfırla</h2>
-              <p className="mb-5 text-sm text-muted-foreground">Kayıtlı e-postanıza sıfırlama bağlantısı gönderelim</p>
-              {resetInfo ? (
-                <p className="text-sm text-success-text">{resetInfo}</p>
-              ) : (
-                <form onSubmit={submitReset} className="space-y-4">
-                  <Field label="E-posta">
-                    <Input placeholder="E-posta" value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" />
-                  </Field>
-                  <Button type="submit" variant="primary" loading={submitting} className="w-full">
-                    Sıfırlama bağlantısı gönder
+
+      {/* Sağ form paneli */}
+      <div className="flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-md">
+          {/* Mobilde marka işareti */}
+          <div className="mb-8 flex items-center gap-3 lg:hidden">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-fill text-white">
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" aria-hidden>
+                <path d="M12 4.5v15M4.5 12h15" strokeWidth={2.25} strokeLinecap="round" />
+                <circle cx="12" cy="12" r="3.25" fill="currentColor" stroke="none" opacity={0.9} />
+              </svg>
+            </span>
+            <span className="font-display text-lg font-semibold">MedTriage</span>
+          </div>
+
+          <div className="rounded-2xl border border-border/70 bg-card p-8 shadow-[0_1px_2px_rgba(20,32,29,0.04),0_12px_40px_-12px_rgba(20,32,29,0.18)]">
+            {mode === 'login' ? (
+              <>
+                <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Tekrar hoş geldiniz</h2>
+                <p className="mt-1.5 text-sm text-muted-foreground">Devam etmek için hesabınıza giriş yapın.</p>
+
+                <form onSubmit={submit} className="mt-7 space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-posta</Label>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
+                      <Input id="email" className="h-11 pl-9" placeholder="ornek@klinik.com" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pw">Şifre</Label>
+                    <div className="relative">
+                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
+                      <Input id="pw" className="h-11 pl-9" placeholder="••••••••" type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
+                    </div>
+                    {err && <p className="text-sm font-medium text-destructive">{err}</p>}
+                  </div>
+                  <Button type="submit" disabled={submitting} className="group h-11 w-full text-[15px]">
+                    {submitting ? 'Giriş yapılıyor…' : 'Giriş yap'}
+                    {!submitting && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />}
                   </Button>
                 </form>
-              )}
-              <ShadButton
-                variant="link"
-                type="button"
-                className="mt-3 h-auto p-0 text-sm"
-                onClick={() => {
-                  setMode('login')
-                  setResetInfo(null)
-                }}
-              >
-                ← Girişe dön
-              </ShadButton>
-            </>
-          )}
+
+                <button
+                  type="button"
+                  onClick={() => { setMode('reset'); setErr(null); setResetInfo(null) }}
+                  className="mt-5 text-sm font-medium text-brand-text transition-colors hover:text-brand-fill"
+                >
+                  Şifremi unuttum?
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Şifre sıfırla</h2>
+                <p className="mt-1.5 text-sm text-muted-foreground">Kayıtlı e-postanıza sıfırlama bağlantısı gönderelim.</p>
+                {resetInfo ? (
+                  <div className="mt-6 rounded-lg border border-success-border bg-success-bg p-3 text-sm text-success-text">{resetInfo}</div>
+                ) : (
+                  <form onSubmit={submitReset} className="mt-7 space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="remail">E-posta</Label>
+                      <div className="relative">
+                        <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
+                        <Input id="remail" className="h-11 pl-9" placeholder="ornek@klinik.com" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                      </div>
+                    </div>
+                    <Button type="submit" disabled={submitting} className="h-11 w-full text-[15px]">
+                      {submitting ? 'Gönderiliyor…' : 'Sıfırlama bağlantısı gönder'}
+                    </Button>
+                  </form>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { setMode('login'); setResetInfo(null) }}
+                  className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-brand-text transition-colors hover:text-brand-fill"
+                >
+                  ← Girişe dön
+                </button>
+              </>
+            )}
+          </div>
+
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Bu platform yalnız yetkili klinik personeli içindir.
+          </p>
         </div>
       </div>
     </div>
