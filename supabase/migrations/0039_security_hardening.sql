@@ -1,0 +1,59 @@
+-- Denetim düzeltmeleri (23.07.2026):
+-- K2: find_patient_matches rol guard'ı — hasta PII (telefon/isim/başvuru geçmişi)
+--     yalnız intake/yönetim rollerine (agent/sales/coordinator/admin/super_admin)
+--     açık. Doktor artık isim parçalarıyla hasta telefonu tarayamaz (patient RLS
+--     baypası kapatıldı).
+-- 0037/0038 tutarlılık: activity_timeline ve own_doctor_ranks yalnız `grant to
+--     authenticated` yapmış; diğer tüm RPC'lerdeki `revoke from public, anon`
+--     eksikti. auth.uid() guard'ları sayesinde fiili sızıntı yoktu ama savunma
+--     derinliği için eklenir.
+
+create or replace function find_patient_matches(p_phone text, p_first text, p_last text)
+returns table (
+  patient_id uuid,
+  first_name text,
+  last_name text,
+  phone text,
+  request_count bigint,
+  last_request_at timestamptz,
+  last_status text,
+  has_open_request boolean,
+  has_available_photos boolean,
+  had_deleted_photos boolean,
+  match_reason text
+)
+language sql
+security definer set search_path = public
+as $$
+  with norm as (select normalize_phone(p_phone) as np, trim(coalesce(p_first,'') || ' ' || coalesce(p_last,'')) as nm),
+  cands as (
+    select p.id, p.first_name, p.last_name, p.phone,
+      case when normalize_phone(p.phone) = (select np from norm) and length((select np from norm)) >= 7 then 'phone'
+           else 'name' end as match_reason,
+      case when normalize_phone(p.phone) = (select np from norm) and length((select np from norm)) >= 7 then 1 else 0 end as phone_hit,
+      similarity(p.first_name || ' ' || p.last_name, (select nm from norm)) as sim
+    from patient p
+    where p.tenant_id = current_tenant_id()
+      -- K2: yalnız intake/yönetim rolleri; doktor engellenir (hasta PII taraması).
+      and current_role_name() in ('agent', 'sales', 'coordinator', 'admin', 'super_admin')
+      and (
+        (length((select np from norm)) >= 7 and normalize_phone(p.phone) = (select np from norm))
+        or ((select nm from norm) <> '' and similarity(p.first_name || ' ' || p.last_name, (select nm from norm)) > 0.3)
+      )
+  )
+  select c.id, c.first_name, c.last_name, c.phone,
+    (select count(*) from request r where r.patient_id = c.id),
+    (select max(r.created_at) from request r where r.patient_id = c.id),
+    (select r.status::text from request r where r.patient_id = c.id order by r.created_at desc limit 1),
+    exists (select 1 from request r where r.patient_id = c.id and r.status <> 'closed'),
+    exists (select 1 from photo ph join request r on r.id = ph.request_id where r.patient_id = c.id and ph.deleted_at is null),
+    exists (select 1 from photo ph join request r on r.id = ph.request_id where r.patient_id = c.id and ph.deleted_at is not null),
+    c.match_reason
+  from cands c
+  order by c.phone_hit desc, c.sim desc
+  limit 5
+$$;
+
+-- 0037/0038 revoke tutarlılığı
+revoke execute on function activity_timeline(int, timestamptz) from public, anon;
+revoke execute on function own_doctor_ranks() from public, anon;
