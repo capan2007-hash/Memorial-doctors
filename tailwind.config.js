@@ -1,3 +1,5 @@
+import tailwindcssAnimate from 'tailwindcss-animate'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -45,8 +47,44 @@ export default {
         warning: { bg: 'var(--warning-bg)', border: 'var(--warning-border)', text: 'var(--warning-text)' },
         danger: { bg: 'var(--danger-bg)', border: 'var(--danger-border)', text: 'var(--danger-text)' },
         info: { bg: 'var(--info-bg)', border: 'var(--info-border)', text: 'var(--info-text)' },
-        // Eski accent (amber) — geçiş sırasında korunur, warning ile eşlenik.
-        accent: { 100: 'var(--warning-bg)', 600: 'var(--warning-text)', 700: 'var(--warning-text)' },
+        // Eski accent (amber, 100/600/700) korunur + shadcn accent (DEFAULT/foreground) birleşik.
+        accent: {
+          100: 'var(--warning-bg)',
+          600: 'var(--warning-text)',
+          700: 'var(--warning-text)',
+          DEFAULT: 'hsl(var(--sc-accent) / <alpha-value>)',
+          foreground: 'hsl(var(--sc-accent-foreground) / <alpha-value>)',
+        },
+        // --- shadcn/ui token'ları (izole; --sc-* önekli, mevcut Rafine Klinik temasına dokunmaz) ---
+        background: 'hsl(var(--sc-background) / <alpha-value>)',
+        foreground: 'hsl(var(--sc-foreground) / <alpha-value>)',
+        primary: {
+          DEFAULT: 'hsl(var(--sc-primary) / <alpha-value>)',
+          foreground: 'hsl(var(--sc-primary-foreground) / <alpha-value>)',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--sc-secondary) / <alpha-value>)',
+          foreground: 'hsl(var(--sc-secondary-foreground) / <alpha-value>)',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--sc-muted) / <alpha-value>)',
+          foreground: 'hsl(var(--sc-muted-foreground) / <alpha-value>)',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--sc-destructive) / <alpha-value>)',
+          foreground: 'hsl(var(--sc-destructive-foreground) / <alpha-value>)',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--sc-card) / <alpha-value>)',
+          foreground: 'hsl(var(--sc-card-foreground) / <alpha-value>)',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--sc-popover) / <alpha-value>)',
+          foreground: 'hsl(var(--sc-popover-foreground) / <alpha-value>)',
+        },
+        border: 'hsl(var(--sc-border) / <alpha-value>)',
+        input: 'hsl(var(--sc-input) / <alpha-value>)',
+        ring: 'hsl(var(--sc-ring) / <alpha-value>)',
       },
       fontFamily: {
         display: ['Fraunces', 'Georgia', 'serif'],
@@ -60,11 +98,15 @@ export default {
       borderRadius: {
         card: 'var(--radius-card)',
         control: 'var(--radius-control)',
+        // shadcn radius (0.5rem taban → tailwind varsayılan lg/md/sm ile birebir aynı).
+        lg: 'var(--sc-radius)',
+        md: 'calc(var(--sc-radius) - 2px)',
+        sm: 'calc(var(--sc-radius) - 4px)',
       },
       transitionTimingFunction: {
         premium: 'var(--ease-out)',
       },
     },
   },
-  plugins: [],
+  plugins: [tailwindcssAnimate],
 }
