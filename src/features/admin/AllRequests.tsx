@@ -5,11 +5,12 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { StatusPill } from '../../components/ui/StatusPill'
 import { Avatar } from '../../components/ui/Avatar'
-import { Spinner } from '../../components/ui/Spinner'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../components/ui/Toast'
+import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { timeAgo } from '../../lib/format'
 import { slaInfo, slaLabel } from '../../domain/sla'
 import type { RequestRow } from '../../types/db'
@@ -121,26 +122,35 @@ export function AllRequests() {
     <div>
       <PageHeader title="Tüm Talepler" />
       <AiAccuracyCard />
-      <div className="mt-3 flex flex-wrap gap-2">
-        {(['all', 'pending', 'overdue', 'completed'] as SlaTab[]).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTab(t)}
-            className={`text-sm px-3 py-1.5 rounded-control border transition ease-premium duration-[var(--dur-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 ${
-              tab === t
-                ? 'bg-brand-fill border-brand-fill text-brand-on'
-                : 'bg-surface-2 border-line text-ink-secondary hover:border-line-strong'
-            }`}
-          >
-            {TAB_LABEL[t]} <span className="tnum">({counts[t]})</span>
-          </button>
-        ))}
-      </div>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as SlaTab)} className="mt-3 block">
+        <TabsList className="h-auto flex-wrap justify-start gap-1 p-1">
+          {(['all', 'pending', 'overdue', 'completed'] as SlaTab[]).map((t) => (
+            <TabsTrigger key={t} value={t} className="gap-1.5 py-1.5">
+              {TAB_LABEL[t]}
+              <span
+                className={`tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold ${
+                  tab === t ? 'bg-brand-fill/12 text-brand-text' : 'bg-muted-foreground/15 text-muted-foreground'
+                }`}
+              >
+                {counts[t]}
+              </span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       {reqs.isLoading && (
-        <div className="flex justify-center py-10">
-          <Spinner />
-        </div>
+        <ul className="mt-3 space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className="flex items-center gap-3 rounded-card border border-line bg-surface-2 p-3">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+              <Skeleton className="h-6 w-20 rounded-full" />
+            </li>
+          ))}
+        </ul>
       )}
       {!reqs.isLoading && reqs.data?.length === 0 && <EmptyState title="Henüz talep yok" />}
       {!reqs.isLoading && reqs.data && reqs.data.length > 0 && visible.length === 0 && (

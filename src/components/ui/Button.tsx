@@ -27,7 +27,7 @@ export function Button({
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <ShadButton variant={VARIANT_MAP[variant]} disabled={disabled || loading} className={className} {...rest}>
-      {loading && <Loader2 className="size-4 animate-spin" />}
+      {loading && <Loader2 data-testid="spinner" className="size-4 animate-spin" />}
       {children}
     </ShadButton>
   )
