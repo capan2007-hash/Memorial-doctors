@@ -86,6 +86,7 @@ export function DoctorRequestView() {
         decision: mode === 'accept' ? 'accept' : 'reject',
         treatmentPlan: mode === 'accept' ? plan : undefined,
         rejectReason: mode === 'reject' ? reason : undefined,
+        sourceLang: i18n.language,
       })
       setRespErr(null)
       setMode('none')

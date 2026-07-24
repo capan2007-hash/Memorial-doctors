@@ -8,6 +8,8 @@ export function useRespond() {
     mutationFn: async (input: {
       tenantId: string; requestId: string; doctorId: string
       decision: Decision; rejectReason?: string; treatmentPlan?: string
+      /** Faz 3: yanıtın girildiği dil (yazma-anında kaydedilir) — içerik çevirisi kaynak dili belirler. */
+      sourceLang: string
     }) => {
       // response yaz (doktor başına bir; unique). Talebin toplam durumu
       // (offers_ready / escalated / in_review) response üzerindeki DB trigger'ı
@@ -20,6 +22,7 @@ export function useRespond() {
         tenant_id: input.tenantId, request_id: input.requestId, doctor_id: input.doctorId,
         decision: input.decision, reject_reason: input.rejectReason ?? null,
         treatment_plan: input.decision === 'accept' ? (input.treatmentPlan ?? null) : null,
+        source_lang: input.sourceLang,
       })
       if (error) throw error
     },

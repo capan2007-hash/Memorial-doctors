@@ -33,6 +33,8 @@ interface NewRequestInput {
   xrayFiles?: File[]
   /** P1: satışçı WhatsApp'ta onam aldığını beyan ederse true — AI ön değerlendirmesi yalnız bu durumda çalışır. */
   consentGiven?: boolean
+  /** Faz 3: talebin girildiği dil (yazma-anında kaydedilir) — içerik çevirisi kaynak dili belirler. */
+  sourceLang: string
 }
 
 export function useCreateRequest() {
@@ -70,6 +72,7 @@ export function useCreateRequest() {
         alcohol_drinks_per_week: input.alcoholDrinksPerWeek ?? null,
         photos_required: input.photosRequired ?? false,
         status: 'submitted', submitted_at: new Date().toISOString(),
+        source_lang: input.sourceLang,
         ...consent,
       }).select().single()
       if (rErr) throw rErr
