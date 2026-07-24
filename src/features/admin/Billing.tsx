@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { useBilling, useSetInfraCost, type BillingCompany, type BillingService } from './useBilling'
 import { Card } from '../../components/ui/Card'
 import { PageHeader } from '../../components/ui/PageHeader'
@@ -16,13 +17,11 @@ function fmtUsd(v: number): string {
   return '$' + (v >= 0.01 ? v.toFixed(2) : v.toFixed(4))
 }
 
-const SERVICE_LABELS: Record<string, string> = { triage: 'AI Triyaj', vision: 'AI Görsel' }
-function serviceLabel(service: string): string { return SERVICE_LABELS[service] ?? service }
-
 function ServiceRow({ s }: { s: BillingService }) {
+  const { t } = useTranslation('admin')
   return (
     <TableRow>
-      <TableCell className="text-ink-secondary">{serviceLabel(s.service)}</TableCell>
+      <TableCell className="text-ink-secondary">{t(`billing.services.${s.service}`, { defaultValue: s.service })}</TableCell>
       <TableCell className="tnum text-right text-ink-primary">{fmtUsd(s.cost)}</TableCell>
       <TableCell className="tnum text-right text-ink-muted">{s.calls}</TableCell>
       <TableCell className="tnum text-right text-ink-muted">{s.inTok} / {s.outTok}</TableCell>
@@ -31,22 +30,23 @@ function ServiceRow({ s }: { s: BillingService }) {
 }
 
 function CompanyCard({ c }: { c: BillingCompany }) {
+  const { t } = useTranslation('admin')
   return (
     <Card>
       <div className="flex items-center justify-between gap-3 pb-2">
         <h3 className="font-display text-base text-ink-primary">{c.name}</h3>
         <div className="rounded-control bg-brand-fill/10 px-3 py-1 text-right">
-          <p className="text-[11px] text-brand-text">Haftalık tahsilat (2×)</p>
+          <p className="text-[11px] text-brand-text">{t('billing.weeklyChargeLabel')}</p>
           <p className="font-display text-lg tnum text-brand-text">{fmtUsd(c.weeklyCharge)}</p>
         </div>
       </div>
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead>Servis</TableHead>
-            <TableHead className="text-right">Maliyet</TableHead>
-            <TableHead className="text-right">Çağrı</TableHead>
-            <TableHead className="text-right">Token (in / out)</TableHead>
+            <TableHead>{t('billing.columns.service')}</TableHead>
+            <TableHead className="text-right">{t('billing.columns.cost')}</TableHead>
+            <TableHead className="text-right">{t('billing.columns.calls')}</TableHead>
+            <TableHead className="text-right">{t('billing.columns.tokens')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -54,7 +54,7 @@ function CompanyCard({ c }: { c: BillingCompany }) {
           {/* Altyapı (tahmini): AI-çağrı payına göre dağıtılan Supabase/Cloudflare maliyeti. */}
           <TableRow>
             <TableCell className="text-ink-secondary">
-              Altyapı <span className="text-ink-muted">(tahmini)</span>
+              {t('billing.infraRowLabel')} <span className="text-ink-muted">{t('billing.infraEstimated')}</span>
             </TableCell>
             <TableCell className="tnum text-right text-ink-primary">{fmtUsd(c.infraCost)}</TableCell>
             <TableCell className="tnum text-right text-ink-muted">—</TableCell>
@@ -63,15 +63,16 @@ function CompanyCard({ c }: { c: BillingCompany }) {
         </TableBody>
       </Table>
       <div className="mt-3 flex justify-end gap-4 border-t border-line pt-2 text-sm">
-        <span className="text-ink-muted">AI: <span className="tnum text-ink-secondary">{fmtUsd(c.aiCost)}</span></span>
-        <span className="text-ink-muted">Altyapı: <span className="tnum text-ink-secondary">{fmtUsd(c.infraCost)}</span></span>
-        <span className="text-ink-secondary">Toplam:&nbsp;<span className="font-medium tnum text-ink-primary">{fmtUsd(c.totalCost)}</span></span>
+        <span className="text-ink-muted">{t('billing.aiLabel')} <span className="tnum text-ink-secondary">{fmtUsd(c.aiCost)}</span></span>
+        <span className="text-ink-muted">{t('billing.infraLabel')} <span className="tnum text-ink-secondary">{fmtUsd(c.infraCost)}</span></span>
+        <span className="text-ink-secondary">{t('billing.totalLabel')}&nbsp;<span className="font-medium tnum text-ink-primary">{fmtUsd(c.totalCost)}</span></span>
       </div>
     </Card>
   )
 }
 
 function InfraEditor({ current }: { current: number }) {
+  const { t } = useTranslation('admin')
   const toast = useToast()
   const setInfra = useSetInfraCost()
   const [val, setVal] = useState(String(current))
@@ -79,33 +80,36 @@ function InfraEditor({ current }: { current: number }) {
 
   const save = async () => {
     const n = Number(val)
-    if (!(n >= 0)) { toast.show('Geçerli bir tutar girin', 'error'); return }
+    if (!(n >= 0)) { toast.show(t('billing.infraEditor.invalidAmount'), 'error'); return }
     try {
       await setInfra.mutateAsync(n)
-      toast.show('Altyapı maliyeti güncellendi')
+      toast.show(t('billing.infraEditor.updatedToast'))
     } catch (e) {
-      toast.show('Güncellenemedi: ' + (e as Error).message, 'error')
+      toast.show(t('billing.infraEditor.updateFailedToast', { message: (e as Error).message }), 'error')
     }
   }
 
   return (
-    <Card title="Altyapı maliyeti (aylık)">
+    <Card title={t('billing.infraEditor.cardTitle')}>
       <div className="flex flex-wrap items-end gap-3">
-        <Field label="Aylık altyapı maliyeti (USD)">
+        <Field label={t('billing.infraEditor.fieldLabel')}>
           <Input className="w-40" type="number" min={0} step="0.01"
-            value={val} onChange={(e) => setVal(e.target.value)} placeholder="ör. 30" />
+            value={val} onChange={(e) => setVal(e.target.value)} placeholder={t('billing.infraEditor.placeholder')} />
         </Field>
-        <Button variant="primary" type="button" loading={setInfra.isPending} onClick={save}>Kaydet</Button>
+        <Button variant="primary" type="button" loading={setInfra.isPending} onClick={save}>{t('billing.infraEditor.saveButton')}</Button>
       </div>
       <p className="mt-2 text-xs text-ink-muted">
-        Supabase/Cloudflare gibi sabit platform maliyeti. Firmalara <span className="font-medium">AI-çağrı payına göre</span> dağıtılır (tahmini);
-        haftalık gösterimde 7/30 oranıyla hesaplanır.
+        <Trans i18nKey="billing.infraEditor.note" t={t}>
+          Supabase/Cloudflare gibi sabit platform maliyeti. Firmalara <span className="font-medium">AI-çağrı payına göre</span> dağıtılır (tahmini);
+          haftalık gösterimde 7/30 oranıyla hesaplanır.
+        </Trans>
       </p>
     </Card>
   )
 }
 
 export function Billing() {
+  const { t } = useTranslation('admin')
   const [period, setPeriod] = useState<'week' | 'month'>('week')
   const billing = useBilling(period)
   const data = billing.data
@@ -114,12 +118,12 @@ export function Billing() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Billing" subtitle="Firma bazlı AI + altyapı maliyeti ve haftalık tahsilat (USD)." />
+      <PageHeader title={t('billing.title')} subtitle={t('billing.subtitle')} />
 
       <Tabs value={period} onValueChange={(v) => setPeriod(v as 'week' | 'month')} className="block">
         <TabsList>
-          <TabsTrigger value="week">Bu hafta</TabsTrigger>
-          <TabsTrigger value="month">Bu ay</TabsTrigger>
+          <TabsTrigger value="week">{t('billing.periodTabs.week')}</TabsTrigger>
+          <TabsTrigger value="month">{t('billing.periodTabs.month')}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -146,7 +150,7 @@ export function Billing() {
 
       {billing.isError && (
         <div className="rounded-control border border-danger-border bg-danger-bg p-3 text-sm text-danger-text">
-          Billing verisi alınamadı: {(billing.error as Error).message}
+          {t('billing.loadError', { message: (billing.error as Error).message })}
         </div>
       )}
 
@@ -155,13 +159,13 @@ export function Billing() {
           <Card>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-ink-muted">Toplam maliyet (AI + altyapı)</p>
+                <p className="text-xs text-ink-muted">{t('billing.totalCostLabel')}</p>
                 <p className="font-display text-3xl tnum text-ink-primary">{fmtUsd(data.grandTotalCost)}</p>
               </div>
               <div>
-                <p className="text-xs text-ink-muted">Haftalık tahsilat (2×)</p>
+                <p className="text-xs text-ink-muted">{t('billing.weeklyChargeLabel')}</p>
                 <p className="font-display text-3xl tnum text-brand-text">{fmtUsd(data.grandTotalCharge)}</p>
-                <p className="text-xs text-ink-muted">2× reseller markup</p>
+                <p className="text-xs text-ink-muted">{t('billing.weeklyChargeSublabel')}</p>
               </div>
             </div>
           </Card>
@@ -169,7 +173,7 @@ export function Billing() {
           <InfraEditor current={data.infraMonthlyUsd} />
 
           {isEmpty ? (
-            <EmptyState title="Bu dönemde maliyet yok" description="Seçili dönemde firma bazlı AI/altyapı maliyeti oluşmadı." />
+            <EmptyState title={t('billing.emptyTitle')} description={t('billing.emptyDescription')} />
           ) : (
             <div className="space-y-3">
               {data.companies.filter((c) => c.totalCost > 0).map((c) => <CompanyCard key={c.tenantId} c={c} />)}

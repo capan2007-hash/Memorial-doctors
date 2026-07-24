@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { Trash2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
@@ -38,8 +39,6 @@ import {
   SelectValue,
 } from '@/components/shadcn/select'
 
-const levelLabels: Record<WeightedWorkLevel, string> = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
-
 function scopeKey(s: DoctorScope) { return `${s.categoryId}::${s.subcategoryId ?? ''}` }
 
 function hasScope(scopes: DoctorScope[], categoryId: string, subcategoryId: string | null) {
@@ -73,6 +72,7 @@ function ScopeToggle({ checked, label, onToggle }: { checked: boolean; label: st
 function CategoryScopeRow({ category, scopes, onChange }: {
   category: CategoryRow; scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void
 }) {
+  const { t } = useTranslation('admin')
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
   if (!category.has_subcategories) {
     return (
@@ -98,7 +98,7 @@ function CategoryScopeRow({ category, scopes, onChange }: {
           ))}
         </div>
       ) : (
-        <span className="text-sm text-ink-muted">Alt kırılım yok</span>
+        <span className="text-sm text-ink-muted">{t('doctorAdmin.noSubcategories')}</span>
       )}
     </div>
   )
@@ -119,6 +119,7 @@ function ScopeEditor({ scopes, onChange }: { scopes: DoctorScope[]; onChange: (n
 }
 
 function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange: (next: WeightedWork) => void }) {
+  const { t } = useTranslation('admin')
   const updateItem = (idx: number, patch: Partial<{ area: string; level: WeightedWorkLevel }>) => {
     const items = value.items.map((it, i) => (i === idx ? { ...it, ...patch } : it))
     onChange({ ...value, items })
@@ -130,7 +131,7 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
       {value.items.map((it, idx) => (
         <div key={idx} className="flex gap-2">
           <Input
-            className="flex-1" placeholder="Alan (ör. diz protezi)"
+            className="flex-1" placeholder={t('doctorAdmin.areaPlaceholder')}
             value={it.area} onChange={(e) => updateItem(idx, { area: e.target.value })}
           />
           <Select value={it.level} onValueChange={(v) => updateItem(idx, { level: v as WeightedWorkLevel })}>
@@ -139,16 +140,16 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
             </SelectTrigger>
             <SelectContent>
               {(['high', 'medium', 'low'] as WeightedWorkLevel[]).map((l) => (
-                <SelectItem key={l} value={l}>{levelLabels[l]}</SelectItem>
+                <SelectItem key={l} value={l}>{t(`doctorAdmin.levelLabels.${l}`)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button variant="ghost" type="button" onClick={() => removeItem(idx)}>Sil</Button>
+          <Button variant="ghost" type="button" onClick={() => removeItem(idx)}>{t('doctorAdmin.removeRowButton')}</Button>
         </div>
       ))}
-      <button type="button" className="rounded text-sm font-medium text-brand-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40" onClick={addItem}>+ Satır ekle</button>
+      <button type="button" className="rounded text-sm font-medium text-brand-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40" onClick={addItem}>{t('doctorAdmin.addRowButton')}</button>
       <Textarea
-        placeholder="Serbest not"
+        placeholder={t('doctorAdmin.freeNotePlaceholder')}
         value={value.note} onChange={(e) => onChange({ ...value, note: e.target.value })}
       />
     </div>
@@ -173,8 +174,9 @@ function useScopeLabels() {
 }
 
 function ScopeChips({ scopes }: { scopes: DoctorScope[] }) {
+  const { t } = useTranslation('admin')
   const { categoryName, subcategoryName } = useScopeLabels()
-  if (!scopes.length) return <p className="text-xs text-ink-muted">Yetkinlik atanmadı</p>
+  if (!scopes.length) return <p className="text-xs text-ink-muted">{t('doctorAdmin.noScopesAssigned')}</p>
   return (
     <div className="flex flex-wrap gap-1.5">
       {scopes.map((s) => (
@@ -212,26 +214,33 @@ function StatBox({ value, label }: { value: string | number; label: string }) {
   )
 }
 
+// scoreTier (domain/score.ts) yalnız 'bg-rose-50' zeminde sabit bir uyarı etiketi döndürür ("Çalışılmaz").
+// domain dosyası paylaşımlı ve değiştirilmedi; çeviri call-site'ta, tier.bg kararlı kimliğine göre yapılır.
+const TIER_LABEL_KEY: Record<string, string> = { 'bg-rose-50': 'doctorAdmin.unworkableTier' }
+
 function ScoreStatBox({ score }: { score: number }) {
+  const { t } = useTranslation('admin')
   const tier = scoreTier(score)
   const tint = TIER_TINT[tier.bg] ?? { bg: 'bg-success-bg', text: 'text-success-text' }
+  const tierLabelKey = TIER_LABEL_KEY[tier.bg]
   return (
     <Card className={`text-center ${tint.bg}`}>
       <p className={`font-display text-2xl tnum ${tint.text}`}>{score}</p>
-      <p className="text-xs text-ink-muted">Skor</p>
-      {tier.label && <p className={`text-[11px] font-semibold mt-0.5 ${tint.text}`}>{tier.label}</p>}
+      <p className="text-xs text-ink-muted">{t('doctorAdmin.stats.score')}</p>
+      {tierLabelKey && <p className={`text-[11px] font-semibold mt-0.5 ${tint.text}`}>{t(tierLabelKey)}</p>}
     </Card>
   )
 }
 
 function StatsGrid({ doctor }: { doctor: DoctorWithScopes }) {
+  const { t } = useTranslation('admin')
   const metrics = useDoctorMetrics(doctor.id)
   const m = metrics.data
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-      <StatBox value={m?.acceptCount ?? 0} label="Kabul" />
-      <StatBox value={m?.rejectCount ?? 0} label="Red" />
-      <StatBox value={m && m.avgResponseMins != null ? Math.round(m.avgResponseMins) : '—'} label="Ort. dönüş (dk)" />
+      <StatBox value={m?.acceptCount ?? 0} label={t('doctorAdmin.stats.accept')} />
+      <StatBox value={m?.rejectCount ?? 0} label={t('doctorAdmin.stats.reject')} />
+      <StatBox value={m && m.avgResponseMins != null ? Math.round(m.avgResponseMins) : '—'} label={t('doctorAdmin.stats.avgResponseMins')} />
       <ScoreStatBox score={doctor.score} />
     </div>
   )
@@ -242,6 +251,7 @@ type ScorePreset = 'last30d' | 'custom'
 /** FR-29b: zamanında/geç toplamları + dönemsel skor (preset "Son 1 ay" + serbest aralık) + son 6 ay mini liste.
  * Tek sorgu ile TÜM olaylar çekilir; aralık/aylık toplamlar istemci tarafında hesaplanır (grafik kütüphanesi yok). */
 function ScoreSection({ doctorId }: { doctorId: string }) {
+  const { t, i18n } = useTranslation('admin')
   const now = useMemo(() => new Date(), [])
   const [preset, setPreset] = useState<ScorePreset>('last30d')
   const [customFrom, setCustomFrom] = useState(() => toDateInputValue(new Date(now.getTime() - 30 * 86_400_000)))
@@ -261,8 +271,8 @@ function ScoreSection({ doctorId }: { doctorId: string }) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-ink-secondary">
-        Zamanında: <span className="font-medium text-success-text tnum">{totalTimely}</span>
-        {' · '}Geç: <span className="font-medium text-danger-text tnum">{totalLate}</span>
+        {t('doctorAdmin.scoreSection.onTime')} <span className="font-medium text-success-text tnum">{totalTimely}</span>
+        {' · '}{t('doctorAdmin.scoreSection.late')} <span className="font-medium text-danger-text tnum">{totalLate}</span>
       </p>
 
       <div className="rounded-control border border-line p-3 bg-surface-1 space-y-2">
@@ -272,7 +282,7 @@ function ScoreSection({ doctorId }: { doctorId: string }) {
             variant={preset === 'last30d' ? 'primary' : 'secondary'}
             onClick={() => setPreset('last30d')}
           >
-            Son 1 ay
+            {t('doctorAdmin.scoreSection.last30d')}
           </Button>
           <Input
             type="date"
@@ -289,23 +299,29 @@ function ScoreSection({ doctorId }: { doctorId: string }) {
           />
         </div>
         <p className="text-sm text-ink-secondary">
-          Aralıktaki değişim: <span className="text-success-text font-medium tnum">+{range.positive}</span>
+          {t('doctorAdmin.scoreSection.rangeChange')} <span className="text-success-text font-medium tnum">+{range.positive}</span>
           {' '}<span className="text-danger-text font-medium tnum">−{range.negative}</span>
           {' = '}
-          <span className="font-semibold tnum">net {range.net >= 0 ? `+${range.net}` : range.net}</span>
+          <span className="font-semibold tnum">{t('doctorAdmin.scoreSection.net')} {range.net >= 0 ? `+${range.net}` : range.net}</span>
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium text-ink-muted mb-1">Son 6 ay</p>
+        <p className="text-xs font-medium text-ink-muted mb-1">{t('doctorAdmin.scoreSection.last6Months')}</p>
         <ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-secondary">
-          {monthly.map((m) => (
-            <li key={m.key}>
-              {m.label}: <span className={`tnum ${m.net > 0 ? 'text-success-text' : m.net < 0 ? 'text-danger-text' : 'text-ink-muted'}`}>
-                {m.net > 0 ? `+${m.net}` : m.net}
-              </span>
-            </li>
-          ))}
+          {monthly.map((m) => {
+            // m.label (domain/score.ts) sabit TR ay kısaltması döndürür; domain dosyası değiştirilmedi —
+            // görüntüleme yalnız m.key ("YYYY-MM") tarih kimliğinden aktif dile göre yeniden formatlanır.
+            const [y, mo] = m.key.split('-').map(Number)
+            const label = new Intl.DateTimeFormat(i18n.language, { month: 'short', year: 'numeric' }).format(new Date(y, mo - 1, 1))
+            return (
+              <li key={m.key}>
+                {label}: <span className={`tnum ${m.net > 0 ? 'text-success-text' : m.net < 0 ? 'text-danger-text' : 'text-ink-muted'}`}>
+                  {m.net > 0 ? `+${m.net}` : m.net}
+                </span>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </div>
@@ -328,6 +344,7 @@ function SectionHeading({ children }: { children: string }) {
 }
 
 function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation('admin')
   const { appUser } = useAuth()
   const toast = useToast()
   const createDoctor = useCreateDoctor()
@@ -357,10 +374,10 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
         await supabase.from('doctor').update({ photo_url: path }).eq('id', newDoctorId)
       }
       reset()
-      toast.show('Doktor oluşturuldu')
+      toast.show(t('doctorAdmin.createdToast'))
       onClose()
     } catch (e) {
-      toast.show('Doktor oluşturulamadı: ' + (e as Error).message, 'error')
+      toast.show(t('doctorAdmin.createFailedToast', { message: (e as Error).message }), 'error')
     }
   }
 
@@ -368,49 +385,49 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
       <DialogContent className="max-h-[90vh] max-w-2xl space-y-3 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display text-lg">Yeni Doktor Ekle</DialogTitle>
+          <DialogTitle className="font-display text-lg">{t('doctorAdmin.newDoctorDialogTitle')}</DialogTitle>
         </DialogHeader>
 
-        <SectionHeading>Hesap</SectionHeading>
+        <SectionHeading>{t('doctorAdmin.sections.account')}</SectionHeading>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <Field label="E-posta">
+          <Field label={t('doctorAdmin.fields.email')}>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
-          <Field label="Geçici şifre">
+          <Field label={t('doctorAdmin.fields.tempPassword')}>
             <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </Field>
         </div>
 
-        <SectionHeading>Profil</SectionHeading>
+        <SectionHeading>{t('doctorAdmin.sections.profile')}</SectionHeading>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <Field label="Ad Soyad">
+          <Field label={t('doctorAdmin.fields.fullName')}>
             <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
           </Field>
-          <Field label="Unvan">
-            <Input placeholder="ör. Op. Dr." value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Field label={t('doctorAdmin.fields.title')}>
+            <Input placeholder={t('doctorAdmin.fields.titlePlaceholder')} value={title} onChange={(e) => setTitle(e.target.value)} />
           </Field>
-          <Field label="Branş">
+          <Field label={t('doctorAdmin.fields.specialty')}>
             <Input value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
           </Field>
         </div>
-        <Field label="Biyografi">
-          <Textarea placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
+        <Field label={t('doctorAdmin.fields.bio')}>
+          <Textarea placeholder={t('doctorAdmin.fields.bioPlaceholder')} value={bio} onChange={(e) => setBio(e.target.value)} />
         </Field>
 
-        <SectionHeading>Yetkinlikler</SectionHeading>
+        <SectionHeading>{t('doctorAdmin.sections.skills')}</SectionHeading>
         <ScopeEditor scopes={scopes} onChange={setScopes} />
-        {!scopes.length && <p className="text-xs text-warning-text">En az bir yetkinlik (kategori/alt kırılım) seçilmeli.</p>}
+        {!scopes.length && <p className="text-xs text-warning-text">{t('doctorAdmin.scopesMinWarning')}</p>}
 
-        <SectionHeading>Ağırlıklı İşler</SectionHeading>
+        <SectionHeading>{t('doctorAdmin.sections.weightedWork')}</SectionHeading>
         <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
 
-        <SectionHeading>Foto</SectionHeading>
+        <SectionHeading>{t('doctorAdmin.sections.photo')}</SectionHeading>
         <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="block text-sm" />
 
         <DialogFooter className="gap-2 pt-2">
-          <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
+          <Button variant="ghost" type="button" onClick={onClose}>{t('doctorAdmin.cancelButton')}</Button>
           <Button variant="primary" type="button" disabled={!canSubmit} loading={createDoctor.isPending} onClick={submit}>
-            Oluştur
+            {t('doctorAdmin.createButton')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -421,18 +438,19 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
 function ConfirmDeleteDialog({ loading, onConfirm, onClose }: {
   loading: boolean; onConfirm: () => void; onClose: () => void
 }) {
+  const { t } = useTranslation('admin')
   return (
     <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display text-lg">Doktoru sil?</DialogTitle>
+          <DialogTitle className="font-display text-lg">{t('doctorAdmin.confirmDeleteTitle')}</DialogTitle>
           <DialogDescription>
-            Hesabı pasifleştirilecek ve giriş engellenecek; geçmiş kayıtlar korunur.
+            {t('doctorAdmin.confirmDeleteDescription')}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">
-          <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
-          <Button variant="danger" type="button" loading={loading} onClick={onConfirm}>Sil</Button>
+          <Button variant="ghost" type="button" onClick={onClose}>{t('doctorAdmin.cancelButton')}</Button>
+          <Button variant="danger" type="button" loading={loading} onClick={onConfirm}>{t('doctorAdmin.deleteButton')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -440,6 +458,7 @@ function ConfirmDeleteDialog({ loading, onConfirm, onClose }: {
 }
 
 function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
+  const { t } = useTranslation('admin')
   const { appUser, role } = useAuth()
   const toast = useToast()
   const qc = useQueryClient()
@@ -451,16 +470,16 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
 
   const doDelete = async () => {
     if (!doctor.app_user_id) {
-      toast.show('Bu doktorun bağlı bir hesabı yok', 'error')
+      toast.show(t('doctorAdmin.noAccountError'), 'error')
       return
     }
     try {
       await manageUser.mutateAsync({ userId: doctor.app_user_id, action: 'delete_doctor' })
-      toast.show('Doktor silindi')
+      toast.show(t('doctorAdmin.deletedToast'))
       qc.invalidateQueries({ queryKey: ['doctors'] })
       setConfirmDelete(false)
     } catch (e) {
-      toast.show('Doktor silinemedi: ' + (e as Error).message, 'error')
+      toast.show(t('doctorAdmin.deleteFailedToast', { message: (e as Error).message }), 'error')
     }
   }
   const [specialty, setSpecialty] = useState(doctor.specialty ?? '')
@@ -488,9 +507,9 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
       })
       setPhotoFile(null)
       setExpanded(false)
-      toast.show('Kaydedildi')
+      toast.show(t('doctorAdmin.savedToast'))
     } catch (e) {
-      toast.show('Kaydedilemedi: ' + (e as Error).message, 'error')
+      toast.show(t('doctorAdmin.saveFailedToast', { message: (e as Error).message }), 'error')
     }
   }
 
@@ -499,16 +518,16 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
       <Card>
         <div className="flex justify-between items-center gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <DoctorAvatar photoUrl={doctor.photo_url} name={doctor.title || 'Doktor'} />
+            <DoctorAvatar photoUrl={doctor.photo_url} name={doctor.title || t('doctorAdmin.avatarFallbackName')} />
             <div className="min-w-0">
-              <p className="font-medium text-ink-primary truncate">{doctor.title || '(unvan yok)'}</p>
+              <p className="font-medium text-ink-primary truncate">{doctor.title || t('doctorAdmin.noTitle')}</p>
               <p className="text-sm text-ink-muted truncate">{doctor.specialty || '—'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <span className="flex items-center gap-1.5 text-sm text-ink-secondary">
               <span className={`leading-none ${doctor.is_active ? 'text-success-text' : 'text-ink-muted'}`} aria-hidden="true">●</span>
-              {doctor.is_active ? 'Aktif' : 'Pasif'}
+              {doctor.is_active ? t('doctorAdmin.activeLabel') : t('doctorAdmin.inactiveLabel')}
             </span>
             {canDelete && (
               <Button
@@ -517,13 +536,13 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
                 className="text-danger-text hover:bg-danger-bg"
                 onClick={() => setConfirmDelete(true)}
               >
-                <Icon of={Trash2} size={15} /> Sil
+                <Icon of={Trash2} size={15} /> {t('doctorAdmin.deleteButton')}
               </Button>
             )}
             <button
               type="button"
               className="p-1.5 rounded-control text-ink-muted hover:bg-surface-1 hover:text-ink-secondary transition ease-premium duration-[var(--dur-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40"
-              aria-label={expanded ? 'Kapat' : 'Genişlet'}
+              aria-label={expanded ? t('doctorAdmin.collapseAria') : t('doctorAdmin.expandAria')}
               onClick={() => setExpanded((v) => !v)}
             >
               <ChevronIcon open={expanded} />
@@ -535,36 +554,36 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
           <div className="space-y-3 pt-3 mt-3 border-t border-line">
             <ScopeChips scopes={doctor.scopes} />
 
-            <Field label="Branş">
+            <Field label={t('doctorAdmin.fields.specialty')}>
               <Input value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
             </Field>
-            <Field label="Biyografi">
-              <Textarea placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
+            <Field label={t('doctorAdmin.fields.bio')}>
+              <Textarea placeholder={t('doctorAdmin.fields.bioPlaceholder')} value={bio} onChange={(e) => setBio(e.target.value)} />
             </Field>
 
-            <SectionHeading>Yetkinlikler</SectionHeading>
+            <SectionHeading>{t('doctorAdmin.sections.skills')}</SectionHeading>
             <ScopeEditor scopes={scopes} onChange={setScopes} />
 
-            <SectionHeading>Ağırlıklı İşler</SectionHeading>
+            <SectionHeading>{t('doctorAdmin.sections.weightedWork')}</SectionHeading>
             <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
 
             <div className="flex items-center gap-3">
-              <DoctorAvatar photoUrl={photoUrl} name={doctor.title || 'Doktor'} size="lg" />
+              <DoctorAvatar photoUrl={photoUrl} name={doctor.title || t('doctorAdmin.avatarFallbackName')} size="lg" />
               <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="text-sm" />
             </div>
             <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-secondary">
-              <Checkbox checked={isActive} onCheckedChange={(v) => setIsActive(v === true)} /> Aktif
+              <Checkbox checked={isActive} onCheckedChange={(v) => setIsActive(v === true)} /> {t('doctorAdmin.activeLabel')}
             </label>
 
-            <SectionHeading>İstatistikler</SectionHeading>
+            <SectionHeading>{t('doctorAdmin.sections.statistics')}</SectionHeading>
             <StatsGrid doctor={doctor} />
 
-            <SectionHeading>Skor Geçmişi</SectionHeading>
+            <SectionHeading>{t('doctorAdmin.sections.scoreHistory')}</SectionHeading>
             <ScoreSection doctorId={doctor.id} />
 
             <div className="flex justify-end pt-2">
               <Button variant="primary" type="button" loading={updateDoctor.isPending} onClick={save}>
-                Kaydet
+                {t('doctorAdmin.saveButton')}
               </Button>
             </div>
           </div>
@@ -587,6 +606,7 @@ function scrollToDoctorCard(doctorId: string) {
 }
 
 export function DoctorAdmin() {
+  const { t } = useTranslation('admin')
   const docs = useDoctorsFull()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [view, setView] = useState<'list' | 'reports'>('list')
@@ -600,14 +620,14 @@ export function DoctorAdmin() {
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Doktor Yönetimi"
-        actions={<Button variant="primary" onClick={() => setDialogOpen(true)}>Yeni Doktor</Button>}
+        title={t('doctorAdmin.title')}
+        actions={<Button variant="primary" onClick={() => setDialogOpen(true)}>{t('doctorAdmin.newDoctorButton')}</Button>}
       />
 
       <Tabs value={view} onValueChange={(v) => setView(v as 'list' | 'reports')} className="block">
         <TabsList>
-          <TabsTrigger value="list">Doktorlar</TabsTrigger>
-          <TabsTrigger value="reports">Raporlama</TabsTrigger>
+          <TabsTrigger value="list">{t('doctorAdmin.tabs.list')}</TabsTrigger>
+          <TabsTrigger value="reports">{t('doctorAdmin.tabs.reports')}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -633,7 +653,7 @@ export function DoctorAdmin() {
           )}
 
           {!docs.isLoading && docs.data?.length === 0 && (
-            <EmptyState title="Henüz doktor yok" description="Yeni Doktor ile ilk kaydı oluşturun." />
+            <EmptyState title={t('doctorAdmin.emptyTitle')} description={t('doctorAdmin.emptyDescription')} />
           )}
 
           {!docs.isLoading && !!docs.data?.length && (

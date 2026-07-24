@@ -16,6 +16,9 @@ import arRequests from './locales/ar/requests.json'
 import trDoctors from './locales/tr/doctors.json'
 import enDoctors from './locales/en/doctors.json'
 import arDoctors from './locales/ar/doctors.json'
+import trAdmin from './locales/tr/admin.json'
+import enAdmin from './locales/en/admin.json'
+import arAdmin from './locales/ar/admin.json'
 
 export const SUPPORTED = ['tr', 'ar', 'en'] as const
 export type Lang = (typeof SUPPORTED)[number]
@@ -32,14 +35,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      tr: { common: trCommon, nav: trNav, auth: trAuth, requests: trRequests, doctors: trDoctors },
-      en: { common: enCommon, nav: enNav, auth: enAuth, requests: enRequests, doctors: enDoctors },
-      ar: { common: arCommon, nav: arNav, auth: arAuth, requests: arRequests, doctors: arDoctors },
+      tr: { common: trCommon, nav: trNav, auth: trAuth, requests: trRequests, doctors: trDoctors, admin: trAdmin },
+      en: { common: enCommon, nav: enNav, auth: enAuth, requests: enRequests, doctors: enDoctors, admin: enAdmin },
+      ar: { common: arCommon, nav: arNav, auth: arAuth, requests: arRequests, doctors: arDoctors, admin: arAdmin },
     },
     fallbackLng: 'tr',
     supportedLngs: SUPPORTED as unknown as string[],
     defaultNS: 'common',
-    ns: ['common', 'nav', 'auth', 'requests', 'doctors'],
+    ns: ['common', 'nav', 'auth', 'requests', 'doctors', 'admin'],
     interpolation: { escapeValue: false },
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'] },
   })

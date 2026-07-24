@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { StatusPill } from '../../components/ui/StatusPill'
@@ -12,7 +13,7 @@ import { useToast } from '../../components/ui/Toast'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { timeAgo } from '../../lib/format'
-import { slaInfo, slaLabel } from '../../domain/sla'
+import { slaInfo } from '../../domain/sla'
 import type { RequestRow } from '../../types/db'
 import { AiAccuracyCard } from '../ai/AiAccuracyCard'
 import { Icon } from '../../components/ui/Icon'
@@ -39,11 +40,14 @@ function classify(
   return { tab: info.state === 'overdue' ? 'overdue' : 'pending', info }
 }
 
-const TAB_LABEL: Record<SlaTab, string> = {
-  all: 'Tümü', pending: 'Bekleyen', overdue: 'Geciken', completed: 'Tamamlanan',
-}
-
 export function AllRequests() {
+  const { t } = useTranslation('admin')
+  const TAB_LABEL: Record<SlaTab, string> = {
+    all: t('allRequests.tabs.all'),
+    pending: t('allRequests.tabs.pending'),
+    overdue: t('allRequests.tabs.overdue'),
+    completed: t('allRequests.tabs.completed'),
+  }
   const { appUser } = useAuth()
   const qc = useQueryClient()
   const toast = useToast()
@@ -95,7 +99,7 @@ export function AllRequests() {
     // Manuel: talebin kategorisindeki (alt kırılıma göre daraltılmış) doktorları yeniden ata (audit'li)
     mutationFn: async (req: RequestRow) => {
       if (req.status === 'closed') {
-        throw new Error('Kapanmış talep yeniden atanamaz')
+        throw new Error(t('allRequests.reassignClosedError'))
       }
       // Atama + durum + audit sunucu tarafında (migration 0024 RPC'si);
       // 0 uygun doktor dönerse durum/audit değişmez, kullanıcı bilgilendirilir.
@@ -109,30 +113,30 @@ export function AllRequests() {
     onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ['all-requests'] })
       if (result.assigned) {
-        toast.show('Talep yeniden atandı')
+        toast.show(t('allRequests.reassignSuccess'))
       } else {
-        toast.show('Bu kategoriye uygun doktor yok', 'error')
+        toast.show(t('allRequests.reassignNoDoctors'), 'error')
       }
     },
     onError: (e) => {
-      toast.show((e as Error).message || 'Talep yeniden atanamadı', 'error')
+      toast.show((e as Error).message || t('allRequests.reassignFailed'), 'error')
     },
   })
   return (
     <div>
-      <PageHeader title="Tüm Talepler" />
+      <PageHeader title={t('allRequests.title')} />
       <AiAccuracyCard />
       <Tabs value={tab} onValueChange={(v) => setTab(v as SlaTab)} className="mt-3 block">
         <TabsList className="h-auto flex-wrap justify-start gap-1 p-1">
-          {(['all', 'pending', 'overdue', 'completed'] as SlaTab[]).map((t) => (
-            <TabsTrigger key={t} value={t} className="gap-1.5 py-1.5">
-              {TAB_LABEL[t]}
+          {(['all', 'pending', 'overdue', 'completed'] as SlaTab[]).map((slaTab) => (
+            <TabsTrigger key={slaTab} value={slaTab} className="gap-1.5 py-1.5">
+              {TAB_LABEL[slaTab]}
               <span
                 className={`tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold ${
-                  tab === t ? 'bg-brand-fill/12 text-brand-text' : 'bg-muted-foreground/15 text-muted-foreground'
+                  tab === slaTab ? 'bg-brand-fill/12 text-brand-text' : 'bg-muted-foreground/15 text-muted-foreground'
                 }`}
               >
-                {counts[t]}
+                {counts[slaTab]}
               </span>
             </TabsTrigger>
           ))}
@@ -152,9 +156,9 @@ export function AllRequests() {
           ))}
         </ul>
       )}
-      {!reqs.isLoading && reqs.data?.length === 0 && <EmptyState title="Henüz talep yok" />}
+      {!reqs.isLoading && reqs.data?.length === 0 && <EmptyState title={t('allRequests.emptyTitle')} />}
       {!reqs.isLoading && reqs.data && reqs.data.length > 0 && visible.length === 0 && (
-        <EmptyState title="Bu filtrede talep yok" />
+        <EmptyState title={t('allRequests.emptyFilterTitle')} />
       )}
       {!reqs.isLoading && visible.length > 0 && (
         <ul className="mt-3 space-y-2">
@@ -175,18 +179,18 @@ export function AllRequests() {
                   </div>
                   <div className="flex items-center gap-2">
                     {r.status === 'submitted' && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-warning-bg text-warning-text">Doktor atanmadı</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-warning-bg text-warning-text">{t('allRequests.notAssignedBadge')}</span>
                     )}
                     {info && rowTab === 'overdue' && (
                       <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-danger-bg text-danger-text font-medium">
                         <Icon of={AlertTriangle} size={13} />
-                        <span className="tnum">{slaLabel(info)}</span>
+                        <span className="tnum">{t('allRequests.sla.overdue', { count: info.hoursOver })}</span>
                       </span>
                     )}
                     {info && rowTab === 'pending' && info.state === 'warning' && (
                       <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-warning-bg text-warning-text font-medium">
                         <Icon of={Clock} size={13} />
-                        <span className="tnum">{slaLabel(info)}</span>
+                        <span className="tnum">{t('allRequests.sla.remaining', { count: info.hoursLeft })}</span>
                       </span>
                     )}
                     <StatusPill status={r.status} />
@@ -195,10 +199,10 @@ export function AllRequests() {
                 <Button
                   variant="secondary"
                   disabled={isClosed}
-                  title={isClosed ? 'Kapanmış talep yeniden atanamaz' : undefined}
+                  title={isClosed ? t('allRequests.reassignClosedError') : undefined}
                   onClick={() => reassign.mutate(r)}
                 >
-                  Yeniden ata
+                  {t('allRequests.reassignButton')}
                 </Button>
               </li>
             )

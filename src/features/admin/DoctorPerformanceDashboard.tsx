@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDoctorPerformance } from './useDoctors'
 import type { DoctorPerformanceRow } from './useDoctors'
 import { scoreTier } from '../../domain/score'
@@ -25,6 +26,10 @@ const TIER_PILL: Record<string, string> = {
   'bg-brand-50': 'bg-success-bg text-success-text',
 }
 
+// scoreTier (domain/score.ts) yalnız 'bg-rose-50' zeminde sabit bir uyarı etiketi döndürür ("Çalışılmaz").
+// domain dosyası paylaşımlı ve değiştirilmedi; çeviri call-site'ta, tier.bg kararlı kimliğine göre yapılır.
+const TIER_LABEL_KEY: Record<string, string> = { 'bg-rose-50': 'doctorPerformance.unworkableTierBadge' }
+
 const PAGE_SIZE = 8
 
 /** Dakikayı saat + dakikaya böler (ayrı ayrı gösterim için). */
@@ -35,6 +40,7 @@ function splitMins(n: number): { h: number; m: number } {
 
 /** Yanıt süresini "4 sa 37 dk" olarak — sayılar büyük/koyu, birimler küçük/soluk. */
 function ResponseTime({ mins, size = 'sm' }: { mins: number | null; size?: 'sm' | 'lg' }) {
+  const { t } = useTranslation('admin')
   if (mins == null) return <span className="text-ink-muted">—</span>
   const { h, m } = splitMins(mins)
   const num = size === 'lg' ? 'font-display text-2xl' : 'font-semibold'
@@ -44,11 +50,11 @@ function ResponseTime({ mins, size = 'sm' }: { mins: number | null; size?: 'sm' 
       {h > 0 && (
         <>
           <span className={num}>{h}</span>
-          <span className={`${unit} text-ink-muted`}>sa</span>
+          <span className={`${unit} text-ink-muted`}>{t('doctorPerformance.hoursSuffix')}</span>
         </>
       )}
       <span className={`${num} ${h > 0 ? 'ml-1' : ''}`}>{m}</span>
-      <span className={`${unit} text-ink-muted`}>dk</span>
+      <span className={`${unit} text-ink-muted`}>{t('doctorPerformance.minutesSuffix')}</span>
     </span>
   )
 }
@@ -100,17 +106,6 @@ type SortDir = 'asc' | 'desc'
 
 interface Column { key: SortKey; label: string }
 
-const COLUMNS: Column[] = [
-  { key: 'title', label: 'Doktor' },
-  { key: 'score', label: 'Skor' },
-  { key: 'accept_count', label: 'Kabul' },
-  { key: 'reject_count', label: 'Red' },
-  { key: 'avg_response_mins', label: 'Ort. yanıt' },
-  { key: 'timely_count', label: 'Zamanında' },
-  { key: 'breach_count', label: 'Geç' },
-  { key: 'pending_count', label: 'Bekleyen' },
-]
-
 function compareRows(a: DoctorPerformanceRow, b: DoctorPerformanceRow, key: SortKey): number {
   if (key === 'title') {
     return (a.title ?? '').localeCompare(b.title ?? '', 'tr')
@@ -130,6 +125,17 @@ function SortIndicator({ active, dir }: { active: boolean; dir: SortDir }) {
 
 /** Yönetici performans panosu (ayrı raporlama sekmesi): dönem + arama + özet karolar + sıralanabilir/sayfalanabilir tablo. */
 export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor: (doctorId: string) => void }) {
+  const { t } = useTranslation('admin')
+  const COLUMNS: Column[] = [
+    { key: 'title', label: t('doctorPerformance.columns.doctor') },
+    { key: 'score', label: t('doctorPerformance.columns.score') },
+    { key: 'accept_count', label: t('doctorPerformance.columns.accept') },
+    { key: 'reject_count', label: t('doctorPerformance.columns.reject') },
+    { key: 'avg_response_mins', label: t('doctorPerformance.columns.avgResponse') },
+    { key: 'timely_count', label: t('doctorPerformance.columns.timely') },
+    { key: 'breach_count', label: t('doctorPerformance.columns.breach') },
+    { key: 'pending_count', label: t('doctorPerformance.columns.pending') },
+  ]
   const [period, setPeriod] = useState<Period>('all')
   const now = useMemo(() => new Date(), [])
   const [customFrom, setCustomFrom] = useState(() => toDateInputValue(new Date(now.getTime() - 30 * 86_400_000)))
@@ -214,7 +220,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
   if (rows.length === 0) {
     return (
       <div className="rounded-card border border-line bg-surface-2 p-4 shadow-card">
-        <EmptyState title="Doktor bulunamadı" />
+        <EmptyState title={t('doctorPerformance.emptyTitle')} />
       </div>
     )
   }
@@ -226,9 +232,9 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
         <div className="flex flex-wrap items-center gap-3">
           <Tabs value={period} onValueChange={(v) => { setPeriod(v as Period); setPage(0) }} className="block">
             <TabsList>
-              <TabsTrigger value="all">Tüm zaman</TabsTrigger>
-              <TabsTrigger value="last30">Son 30 gün</TabsTrigger>
-              <TabsTrigger value="custom">Özel aralık</TabsTrigger>
+              <TabsTrigger value="all">{t('doctorPerformance.periodTabs.all')}</TabsTrigger>
+              <TabsTrigger value="last30">{t('doctorPerformance.periodTabs.last30')}</TabsTrigger>
+              <TabsTrigger value="custom">{t('doctorPerformance.periodTabs.custom')}</TabsTrigger>
             </TabsList>
           </Tabs>
           {period === 'custom' && (
@@ -243,7 +249,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" strokeWidth={1.75} />
           <Input
             className="w-56 pl-9"
-            placeholder="Doktor ara…"
+            placeholder={t('doctorPerformance.searchPlaceholder')}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(0) }}
           />
@@ -252,23 +258,26 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
 
       {/* Özet karolar */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <MetricTile label="Toplam doktor" icon={Users} sublabel={`${activeDoctors} aktif · ${totalDoctors - activeDoctors} pasif`}>
+        <MetricTile
+          label={t('doctorPerformance.metrics.totalDoctors')} icon={Users}
+          sublabel={t('doctorPerformance.metrics.totalDoctorsSublabel', { active: activeDoctors, inactive: totalDoctors - activeDoctors })}
+        >
           {totalDoctors}
         </MetricTile>
         <MetricTile
-          label="Çalışılmaz" icon={AlertTriangle} alarm={unworkableCount > 0}
-          sublabel={unworkableCount > 0 ? 'Dikkat gerekiyor' : 'Sağlıklı yük'}
+          label={t('doctorPerformance.metrics.unworkable')} icon={AlertTriangle} alarm={unworkableCount > 0}
+          sublabel={unworkableCount > 0 ? t('doctorPerformance.metrics.unworkableAttention') : t('doctorPerformance.metrics.unworkableHealthy')}
         >
           {unworkableCount}
         </MetricTile>
         <MetricTile
-          label="Ortalama skor" icon={Gauge} sublabel="Takım skor dağılımı"
+          label={t('doctorPerformance.metrics.avgScore')} icon={Gauge} sublabel={t('doctorPerformance.metrics.avgScoreSublabel')}
           spark={<Sparkbars values={scoreSpark} color="bg-brand-fill" />}
         >
           {avgScore}
         </MetricTile>
         <MetricTile
-          label="Ortalama yanıt süresi" icon={Clock} sublabel="Doktor yanıt dağılımı"
+          label={t('doctorPerformance.metrics.avgResponse')} icon={Clock} sublabel={t('doctorPerformance.metrics.avgResponseSublabel')}
           spark={<Sparkbars values={responseSpark} color="bg-warning-text" />}
         >
           <ResponseTime mins={avgResponse} size="lg" />
@@ -292,12 +301,13 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                   </button>
                 </TableHead>
               ))}
-              <TableHead className="px-4 text-right text-xs uppercase tracking-wide">Aksiyon</TableHead>
+              <TableHead className="px-4 text-right text-xs uppercase tracking-wide">{t('doctorPerformance.columns.action')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {pageRows.map((r) => {
               const tier = scoreTier(r.score)
+              const tierLabelKey = TIER_LABEL_KEY[tier.bg]
               return (
                 <TableRow
                   key={r.doctor_id}
@@ -306,12 +316,12 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                 >
                   <TableCell className="px-4">
                     <div className="flex items-center gap-3">
-                      <Avatar name={r.title || 'Doktor'} size="sm" />
+                      <Avatar name={r.title || t('doctorPerformance.noTitle')} size="sm" />
                       <div className="min-w-0">
                         <p className="flex items-center gap-1.5 truncate text-ink-primary">
-                          {r.title || '(unvan yok)'}
+                          {r.title || t('doctorPerformance.noTitle')}
                           {!r.is_active && (
-                            <span className="rounded-full bg-surface-3 px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">pasif</span>
+                            <span className="rounded-full bg-surface-3 px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">{t('doctorPerformance.inactiveBadge')}</span>
                           )}
                         </p>
                         <p className="truncate text-xs text-ink-muted">{r.specialty || '—'}</p>
@@ -321,7 +331,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                   <TableCell className="px-4 text-right">
                     <span className={`tnum inline-flex min-w-[2.5rem] items-center justify-center gap-1 rounded-full px-2.5 py-1 text-sm font-semibold ${TIER_PILL[tier.bg] ?? 'bg-success-bg text-success-text'}`}>
                       {r.score}
-                      {tier.label && <span className="text-[10px] font-bold uppercase">{tier.label}</span>}
+                      {tierLabelKey && <span className="text-[10px] font-bold uppercase">{t(tierLabelKey)}</span>}
                     </span>
                   </TableCell>
                   <TableCell className="tnum px-4 text-right text-ink-primary">{r.accept_count}</TableCell>
@@ -335,7 +345,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          aria-label="Aksiyonlar"
+                          aria-label={t('doctorPerformance.actionsAria')}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-surface-1 hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -344,7 +354,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => onSelectDoctor(r.doctor_id)}>
-                          Doktor kartını aç
+                          {t('doctorPerformance.openDoctorCardMenuItem')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -355,7 +365,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
             {pageRows.length === 0 && (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={COLUMNS.length + 1} className="px-4 py-8 text-center text-sm text-ink-muted">
-                  Aramayla eşleşen doktor yok.
+                  {t('doctorPerformance.emptySearch')}
                 </TableCell>
               </TableRow>
             )}
@@ -364,22 +374,22 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
 
         {/* Sayfalama */}
         <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3 text-sm text-ink-muted">
-          <span className="tnum">Toplam {sortedRows.length} doktor gösteriliyor</span>
+          <span className="tnum">{t('doctorPerformance.totalShowing', { count: sortedRows.length })}</span>
           {pageCount > 1 && (
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                aria-label="Önceki"
+                aria-label={t('doctorPerformance.prevAria')}
                 disabled={clampedPage === 0}
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-secondary transition-colors hover:bg-surface-1 disabled:opacity-40"
               >
                 <Icon of={ChevronLeft} size={16} />
               </button>
-              <span className="tnum px-2 font-medium text-ink-primary">{clampedPage + 1} / {pageCount}</span>
+              <span className="tnum px-2 font-medium text-ink-primary">{t('doctorPerformance.pageOf', { current: clampedPage + 1, total: pageCount })}</span>
               <button
                 type="button"
-                aria-label="Sonraki"
+                aria-label={t('doctorPerformance.nextAria')}
                 disabled={clampedPage >= pageCount - 1}
                 onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-secondary transition-colors hover:bg-surface-1 disabled:opacity-40"
@@ -392,7 +402,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
       </div>
 
       <p className="px-1 text-xs text-ink-muted">
-        Varsayılan sıralama skora göredir. Bir satıra tıklayarak ilgili doktorun kartını açabilirsiniz.
+        {t('doctorPerformance.footNote')}
       </p>
     </div>
   )

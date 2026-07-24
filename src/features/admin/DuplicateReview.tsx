@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card } from '../../components/ui/Card'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
@@ -22,10 +23,11 @@ function formatDate(x: string | null): string {
 
 /** Küçük fotoğraf şeridi; en fazla 4 gösterilir, fazlası +N rozetiyle. */
 function PhotoStrip({ urls }: { urls: string[] }) {
+  const { t } = useTranslation('admin')
   if (!urls.length) {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs text-ink-muted">
-        <Icon of={ImageOff} size={14} /> Fotoğraf yok
+        <Icon of={ImageOff} size={14} /> {t('duplicateReview.noPhotos')}
       </span>
     )
   }
@@ -76,12 +78,13 @@ function SidePanel({ label, name, meta, urls }: {
 
 /** AI görsel değerlendirme şeridi: onam yok → nötr; var → güven eşiğine göre tint. */
 function AiVerdict({ item }: { item: DuplicateItem }) {
+  const { t } = useTranslation('admin')
   if (item.aiSame == null) {
     return (
       <div className="flex items-start gap-2 rounded-control border border-line bg-surface-1 p-3">
         <Icon of={Sparkles} size={16} className="mt-0.5 text-ink-muted" />
         <div className="min-w-0">
-          <p className="text-sm font-medium text-ink-secondary">AI görsel değerlendirmesi yok (onam yok veya bekliyor)</p>
+          <p className="text-sm font-medium text-ink-secondary">{t('duplicateReview.aiNoVerdict')}</p>
           {item.aiReason && <p className="mt-0.5 text-xs text-ink-muted">{item.aiReason}</p>}
         </div>
       </div>
@@ -96,7 +99,7 @@ function AiVerdict({ item }: { item: DuplicateItem }) {
       <Icon of={Sparkles} size={16} className="mt-0.5" />
       <div className="min-w-0">
         <p className="text-sm font-semibold">
-          Aynı kişi: <span className="tnum">{formatConfidencePct(item.aiConfidence)}</span>
+          {t('duplicateReview.aiSamePerson')} <span className="tnum">{formatConfidencePct(item.aiConfidence)}</span>
         </p>
         {item.aiReason && <p className="mt-0.5 text-xs opacity-90">{item.aiReason}</p>}
       </div>
@@ -105,6 +108,7 @@ function AiVerdict({ item }: { item: DuplicateItem }) {
 }
 
 function DuplicateCard({ item }: { item: DuplicateItem }) {
+  const { t } = useTranslation('admin')
   const toast = useToast()
   const resolve = useResolveDuplicate()
   const [note, setNote] = useState('')
@@ -114,9 +118,9 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
     setPending(decision)
     try {
       await resolve.mutateAsync({ requestId: item.requestId, decision, note: note.trim() || undefined })
-      toast.show('Karar kaydedildi')
+      toast.show(t('duplicateReview.decisionSaved'))
     } catch (e) {
-      toast.show('Kaydedilemedi: ' + (e as Error).message, 'error')
+      toast.show(t('duplicateReview.decisionSaveFailed', { message: (e as Error).message }), 'error')
     } finally {
       setPending(null)
     }
@@ -126,12 +130,12 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
     <Card className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-stretch">
         <SidePanel
-          label="Yeni başvuru"
+          label={t('duplicateReview.newApplicationLabel')}
           name={item.patientName}
           meta={[
-            { k: 'Telefon', v: item.phone ?? '—' },
-            { k: 'Kategori', v: item.categoryName },
-            { k: 'Tarih', v: formatDate(item.createdAt) },
+            { k: t('duplicateReview.phoneLabel'), v: item.phone ?? '—' },
+            { k: t('duplicateReview.categoryLabel'), v: item.categoryName },
+            { k: t('duplicateReview.dateLabel'), v: formatDate(item.createdAt) },
           ]}
           urls={item.newPhotos}
         />
@@ -139,11 +143,11 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
           <Icon of={ArrowRight} size={18} className="rotate-90 md:rotate-0" />
         </div>
         <SidePanel
-          label="Ana talep"
+          label={t('duplicateReview.parentRequestLabel')}
           name={item.parentPatientName}
           meta={[
-            { k: 'Tarih', v: formatDate(item.parentCreatedAt) },
-            { k: 'Talep', v: item.parentRequestId.slice(0, 8) },
+            { k: t('duplicateReview.dateLabel'), v: formatDate(item.parentCreatedAt) },
+            { k: t('duplicateReview.requestIdLabel'), v: item.parentRequestId.slice(0, 8) },
           ]}
           urls={item.parentPhotos}
         />
@@ -152,9 +156,9 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
       <AiVerdict item={item} />
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-ink-muted">Not (opsiyonel)</label>
+        <label className="mb-1 block text-xs font-medium text-ink-muted">{t('duplicateReview.noteLabel')}</label>
         <Textarea
-          placeholder="Karar gerekçesi…"
+          placeholder={t('duplicateReview.notePlaceholder')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />
@@ -169,7 +173,7 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
           onClick={() => decide('dismissed')}
         >
           <Icon of={UserPlus} size={15} />
-          Mükerrer değil — doktorlara gönder
+          {t('duplicateReview.notDuplicateButton')}
         </Button>
         <Button
           variant="primary"
@@ -178,7 +182,7 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
           disabled={resolve.isPending}
           onClick={() => decide('confirmed')}
         >
-          Mükerrer — pasife al
+          {t('duplicateReview.duplicateButton')}
         </Button>
       </div>
     </Card>
@@ -186,13 +190,14 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
 }
 
 export function DuplicateReview() {
+  const { t } = useTranslation('admin')
   const queue = useDuplicateQueue()
 
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Mükerrer Talep"
-        subtitle="Aynı hastanın olası ikinci başvurularını inceleyin ve karar verin."
+        title={t('duplicateReview.title')}
+        subtitle={t('duplicateReview.subtitle')}
       />
 
       {queue.isLoading && (
@@ -210,7 +215,7 @@ export function DuplicateReview() {
       )}
 
       {!queue.isLoading && (!queue.data || queue.data.length === 0) && (
-        <EmptyState title="Bekleyen mükerrer talep yok" />
+        <EmptyState title={t('duplicateReview.emptyTitle')} />
       )}
 
       {!queue.isLoading && queue.data && queue.data.length > 0 && (
