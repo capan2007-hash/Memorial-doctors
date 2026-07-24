@@ -1,6 +1,6 @@
 import type { Role, RequestStatus, SaleStatus, Decision } from './domain'
 
-export interface AppUserRow { id: string; tenant_id: string; role: Role; full_name: string; phone: string | null; is_active: boolean; email: string | null }
+export interface AppUserRow { id: string; tenant_id: string; role: Role; full_name: string; phone: string | null; is_active: boolean; email: string | null; language: string }
 export interface CategoryRow { id: string; tenant_id: string; name: string; has_subcategories: boolean }
 export interface SubcategoryRow { id: string; category_id: string; name: string }
 export interface OperationTypeRow { id: string; category_id: string; subcategory_id: string | null; name: string }

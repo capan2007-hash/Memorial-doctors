@@ -12,6 +12,8 @@ interface AuthValue {
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
+  /** appUser satırını (ör. dil değişikliği sonrası) sunucudan yeniden çeker. */
+  refreshAppUser: () => Promise<void>
 }
 const Ctx = createContext<AuthValue | null>(null)
 
@@ -62,7 +64,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
   const signOut = async () => { await supabase.auth.signOut() }
 
-  return <Ctx.Provider value={{ session, appUser, role: appUser?.role ?? null, loading, signIn, signOut }}>{children}</Ctx.Provider>
+  // appUser react-query ile değil useState ile tutuluyor (bu dosyada başka
+  // query yok); dil değişikliği gibi sunucu-taraflı güncellemelerden sonra
+  // context'i taze tutmak için doğrudan yeniden çekme.
+  const refreshAppUser = async () => {
+    if (!session) return
+    const { data } = await supabase.from('app_user').select('*').eq('id', session.user.id).single()
+    setAppUser(data as AppUserRow | null)
+  }
+
+  return <Ctx.Provider value={{ session, appUser, role: appUser?.role ?? null, loading, signIn, signOut, refreshAppUser }}>{children}</Ctx.Provider>
 }
 
 export function useAuth() {
