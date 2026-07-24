@@ -29,6 +29,21 @@ function keys(obj: object, prefix = ''): string[] {
     v && typeof v === 'object' ? keys(v, `${prefix}${k}.`) : [`${prefix}${k}`])
 }
 
+/**
+ * i18next CLDR çoğul son ekleri (`_zero`, `_one`, `_two`, `_few`, `_many`, `_other`) dile göre
+ * farklı sayıda kategori gerektirir (ör. Arapça 6 kategori, TR/EN pratikte 2). Bu yüzden ham
+ * anahtar kümesi dile göre değişir — bu beklenen ve doğru bir durumdur. Parite karşılaştırması
+ * bu son ekleri sıyırıp TABAN anahtara indirger; her dilde aynı TABAN anahtar seti olmalı, ama
+ * hangi CLDR kategorilerinin tanımlı olduğu dile özgü kalabilir.
+ */
+const PLURAL_SUFFIX_RE = /_(?:zero|one|two|few|many|other)$/
+
+function baseKeys(obj: object): string[] {
+  const withSuffixes = keys(obj)
+  const base = new Set(withSuffixes.map((k) => k.replace(PLURAL_SUFFIX_RE, '')))
+  return [...base].sort()
+}
+
 describe('i18n key parity', () => {
   it.each([
     ['common', trCommon, enCommon, arCommon],
@@ -39,9 +54,10 @@ describe('i18n key parity', () => {
     ['admin', trAdmin, enAdmin, arAdmin],
     ['ai', trAi, enAi, arAi],
     ['activity', trActivity, enActivity, arActivity],
-  ])('%s: EN ve AR, TR ile aynı anahtarlara sahip', (_ns, tr, en, ar) => {
-    const t = keys(tr).sort()
-    expect(keys(en).sort()).toEqual(t)
-    expect(keys(ar).sort()).toEqual(t)
+  ])('%s: EN ve AR, TR ile aynı TABAN anahtarlara sahip (çoğul son ekleri hariç)', (_ns, tr, en, ar) => {
+    const t = baseKeys(tr)
+    expect(t.length).toBeGreaterThan(0)
+    expect(baseKeys(en)).toEqual(t)
+    expect(baseKeys(ar)).toEqual(t)
   })
 })

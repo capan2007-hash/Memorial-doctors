@@ -8,9 +8,17 @@
       "completed": "مكتمل"
     },
     "sla": {
+      "remaining_zero": "الاتفاقية: تبقّى {{count}}س",
       "remaining_one": "الاتفاقية: تبقّى {{count}}س",
+      "remaining_two": "الاتفاقية: تبقّى {{count}}س",
+      "remaining_few": "الاتفاقية: تبقّى {{count}}س",
+      "remaining_many": "الاتفاقية: تبقّى {{count}}س",
       "remaining_other": "الاتفاقية: تبقّى {{count}}س",
+      "overdue_zero": "تجاوز الاتفاقية · {{count}}س",
       "overdue_one": "تجاوز الاتفاقية · {{count}}س",
+      "overdue_two": "تجاوز الاتفاقية · {{count}}س",
+      "overdue_few": "تجاوز الاتفاقية · {{count}}س",
+      "overdue_many": "تجاوز الاتفاقية · {{count}}س",
       "overdue_other": "تجاوز الاتفاقية · {{count}}س"
     },
     "emptyTitle": "لا توجد طلبات بعد",
@@ -141,7 +149,11 @@
     "hoursSuffix": "س",
     "minutesSuffix": "د",
     "emptySearch": "لا يوجد طبيب مطابق للبحث.",
+    "totalShowing_zero": "لا يُعرض أي طبيب",
     "totalShowing_one": "يعرض {{count}} طبيب",
+    "totalShowing_two": "يعرض {{count}} طبيبين",
+    "totalShowing_few": "يعرض {{count}} أطباء",
+    "totalShowing_many": "يعرض {{count}} طبيب",
     "totalShowing_other": "يعرض {{count}} طبيب",
     "prevAria": "السابق",
     "nextAria": "التالي",
@@ -200,8 +212,8 @@
       "admin": "مدير",
       "coordinator": "منسّق",
       "doctor": "طبيب",
-      "sales": "مبيعات",
-      "agent": "وسيط"
+      "sales": "مندوب مبيعات",
+      "agent": "وكيل"
     }
   },
   "billing": {

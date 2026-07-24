@@ -2,9 +2,17 @@
   "queue": {
     "title": "الطلبات المعلقة",
     "emptyTitle": "لا توجد طلبات معلقة",
+    "slaRemaining_zero": "SLA: تبقّى أقل من ساعة",
     "slaRemaining_one": "SLA: تبقّى {{count}} ساعة",
+    "slaRemaining_two": "SLA: تبقّى ساعتين",
+    "slaRemaining_few": "SLA: تبقّى {{count}} ساعات",
+    "slaRemaining_many": "SLA: تبقّى {{count}} ساعة",
     "slaRemaining_other": "SLA: تبقّى {{count}} ساعة",
+    "slaOverdue_zero": "تجاوز SLA · أقل من ساعة",
     "slaOverdue_one": "تجاوز SLA · {{count}} ساعة",
+    "slaOverdue_two": "تجاوز SLA · ساعتين",
+    "slaOverdue_few": "تجاوز SLA · {{count}} ساعات",
+    "slaOverdue_many": "تجاوز SLA · {{count}} ساعة",
     "slaOverdue_other": "تجاوز SLA · {{count}} ساعة"
   },
   "requestView": {
@@ -38,17 +46,17 @@
     "specialtyLabel": "التخصص",
     "bioLabel": "السيرة الذاتية",
     "bioPlaceholder": "السيرة الذاتية / CV",
-    "weightedWorkTitle": "الأعمال ذات الأولوية",
+    "weightedWorkTitle": "الأعمال الموزونة",
     "saveButton": "حفظ",
     "avatarFallbackName": "طبيب",
     "levelLabels": {
-      "high": "عالية",
-      "medium": "متوسطة",
-      "low": "منخفضة"
+      "high": "مرتفع",
+      "medium": "متوسط",
+      "low": "منخفض"
     },
     "unworkableTier": "غير قابل للعمل",
     "weightedWork": {
-      "emptyNote": "لم تُضف بعد أي عمل ذي أولوية.",
+      "emptyNote": "لم تُضف بعد أي عمل موزون.",
       "areaPlaceholder": "المجال (مثال: تجميل الأنف)",
       "removeButton": "حذف",
       "addRowButton": "إضافة سطر",
@@ -57,7 +65,11 @@
     },
     "scopesCardTitle": "الكفاءات (العلاجات التي يمكنني تقديمها)",
     "scopesDescription": "ستُرسل إليك الطلبات الجديدة لهذه العلاجات.",
+    "scopesSelectedCount_zero": "تم تحديد {{count}}",
     "scopesSelectedCount_one": "تم تحديد {{count}}",
+    "scopesSelectedCount_two": "تم تحديد {{count}}",
+    "scopesSelectedCount_few": "تم تحديد {{count}}",
+    "scopesSelectedCount_many": "تم تحديد {{count}}",
     "scopesSelectedCount_other": "تم تحديد {{count}}",
     "noSubcategories": "لا توجد فئة فرعية",
     "scopesMinWarning": "يجب اختيار كفاءة واحدة على الأقل.",

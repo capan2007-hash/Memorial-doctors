@@ -13,7 +13,11 @@
   },
   "doctorCount": {
     "none": "لم تُوجَّه لأي طبيب",
+    "referred_zero": "لم تُوجَّه لأي طبيب",
     "referred_one": "وُجِّهت إلى طبيب واحد",
+    "referred_two": "وُجِّهت إلى طبيبين",
+    "referred_few": "وُجِّهت إلى {{count}} أطباء",
+    "referred_many": "وُجِّهت إلى {{count}} طبيب",
     "referred_other": "وُجِّهت إلى {{count}} طبيب"
   },
   "dayGroup": {
@@ -22,11 +26,23 @@
   },
   "relative": {
     "justNow": "الآن",
+    "minutes_zero": "منذ أقل من دقيقة",
     "minutes_one": "منذ دقيقة",
+    "minutes_two": "منذ دقيقتين",
+    "minutes_few": "منذ {{count}} دقائق",
+    "minutes_many": "منذ {{count}} دقيقة",
     "minutes_other": "منذ {{count}} دقيقة",
+    "hours_zero": "منذ أقل من ساعة",
     "hours_one": "منذ ساعة",
+    "hours_two": "منذ ساعتين",
+    "hours_few": "منذ {{count}} ساعات",
+    "hours_many": "منذ {{count}} ساعة",
     "hours_other": "منذ {{count}} ساعة",
+    "days_zero": "منذ أقل من يوم",
     "days_one": "منذ يوم",
+    "days_two": "منذ يومين",
+    "days_few": "منذ {{count}} أيام",
+    "days_many": "منذ {{count}} يوم",
     "days_other": "منذ {{count}} يوم"
   },
   "filters": {
