@@ -4,14 +4,14 @@ import { useAuth } from '../../lib/auth'
 import { creatableRoles, canManageTarget, roleLabel } from '../../domain/userRoles'
 import type { Role } from '../../types/domain'
 import { useUsers, useCreateUser, useManageUser, type ManagedUser } from './useUsers'
-import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Field } from '../../components/ui/Field'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { Avatar } from '../../components/ui/Avatar'
 import { useToast } from '../../components/ui/Toast'
 import { Icon } from '../../components/ui/Icon'
-import { UserPlus, KeyRound, Info } from 'lucide-react'
+import { UserPlus, KeyRound, Info, Search, Power } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/shadcn/dialog'
 import { Input } from '@/components/shadcn/input'
 import { Skeleton } from '@/components/shadcn/skeleton'
@@ -118,8 +118,17 @@ function ResetDialog({ user, onClose }: { user: ManagedUser; onClose: () => void
   )
 }
 
-function RoleChip({ role }: { role: Role }) {
-  return <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-ink-secondary">{roleLabel(role)}</span>
+function StatusPill({ active }: { active: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+        active ? 'bg-success-bg text-success-text' : 'bg-surface-3 text-ink-muted'
+      }`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-success-text' : 'bg-ink-muted'}`} />
+      {active ? 'Aktif' : 'Pasif'}
+    </span>
+  )
 }
 
 export function UserAdmin() {
@@ -129,8 +138,19 @@ export function UserAdmin() {
   const manage = useManageUser()
   const [showCreate, setShowCreate] = useState(false)
   const [resetUser, setResetUser] = useState<ManagedUser | null>(null)
+  const [search, setSearch] = useState('')
 
   const allowed = myRole ? creatableRoles(myRole) : []
+
+  const filteredUsers = (users.data ?? []).filter((u) => {
+    const q = search.trim().toLocaleLowerCase('tr')
+    if (!q) return true
+    return (
+      u.full_name.toLocaleLowerCase('tr').includes(q) ||
+      (u.email ?? '').toLocaleLowerCase('tr').includes(q) ||
+      roleLabel(u.role).toLocaleLowerCase('tr').includes(q)
+    )
+  })
 
   const toggleActive = async (u: ManagedUser) => {
     try {
@@ -158,11 +178,25 @@ export function UserAdmin() {
         )}
       </div>
 
-      <Card title="Kullanıcılar">
+      <div className="overflow-hidden rounded-card border border-line bg-surface-2 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line p-4 md:px-5">
+          <h3 className="font-display text-base text-ink-primary">Kullanıcılar</h3>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" strokeWidth={1.75} />
+            <Input
+              className="w-56 pl-9"
+              placeholder="Ara…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
         {users.isLoading && (
           <div className="divide-y divide-line">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between gap-3 py-3">
+              <div key={i} className="flex items-center gap-3 p-4 md:px-5">
+                <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="min-w-0 flex-1 space-y-2">
                   <Skeleton className="h-4 w-40" />
                   <Skeleton className="h-3 w-56" />
@@ -173,30 +207,35 @@ export function UserAdmin() {
           </div>
         )}
         {!users.isLoading && (users.data?.length ?? 0) === 0 && (
-          <EmptyState title="Kullanıcı yok" description="Henüz kayıtlı kullanıcı bulunmuyor." />
+          <div className="p-4 md:p-5">
+            <EmptyState title="Kullanıcı yok" description="Henüz kayıtlı kullanıcı bulunmuyor." />
+          </div>
         )}
-        {!users.isLoading && (users.data?.length ?? 0) > 0 && (
+        {!users.isLoading && (users.data?.length ?? 0) > 0 && filteredUsers.length === 0 && (
+          <p className="p-6 text-center text-sm text-ink-muted">Aramayla eşleşen kullanıcı yok.</p>
+        )}
+        {!users.isLoading && filteredUsers.length > 0 && (
           <div className="divide-y divide-line">
-            {users.data!.map((u) => {
+            {filteredUsers.map((u) => {
               const manageable = myRole ? canManageTarget(myRole, u.role) : false
               const isSelf = u.id === appUser?.id
               return (
-                <div key={u.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                  <div className="min-w-0">
+                <div key={u.id} className="flex flex-wrap items-center gap-3 p-4 transition-colors hover:bg-surface-1 md:px-5">
+                  <Avatar name={u.full_name} size="md" />
+                  <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-ink-primary">{u.full_name}</p>
                     <p className="truncate text-sm text-ink-muted">{u.email ?? '—'}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <RoleChip role={u.role} />
-                    {u.is_active
-                      ? <span className="rounded-full bg-success-bg px-2 py-0.5 text-xs font-medium text-success-text">Aktif</span>
-                      : <span className="rounded-full bg-danger-bg px-2 py-0.5 text-xs font-medium text-danger-text">Pasif</span>}
+                  <span className="w-20 shrink-0 text-sm text-ink-secondary">{roleLabel(u.role)}</span>
+                  <StatusPill active={u.is_active} />
+                  <div className="flex items-center gap-1">
                     {manageable && (
                       <>
                         <Button variant="ghost" type="button" onClick={() => setResetUser(u)}>
                           <Icon of={KeyRound} size={15} /> Şifre
                         </Button>
                         <Button variant="ghost" type="button" disabled={isSelf} onClick={() => toggleActive(u)}>
+                          <Icon of={Power} size={15} />
                           {u.is_active ? 'Pasifleştir' : 'Aktifleştir'}
                         </Button>
                       </>
@@ -207,7 +246,7 @@ export function UserAdmin() {
             })}
           </div>
         )}
-      </Card>
+      </div>
 
       {showCreate && <CreateUserDialog allowed={allowed} onClose={() => setShowCreate(false)} />}
       {resetUser && <ResetDialog user={resetUser} onClose={() => setResetUser(null)} />}
