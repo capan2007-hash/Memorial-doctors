@@ -52,47 +52,66 @@ function toggleScope(scopes: DoctorScope[], entry: DoctorScope): DoctorScope[] {
   return [...scopes, entry]
 }
 
-/** Tek bir kategori satırı: alt kırılımı yoksa kategori checkbox'ı, varsa alt kırılım çoklu checkbox listesi. */
+/** Bordürlü, tıklanabilir yetkinlik kutusu — seçili durumda teal vurgulu (tutarlı düzen). */
+function ScopeToggle({ checked, label, onToggle }: { checked: boolean; label: string; onToggle: () => void }) {
+  return (
+    <label
+      className={`flex cursor-pointer items-center gap-2.5 rounded-control border px-3 py-2 text-sm transition ease-premium duration-[var(--dur-fast)] ${
+        checked
+          ? 'border-brand-fill/40 bg-brand-fill/10 font-medium text-brand-text'
+          : 'border-line bg-surface-2 text-ink-secondary hover:border-line-strong hover:bg-surface-1'
+      }`}
+    >
+      <Checkbox checked={checked} onCheckedChange={onToggle} />
+      <span className="truncate">{label}</span>
+    </label>
+  )
+}
+
+/** Tek bir kategori bloğu: alt kırılımı yoksa tek kutu, varsa başlık + alt kırılım ızgarası. */
 function CategoryScopeRow({ category, scopes, onChange }: {
   category: CategoryRow; scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void
 }) {
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
   if (!category.has_subcategories) {
     return (
-      <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-secondary">
-        <Checkbox
-          checked={hasScope(scopes, category.id, null)}
-          onCheckedChange={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: null }))}
-        />
-        {category.name}
-      </label>
+      <ScopeToggle
+        checked={hasScope(scopes, category.id, null)}
+        label={category.name}
+        onToggle={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: null }))}
+      />
     )
   }
   return (
-    <div className="text-sm">
-      <p className="font-medium text-ink-secondary">{category.name}</p>
-      <div className="ml-3 mt-1.5 flex flex-wrap gap-x-4 gap-y-2">
-        {subs.data?.map((sc) => (
-          <label key={sc.id} className="flex cursor-pointer items-center gap-2 text-ink-secondary">
-            <Checkbox
+    <div>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">{category.name}</p>
+      {subs.data?.length ? (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {subs.data.map((sc) => (
+            <ScopeToggle
+              key={sc.id}
               checked={hasScope(scopes, category.id, sc.id)}
-              onCheckedChange={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
+              label={sc.name}
+              onToggle={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
             />
-            {sc.name}
-          </label>
-        ))}
-        {!subs.data?.length && <span className="text-ink-muted">Alt kırılım yok</span>}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <span className="text-sm text-ink-muted">Alt kırılım yok</span>
+      )}
     </div>
   )
 }
 
+/** Kategorileri net ayrılmış bloklar halinde listeler; alt kırılımlı olanlar başlık + ızgara. */
 function ScopeEditor({ scopes, onChange }: { scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void }) {
   const cats = useCategories()
   return (
-    <div className="space-y-2 rounded-control border border-line p-3 bg-surface-1">
+    <div className="divide-y divide-line rounded-card border border-line bg-surface-1">
       {cats.data?.map((c) => (
-        <CategoryScopeRow key={c.id} category={c} scopes={scopes} onChange={onChange} />
+        <div key={c.id} className="p-3">
+          <CategoryScopeRow category={c} scopes={scopes} onChange={onChange} />
+        </div>
       ))}
     </div>
   )
