@@ -151,7 +151,7 @@
     "emptySearch": "لا يوجد طبيب مطابق للبحث.",
     "totalShowing_zero": "لا يُعرض أي طبيب",
     "totalShowing_one": "يعرض {{count}} طبيب",
-    "totalShowing_two": "يعرض {{count}} طبيبين",
+    "totalShowing_two": "يعرض طبيبين",
     "totalShowing_few": "يعرض {{count}} أطباء",
     "totalShowing_many": "يعرض {{count}} طبيب",
     "totalShowing_other": "يعرض {{count}} طبيب",
