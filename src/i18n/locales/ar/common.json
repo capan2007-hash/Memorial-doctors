@@ -1,1 +1,13 @@
-{ "actions": { "save": "حفظ", "cancel": "إلغاء", "delete": "حذف", "search": "بحث…" } }
+{
+  "actions": { "save": "حفظ", "cancel": "إلغاء", "delete": "حذف", "search": "بحث…", "close": "إغلاق" },
+  "status": {
+    "draft": "مسودة",
+    "submitted": "تم الإرسال",
+    "assigned": "معيّن",
+    "in_review": "قيد المراجعة",
+    "offers_ready": "العرض جاهز",
+    "escalated": "تصعيد",
+    "closed": "مغلق"
+  },
+  "photoUploader": { "selectedCount": "{{count}} صورة محددة" }
+}

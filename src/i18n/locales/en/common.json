@@ -1,1 +1,13 @@
-{ "actions": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "search": "Search…" } }
+{
+  "actions": { "save": "Save", "cancel": "Cancel", "delete": "Delete", "search": "Search…", "close": "Close" },
+  "status": {
+    "draft": "Draft",
+    "submitted": "Submitted",
+    "assigned": "Assigned",
+    "in_review": "In review",
+    "offers_ready": "Offer ready",
+    "escalated": "Escalated",
+    "closed": "Closed"
+  },
+  "photoUploader": { "selectedCount": "{{count}} photos selected" }
+}

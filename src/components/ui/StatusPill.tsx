@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import type { RequestStatus } from '../../types/domain'
 
+/** @deprecated Doğrudan TR metin — feature ekranları i18n'e taşınana kadar (Task 7-11) korunur. StatusPill kendisi artık common.status.* üzerinden çevrilir. */
 export const STATUS_LABELS: Record<RequestStatus, string> = {
   draft: 'Taslak',
   submitted: 'Gönderildi',
@@ -22,6 +24,7 @@ const CHIP: Record<RequestStatus, string> = {
 }
 
 export function StatusPill({ status }: { status: RequestStatus }) {
+  const { t } = useTranslation('common')
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${CHIP[status]}`}
@@ -30,7 +33,7 @@ export function StatusPill({ status }: { status: RequestStatus }) {
         aria-hidden="true"
         className="h-1.5 w-1.5 rounded-full bg-current"
       />
-      {STATUS_LABELS[status]}
+      {t('status.' + status)}
     </span>
   )
 }

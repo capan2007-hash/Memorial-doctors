@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Check, AlertTriangle, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Icon } from './Icon'
 
 type ToastKind = 'success' | 'error'
@@ -25,6 +26,7 @@ const KIND_CLASSES: Record<ToastKind, string> = {
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation('common')
   const [toasts, setToasts] = useState<ToastItem[]>([])
   const nextId = useRef(0)
   const timers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
@@ -57,17 +59,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         aria-live="polite"
         className="fixed bottom-4 right-4 z-50 space-y-2"
       >
-        {toasts.map((t) => (
+        {toasts.map((toast) => (
           <div
-            key={t.id}
-            className={`flex items-center gap-2 rounded-card px-4 py-3 text-sm shadow-pop ${KIND_CLASSES[t.kind]}`}
+            key={toast.id}
+            className={`flex items-center gap-2 rounded-card px-4 py-3 text-sm shadow-pop ${KIND_CLASSES[toast.kind]}`}
           >
-            <Icon of={t.kind === 'error' ? AlertTriangle : Check} size={16} />
-            <span className="flex-1">{t.message}</span>
+            <Icon of={toast.kind === 'error' ? AlertTriangle : Check} size={16} />
+            <span className="flex-1">{toast.message}</span>
             <button
               type="button"
-              aria-label="Kapat"
-              onClick={() => dismiss(t.id)}
+              aria-label={t('actions.close')}
+              onClick={() => dismiss(toast.id)}
               className="text-ink-muted hover:text-ink-primary transition ease-premium duration-[var(--dur-fast)]"
             >
               <Icon of={X} size={14} />

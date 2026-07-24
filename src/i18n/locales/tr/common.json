@@ -1,1 +1,13 @@
-{ "actions": { "save": "Kaydet", "cancel": "Vazgeç", "delete": "Sil", "search": "Ara…" } }
+{
+  "actions": { "save": "Kaydet", "cancel": "Vazgeç", "delete": "Sil", "search": "Ara…", "close": "Kapat" },
+  "status": {
+    "draft": "Taslak",
+    "submitted": "Gönderildi",
+    "assigned": "Atandı",
+    "in_review": "Yanıtlanıyor",
+    "offers_ready": "Teklif hazır",
+    "escalated": "Eskalasyon",
+    "closed": "Kapandı"
+  },
+  "photoUploader": { "selectedCount": "{{count}} fotoğraf seçili" }
+}
