@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { useManageUser } from './useUsers'
 import { useCategories, useSubcategories } from '../catalog/useCatalog'
+import { catalogName } from '../catalog/catalogName'
 import {
   useDoctorsFull, useDoctorMetrics, useUpdateDoctor, useCreateDoctor,
   uploadDoctorPhoto, signDoctorPhoto,
@@ -72,27 +73,27 @@ function ScopeToggle({ checked, label, onToggle }: { checked: boolean; label: st
 function CategoryScopeRow({ category, scopes, onChange }: {
   category: CategoryRow; scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void
 }) {
-  const { t } = useTranslation('admin')
+  const { t, i18n } = useTranslation('admin')
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
   if (!category.has_subcategories) {
     return (
       <ScopeToggle
         checked={hasScope(scopes, category.id, null)}
-        label={category.name}
+        label={catalogName(category, i18n.language)}
         onToggle={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: null }))}
       />
     )
   }
   return (
     <div>
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">{category.name}</p>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">{catalogName(category, i18n.language)}</p>
       {subs.data?.length ? (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {subs.data.map((sc) => (
             <ScopeToggle
               key={sc.id}
               checked={hasScope(scopes, category.id, sc.id)}
-              label={sc.name}
+              label={catalogName(sc, i18n.language)}
               onToggle={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
             />
           ))}
@@ -157,7 +158,7 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
 }
 
 /** Katalog kategori/alt kırılım adlarını yetkinlik çipleri için tenant kapsamında çözer (RLS zaten sınırlar). */
-function useScopeLabels() {
+function useScopeLabels(lang: string) {
   const cats = useCategories()
   const subs = useQuery({
     queryKey: ['all-subcategories'],
@@ -168,14 +169,20 @@ function useScopeLabels() {
     },
   })
   return {
-    categoryName: (id: string) => cats.data?.find((c) => c.id === id)?.name ?? '—',
-    subcategoryName: (id: string) => subs.data?.find((s) => s.id === id)?.name ?? '—',
+    categoryName: (id: string) => {
+      const c = cats.data?.find((c) => c.id === id)
+      return c ? catalogName(c, lang) : '—'
+    },
+    subcategoryName: (id: string) => {
+      const s = subs.data?.find((s) => s.id === id)
+      return s ? catalogName(s, lang) : '—'
+    },
   }
 }
 
 function ScopeChips({ scopes }: { scopes: DoctorScope[] }) {
-  const { t } = useTranslation('admin')
-  const { categoryName, subcategoryName } = useScopeLabels()
+  const { t, i18n } = useTranslation('admin')
+  const { categoryName, subcategoryName } = useScopeLabels(i18n.language)
   if (!scopes.length) return <p className="text-xs text-ink-muted">{t('doctorAdmin.noScopesAssigned')}</p>
   return (
     <div className="flex flex-wrap gap-1.5">

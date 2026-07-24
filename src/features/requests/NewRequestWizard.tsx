@@ -6,6 +6,7 @@ import { AlertTriangle, Info, User, X } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
 import { useCategories, useSubcategories, useOperationTypes } from '../catalog/useCatalog'
+import { catalogName } from '../catalog/catalogName'
 import { useCreateRequest } from './useRequests'
 import { PhotoUploader } from '../../components/PhotoUploader'
 import { medicalValue, demographicsError } from '../../domain/health'
@@ -87,7 +88,7 @@ function MedicalBlock({
 }
 
 export function NewRequestWizard() {
-  const { t } = useTranslation('requests')
+  const { t, i18n } = useTranslation('requests')
   const { appUser } = useAuth()
   const nav = useNavigate()
   const cats = useCategories()
@@ -342,7 +343,7 @@ export function NewRequestWizard() {
             onChange={(v) => { setCategoryId(v); setSubcategoryId(null); setOperationTypeId(null) }}
             placeholder={t('newRequest.categoryPlaceholder')}
           >
-            {cats.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            {cats.data?.map((c) => <SelectItem key={c.id} value={c.id}>{catalogName(c, i18n.language)}</SelectItem>)}
           </LabeledSelect>
           {needsSub && (
             <LabeledSelect
@@ -351,7 +352,7 @@ export function NewRequestWizard() {
               onChange={(v) => setSubcategoryId(v || null)}
               placeholder={t('newRequest.subcategoryPlaceholder')}
             >
-              {subs.data?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+              {subs.data?.map((s) => <SelectItem key={s.id} value={s.id}>{catalogName(s, i18n.language)}</SelectItem>)}
             </LabeledSelect>
           )}
           {categoryId && (
@@ -362,7 +363,7 @@ export function NewRequestWizard() {
               placeholder={t('newRequest.operationTypePlaceholder')}
             >
               <SelectItem value={NONE}>{t('newRequest.operationTypeNone')}</SelectItem>
-              {ops.data?.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
+              {ops.data?.map((o) => <SelectItem key={o.id} value={o.id}>{catalogName(o, i18n.language)}</SelectItem>)}
             </LabeledSelect>
           )}
         </div>

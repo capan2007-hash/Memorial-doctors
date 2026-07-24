@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../lib/auth'
 import { useCategories, useSubcategories } from '../catalog/useCatalog'
+import { catalogName } from '../catalog/catalogName'
 import {
   uploadDoctorPhoto, signDoctorPhoto,
   emptyWeightedWork, toWeightedWork,
@@ -73,16 +74,16 @@ function ScopeChip({ checked, label, onToggle }: { checked: boolean; label: stri
 function GroupedScope({ category, scopes, onChange }: {
   category: CategoryRow; scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void
 }) {
-  const { t } = useTranslation('doctors')
+  const { t, i18n } = useTranslation('doctors')
   const subs = useSubcategories(category.id)
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{category.name}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{catalogName(category, i18n.language)}</p>
       <div className="flex flex-wrap gap-2">
         {subs.data?.map((sc) => (
           <ScopeChip
             key={sc.id}
-            label={sc.name}
+            label={catalogName(sc, i18n.language)}
             checked={hasScope(scopes, category.id, sc.id)}
             onToggle={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
           />
@@ -95,6 +96,7 @@ function GroupedScope({ category, scopes, onChange }: {
 
 /** Alt kırılımsız kategoriler tek çip satırında; alt kırılımlılar ayrı başlıklı gruplar. */
 function ScopeEditor({ scopes, onChange }: { scopes: DoctorScope[]; onChange: (next: DoctorScope[]) => void }) {
+  const { i18n } = useTranslation('doctors')
   const cats = useCategories()
   const list = cats.data ?? []
   const standalone = list.filter((c) => !c.has_subcategories)
@@ -106,7 +108,7 @@ function ScopeEditor({ scopes, onChange }: { scopes: DoctorScope[]; onChange: (n
           {standalone.map((c) => (
             <ScopeChip
               key={c.id}
-              label={c.name}
+              label={catalogName(c, i18n.language)}
               checked={hasScope(scopes, c.id, null)}
               onToggle={() => onChange(toggleScope(scopes, { categoryId: c.id, subcategoryId: null }))}
             />
