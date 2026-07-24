@@ -12,5 +12,8 @@
   "photoUploader": {
     "selectedCount_one": "{{count}} fotoğraf seçili",
     "selectedCount_other": "{{count}} fotoğraf seçili"
-  }
+  },
+  "autoTranslated": "otomatik çeviri",
+  "showOriginal": "orijinali göster",
+  "showTranslation": "çeviriyi göster"
 }

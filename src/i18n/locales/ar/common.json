@@ -16,5 +16,8 @@
     "selectedCount_few": "{{count}} صور محددة",
     "selectedCount_many": "{{count}} صورة محددة",
     "selectedCount_other": "{{count}} صورة محددة"
-  }
+  },
+  "autoTranslated": "ترجمة تلقائية",
+  "showOriginal": "إظهار النص الأصلي",
+  "showTranslation": "إظهار الترجمة"
 }
