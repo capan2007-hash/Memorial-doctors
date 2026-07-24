@@ -4,6 +4,9 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 import trCommon from './locales/tr/common.json'
 import enCommon from './locales/en/common.json'
 import arCommon from './locales/ar/common.json'
+import trNav from './locales/tr/nav.json'
+import enNav from './locales/en/nav.json'
+import arNav from './locales/ar/nav.json'
 
 export const SUPPORTED = ['tr', 'ar', 'en'] as const
 export type Lang = (typeof SUPPORTED)[number]
@@ -19,11 +22,15 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { tr: { common: trCommon }, en: { common: enCommon }, ar: { common: arCommon } },
+    resources: {
+      tr: { common: trCommon, nav: trNav },
+      en: { common: enCommon, nav: enNav },
+      ar: { common: arCommon, nav: arNav },
+    },
     fallbackLng: 'tr',
     supportedLngs: SUPPORTED as unknown as string[],
     defaultNS: 'common',
-    ns: ['common'],
+    ns: ['common', 'nav'],
     interpolation: { escapeValue: false },
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'] },
   })

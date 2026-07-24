@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "requests": "Requests",
+    "newRequest": "New Request",
+    "activity": "Activity",
+    "pending": "Pending Requests",
+    "profile": "My Profile",
+    "allRequests": "All Requests",
+    "duplicates": "Duplicate Requests",
+    "doctors": "Doctor Management",
+    "users": "User Management",
+    "billing": "Billing",
+    "logout": "Sign out"
+  }
+}

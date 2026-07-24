@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { LucideIcon } from 'lucide-react'
 import { ListChecks, Plus, Users, Inbox, LogOut, UserCircle, CopyCheck, UserCog, Receipt } from 'lucide-react'
 import { useAuth } from '../lib/auth'
@@ -7,6 +8,7 @@ import { navLinks } from '../lib/nav'
 import { useMyDoctorId } from '../features/doctor/useMyDoctorId'
 import { usePendingCount } from '../features/doctor/usePendingCount'
 import { ThemeToggle } from './ui/ThemeToggle'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import { Icon } from './ui/Icon'
 
 /** Rota → amaca uygun lucide ikon eşlemesi (nav etiketleri değişmeden). */
@@ -47,6 +49,7 @@ function Monogram() {
 }
 
 export function Layout({ children }: { children: ReactNode }) {
+  const { t } = useTranslation('nav')
   const { appUser, role, signOut } = useAuth()
   const location = useLocation()
   const myDoctorId = useMyDoctorId()
@@ -82,7 +85,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 }`}
               >
                 <Icon of={navIcon(l.to)} size={16} />
-                {l.label}
+                {t(l.labelKey)}
                 {isDoctor && l.to === '/doctor' && <PendingBadge count={pendingCount} />}
               </Link>
             ))}
@@ -90,14 +93,15 @@ export function Layout({ children }: { children: ReactNode }) {
 
           <div className="flex items-center gap-1.5 text-sm">
             <span className="hidden text-muted-foreground sm:inline">{appUser?.full_name}</span>
+            <LanguageSwitcher />
             <ThemeToggle />
             <button
               onClick={signOut}
-              aria-label="Çıkış"
+              aria-label={t('nav.logout')}
               className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <Icon of={LogOut} size={16} />
-              <span className="hidden sm:inline">Çıkış</span>
+              <span className="hidden sm:inline">{t('nav.logout')}</span>
             </button>
           </div>
         </div>
@@ -124,7 +128,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   </span>
                 )}
               </span>
-              {l.label}
+              {t(l.labelKey)}
             </Link>
           ))}
         </nav>
