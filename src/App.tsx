@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { queryClient } from './lib/queryClient'
 import { AuthProvider, useAuth } from './lib/auth'
+import { useAppLanguage } from './i18n/useAppLanguage'
 import { LoginPage } from './features/auth/LoginPage'
 import { ResetPasswordPage } from './features/auth/ResetPasswordPage'
 import { Aydinlatma } from './pages/Aydinlatma'
@@ -28,6 +29,12 @@ function Home() {
   return <Navigate to="/requests" replace />
 }
 
+/** Giriş yapan kullanıcının kayıtlı dilini i18next'e uygular (app_user.language ↔ i18next köprüsü). */
+function LanguageBridge() {
+  useAppLanguage()
+  return null
+}
+
 function Protected({ children }: { children: ReactElement }) {
   const { session, loading } = useAuth()
   if (loading) return <div className="p-4">Yükleniyor…</div>
@@ -39,6 +46,7 @@ export default function App() {
     <ToastProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <LanguageBridge />
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
