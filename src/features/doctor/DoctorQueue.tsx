@@ -9,7 +9,7 @@ import { Badge } from '../../components/Badge'
 import { StatusPill } from '../../components/ui/StatusPill'
 import { Avatar } from '../../components/ui/Avatar'
 import { Icon } from '../../components/ui/Icon'
-import { Spinner } from '../../components/ui/Spinner'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { timeAgo } from '../../lib/format'
@@ -70,9 +70,18 @@ export function DoctorQueue() {
     <div>
       <PageHeader title="Bekleyen Talepler" actions={<Badge count={pending} />} />
       {list.isLoading && (
-        <div className="flex justify-center py-10">
-          <Spinner />
-        </div>
+        <ul className="mt-3 space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className="flex items-center gap-3 rounded-card border border-line bg-surface-2 p-3">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+              <Skeleton className="h-6 w-20 rounded-full" />
+            </li>
+          ))}
+        </ul>
       )}
       {!list.isLoading && list.data?.length === 0 && (
         <EmptyState title="Bekleyen talep yok" />

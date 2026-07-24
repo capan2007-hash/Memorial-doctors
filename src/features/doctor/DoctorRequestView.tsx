@@ -16,7 +16,8 @@ import { PhotoGrid } from '../../components/ui/PhotoGrid'
 import { Field } from '../../components/ui/Field'
 import { Button } from '../../components/ui/Button'
 import { Icon } from '../../components/ui/Icon'
-import { Spinner } from '../../components/ui/Spinner'
+import { Textarea } from '@/components/shadcn/textarea'
+import { Skeleton } from '@/components/shadcn/skeleton'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../components/ui/Toast'
 import { timeAgo } from '../../lib/format'
@@ -99,8 +100,20 @@ export function DoctorRequestView() {
 
   if (!q.data) {
     return (
-      <div className="flex justify-center py-10">
-        <Spinner />
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-2/3 max-w-md" />
+          <Skeleton className="h-4 w-40" />
+        </div>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card md:p-5">
+            <Skeleton className="mb-3 h-5 w-32" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
@@ -149,8 +162,7 @@ export function DoctorRequestView() {
           {mode === 'accept' && (
             <div className="space-y-3">
               <Field label="Tedavi planı">
-                <textarea
-                  className="w-full bg-surface-1 border border-line rounded-control p-2 text-sm text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20"
+                <Textarea
                   placeholder="Tedavi planı"
                   value={plan}
                   onChange={(e) => setPlan(e.target.value)}
@@ -171,8 +183,7 @@ export function DoctorRequestView() {
           {mode === 'reject' && (
             <div className="space-y-3">
               <Field label="Red gerekçesi">
-                <textarea
-                  className="w-full bg-surface-1 border border-line rounded-control p-2 text-sm text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20"
+                <Textarea
                   placeholder="Red gerekçesi (zorunlu)"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
