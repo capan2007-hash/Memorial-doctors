@@ -9,23 +9,19 @@ import { Button } from '../../components/ui/Button'
 import { Field } from '../../components/ui/Field'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { Spinner } from '../../components/ui/Spinner'
 import { useToast } from '../../components/ui/Toast'
 import { Icon } from '../../components/ui/Icon'
 import { UserPlus, KeyRound, Info } from 'lucide-react'
-
-const inputClass = 'w-full rounded-control border border-line bg-surface-1 text-ink-primary p-2 focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
-
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-card border border-line bg-surface-2 p-5 shadow-pop" onClick={(e) => e.stopPropagation()}>
-        <h3 className="mb-4 font-display text-lg text-ink-primary">{title}</h3>
-        {children}
-      </div>
-    </div>
-  )
-}
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/shadcn/dialog'
+import { Input } from '@/components/shadcn/input'
+import { Skeleton } from '@/components/shadcn/skeleton'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/shadcn/select'
 
 function CreateUserDialog({ allowed, onClose }: { allowed: Role[]; onClose: () => void }) {
   const toast = useToast()
@@ -49,33 +45,42 @@ function CreateUserDialog({ allowed, onClose }: { allowed: Role[]; onClose: () =
   }
 
   return (
-    <Modal title="Yeni Kullanıcı" onClose={onClose}>
-      <div className="space-y-3">
-        <Field label="E-posta">
-          <input className={inputClass} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ornek@rememore.test" />
-        </Field>
-        <Field label="Ad Soyad">
-          <input className={inputClass} value={fullName} onChange={(e) => setFullName(e.target.value)} />
-        </Field>
-        <Field label="Telefon (opsiyonel)">
-          <input className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} />
-        </Field>
-        <Field label="Rol">
-          <select className={inputClass} value={role} onChange={(e) => setRole(e.target.value as Role)}>
-            <option value="">Seçin</option>
-            {allowed.map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}
-          </select>
-        </Field>
-        <Field label="Geçici şifre">
-          <input className={inputClass} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="En az 6 karakter" />
-        </Field>
-        <p className="text-xs text-ink-muted">Kullanıcı bu şifreyle giriş yapar; dilerse "Şifremi unuttum" ile değiştirebilir.</p>
-        <div className="flex justify-end gap-2 pt-1">
+    <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-display text-lg">Yeni Kullanıcı</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Field label="E-posta">
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ornek@rememore.test" />
+          </Field>
+          <Field label="Ad Soyad">
+            <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          </Field>
+          <Field label="Telefon (opsiyonel)">
+            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </Field>
+          <Field label="Rol">
+            <Select value={role || undefined} onValueChange={(v) => setRole(v as Role)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                {allowed.map((r) => <SelectItem key={r} value={r}>{roleLabel(r)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Geçici şifre">
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="En az 6 karakter" />
+          </Field>
+          <p className="text-xs text-ink-muted">Kullanıcı bu şifreyle giriş yapar; dilerse "Şifremi unuttum" ile değiştirebilir.</p>
+        </div>
+        <DialogFooter className="gap-2">
           <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
           <Button variant="primary" type="button" disabled={!canSubmit} loading={create.isPending} onClick={submit}>Oluştur</Button>
-        </div>
-      </div>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -94,17 +99,22 @@ function ResetDialog({ user, onClose }: { user: ManagedUser; onClose: () => void
     }
   }
   return (
-    <Modal title={`Şifre sıfırla — ${user.full_name}`} onClose={onClose}>
-      <div className="space-y-3">
-        <Field label="Yeni geçici şifre">
-          <input className={inputClass} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="En az 6 karakter" />
-        </Field>
-        <div className="flex justify-end gap-2 pt-1">
+    <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-display text-lg">Şifre sıfırla — {user.full_name}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Field label="Yeni geçici şifre">
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="En az 6 karakter" />
+          </Field>
+        </div>
+        <DialogFooter className="gap-2">
           <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
           <Button variant="primary" type="button" disabled={password.length < 6} loading={manage.isPending} onClick={submit}>Sıfırla</Button>
-        </div>
-      </div>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -149,7 +159,19 @@ export function UserAdmin() {
       </div>
 
       <Card title="Kullanıcılar">
-        {users.isLoading && <div className="flex justify-center py-6"><Spinner /></div>}
+        {users.isLoading && (
+          <div className="divide-y divide-line">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-56" />
+                </div>
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+            ))}
+          </div>
+        )}
         {!users.isLoading && (users.data?.length ?? 0) === 0 && (
           <EmptyState title="Kullanıcı yok" description="Henüz kayıtlı kullanıcı bulunmuyor." />
         )}
