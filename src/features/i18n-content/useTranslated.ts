@@ -15,6 +15,22 @@ export interface TranslatedResult {
 type InvokeResult = { translated: string; cached: boolean }
 
 /**
+ * Senkron, bağımlılıksız FNV-1a 32-bit hash. Metnin TAMAMI üzerinden çalışır
+ * (yalnız bir önek değil) — React Query `queryKey`'inde tam-metin özdeşliğini
+ * güvenilir biçimde temsil etmek için kullanılır. Kriptografik amaçlı değildir;
+ * yalnız cache anahtarı çarpışmasını pratikte önlemek içindir.
+ */
+export function hashText(text: string): string {
+  let hash = 0x811c9dc5 // FNV offset basis
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i)
+    // FNV prime (16777619) ile çarpım; >>> 0 ile 32-bit unsigned'a sabitle.
+    hash = Math.imul(hash, 0x01000193) >>> 0
+  }
+  return hash.toString(16).padStart(8, '0')
+}
+
+/**
  * Kaynak dil ile hedef dil (`i18n.language`) aynıysa veya metin boşsa ÇAĞRI
  * YAPILMAZ — orijinal metin düz döner. Aksi halde `translate` edge function'ı
  * React Query ile çağrılır ve sonuç sonsuz `staleTime` ile önbelleklenir
@@ -28,12 +44,11 @@ export function useTranslated(text: string | null | undefined, sourceLang: strin
   const shouldTranslate = !!trimmed && !!sourceLang && target !== sourceLang
 
   const query = useQuery({
-    // Metnin tamamını queryKey'e koymak yerine kısa bir imza kullanıyoruz
-    // (ilk 64 karakter + uzunluk) — devasa notlarda React Query'nin dahili
-    // key serileştirmesini şişirmemek için. Çarpışma riski pratikte yok
-    // (aynı imzalı iki farklı metin aynı çeviriyi paylaşsa bile edge function
-    // zaten source_hash ile kendi önbelleğini ayrıca doğru tutuyor).
-    queryKey: ['translate', target, sourceLang, trimmed.length, trimmed.slice(0, 64)],
+    // Metnin tamamı üzerinden hesaplanan deterministik hash — "uzunluk + ilk
+    // 64 karakter" imzası, sonu farklı iki metni aynı cache girdisine
+    // düşürüp yanlış çeviriyi gösterebiliyordu (staleTime: Infinity ile kalıcı
+    // hale gelen bir çarpışma). hashText metnin TAMAMINI kapsar.
+    queryKey: ['translate', target, sourceLang, hashText(trimmed)],
     enabled: shouldTranslate,
     staleTime: Infinity,
     queryFn: async (): Promise<InvokeResult> => {
