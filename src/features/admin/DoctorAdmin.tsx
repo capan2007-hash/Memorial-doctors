@@ -20,15 +20,24 @@ import { Button } from '../../components/ui/Button'
 import { Field } from '../../components/ui/Field'
 import { Avatar } from '../../components/ui/Avatar'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { Spinner } from '../../components/ui/Spinner'
 import { useToast } from '../../components/ui/Toast'
 import { Icon } from '../../components/ui/Icon'
 import { toDateInputValue, startOfDayIso, endOfDayIso } from '../../lib/format'
 import { DoctorPerformanceDashboard } from './DoctorPerformanceDashboard'
+import { Input } from '@/components/shadcn/input'
+import { Textarea } from '@/components/shadcn/textarea'
+import { Checkbox } from '@/components/shadcn/checkbox'
+import { Skeleton } from '@/components/shadcn/skeleton'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/shadcn/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/shadcn/select'
 
 const levelLabels: Record<WeightedWorkLevel, string> = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
-
-const inputClass = 'w-full rounded-control border border-line bg-surface-1 text-ink-primary p-2 focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
 
 function scopeKey(s: DoctorScope) { return `${s.categoryId}::${s.subcategoryId ?? ''}` }
 
@@ -50,11 +59,10 @@ function CategoryScopeRow({ category, scopes, onChange }: {
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
   if (!category.has_subcategories) {
     return (
-      <label className="flex items-center gap-2 text-sm text-ink-secondary">
-        <input
-          type="checkbox"
+      <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-secondary">
+        <Checkbox
           checked={hasScope(scopes, category.id, null)}
-          onChange={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: null }))}
+          onCheckedChange={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: null }))}
         />
         {category.name}
       </label>
@@ -63,13 +71,12 @@ function CategoryScopeRow({ category, scopes, onChange }: {
   return (
     <div className="text-sm">
       <p className="font-medium text-ink-secondary">{category.name}</p>
-      <div className="mt-1 ml-3 flex flex-wrap gap-3">
+      <div className="ml-3 mt-1.5 flex flex-wrap gap-x-4 gap-y-2">
         {subs.data?.map((sc) => (
-          <label key={sc.id} className="flex items-center gap-2 text-ink-secondary">
-            <input
-              type="checkbox"
+          <label key={sc.id} className="flex cursor-pointer items-center gap-2 text-ink-secondary">
+            <Checkbox
               checked={hasScope(scopes, category.id, sc.id)}
-              onChange={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
+              onCheckedChange={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
             />
             {sc.name}
           </label>
@@ -102,24 +109,26 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
     <div className="space-y-2 rounded-control border border-line p-3 bg-surface-1">
       {value.items.map((it, idx) => (
         <div key={idx} className="flex gap-2">
-          <input
-            className={`${inputClass} flex-1 text-sm`} placeholder="Alan (ör. diz protezi)"
+          <Input
+            className="flex-1" placeholder="Alan (ör. diz protezi)"
             value={it.area} onChange={(e) => updateItem(idx, { area: e.target.value })}
           />
-          <select
-            className={`${inputClass} w-auto text-sm`} value={it.level}
-            onChange={(e) => updateItem(idx, { level: e.target.value as WeightedWorkLevel })}
-          >
-            {(['high', 'medium', 'low'] as WeightedWorkLevel[]).map((l) => (
-              <option key={l} value={l}>{levelLabels[l]}</option>
-            ))}
-          </select>
+          <Select value={it.level} onValueChange={(v) => updateItem(idx, { level: v as WeightedWorkLevel })}>
+            <SelectTrigger className="w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(['high', 'medium', 'low'] as WeightedWorkLevel[]).map((l) => (
+                <SelectItem key={l} value={l}>{levelLabels[l]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button variant="ghost" type="button" onClick={() => removeItem(idx)}>Sil</Button>
         </div>
       ))}
-      <button type="button" className="text-sm text-brand-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 rounded" onClick={addItem}>+ Satır ekle</button>
-      <textarea
-        className={`${inputClass} text-sm`} placeholder="Serbest not"
+      <button type="button" className="rounded text-sm font-medium text-brand-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40" onClick={addItem}>+ Satır ekle</button>
+      <Textarea
+        placeholder="Serbest not"
         value={value.note} onChange={(e) => onChange({ ...value, note: e.target.value })}
       />
     </div>
@@ -245,16 +254,16 @@ function ScoreSection({ doctorId }: { doctorId: string }) {
           >
             Son 1 ay
           </Button>
-          <input
+          <Input
             type="date"
-            className={`${inputClass} w-auto text-sm`}
+            className="w-auto"
             value={customFrom}
             onChange={(e) => { setCustomFrom(e.target.value); setPreset('custom') }}
           />
-          <span className="text-ink-muted text-sm">–</span>
-          <input
+          <span className="text-sm text-ink-muted">–</span>
+          <Input
             type="date"
-            className={`${inputClass} w-auto text-sm`}
+            className="w-auto"
             value={customTo}
             onChange={(e) => { setCustomTo(e.target.value); setPreset('custom') }}
           />
@@ -312,17 +321,6 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
   const [weightedWork, setWeightedWork] = useState<WeightedWork>(emptyWeightedWork)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
 
-  useEffect(() => {
-    if (!open) return
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
-
-  if (!open) return null
-
   const canSubmit = !!email && !!password && !!fullName && scopes.length > 0 && !createDoctor.isPending
 
   const reset = () => {
@@ -347,60 +345,56 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-y-auto"
-      onClick={onClose}
-    >
-      <div className="contents" onClick={(e) => e.stopPropagation()}>
-        <Card
-          title="Yeni Doktor Ekle"
-          className="max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-3"
-        >
-          <SectionHeading>Hesap</SectionHeading>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="E-posta">
-              <input className={inputClass} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            </Field>
-            <Field label="Geçici şifre">
-              <input className={inputClass} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            </Field>
-          </div>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent className="max-h-[90vh] max-w-2xl space-y-3 overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-display text-lg">Yeni Doktor Ekle</DialogTitle>
+        </DialogHeader>
 
-          <SectionHeading>Profil</SectionHeading>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="Ad Soyad">
-              <input className={inputClass} value={fullName} onChange={(e) => setFullName(e.target.value)} />
-            </Field>
-            <Field label="Unvan">
-              <input className={inputClass} placeholder="ör. Op. Dr." value={title} onChange={(e) => setTitle(e.target.value)} />
-            </Field>
-            <Field label="Branş">
-              <input className={inputClass} value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
-            </Field>
-          </div>
-          <Field label="Biyografi">
-            <textarea className={inputClass} placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
+        <SectionHeading>Hesap</SectionHeading>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <Field label="E-posta">
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
+          <Field label="Geçici şifre">
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </Field>
+        </div>
 
-          <SectionHeading>Yetkinlikler</SectionHeading>
-          <ScopeEditor scopes={scopes} onChange={setScopes} />
-          {!scopes.length && <p className="text-warning-text text-xs">En az bir yetkinlik (kategori/alt kırılım) seçilmeli.</p>}
+        <SectionHeading>Profil</SectionHeading>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <Field label="Ad Soyad">
+            <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          </Field>
+          <Field label="Unvan">
+            <Input placeholder="ör. Op. Dr." value={title} onChange={(e) => setTitle(e.target.value)} />
+          </Field>
+          <Field label="Branş">
+            <Input value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
+          </Field>
+        </div>
+        <Field label="Biyografi">
+          <Textarea placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
+        </Field>
 
-          <SectionHeading>Ağırlıklı İşler</SectionHeading>
-          <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
+        <SectionHeading>Yetkinlikler</SectionHeading>
+        <ScopeEditor scopes={scopes} onChange={setScopes} />
+        {!scopes.length && <p className="text-xs text-warning-text">En az bir yetkinlik (kategori/alt kırılım) seçilmeli.</p>}
 
-          <SectionHeading>Foto</SectionHeading>
-          <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="block text-sm" />
+        <SectionHeading>Ağırlıklı İşler</SectionHeading>
+        <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} />
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
-            <Button variant="primary" type="button" disabled={!canSubmit} loading={createDoctor.isPending} onClick={submit}>
-              Oluştur
-            </Button>
-          </div>
-        </Card>
-      </div>
-    </div>
+        <SectionHeading>Foto</SectionHeading>
+        <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="block text-sm" />
+
+        <DialogFooter className="gap-2 pt-2">
+          <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
+          <Button variant="primary" type="button" disabled={!canSubmit} loading={createDoctor.isPending} onClick={submit}>
+            Oluştur
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -408,18 +402,20 @@ function ConfirmDeleteDialog({ loading, onConfirm, onClose }: {
   loading: boolean; onConfirm: () => void; onClose: () => void
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-card border border-line bg-surface-2 p-5 shadow-pop" onClick={(e) => e.stopPropagation()}>
-        <h3 className="mb-3 font-display text-lg text-ink-primary">Doktoru sil?</h3>
-        <p className="mb-4 text-sm text-ink-secondary">
-          Hesabı pasifleştirilecek ve giriş engellenecek; geçmiş kayıtlar korunur.
-        </p>
-        <div className="flex justify-end gap-2">
+    <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-display text-lg">Doktoru sil?</DialogTitle>
+          <DialogDescription>
+            Hesabı pasifleştirilecek ve giriş engellenecek; geçmiş kayıtlar korunur.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2">
           <Button variant="ghost" type="button" onClick={onClose}>Vazgeç</Button>
           <Button variant="danger" type="button" loading={loading} onClick={onConfirm}>Sil</Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -520,10 +516,10 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
             <ScopeChips scopes={doctor.scopes} />
 
             <Field label="Branş">
-              <input className={inputClass} value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
+              <Input value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
             </Field>
             <Field label="Biyografi">
-              <textarea className={inputClass} placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
+              <Textarea placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
             </Field>
 
             <SectionHeading>Yetkinlikler</SectionHeading>
@@ -536,8 +532,8 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
               <DoctorAvatar photoUrl={photoUrl} name={doctor.title || 'Doktor'} size="lg" />
               <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} className="text-sm" />
             </div>
-            <label className="flex items-center gap-2 text-sm text-ink-secondary">
-              <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Aktif
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-secondary">
+              <Checkbox checked={isActive} onCheckedChange={(v) => setIsActive(v === true)} /> Aktif
             </label>
 
             <SectionHeading>İstatistikler</SectionHeading>
@@ -584,9 +580,20 @@ export function DoctorAdmin() {
       <DoctorPerformanceDashboard onSelectDoctor={scrollToDoctorCard} />
 
       {docs.isLoading && (
-        <div className="flex justify-center py-10">
-          <Spinner />
-        </div>
+        <ul className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <li key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card md:p-5">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-28" />
+                </div>
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
 
       {!docs.isLoading && docs.data?.length === 0 && (
