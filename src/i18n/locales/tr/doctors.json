@@ -1,0 +1,82 @@
+{
+  "queue": {
+    "title": "Bekleyen Talepler",
+    "emptyTitle": "Bekleyen talep yok",
+    "slaRemaining_one": "SLA: {{count}}s kaldı",
+    "slaRemaining_other": "SLA: {{count}}s kaldı",
+    "slaOverdue_one": "SLA aşıldı · {{count}}s",
+    "slaOverdue_other": "SLA aşıldı · {{count}}s"
+  },
+  "requestView": {
+    "notFoundTitle": "Talep bulunamadı",
+    "notFoundDescription": "Bu talep silinmiş veya bağlantı hatalı olabilir.",
+    "subtitle": "Talep #{{id}} · {{time}}",
+    "photosCardTitle": "Fotoğraflar",
+    "photoGridTitle": "Fotoğraf",
+    "xraysCardTitle": "Diş Röntgeni",
+    "xrayGridTitle": "Röntgen",
+    "acceptButton": "Kabul",
+    "rejectButton": "Red",
+    "treatmentPlanLabel": "Tedavi planı",
+    "acceptSubmit": "Kabul et",
+    "rejectReasonLabel": "Red gerekçesi",
+    "rejectReasonPlaceholder": "Red gerekçesi (zorunlu)",
+    "rejectSubmit": "Reddet",
+    "responseSaved": "Yanıtınız kaydedildi",
+    "responseSaveFailed": "Yanıt kaydedilemedi: {{message}}"
+  },
+  "profile": {
+    "title": "Profilim",
+    "subtitle": "Profilinizi, verebileceğiniz tedavileri ve performansınızı yönetin.",
+    "notFoundTitle": "Profil bulunamadı",
+    "notFoundDescription": "Doktor kaydınıza ulaşılamadı.",
+    "profileCardTitle": "Profil",
+    "choosePhotoLabel": "Fotoğraf seç",
+    "photoUploadPending": "Kaydet'e basınca yüklenecek: {{name}}",
+    "titleLabel": "Unvan",
+    "titlePlaceholder": "ör. Op. Dr.",
+    "specialtyLabel": "Branş",
+    "bioLabel": "Biyografi",
+    "bioPlaceholder": "Biyografi / CV",
+    "weightedWorkTitle": "Ağırlıklı İşler",
+    "saveButton": "Kaydet",
+    "avatarFallbackName": "Doktor",
+    "levelLabels": {
+      "high": "Yüksek",
+      "medium": "Orta",
+      "low": "Düşük"
+    },
+    "unworkableTier": "Çalışılmaz",
+    "weightedWork": {
+      "emptyNote": "Henüz ağırlıklı iş eklemediniz.",
+      "areaPlaceholder": "Alan (ör. rinoplasti)",
+      "removeButton": "Sil",
+      "addRowButton": "Satır ekle",
+      "noteLabel": "Serbest not",
+      "notePlaceholder": "Öne çıkan deneyim, ilgi alanı…"
+    },
+    "scopesCardTitle": "Yetkinlikler (verebileceğim tedaviler)",
+    "scopesDescription": "Bu tedaviler için yeni talepler size gönderilir.",
+    "scopesSelectedCount_one": "{{count}} seçili",
+    "scopesSelectedCount_other": "{{count}} seçili",
+    "noSubcategories": "Alt kırılım yok",
+    "scopesMinWarning": "En az bir yetkinlik seçilmeli.",
+    "scopesMinToast": "En az bir yetkinlik seçmelisiniz",
+    "scopesSaveButton": "Onayla ve kaydet",
+    "scopesSaved": "Yetkinlikler kaydedildi",
+    "performanceCardTitle": "Performansım",
+    "noPerformanceData": "Henüz performans verisi yok.",
+    "performance": {
+      "incoming": "Gelen",
+      "answered": "Cevaplanan",
+      "avgResponse": "Ort. yanıt",
+      "breach": "Hedef dışı",
+      "pending": "Bekleyen",
+      "score": "Skor",
+      "onTime": "Zamanında:",
+      "late": "Geç:"
+    },
+    "profileSaved": "Profil kaydedildi",
+    "saveFailed": "Kaydedilemedi: {{message}}"
+  }
+}

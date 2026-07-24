@@ -1,0 +1,82 @@
+{
+  "queue": {
+    "title": "Pending Requests",
+    "emptyTitle": "No pending requests",
+    "slaRemaining_one": "SLA: {{count}}h left",
+    "slaRemaining_other": "SLA: {{count}}h left",
+    "slaOverdue_one": "SLA breached · {{count}}h",
+    "slaOverdue_other": "SLA breached · {{count}}h"
+  },
+  "requestView": {
+    "notFoundTitle": "Request not found",
+    "notFoundDescription": "This request may have been deleted, or the link may be invalid.",
+    "subtitle": "Request #{{id}} · {{time}}",
+    "photosCardTitle": "Photos",
+    "photoGridTitle": "Photo",
+    "xraysCardTitle": "Dental X-ray",
+    "xrayGridTitle": "X-ray",
+    "acceptButton": "Accept",
+    "rejectButton": "Reject",
+    "treatmentPlanLabel": "Treatment plan",
+    "acceptSubmit": "Accept",
+    "rejectReasonLabel": "Rejection reason",
+    "rejectReasonPlaceholder": "Rejection reason (required)",
+    "rejectSubmit": "Reject",
+    "responseSaved": "Your response has been saved",
+    "responseSaveFailed": "Response could not be saved: {{message}}"
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your profile, the treatments you can offer, and your performance.",
+    "notFoundTitle": "Profile not found",
+    "notFoundDescription": "Your doctor record could not be found.",
+    "profileCardTitle": "Profile",
+    "choosePhotoLabel": "Choose photo",
+    "photoUploadPending": "Will be uploaded when you press Save: {{name}}",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. Op. Dr.",
+    "specialtyLabel": "Specialty",
+    "bioLabel": "Biography",
+    "bioPlaceholder": "Biography / CV",
+    "weightedWorkTitle": "Weighted Work",
+    "saveButton": "Save",
+    "avatarFallbackName": "Doctor",
+    "levelLabels": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "unworkableTier": "Unworkable",
+    "weightedWork": {
+      "emptyNote": "You haven't added any weighted work yet.",
+      "areaPlaceholder": "Area (e.g. rhinoplasty)",
+      "removeButton": "Delete",
+      "addRowButton": "Add row",
+      "noteLabel": "Free-form note",
+      "notePlaceholder": "Notable experience, area of interest…"
+    },
+    "scopesCardTitle": "Competencies (treatments I can offer)",
+    "scopesDescription": "New requests for these treatments will be sent to you.",
+    "scopesSelectedCount_one": "{{count}} selected",
+    "scopesSelectedCount_other": "{{count}} selected",
+    "noSubcategories": "No subcategories",
+    "scopesMinWarning": "At least one competency must be selected.",
+    "scopesMinToast": "You must select at least one competency",
+    "scopesSaveButton": "Confirm and save",
+    "scopesSaved": "Competencies saved",
+    "performanceCardTitle": "My Performance",
+    "noPerformanceData": "No performance data yet.",
+    "performance": {
+      "incoming": "Incoming",
+      "answered": "Answered",
+      "avgResponse": "Avg. response",
+      "breach": "Off-target",
+      "pending": "Pending",
+      "score": "Score",
+      "onTime": "On time:",
+      "late": "Late:"
+    },
+    "profileSaved": "Profile saved",
+    "saveFailed": "Could not be saved: {{message}}"
+  }
+}

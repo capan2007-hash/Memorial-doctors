@@ -1,0 +1,82 @@
+{
+  "queue": {
+    "title": "الطلبات المعلقة",
+    "emptyTitle": "لا توجد طلبات معلقة",
+    "slaRemaining_one": "SLA: تبقّى {{count}} ساعة",
+    "slaRemaining_other": "SLA: تبقّى {{count}} ساعة",
+    "slaOverdue_one": "تجاوز SLA · {{count}} ساعة",
+    "slaOverdue_other": "تجاوز SLA · {{count}} ساعة"
+  },
+  "requestView": {
+    "notFoundTitle": "الطلب غير موجود",
+    "notFoundDescription": "قد يكون هذا الطلب قد حُذف أو أن الرابط غير صحيح.",
+    "subtitle": "الطلب #{{id}} · {{time}}",
+    "photosCardTitle": "الصور",
+    "photoGridTitle": "صورة",
+    "xraysCardTitle": "أشعة الأسنان",
+    "xrayGridTitle": "أشعة",
+    "acceptButton": "قبول",
+    "rejectButton": "رفض",
+    "treatmentPlanLabel": "خطة العلاج",
+    "acceptSubmit": "قبول",
+    "rejectReasonLabel": "سبب الرفض",
+    "rejectReasonPlaceholder": "سبب الرفض (إلزامي)",
+    "rejectSubmit": "رفض",
+    "responseSaved": "تم حفظ ردك",
+    "responseSaveFailed": "تعذّر حفظ الرد: {{message}}"
+  },
+  "profile": {
+    "title": "ملفي الشخصي",
+    "subtitle": "أدر ملفك الشخصي والعلاجات التي يمكنك تقديمها وأداءك.",
+    "notFoundTitle": "الملف الشخصي غير موجود",
+    "notFoundDescription": "تعذّر العثور على سجل الطبيب الخاص بك.",
+    "profileCardTitle": "الملف الشخصي",
+    "choosePhotoLabel": "اختر صورة",
+    "photoUploadPending": "سيتم الرفع عند الضغط على حفظ: {{name}}",
+    "titleLabel": "اللقب الوظيفي",
+    "titlePlaceholder": "مثال: طبيب عمليات",
+    "specialtyLabel": "التخصص",
+    "bioLabel": "السيرة الذاتية",
+    "bioPlaceholder": "السيرة الذاتية / CV",
+    "weightedWorkTitle": "الأعمال ذات الأولوية",
+    "saveButton": "حفظ",
+    "avatarFallbackName": "طبيب",
+    "levelLabels": {
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة"
+    },
+    "unworkableTier": "غير قابل للعمل",
+    "weightedWork": {
+      "emptyNote": "لم تُضف بعد أي عمل ذي أولوية.",
+      "areaPlaceholder": "المجال (مثال: تجميل الأنف)",
+      "removeButton": "حذف",
+      "addRowButton": "إضافة سطر",
+      "noteLabel": "ملاحظة حرة",
+      "notePlaceholder": "خبرة بارزة، مجال اهتمام…"
+    },
+    "scopesCardTitle": "الكفاءات (العلاجات التي يمكنني تقديمها)",
+    "scopesDescription": "ستُرسل إليك الطلبات الجديدة لهذه العلاجات.",
+    "scopesSelectedCount_one": "تم تحديد {{count}}",
+    "scopesSelectedCount_other": "تم تحديد {{count}}",
+    "noSubcategories": "لا توجد فئة فرعية",
+    "scopesMinWarning": "يجب اختيار كفاءة واحدة على الأقل.",
+    "scopesMinToast": "يجب اختيار كفاءة واحدة على الأقل",
+    "scopesSaveButton": "تأكيد وحفظ",
+    "scopesSaved": "تم حفظ الكفاءات",
+    "performanceCardTitle": "أدائي",
+    "noPerformanceData": "لا توجد بيانات أداء بعد.",
+    "performance": {
+      "incoming": "الوارد",
+      "answered": "تمت الإجابة",
+      "avgResponse": "متوسط الرد",
+      "breach": "خارج الهدف",
+      "pending": "بانتظار",
+      "score": "النقاط",
+      "onTime": "في الوقت المحدد:",
+      "late": "متأخر:"
+    },
+    "profileSaved": "تم حفظ الملف الشخصي",
+    "saveFailed": "تعذّر الحفظ: {{message}}"
+  }
+}

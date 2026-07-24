@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { useRespond } from './useRespond'
@@ -24,6 +25,7 @@ import { timeAgo } from '../../lib/format'
 import type { RequestRow, PhotoRow } from '../../types/db'
 
 export function DoctorRequestView() {
+  const { t } = useTranslation('doctors')
   const { id } = useParams()
   const { appUser } = useAuth()
   const respond = useRespond()
@@ -86,16 +88,16 @@ export function DoctorRequestView() {
       })
       setRespErr(null)
       setMode('none')
-      toast.show('Yanıtınız kaydedildi')
+      toast.show(t('requestView.responseSaved'))
     } catch (e) {
-      const message = 'Yanıt kaydedilemedi: ' + (e as Error).message
+      const message = t('requestView.responseSaveFailed', { message: (e as Error).message })
       setRespErr(message)
       toast.show(message, 'error')
     }
   }
 
   if (q.isError || (!q.isLoading && !q.data)) {
-    return <EmptyState title="Talep bulunamadı" description="Bu talep silinmiş veya bağlantı hatalı olabilir." />
+    return <EmptyState title={t('requestView.notFoundTitle')} description={t('requestView.notFoundDescription')} />
   }
 
   if (!q.data) {
@@ -125,7 +127,7 @@ export function DoctorRequestView() {
     <div className="space-y-4 pb-24 md:pb-4">
       <PageHeader
         title={title}
-        subtitle={`Talep #${req.id.slice(0, 8)} · ${timeAgo(req.created_at)}`}
+        subtitle={t('requestView.subtitle', { id: req.id.slice(0, 8), time: timeAgo(req.created_at) })}
         actions={<StatusPill status={req.status} />}
       />
       <PatientInfoCard
@@ -135,12 +137,12 @@ export function DoctorRequestView() {
         subcategoryName={subcategoryName}
         operationName={operationName}
       />
-      <Card title="Fotoğraflar">
-        <PhotoGrid urls={photos} title="Fotoğraf" />
+      <Card title={t('requestView.photosCardTitle')}>
+        <PhotoGrid urls={photos} title={t('requestView.photoGridTitle')} />
       </Card>
       {xrays.length > 0 && (
-        <Card title="Diş Röntgeni">
-          <PhotoGrid urls={xrays} title="Röntgen" />
+        <Card title={t('requestView.xraysCardTitle')}>
+          <PhotoGrid urls={xrays} title={t('requestView.xrayGridTitle')} />
         </Card>
       )}
       <AiPanel requestId={req.id} canGiveFeedback doctorId={myDoctorId.data} />
@@ -151,19 +153,19 @@ export function DoctorRequestView() {
             <div className="flex gap-2">
               <Button variant="primary" className="flex-1 min-h-[44px]" onClick={() => setMode('accept')}>
                 <Icon of={Check} size={16} />
-                Kabul
+                {t('requestView.acceptButton')}
               </Button>
               <Button variant="danger" className="flex-1 min-h-[44px]" onClick={() => setMode('reject')}>
                 <Icon of={X} size={16} />
-                Red
+                {t('requestView.rejectButton')}
               </Button>
             </div>
           )}
           {mode === 'accept' && (
             <div className="space-y-3">
-              <Field label="Tedavi planı">
+              <Field label={t('requestView.treatmentPlanLabel')}>
                 <Textarea
-                  placeholder="Tedavi planı"
+                  placeholder={t('requestView.treatmentPlanLabel')}
                   value={plan}
                   onChange={(e) => setPlan(e.target.value)}
                 />
@@ -176,15 +178,15 @@ export function DoctorRequestView() {
                 onClick={doRespond}
               >
                 <Icon of={Check} size={16} />
-                Kabul et
+                {t('requestView.acceptSubmit')}
               </Button>
             </div>
           )}
           {mode === 'reject' && (
             <div className="space-y-3">
-              <Field label="Red gerekçesi">
+              <Field label={t('requestView.rejectReasonLabel')}>
                 <Textarea
-                  placeholder="Red gerekçesi (zorunlu)"
+                  placeholder={t('requestView.rejectReasonPlaceholder')}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                 />
@@ -197,7 +199,7 @@ export function DoctorRequestView() {
                 onClick={doRespond}
               >
                 <Icon of={X} size={16} />
-                Reddet
+                {t('requestView.rejectSubmit')}
               </Button>
             </div>
           )}

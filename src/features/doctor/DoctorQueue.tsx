@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
 import { usePendingCount } from './usePendingCount'
@@ -13,7 +14,7 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { timeAgo } from '../../lib/format'
-import { slaInfo, slaLabel } from '../../domain/sla'
+import { slaInfo } from '../../domain/sla'
 import type { RequestRow } from '../../types/db'
 
 type QueueRow = RequestRow & {
@@ -25,6 +26,7 @@ type QueueRow = RequestRow & {
 }
 
 export function DoctorQueue() {
+  const { t } = useTranslation('doctors')
   const { appUser } = useAuth()
   const doc = useMyDoctorId()
   const pending = usePendingCount(doc.data ?? undefined)
@@ -68,7 +70,7 @@ export function DoctorQueue() {
   const reminderHours = tenantSla.data?.sla_reminder_hours ?? 4
   return (
     <div>
-      <PageHeader title="Bekleyen Talepler" actions={<Badge count={pending} />} />
+      <PageHeader title={t('queue.title')} actions={<Badge count={pending} />} />
       {list.isLoading && (
         <ul className="mt-3 space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -84,13 +86,18 @@ export function DoctorQueue() {
         </ul>
       )}
       {!list.isLoading && list.data?.length === 0 && (
-        <EmptyState title="Bekleyen talep yok" />
+        <EmptyState title={t('queue.emptyTitle')} />
       )}
       {!list.isLoading && list.data && list.data.length > 0 && (
         <ul className="mt-3 space-y-2">
           {list.data.map((r) => {
             const info = slaInfo(r.assignedAt, slaHours, reminderHours, r.hasResponse, new Date())
-            const label = slaLabel(info)
+            // slaLabel() metnini kasıtlı kullanmıyoruz: domain/sla.ts paylaşımlı ve test edilen saf format
+            // fonksiyonu — burada yalnız state/sayıları alıp doctors ns'inde çeviriyoruz (domain değişmedi).
+            const label =
+              info.state === 'warning' ? t('queue.slaRemaining', { count: info.hoursLeft }) :
+              info.state === 'overdue' ? t('queue.slaOverdue', { count: info.hoursOver }) :
+              null
             return (
               <li key={r.id}>
                 <Link
