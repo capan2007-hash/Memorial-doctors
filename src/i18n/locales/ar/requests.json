@@ -16,6 +16,11 @@
     "phonePlaceholder": "05XX XXX XX XX",
     "ageLabel": "العمر",
     "genderLabel": "الجنس",
+    "gender": {
+      "female": "أنثى",
+      "male": "ذكر",
+      "other": "آخر"
+    },
     "heightLabel": "الطول (سم)",
     "heightPlaceholder": "الطول",
     "weightLabel": "الوزن (كغ)",

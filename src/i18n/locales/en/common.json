@@ -9,5 +9,8 @@
     "escalated": "Escalated",
     "closed": "Closed"
   },
-  "photoUploader": { "selectedCount": "{{count}} photos selected" }
+  "photoUploader": {
+    "selectedCount_one": "{{count}} photo selected",
+    "selectedCount_other": "{{count}} photos selected"
+  }
 }

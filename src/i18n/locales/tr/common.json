@@ -9,5 +9,8 @@
     "escalated": "Eskalasyon",
     "closed": "Kapandı"
   },
-  "photoUploader": { "selectedCount": "{{count}} fotoğraf seçili" }
+  "photoUploader": {
+    "selectedCount_one": "{{count}} fotoğraf seçili",
+    "selectedCount_other": "{{count}} fotoğraf seçili"
+  }
 }

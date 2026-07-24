@@ -16,6 +16,11 @@
     "phonePlaceholder": "05XX XXX XX XX",
     "ageLabel": "Age",
     "genderLabel": "Gender",
+    "gender": {
+      "female": "Female",
+      "male": "Male",
+      "other": "Other"
+    },
     "heightLabel": "Height (cm)",
     "heightPlaceholder": "Height",
     "weightLabel": "Weight (kg)",

@@ -16,6 +16,11 @@
     "phonePlaceholder": "05XX XXX XX XX",
     "ageLabel": "Yaş",
     "genderLabel": "Cinsiyet",
+    "gender": {
+      "female": "Kadın",
+      "male": "Erkek",
+      "other": "Diğer"
+    },
     "heightLabel": "Boy (cm)",
     "heightPlaceholder": "Boy",
     "weightLabel": "Kilo (kg)",

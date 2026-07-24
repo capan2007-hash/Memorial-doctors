@@ -17,8 +17,9 @@ function alcoholDisplay(req: RequestRow, t: TFunction): string | null {
   return req.alcohol_drinks_per_week != null ? `${base} · ${req.alcohol_drinks_per_week}${t('patientInfo.weeklyUnit')}` : base
 }
 
-const genderLabel: Record<NonNullable<RequestRow['gender']>, string> = {
-  female: 'Kadın', male: 'Erkek', other: 'Diğer',
+function genderDisplay(req: RequestRow, t: TFunction): string | null {
+  if (!req.gender) return null
+  return t(`newRequest.gender.${req.gender}`)
 }
 
 function isEmpty(value: string | number | null | undefined): boolean {
@@ -60,7 +61,7 @@ export function PatientInfoCard({ req, patientName, categoryName, subcategoryNam
         <InfoItem label={t('patientInfo.categoryLabel')} value={categoryDisplay || null} />
         <InfoItem label={t('patientInfo.operationLabel')} value={operationName} />
         <InfoItem label={t('patientInfo.ageLabel')} value={req.age} numeric />
-        <InfoItem label={t('patientInfo.genderLabel')} value={req.gender ? genderLabel[req.gender] : null} />
+        <InfoItem label={t('patientInfo.genderLabel')} value={genderDisplay(req, t)} />
         <InfoItem label={t('patientInfo.heightLabel')} value={req.height_cm} numeric />
         <InfoItem label={t('patientInfo.weightLabel')} value={req.weight_kg} numeric />
         <InfoItem label={t('patientInfo.bmiLabel')}>

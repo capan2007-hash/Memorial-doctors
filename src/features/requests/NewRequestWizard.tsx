@@ -284,9 +284,9 @@ export function NewRequestWizard() {
               <Input type="number" placeholder={t('newRequest.ageLabel')} value={age} onChange={(e) => setAge(e.target.value)} />
             </Field>
             <LabeledSelect label={t('newRequest.genderLabel')} value={gender} onChange={(v) => setGender(v as Gender)} placeholder={t('newRequest.selectPlaceholder')}>
-              <SelectItem value="female">Kadın</SelectItem>
-              <SelectItem value="male">Erkek</SelectItem>
-              <SelectItem value="other">Diğer</SelectItem>
+              <SelectItem value="female">{t('newRequest.gender.female')}</SelectItem>
+              <SelectItem value="male">{t('newRequest.gender.male')}</SelectItem>
+              <SelectItem value="other">{t('newRequest.gender.other')}</SelectItem>
             </LabeledSelect>
             <Field label={t('newRequest.heightLabel')}>
               <Input type="number" placeholder={t('newRequest.heightPlaceholder')} value={heightCm} onChange={(e) => setHeightCm(e.target.value)} />

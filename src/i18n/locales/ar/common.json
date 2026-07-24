@@ -9,5 +9,12 @@
     "escalated": "تصعيد",
     "closed": "مغلق"
   },
-  "photoUploader": { "selectedCount": "{{count}} صورة محددة" }
+  "photoUploader": {
+    "selectedCount_zero": "لا صور محددة",
+    "selectedCount_one": "صورة واحدة محددة",
+    "selectedCount_two": "صورتان محددتان",
+    "selectedCount_few": "{{count}} صور محددة",
+    "selectedCount_many": "{{count}} صورة محددة",
+    "selectedCount_other": "{{count}} صورة محددة"
+  }
 }

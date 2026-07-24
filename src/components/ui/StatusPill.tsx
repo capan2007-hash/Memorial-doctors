@@ -1,17 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { RequestStatus } from '../../types/domain'
 
-/** @deprecated Doğrudan TR metin — feature ekranları i18n'e taşınana kadar (Task 7-11) korunur. StatusPill kendisi artık common.status.* üzerinden çevrilir. */
-export const STATUS_LABELS: Record<RequestStatus, string> = {
-  draft: 'Taslak',
-  submitted: 'Gönderildi',
-  assigned: 'Atandı',
-  in_review: 'Yanıtlanıyor',
-  offers_ready: 'Teklif hazır',
-  escalated: 'Eskalasyon',
-  closed: 'Kapandı',
-}
-
 /** Çip zemin/kenarlık/metin + öncü nokta rengi (semantik token'lar). */
 const CHIP: Record<RequestStatus, string> = {
   offers_ready: 'bg-success-bg border border-success-border text-success-text',
