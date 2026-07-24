@@ -5,10 +5,11 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { Field } from '../../components/ui/Field'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { Spinner } from '../../components/ui/Spinner'
 import { useToast } from '../../components/ui/Toast'
-
-const inputClass = 'w-full rounded-control border border-line bg-surface-1 text-ink-primary p-2 focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
+import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
+import { Input } from '@/components/shadcn/input'
+import { Skeleton } from '@/components/shadcn/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/table'
 
 /** Küçük tutarlarda 4 hane, >= 0.01 için 2 hane; USD ön ekiyle. */
 function fmtUsd(v: number): string {
@@ -20,12 +21,12 @@ function serviceLabel(service: string): string { return SERVICE_LABELS[service] 
 
 function ServiceRow({ s }: { s: BillingService }) {
   return (
-    <tr className="border-t border-line">
-      <td className="py-1.5 pr-3 text-ink-secondary">{serviceLabel(s.service)}</td>
-      <td className="py-1.5 pr-3 text-right tnum text-ink-primary">{fmtUsd(s.cost)}</td>
-      <td className="py-1.5 pr-3 text-right tnum text-ink-muted">{s.calls}</td>
-      <td className="py-1.5 text-right tnum text-ink-muted">{s.inTok} / {s.outTok}</td>
-    </tr>
+    <TableRow>
+      <TableCell className="text-ink-secondary">{serviceLabel(s.service)}</TableCell>
+      <TableCell className="tnum text-right text-ink-primary">{fmtUsd(s.cost)}</TableCell>
+      <TableCell className="tnum text-right text-ink-muted">{s.calls}</TableCell>
+      <TableCell className="tnum text-right text-ink-muted">{s.inTok} / {s.outTok}</TableCell>
+    </TableRow>
   )
 }
 
@@ -39,28 +40,28 @@ function CompanyCard({ c }: { c: BillingCompany }) {
           <p className="font-display text-lg tnum text-brand-text">{fmtUsd(c.weeklyCharge)}</p>
         </div>
       </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-xs text-ink-muted">
-            <th className="py-1 pr-3 text-left font-medium">Servis</th>
-            <th className="py-1 pr-3 text-right font-medium">Maliyet</th>
-            <th className="py-1 pr-3 text-right font-medium">Çağrı</th>
-            <th className="py-1 text-right font-medium">Token (in / out)</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>Servis</TableHead>
+            <TableHead className="text-right">Maliyet</TableHead>
+            <TableHead className="text-right">Çağrı</TableHead>
+            <TableHead className="text-right">Token (in / out)</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {c.services.map((s) => <ServiceRow key={s.service} s={s} />)}
           {/* Altyapı (tahmini): AI-çağrı payına göre dağıtılan Supabase/Cloudflare maliyeti. */}
-          <tr className="border-t border-line">
-            <td className="py-1.5 pr-3 text-ink-secondary">
+          <TableRow>
+            <TableCell className="text-ink-secondary">
               Altyapı <span className="text-ink-muted">(tahmini)</span>
-            </td>
-            <td className="py-1.5 pr-3 text-right tnum text-ink-primary">{fmtUsd(c.infraCost)}</td>
-            <td className="py-1.5 pr-3 text-right tnum text-ink-muted">—</td>
-            <td className="py-1.5 text-right tnum text-ink-muted">—</td>
-          </tr>
-        </tbody>
-      </table>
+            </TableCell>
+            <TableCell className="tnum text-right text-ink-primary">{fmtUsd(c.infraCost)}</TableCell>
+            <TableCell className="tnum text-right text-ink-muted">—</TableCell>
+            <TableCell className="tnum text-right text-ink-muted">—</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
       <div className="mt-3 flex justify-end gap-4 border-t border-line pt-2 text-sm">
         <span className="text-ink-muted">AI: <span className="tnum text-ink-secondary">{fmtUsd(c.aiCost)}</span></span>
         <span className="text-ink-muted">Altyapı: <span className="tnum text-ink-secondary">{fmtUsd(c.infraCost)}</span></span>
@@ -91,7 +92,7 @@ function InfraEditor({ current }: { current: number }) {
     <Card title="Altyapı maliyeti (aylık)">
       <div className="flex flex-wrap items-end gap-3">
         <Field label="Aylık altyapı maliyeti (USD)">
-          <input className={`${inputClass} w-40`} type="number" min={0} step="0.01"
+          <Input className="w-40" type="number" min={0} step="0.01"
             value={val} onChange={(e) => setVal(e.target.value)} placeholder="ör. 30" />
         </Field>
         <Button variant="primary" type="button" loading={setInfra.isPending} onClick={save}>Kaydet</Button>
@@ -115,17 +116,32 @@ export function Billing() {
     <div className="space-y-4">
       <PageHeader title="Billing" subtitle="Firma bazlı AI + altyapı maliyeti ve haftalık tahsilat (USD)." />
 
-      <div className="flex gap-2">
-        <Button variant={period === 'week' ? 'primary' : 'secondary'} type="button" onClick={() => setPeriod('week')}>
-          Bu hafta
-        </Button>
-        <Button variant={period === 'month' ? 'primary' : 'secondary'} type="button" onClick={() => setPeriod('month')}>
-          Bu ay
-        </Button>
-      </div>
+      <Tabs value={period} onValueChange={(v) => setPeriod(v as 'week' | 'month')} className="block">
+        <TabsList>
+          <TabsTrigger value="week">Bu hafta</TabsTrigger>
+          <TabsTrigger value="month">Bu ay</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {billing.isLoading && (
-        <div className="flex justify-center py-10"><Spinner /></div>
+        <div className="space-y-4">
+          <Card>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2"><Skeleton className="h-3 w-40" /><Skeleton className="h-9 w-32" /></div>
+              <div className="space-y-2"><Skeleton className="h-3 w-40" /><Skeleton className="h-9 w-32" /></div>
+            </div>
+          </Card>
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card md:p-5">
+              <Skeleton className="mb-4 h-5 w-40" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {billing.isError && (
