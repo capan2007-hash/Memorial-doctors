@@ -7,6 +7,9 @@ import arCommon from './locales/ar/common.json'
 import trNav from './locales/tr/nav.json'
 import enNav from './locales/en/nav.json'
 import arNav from './locales/ar/nav.json'
+import trAuth from './locales/tr/auth.json'
+import enAuth from './locales/en/auth.json'
+import arAuth from './locales/ar/auth.json'
 
 export const SUPPORTED = ['tr', 'ar', 'en'] as const
 export type Lang = (typeof SUPPORTED)[number]
@@ -23,14 +26,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      tr: { common: trCommon, nav: trNav },
-      en: { common: enCommon, nav: enNav },
-      ar: { common: arCommon, nav: arNav },
+      tr: { common: trCommon, nav: trNav, auth: trAuth },
+      en: { common: enCommon, nav: enNav, auth: enAuth },
+      ar: { common: arCommon, nav: arNav, auth: arAuth },
     },
     fallbackLng: 'tr',
     supportedLngs: SUPPORTED as unknown as string[],
     defaultNS: 'common',
-    ns: ['common', 'nav'],
+    ns: ['common', 'nav', 'auth'],
     interpolation: { escapeValue: false },
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'] },
   })

@@ -5,6 +5,9 @@ import arCommon from '../locales/ar/common.json'
 import trNav from '../locales/tr/nav.json'
 import enNav from '../locales/en/nav.json'
 import arNav from '../locales/ar/nav.json'
+import trAuth from '../locales/tr/auth.json'
+import enAuth from '../locales/en/auth.json'
+import arAuth from '../locales/ar/auth.json'
 
 function keys(obj: object, prefix = ''): string[] {
   return Object.entries(obj).flatMap(([k, v]) =>
@@ -15,6 +18,7 @@ describe('i18n key parity', () => {
   it.each([
     ['common', trCommon, enCommon, arCommon],
     ['nav', trNav, enNav, arNav],
+    ['auth', trAuth, enAuth, arAuth],
   ])('%s: EN ve AR, TR ile aynı anahtarlara sahip', (_ns, tr, en, ar) => {
     const t = keys(tr).sort()
     expect(keys(en).sort()).toEqual(t)
