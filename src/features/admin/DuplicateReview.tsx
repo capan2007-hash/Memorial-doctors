@@ -9,6 +9,7 @@ import { useToast } from '../../components/ui/Toast'
 import { Sparkles, ImageOff, UserPlus, ArrowRight } from 'lucide-react'
 import { dupConfidenceClass, formatConfidencePct } from '../../domain/duplicate'
 import { useDuplicateQueue, useResolveDuplicate, type DuplicateItem } from './useDuplicateQueue'
+import { catalogName } from '../catalog/catalogName'
 import { Textarea } from '@/components/shadcn/textarea'
 import { Skeleton } from '@/components/shadcn/skeleton'
 
@@ -108,7 +109,7 @@ function AiVerdict({ item }: { item: DuplicateItem }) {
 }
 
 function DuplicateCard({ item }: { item: DuplicateItem }) {
-  const { t } = useTranslation('admin')
+  const { t, i18n } = useTranslation('admin')
   const toast = useToast()
   const resolve = useResolveDuplicate()
   const [note, setNote] = useState('')
@@ -134,7 +135,7 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
           name={item.patientName}
           meta={[
             { k: t('duplicateReview.phoneLabel'), v: item.phone ?? '—' },
-            { k: t('duplicateReview.categoryLabel'), v: item.categoryName },
+            { k: t('duplicateReview.categoryLabel'), v: item.category ? catalogName(item.category, i18n.language) : '—' },
             { k: t('duplicateReview.dateLabel'), v: formatDate(item.createdAt) },
           ]}
           urls={item.newPhotos}

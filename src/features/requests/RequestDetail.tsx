@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useRequestDetail, useTenantPhotoSettings } from './useRequests'
+import { catalogName } from '../catalog/catalogName'
 import { useSetSaleStatus } from './useSetSaleStatus'
 import { useSiblingOpenRequests } from './useSiblingOpenRequests'
 import { useAuth } from '../../lib/auth'
@@ -111,7 +112,7 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
 }
 
 export function RequestDetail() {
-  const { t } = useTranslation('requests')
+  const { t, i18n } = useTranslation('requests')
   const { id } = useParams()
   const q = useRequestDetail(id)
   // Hooks koşulsuz çağrılmalı (Rules of Hooks): veri gelmeden patient_id yoksa
@@ -140,7 +141,10 @@ export function RequestDetail() {
       </div>
     )
   }
-  const { req, responses, patientName, categoryName, subcategoryName, operationName, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
+  const { req, responses, patientName, category, subcategory, operationType, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
+  const categoryName = category ? catalogName(category, i18n.language) : undefined
+  const subcategoryName = subcategory ? catalogName(subcategory, i18n.language) : null
+  const operationName = operationType ? catalogName(operationType, i18n.language) : null
   const siblingCount = siblingOpen.data?.length ?? 0
   const accepted = responses.filter((r) => r.decision === 'accept')
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`

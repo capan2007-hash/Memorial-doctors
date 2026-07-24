@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMyRequests } from './useRequests'
+import { catalogName } from '../catalog/catalogName'
 import { StatusPill } from '../../components/ui/StatusPill'
 import { Avatar } from '../../components/ui/Avatar'
 import { Skeleton } from '@/components/shadcn/skeleton'
@@ -11,7 +12,7 @@ import { RoleGate } from '../../components/RoleGate'
 import { timeAgo } from '../../lib/format'
 
 export function RequestList() {
-  const { t } = useTranslation('requests')
+  const { t, i18n } = useTranslation('requests')
   const q = useMyRequests()
   return (
     <div>
@@ -61,7 +62,7 @@ export function RequestList() {
                 <Avatar name={r.patientName} size="md" />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-ink-primary truncate">{r.patientName}</p>
-                  <p className="text-sm text-ink-muted truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
+                  <p className="text-sm text-ink-muted truncate">{r.category ? catalogName(r.category, i18n.language) : '—'} · {timeAgo(r.created_at)}</p>
                 </div>
                 <StatusPill status={r.status} />
               </Link>

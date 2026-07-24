@@ -18,8 +18,9 @@ import type { RequestRow } from '../../types/db'
 import { AiAccuracyCard } from '../ai/AiAccuracyCard'
 import { Icon } from '../../components/ui/Icon'
 import { AlertTriangle, Clock } from 'lucide-react'
+import { catalogName, type CatalogRef } from '../catalog/catalogName'
 
-type EnrichedRequestRow = RequestRow & { patientName: string; categoryName: string; hasAccept: boolean }
+type EnrichedRequestRow = RequestRow & { patientName: string; category?: CatalogRef; hasAccept: boolean }
 
 const COMPLETED_STATUSES = new Set<RequestRow['status']>(['offers_ready', 'closed'])
 
@@ -41,7 +42,7 @@ function classify(
 }
 
 export function AllRequests() {
-  const { t } = useTranslation('admin')
+  const { t, i18n } = useTranslation('admin')
   const TAB_LABEL: Record<SlaTab, string> = {
     all: t('allRequests.tabs.all'),
     pending: t('allRequests.tabs.pending'),
@@ -57,16 +58,16 @@ export function AllRequests() {
     const requests = (data ?? []) as RequestRow[]
     const [{ data: patients }, { data: categories }, { data: acceptResponses }] = await Promise.all([
       supabase.from('patient').select('id, first_name, last_name'),
-      supabase.from('category').select('id, name'),
+      supabase.from('category').select('id, name, name_i18n'),
       supabase.from('response').select('request_id').eq('decision', 'accept'),
     ])
     const patientMap = new Map((patients ?? []).map((p: any) => [p.id, `${p.first_name} ${p.last_name}`]))
-    const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c.name as string]))
+    const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c as CatalogRef]))
     const acceptedRequestIds = new Set((acceptResponses ?? []).map((r: any) => r.request_id as string))
     return requests.map((r) => ({
       ...r,
       patientName: patientMap.get(r.patient_id) ?? '—',
-      categoryName: categoryMap.get(r.category_id) ?? '—',
+      category: categoryMap.get(r.category_id),
       hasAccept: acceptedRequestIds.has(r.id),
     }))
   }})
@@ -175,7 +176,7 @@ export function AllRequests() {
                   <Avatar name={r.patientName} size="md" />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-ink-primary hover:text-brand-text truncate">{r.patientName}</p>
-                    <p className="text-sm text-ink-muted truncate">{r.categoryName} · {timeAgo(r.created_at)}</p>
+                    <p className="text-sm text-ink-muted truncate">{r.category ? catalogName(r.category, i18n.language) : '—'} · {timeAgo(r.created_at)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {r.status === 'submitted' && (

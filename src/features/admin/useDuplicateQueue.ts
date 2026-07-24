@@ -2,13 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { resolvePhotoUrls } from '../requests/photoUrl'
 import type { PhotoRow } from '../../types/db'
+import type { CatalogRef } from '../catalog/catalogName'
 
 export interface DuplicateItem {
   requestId: string
   createdAt: string
   patientName: string
   phone: string | null
-  categoryName: string
+  category?: CatalogRef
   parentRequestId: string
   parentCreatedAt: string | null
   parentPatientName: string
@@ -34,12 +35,12 @@ export function useDuplicateQueue() {
       const [{ data: parents }, { data: patients }, { data: cats }, { data: checks }, { data: photos }] = await Promise.all([
         supabase.from('request').select('id, created_at, patient_id').in('id', parentIds),
         supabase.from('patient').select('id, first_name, last_name, phone'),
-        supabase.from('category').select('id, name'),
+        supabase.from('category').select('id, name, name_i18n'),
         supabase.from('duplicate_check').select('*').in('request_id', reqIds),
         supabase.from('photo').select('*').in('request_id', [...reqIds, ...parentIds]).is('deleted_at', null),
       ])
       const pmap = new Map((patients ?? []).map((p: any) => [p.id, p]))
-      const cmap = new Map((cats ?? []).map((c: any) => [c.id, c.name]))
+      const cmap = new Map((cats ?? []).map((c: any) => [c.id, c as CatalogRef]))
       const parentMap = new Map((parents ?? []).map((p: any) => [p.id, p]))
       const checkMap = new Map((checks ?? []).map((c: any) => [c.request_id, c]))
       const photosByReq = new Map<string, PhotoRow[]>()
@@ -59,7 +60,7 @@ export function useDuplicateQueue() {
         items.push({
           requestId: r.id, createdAt: r.created_at,
           patientName: patient ? `${patient.first_name} ${patient.last_name}` : '—',
-          phone: patient?.phone ?? null, categoryName: cmap.get(r.category_id) ?? '—',
+          phone: patient?.phone ?? null, category: cmap.get(r.category_id),
           parentRequestId: r.duplicate_of_request_id, parentCreatedAt: parent?.created_at ?? null,
           parentPatientName: parentPatient ? `${parentPatient.first_name} ${parentPatient.last_name}` : '—',
           matchReason: null,

@@ -3,6 +3,11 @@ import { supabase } from '../../lib/supabase'
 import { uploadPhotos } from './usePhotoUpload'
 import { resolvePhotoUrls } from './photoUrl'
 import type { RequestRow, ResponseRow, PhotoRow } from '../../types/db'
+import type { CatalogRef } from '../catalog/catalogName'
+
+// Katalog adı lokalizasyonu render-anında `catalogName(ref, i18n.language)` ile yapılır
+// (bkz. src/features/catalog/catalogName.ts) — bu yüzden queryFn ham `name`+`name_i18n`'i taşır.
+export type { CatalogRef }
 
 interface NewRequestInput {
   tenantId: string
@@ -95,7 +100,7 @@ export function useCreateRequest() {
   })
 }
 
-export type EnrichedRequestRow = RequestRow & { patientName: string; categoryName: string }
+export type EnrichedRequestRow = RequestRow & { patientName: string; category?: CatalogRef }
 
 export function useMyRequests() {
   return useQuery({ queryKey: ['requests'], queryFn: async (): Promise<EnrichedRequestRow[]> => {
@@ -104,14 +109,14 @@ export function useMyRequests() {
     const requests = data as RequestRow[]
     const [{ data: patients }, { data: categories }] = await Promise.all([
       supabase.from('patient').select('id, first_name, last_name'),
-      supabase.from('category').select('id, name'),
+      supabase.from('category').select('id, name, name_i18n'),
     ])
     const patientMap = new Map((patients ?? []).map((p: any) => [p.id, `${p.first_name} ${p.last_name}`]))
-    const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c.name as string]))
+    const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c as CatalogRef]))
     return requests.map((r) => ({
       ...r,
       patientName: patientMap.get(r.patient_id) ?? '—',
-      categoryName: categoryMap.get(r.category_id) ?? '—',
+      category: categoryMap.get(r.category_id),
     }))
   }})
 }
@@ -126,12 +131,12 @@ export function useRequestDetail(id?: string) {
     const [{ data: responses }, { data: patient }, { data: category }, { data: subcategory }, { data: operationType }, { data: photoRows }] = await Promise.all([
       supabase.from('response').select('*').eq('request_id', id!),
       supabase.from('patient').select('first_name, last_name').eq('id', req.patient_id).single(),
-      supabase.from('category').select('name').eq('id', req.category_id).single(),
+      supabase.from('category').select('name, name_i18n').eq('id', req.category_id).single(),
       req.subcategory_id
-        ? supabase.from('subcategory').select('name').eq('id', req.subcategory_id).single()
+        ? supabase.from('subcategory').select('name, name_i18n').eq('id', req.subcategory_id).single()
         : Promise.resolve({ data: null }),
       req.operation_type_id
-        ? supabase.from('operation_type').select('name').eq('id', req.operation_type_id).single()
+        ? supabase.from('operation_type').select('name, name_i18n').eq('id', req.operation_type_id).single()
         : Promise.resolve({ data: null }),
       supabase.from('photo').select('*').eq('request_id', id!),
     ])
@@ -155,9 +160,9 @@ export function useRequestDetail(id?: string) {
       req,
       responses: (responses ?? []) as ResponseRow[],
       patientName: patient ? `${patient.first_name} ${patient.last_name}` : '—',
-      categoryName: category?.name as string | undefined,
-      subcategoryName: (subcategory?.name as string | undefined) ?? null,
-      operationName: (operationType?.name as string | undefined) ?? null,
+      category: (category as CatalogRef | null) ?? undefined,
+      subcategory: (subcategory as CatalogRef | null) ?? null,
+      operationType: (operationType as CatalogRef | null) ?? null,
       photos,
       xrays,
       deletedPhotos,

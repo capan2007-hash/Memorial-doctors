@@ -16,17 +16,18 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { timeAgo } from '../../lib/format'
 import { slaInfo } from '../../domain/sla'
 import type { RequestRow } from '../../types/db'
+import { catalogName, type CatalogRef } from '../catalog/catalogName'
 
 type QueueRow = RequestRow & {
   patientName: string
-  categoryName: string
+  category?: CatalogRef
   seen: boolean
   assignedAt: string
   hasResponse: boolean
 }
 
 export function DoctorQueue() {
-  const { t } = useTranslation('doctors')
+  const { t, i18n } = useTranslation('doctors')
   const { appUser } = useAuth()
   const doc = useMyDoctorId()
   const pending = usePendingCount(doc.data ?? undefined)
@@ -39,19 +40,19 @@ export function DoctorQueue() {
     const requests = data as RequestRow[]
     const [{ data: patients }, { data: categories }, { data: responses }] = await Promise.all([
       supabase.from('patient').select('id, first_name, last_name'),
-      supabase.from('category').select('id, name'),
+      supabase.from('category').select('id, name, name_i18n'),
       // RLS gereği doktor yalnız kendi response'unu görür (bkz. migration 0002 resp_doctor_read).
       supabase.from('response').select('request_id').eq('doctor_id', doc.data!).in('request_id', ids),
     ])
     const patientMap = new Map((patients ?? []).map((p: any) => [p.id, `${p.first_name} ${p.last_name}`]))
-    const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c.name as string]))
+    const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c as CatalogRef]))
     const seenMap = new Map(assignments.map((a) => [a.request_id, a.seen_at as string | null]))
     const assignedAtMap = new Map(assignments.map((a) => [a.request_id, a.assigned_at as string | null]))
     const respondedIds = new Set((responses ?? []).map((r: any) => r.request_id as string))
     return requests.map((r) => ({
       ...r,
       patientName: patientMap.get(r.patient_id) ?? '—',
-      categoryName: categoryMap.get(r.category_id) ?? '—',
+      category: categoryMap.get(r.category_id),
       seen: seenMap.get(r.id) != null,
       assignedAt: assignedAtMap.get(r.id) ?? r.created_at,
       hasResponse: respondedIds.has(r.id),
@@ -113,7 +114,7 @@ export function DoctorQueue() {
                   <div className="flex-1 min-w-0">
                     <p className={`truncate text-ink-primary ${r.seen ? 'font-medium' : 'font-semibold'}`}>{r.patientName}</p>
                     <p className="text-sm truncate">
-                      <span className="text-ink-secondary">{r.categoryName}</span>
+                      <span className="text-ink-secondary">{r.category ? catalogName(r.category, i18n.language) : '—'}</span>
                       <span className="text-ink-muted"> · </span>
                       <span className="text-ink-muted tnum">{timeAgo(r.assignedAt)}</span>
                     </p>

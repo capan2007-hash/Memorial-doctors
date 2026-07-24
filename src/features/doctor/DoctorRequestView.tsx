@@ -9,6 +9,7 @@ import { useMyDoctorId } from './useMyDoctorId'
 import { AiPanel } from '../ai/AiPanel'
 import { PatientInfoCard } from '../requests/PatientInfoCard'
 import { resolvePhotoUrls } from '../requests/photoUrl'
+import { catalogName, type CatalogRef } from '../catalog/catalogName'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { StatusPill } from '../../components/ui/StatusPill'
 import { Check, X } from 'lucide-react'
@@ -25,7 +26,7 @@ import { timeAgo } from '../../lib/format'
 import type { RequestRow, PhotoRow } from '../../types/db'
 
 export function DoctorRequestView() {
-  const { t } = useTranslation('doctors')
+  const { t, i18n } = useTranslation('doctors')
   const { id } = useParams()
   const { appUser } = useAuth()
   const respond = useRespond()
@@ -40,12 +41,12 @@ export function DoctorRequestView() {
     const req = reqData as RequestRow
     const [{ data: patient }, { data: category }, { data: subcategory }, { data: operationType }, { data: photoRows }] = await Promise.all([
       supabase.from('patient').select('first_name, last_name').eq('id', req.patient_id).single(),
-      supabase.from('category').select('name').eq('id', req.category_id).single(),
+      supabase.from('category').select('name, name_i18n').eq('id', req.category_id).single(),
       req.subcategory_id
-        ? supabase.from('subcategory').select('name').eq('id', req.subcategory_id).single()
+        ? supabase.from('subcategory').select('name, name_i18n').eq('id', req.subcategory_id).single()
         : Promise.resolve({ data: null }),
       req.operation_type_id
-        ? supabase.from('operation_type').select('name').eq('id', req.operation_type_id).single()
+        ? supabase.from('operation_type').select('name, name_i18n').eq('id', req.operation_type_id).single()
         : Promise.resolve({ data: null }),
       supabase.from('photo').select('*').eq('request_id', id!),
     ])
@@ -57,9 +58,9 @@ export function DoctorRequestView() {
     return {
       req,
       patientName: patient ? `${patient.first_name} ${patient.last_name}` : '—',
-      categoryName: category?.name as string | undefined,
-      subcategoryName: (subcategory?.name as string | undefined) ?? null,
-      operationName: (operationType?.name as string | undefined) ?? null,
+      category: (category as CatalogRef | null) ?? undefined,
+      subcategory: (subcategory as CatalogRef | null) ?? null,
+      operationType: (operationType as CatalogRef | null) ?? null,
       photos,
       xrays,
     }
@@ -120,7 +121,10 @@ export function DoctorRequestView() {
     )
   }
 
-  const { req, patientName, categoryName, subcategoryName, operationName, photos, xrays } = q.data
+  const { req, patientName, category, subcategory, operationType, photos, xrays } = q.data
+  const categoryName = category ? catalogName(category, i18n.language) : undefined
+  const subcategoryName = subcategory ? catalogName(subcategory, i18n.language) : null
+  const operationName = operationType ? catalogName(operationType, i18n.language) : null
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
 
   return (
