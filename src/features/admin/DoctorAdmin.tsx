@@ -29,6 +29,7 @@ import { Textarea } from '@/components/shadcn/textarea'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/shadcn/dialog'
+import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import {
   Select,
   SelectContent,
@@ -588,6 +589,13 @@ function scrollToDoctorCard(doctorId: string) {
 export function DoctorAdmin() {
   const docs = useDoctorsFull()
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [view, setView] = useState<'list' | 'reports'>('list')
+
+  // Raporlama tablosundan doktora tıklanınca: liste sekmesine geç + karta kaydır.
+  const openDoctorCard = (doctorId: string) => {
+    setView('list')
+    setTimeout(() => scrollToDoctorCard(doctorId), 120)
+  }
 
   return (
     <div className="space-y-4">
@@ -596,33 +604,44 @@ export function DoctorAdmin() {
         actions={<Button variant="primary" onClick={() => setDialogOpen(true)}>Yeni Doktor</Button>}
       />
 
-      <DoctorPerformanceDashboard onSelectDoctor={scrollToDoctorCard} />
+      <Tabs value={view} onValueChange={(v) => setView(v as 'list' | 'reports')} className="block">
+        <TabsList>
+          <TabsTrigger value="list">Doktorlar</TabsTrigger>
+          <TabsTrigger value="reports">Raporlama</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-      {docs.isLoading && (
-        <ul className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <li key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card md:p-5">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="min-w-0 flex-1 space-y-2">
-                  <Skeleton className="h-4 w-40" />
-                  <Skeleton className="h-3 w-28" />
-                </div>
-                <Skeleton className="h-6 w-16 rounded-full" />
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      {view === 'reports' ? (
+        <DoctorPerformanceDashboard onSelectDoctor={openDoctorCard} />
+      ) : (
+        <>
+          {docs.isLoading && (
+            <ul className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <li key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card md:p-5">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-3 w-28" />
+                    </div>
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
 
-      {!docs.isLoading && docs.data?.length === 0 && (
-        <EmptyState title="Henüz doktor yok" description="Yeni Doktor ile ilk kaydı oluşturun." />
-      )}
+          {!docs.isLoading && docs.data?.length === 0 && (
+            <EmptyState title="Henüz doktor yok" description="Yeni Doktor ile ilk kaydı oluşturun." />
+          )}
 
-      {!docs.isLoading && !!docs.data?.length && (
-        <ul className="space-y-3">
-          {docs.data.map((d) => <DoctorCard key={d.id} doctor={d} />)}
-        </ul>
+          {!docs.isLoading && !!docs.data?.length && (
+            <ul className="space-y-3">
+              {docs.data.map((d) => <DoctorCard key={d.id} doctor={d} />)}
+            </ul>
+          )}
+        </>
       )}
 
       <NewDoctorDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />

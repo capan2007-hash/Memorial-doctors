@@ -2,29 +2,30 @@ import { useMemo, useState } from 'react'
 import { useDoctorPerformance } from './useDoctors'
 import type { DoctorPerformanceRow } from './useDoctors'
 import { scoreTier } from '../../domain/score'
-import { Card } from '../../components/ui/Card'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { Avatar } from '../../components/ui/Avatar'
 import { Icon } from '../../components/ui/Icon'
-import { ArrowDown, ArrowUp, Users, AlertTriangle, Gauge, Clock, type LucideIcon } from 'lucide-react'
+import {
+  ArrowDown, ArrowUp, Users, AlertTriangle, Gauge, Clock, Search, MoreVertical,
+  ChevronLeft, ChevronRight, type LucideIcon,
+} from 'lucide-react'
 import { toDateInputValue, startOfDayIso, endOfDayIso } from '../../lib/format'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { Input } from '@/components/shadcn/input'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/shadcn/table'
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+} from '@/components/shadcn/dropdown-menu'
 
-/** scoreTier'in tier zeminini (score.ts) yüzey-üstü semantik tinte eşler — eşik mantığı tekrarlanmaz. */
+/** scoreTier'in tier zeminini (score.ts) yüzey-üstü semantik tinte eşler. */
 const TIER_PILL: Record<string, string> = {
   'bg-rose-50': 'bg-danger-bg text-danger-text',
   'bg-amber-50': 'bg-warning-bg text-warning-text',
   'bg-brand-50': 'bg-success-bg text-success-text',
 }
 
-/** Skor barının katı dolgu rengi (tier eşiğine göre). */
-const TIER_BAR: Record<string, string> = {
-  'bg-rose-50': 'bg-danger-text',
-  'bg-amber-50': 'bg-warning-text',
-  'bg-brand-50': 'bg-brand-fill',
-}
+const PAGE_SIZE = 8
 
 /** Dakikayı saat + dakikaya böler (ayrı ayrı gösterim için). */
 function splitMins(n: number): { h: number; m: number } {
@@ -52,28 +53,43 @@ function ResponseTime({ mins, size = 'sm' }: { mins: number | null; size?: 'sm' 
   )
 }
 
-/** Sıralama madalyası: ilk 3 metalik, kalanlar soluk numara. */
-const MEDAL: Record<number, { bg: string; color: string; ring: string }> = {
-  1: { bg: '#FBEFC9', color: '#8A6D1B', ring: '#E9CE7A' },
-  2: { bg: '#ECEEF1', color: '#5B636E', ring: '#CBD1D9' },
-  3: { bg: '#F3E2D3', color: '#8A5A34', ring: '#D8B48F' },
-}
-function RankBadge({ rank }: { rank: number }) {
-  const m = MEDAL[rank]
-  if (m) {
-    return (
-      <span
-        className="tnum inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ring-1"
-        style={{ backgroundColor: m.bg, color: m.color, boxShadow: `inset 0 0 0 1px ${m.ring}` }}
-      >
-        {rank}
-      </span>
-    )
-  }
+/** Gerçek verilerden mini çubuk grafik (takım dağılımı — zaman trendi değil). */
+function Sparkbars({ values, color }: { values: number[]; color: string }) {
+  if (values.length < 2) return null
+  const max = Math.max(...values, 1)
   return (
-    <span className="tnum inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-3 text-xs font-semibold text-ink-muted">
-      {rank}
-    </span>
+    <div className="flex h-8 items-end gap-[3px]" aria-hidden>
+      {values.map((v, i) => (
+        <div
+          key={i}
+          className={`flex-1 rounded-sm ${color}`}
+          style={{ height: `${Math.max(10, (v / max) * 100)}%`, opacity: 0.35 + 0.55 * (v / max) }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function MetricTile({ label, icon, alarm = false, sublabel, spark, children }: {
+  label: string; icon: LucideIcon; alarm?: boolean; sublabel?: string
+  spark?: React.ReactNode; children: React.ReactNode
+}) {
+  return (
+    <div className={`rounded-card border p-4 shadow-card ${alarm ? 'border-danger-border bg-danger-bg' : 'border-line bg-surface-2'}`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${alarm ? 'bg-danger-text/12 text-danger-text' : 'bg-brand-fill/10 text-brand-text'}`}>
+              <Icon of={icon} size={15} />
+            </span>
+            <p className={`text-[13px] ${alarm ? 'text-danger-text' : 'text-ink-muted'}`}>{label}</p>
+          </div>
+          <div className={`mt-2 font-display text-2xl tnum ${alarm ? 'text-danger-text' : 'text-ink-primary'}`}>{children}</div>
+          {sublabel && <p className={`mt-1 text-xs ${alarm ? 'text-danger-text/80' : 'text-ink-muted'}`}>{sublabel}</p>}
+        </div>
+        {spark && <div className="w-16 shrink-0 self-end">{spark}</div>}
+      </div>
+    </div>
   )
 }
 
@@ -97,11 +113,8 @@ const COLUMNS: Column[] = [
 
 function compareRows(a: DoctorPerformanceRow, b: DoctorPerformanceRow, key: SortKey): number {
   if (key === 'title') {
-    const an = a.title ?? ''
-    const bn = b.title ?? ''
-    return an.localeCompare(bn, 'tr')
+    return (a.title ?? '').localeCompare(b.title ?? '', 'tr')
   }
-  // null (ör. yanıt süresi yok) en sona: iki null eşit (NaN karşılaştırması olmasın).
   const av = a[key]
   const bv = b[key]
   if (av == null && bv == null) return 0
@@ -112,28 +125,10 @@ function compareRows(a: DoctorPerformanceRow, b: DoctorPerformanceRow, key: Sort
 
 function SortIndicator({ active, dir }: { active: boolean; dir: SortDir }) {
   if (!active) return null
-  return <Icon of={dir === 'asc' ? ArrowUp : ArrowDown} size={13} className="text-brand-text ml-0.5" />
+  return <Icon of={dir === 'asc' ? ArrowUp : ArrowDown} size={13} className="ml-0.5 text-brand-text" />
 }
 
-function MetricTile({ label, value, icon, alarm = false, children }: {
-  label: string; value?: string | number; icon: LucideIcon; alarm?: boolean; children?: React.ReactNode
-}) {
-  return (
-    <div className={`rounded-card border p-4 ${alarm ? 'border-danger-border bg-danger-bg' : 'border-line bg-surface-1'}`}>
-      <div className="flex items-center gap-2">
-        <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${alarm ? 'bg-danger-text/12 text-danger-text' : 'bg-brand-fill/10 text-brand-text'}`}>
-          <Icon of={icon} size={15} />
-        </span>
-        <p className={`text-[13px] ${alarm ? 'text-danger-text' : 'text-ink-muted'}`}>{label}</p>
-      </div>
-      <div className={`mt-2 font-display text-2xl tnum ${alarm ? 'text-danger-text' : 'text-ink-primary'}`}>
-        {children ?? value}
-      </div>
-    </div>
-  )
-}
-
-/** Yönetici performans panosu: dönem filtresi + özet karolar + sıralanabilir doktor tablosu (RPC doctor_performance_summary). */
+/** Yönetici performans panosu (ayrı raporlama sekmesi): dönem + arama + özet karolar + sıralanabilir/sayfalanabilir tablo. */
 export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor: (doctorId: string) => void }) {
   const [period, setPeriod] = useState<Period>('all')
   const now = useMemo(() => new Date(), [])
@@ -142,39 +137,47 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
 
   const [sortKey, setSortKey] = useState<SortKey>('score')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(0)
 
   const { from, to } = useMemo(() => {
-    if (period === 'last30') {
-      return { from: new Date(now.getTime() - 30 * 86_400_000).toISOString(), to: now.toISOString() }
-    }
-    if (period === 'custom') {
-      return { from: startOfDayIso(customFrom), to: endOfDayIso(customTo) }
-    }
+    if (period === 'last30') return { from: new Date(now.getTime() - 30 * 86_400_000).toISOString(), to: now.toISOString() }
+    if (period === 'custom') return { from: startOfDayIso(customFrom), to: endOfDayIso(customTo) }
     return { from: undefined, to: undefined }
   }, [period, now, customFrom, customTo])
 
   const perf = useDoctorPerformance(from, to)
   const rows = perf.data ?? []
 
+  const filteredRows = useMemo(() => {
+    const q = search.trim().toLocaleLowerCase('tr')
+    if (!q) return rows
+    return rows.filter((r) =>
+      (r.title ?? '').toLocaleLowerCase('tr').includes(q) ||
+      (r.specialty ?? '').toLocaleLowerCase('tr').includes(q))
+  }, [rows, search])
+
   const sortedRows = useMemo(() => {
-    const copy = [...rows]
+    const copy = [...filteredRows]
     copy.sort((a, b) => {
       const cmp = compareRows(a, b, sortKey)
       return sortDir === 'asc' ? cmp : -cmp
     })
     return copy
-  }, [rows, sortKey, sortDir])
+  }, [filteredRows, sortKey, sortDir])
+
+  const pageCount = Math.max(1, Math.ceil(sortedRows.length / PAGE_SIZE))
+  const clampedPage = Math.min(page, pageCount - 1)
+  const pageRows = sortedRows.slice(clampedPage * PAGE_SIZE, clampedPage * PAGE_SIZE + PAGE_SIZE)
 
   const toggleSort = (key: SortKey) => {
-    if (key === sortKey) {
-      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
-    } else {
-      setSortKey(key)
-      setSortDir(key === 'title' ? 'asc' : 'desc')
-    }
+    if (key === sortKey) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    else { setSortKey(key); setSortDir(key === 'title' ? 'asc' : 'desc') }
+    setPage(0)
   }
 
   const totalDoctors = rows.length
+  const activeDoctors = rows.filter((r) => r.is_active).length
   const unworkableCount = rows.filter((r) => r.score < 10).length
   const avgScore = totalDoctors ? Math.round(rows.reduce((sum, r) => sum + r.score, 0) / totalDoctors) : 0
   const responseRows = rows.filter((r) => r.avg_response_mins != null)
@@ -182,19 +185,46 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
     ? responseRows.reduce((sum, r) => sum + (r.avg_response_mins as number), 0) / responseRows.length
     : null
 
-  // Skor sıralaması (tablo sıralamasından bağımsız) → madalya için sabit sıra.
-  const scoreRank = useMemo(() => {
-    const byScore = [...rows].sort((a, b) => b.score - a.score)
-    const map = new Map<string, number>()
-    byScore.forEach((r, i) => map.set(r.doctor_id, i + 1))
-    return map
-  }, [rows])
+  const scoreSpark = useMemo(() => [...rows].map((r) => r.score).sort((a, b) => b - a), [rows])
+  const responseSpark = useMemo(
+    () => rows.filter((r) => r.avg_response_mins != null).map((r) => r.avg_response_mins as number).sort((a, b) => a - b),
+    [rows],
+  )
+
+  if (perf.isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="mt-3 h-7 w-16" />
+            </div>
+          ))}
+        </div>
+        <div className="rounded-card border border-line bg-surface-2 p-4 shadow-card">
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-card border border-line bg-surface-2 p-4 shadow-card">
+        <EmptyState title="Doktor bulunamadı" />
+      </div>
+    )
+  }
 
   return (
-    <Card>
-      <div className="space-y-4">
+    <div className="space-y-4">
+      {/* Dönem + arama */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)} className="block">
+          <Tabs value={period} onValueChange={(v) => { setPeriod(v as Period); setPage(0) }} className="block">
             <TabsList>
               <TabsTrigger value="all">Tüm zaman</TabsTrigger>
               <TabsTrigger value="last30">Son 30 gün</TabsTrigger>
@@ -209,106 +239,161 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
             </div>
           )}
         </div>
-
-        {perf.isLoading && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="rounded-card border border-line bg-surface-1 p-4">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="mt-3 h-7 w-16" />
-                </div>
-              ))}
-            </div>
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {!perf.isLoading && rows.length === 0 && (
-          <EmptyState title="Doktor bulunamadı" />
-        )}
-
-        {!perf.isLoading && rows.length > 0 && (
-          <>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <MetricTile label="Toplam doktor" value={totalDoctors} icon={Users} />
-              <MetricTile label="Çalışılmaz" value={unworkableCount} icon={AlertTriangle} alarm={unworkableCount > 0} />
-              <MetricTile label="Ortalama skor" value={avgScore} icon={Gauge} />
-              <MetricTile label="Ortalama yanıt süresi" icon={Clock}>
-                <ResponseTime mins={avgResponse} size="lg" />
-              </MetricTile>
-            </div>
-
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  {COLUMNS.map((col, i) => (
-                    <TableHead key={col.key} className={`whitespace-nowrap text-xs uppercase tracking-wide ${i === 0 ? '' : 'text-right'}`}>
-                      <button
-                        type="button"
-                        className={`inline-flex items-center rounded transition-colors hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 ${i === 0 ? '' : 'flex-row-reverse'}`}
-                        onClick={() => toggleSort(col.key)}
-                      >
-                        {col.label}
-                        <SortIndicator active={sortKey === col.key} dir={sortDir} />
-                      </button>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedRows.map((r) => {
-                  const tier = scoreTier(r.score)
-                  const barColor = TIER_BAR[tier.bg] ?? 'bg-brand-fill'
-                  return (
-                    <TableRow
-                      key={r.doctor_id}
-                      className={`cursor-pointer ${r.is_active ? '' : 'opacity-60'}`}
-                      onClick={() => onSelectDoctor(r.doctor_id)}
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-2.5">
-                          <RankBadge rank={scoreRank.get(r.doctor_id) ?? 0} />
-                          <div className="min-w-0">
-                            <p className="truncate text-ink-primary">
-                              {r.title || '(unvan yok)'}
-                              {!r.is_active && <span className="ml-1 text-xs text-ink-muted">(pasif)</span>}
-                            </p>
-                            <p className="truncate text-xs text-ink-muted">{r.specialty || '—'}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2.5">
-                          <div className="hidden h-1.5 w-16 overflow-hidden rounded-full bg-line sm:block">
-                            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.max(2, Math.min(100, r.score))}%` }} />
-                          </div>
-                          <span className="tnum w-6 text-right font-semibold text-ink-primary">{r.score}</span>
-                          {tier.label && (
-                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${TIER_PILL[tier.bg] ?? 'bg-success-bg text-success-text'}`}>
-                              {tier.label}
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="tnum text-right text-ink-primary">{r.accept_count}</TableCell>
-                      <TableCell className="tnum text-right text-ink-secondary">{r.reject_count}</TableCell>
-                      <TableCell className="text-right"><ResponseTime mins={r.avg_response_mins} /></TableCell>
-                      <TableCell className={`tnum text-right ${r.timely_count > 0 ? 'text-success-text' : 'text-ink-muted'}`}>{r.timely_count}</TableCell>
-                      <TableCell className={`tnum text-right ${r.breach_count > 0 ? 'text-danger-text' : 'text-ink-muted'}`}>{r.breach_count}</TableCell>
-                      <TableCell className={`tnum text-right ${r.pending_count > 0 ? 'text-warning-text' : 'text-ink-muted'}`}>{r.pending_count}</TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </>
-        )}
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" strokeWidth={1.75} />
+          <Input
+            className="w-56 pl-9"
+            placeholder="Doktor ara…"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(0) }}
+          />
+        </div>
       </div>
-    </Card>
+
+      {/* Özet karolar */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <MetricTile label="Toplam doktor" icon={Users} sublabel={`${activeDoctors} aktif · ${totalDoctors - activeDoctors} pasif`}>
+          {totalDoctors}
+        </MetricTile>
+        <MetricTile
+          label="Çalışılmaz" icon={AlertTriangle} alarm={unworkableCount > 0}
+          sublabel={unworkableCount > 0 ? 'Dikkat gerekiyor' : 'Sağlıklı yük'}
+        >
+          {unworkableCount}
+        </MetricTile>
+        <MetricTile
+          label="Ortalama skor" icon={Gauge} sublabel="Takım skor dağılımı"
+          spark={<Sparkbars values={scoreSpark} color="bg-brand-fill" />}
+        >
+          {avgScore}
+        </MetricTile>
+        <MetricTile
+          label="Ortalama yanıt süresi" icon={Clock} sublabel="Doktor yanıt dağılımı"
+          spark={<Sparkbars values={responseSpark} color="bg-warning-text" />}
+        >
+          <ResponseTime mins={avgResponse} size="lg" />
+        </MetricTile>
+      </div>
+
+      {/* Tablo */}
+      <div className="overflow-hidden rounded-card border border-line bg-surface-2 shadow-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              {COLUMNS.map((col, i) => (
+                <TableHead key={col.key} className={`whitespace-nowrap px-4 text-xs uppercase tracking-wide ${i === 0 ? '' : 'text-right'}`}>
+                  <button
+                    type="button"
+                    className={`inline-flex items-center rounded transition-colors hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 ${i === 0 ? '' : 'flex-row-reverse'}`}
+                    onClick={() => toggleSort(col.key)}
+                  >
+                    {col.label}
+                    <SortIndicator active={sortKey === col.key} dir={sortDir} />
+                  </button>
+                </TableHead>
+              ))}
+              <TableHead className="px-4 text-right text-xs uppercase tracking-wide">Aksiyon</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pageRows.map((r) => {
+              const tier = scoreTier(r.score)
+              return (
+                <TableRow
+                  key={r.doctor_id}
+                  className={`cursor-pointer ${r.is_active ? '' : 'opacity-60'}`}
+                  onClick={() => onSelectDoctor(r.doctor_id)}
+                >
+                  <TableCell className="px-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={r.title || 'Doktor'} size="sm" />
+                      <div className="min-w-0">
+                        <p className="flex items-center gap-1.5 truncate text-ink-primary">
+                          {r.title || '(unvan yok)'}
+                          {!r.is_active && (
+                            <span className="rounded-full bg-surface-3 px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">pasif</span>
+                          )}
+                        </p>
+                        <p className="truncate text-xs text-ink-muted">{r.specialty || '—'}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-4 text-right">
+                    <span className={`tnum inline-flex min-w-[2.5rem] items-center justify-center gap-1 rounded-full px-2.5 py-1 text-sm font-semibold ${TIER_PILL[tier.bg] ?? 'bg-success-bg text-success-text'}`}>
+                      {r.score}
+                      {tier.label && <span className="text-[10px] font-bold uppercase">{tier.label}</span>}
+                    </span>
+                  </TableCell>
+                  <TableCell className="tnum px-4 text-right text-ink-primary">{r.accept_count}</TableCell>
+                  <TableCell className="tnum px-4 text-right text-ink-secondary">{r.reject_count}</TableCell>
+                  <TableCell className="px-4 text-right"><ResponseTime mins={r.avg_response_mins} /></TableCell>
+                  <TableCell className={`tnum px-4 text-right ${r.timely_count > 0 ? 'text-success-text' : 'text-ink-muted'}`}>{r.timely_count}</TableCell>
+                  <TableCell className={`tnum px-4 text-right ${r.breach_count > 0 ? 'text-danger-text' : 'text-ink-muted'}`}>{r.breach_count}</TableCell>
+                  <TableCell className={`tnum px-4 text-right ${r.pending_count > 0 ? 'text-warning-text' : 'text-ink-muted'}`}>{r.pending_count}</TableCell>
+                  <TableCell className="px-4 text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label="Aksiyonlar"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-surface-1 hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Icon of={MoreVertical} size={16} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => onSelectDoctor(r.doctor_id)}>
+                          Doktor kartını aç
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+            {pageRows.length === 0 && (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={COLUMNS.length + 1} className="px-4 py-8 text-center text-sm text-ink-muted">
+                  Aramayla eşleşen doktor yok.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        {/* Sayfalama */}
+        <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3 text-sm text-ink-muted">
+          <span className="tnum">Toplam {sortedRows.length} doktor gösteriliyor</span>
+          {pageCount > 1 && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                aria-label="Önceki"
+                disabled={clampedPage === 0}
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-secondary transition-colors hover:bg-surface-1 disabled:opacity-40"
+              >
+                <Icon of={ChevronLeft} size={16} />
+              </button>
+              <span className="tnum px-2 font-medium text-ink-primary">{clampedPage + 1} / {pageCount}</span>
+              <button
+                type="button"
+                aria-label="Sonraki"
+                disabled={clampedPage >= pageCount - 1}
+                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-secondary transition-colors hover:bg-surface-1 disabled:opacity-40"
+              >
+                <Icon of={ChevronRight} size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p className="px-1 text-xs text-ink-muted">
+        Varsayılan sıralama skora göredir. Bir satıra tıklayarak ilgili doktorun kartını açabilirsiniz.
+      </p>
+    </div>
   )
 }
