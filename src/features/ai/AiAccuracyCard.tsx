@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { supabase } from '../../lib/supabase'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
@@ -17,10 +19,10 @@ interface LabelStat {
 
 const LABEL_ORDER: Label[] = ['correct', 'partial', 'wrong']
 
-const LABEL_META: Record<Label, { name: string; textClass: string; barClass: string }> = {
-  correct: { name: 'Doğru', textClass: 'text-success-text', barClass: 'bg-success-text' },
-  partial: { name: 'Kısmen doğru', textClass: 'text-warning-text', barClass: 'bg-warning-text' },
-  wrong: { name: 'Yanlış', textClass: 'text-danger-text', barClass: 'bg-danger-text' },
+const LABEL_META: Record<Label, { textClass: string; barClass: string }> = {
+  correct: { textClass: 'text-success-text', barClass: 'bg-success-text' },
+  partial: { textClass: 'text-warning-text', barClass: 'bg-warning-text' },
+  wrong: { textClass: 'text-danger-text', barClass: 'bg-danger-text' },
 }
 
 /** Koordinatör/admin için AI değerlendirmelerine verilen doktor geri bildirimlerinin özeti. */
@@ -40,32 +42,33 @@ function useAiAccuracy() {
 }
 
 export function AiAccuracyCard() {
+  const { t } = useTranslation('ai')
   const q = useAiAccuracy()
 
   return (
-    <Card title="AI Doğruluk Raporu" className="mb-4">
+    <Card title={t('accuracy.title')} className="mb-4">
       {q.isLoading && (
         <div className="flex items-center gap-2 text-sm text-ink-muted">
           <Spinner />
-          <span>Yükleniyor…</span>
+          <span>{t('accuracy.loading')}</span>
         </div>
       )}
-      {!q.isLoading && q.data && <AiAccuracyBody counts={q.data} />}
+      {!q.isLoading && q.data && <AiAccuracyBody counts={q.data} t={t} />}
     </Card>
   )
 }
 
-function AiAccuracyBody({ counts }: { counts: Record<Label, number> }) {
+function AiAccuracyBody({ counts, t }: { counts: Record<Label, number>; t: TFunction }) {
   const total = LABEL_ORDER.reduce((sum, label) => sum + counts[label], 0)
 
   if (total === 0) {
-    return <p className="text-sm text-ink-muted">Henüz doktor geri bildirimi yok.</p>
+    return <p className="text-sm text-ink-muted">{t('accuracy.empty')}</p>
   }
 
   const stats: LabelStat[] = LABEL_ORDER.map((label) => {
     const count = counts[label]
     const pct = Math.round((count / total) * 100)
-    return { label, count, pct, ...LABEL_META[label] }
+    return { label, name: t(`feedback.${label}`), count, pct, ...LABEL_META[label] }
   })
 
   return (
@@ -86,7 +89,7 @@ function AiAccuracyBody({ counts }: { counts: Record<Label, number> }) {
               key={s.label}
               className={s.barClass}
               style={{ width: `${s.pct}%` }}
-              title={`${s.name}: %${s.pct}`}
+              title={t('accuracy.barTooltip', { name: s.name, pct: s.pct })}
             />
           ))}
       </div>

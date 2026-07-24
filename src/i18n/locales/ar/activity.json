@@ -1,0 +1,50 @@
+{
+  "role": {
+    "agent": "وكيل",
+    "sales": "مندوب مبيعات",
+    "coordinator": "منسّق",
+    "admin": "مدير",
+    "superAdmin": "مدير عام",
+    "doctor": "طبيب",
+    "default": "مستخدم"
+  },
+  "caseType": {
+    "fallback": "تجميلية"
+  },
+  "doctorCount": {
+    "none": "لم تُوجَّه لأي طبيب",
+    "referred_one": "وُجِّهت إلى طبيب واحد",
+    "referred_other": "وُجِّهت إلى {{count}} طبيب"
+  },
+  "dayGroup": {
+    "today": "اليوم",
+    "yesterday": "أمس"
+  },
+  "relative": {
+    "justNow": "الآن",
+    "minutes_one": "منذ دقيقة",
+    "minutes_other": "منذ {{count}} دقيقة",
+    "hours_one": "منذ ساعة",
+    "hours_other": "منذ {{count}} ساعة",
+    "days_one": "منذ يوم",
+    "days_other": "منذ {{count}} يوم"
+  },
+  "filters": {
+    "all": "الكل",
+    "sales": "مندوبو المبيعات",
+    "agent": "الوكلاء"
+  },
+  "timeline": {
+    "title": "السجل",
+    "subtitle": "طلبات موجَّهة إلى الأطباء — الأحدث أولاً.",
+    "live": "مباشر",
+    "entryPrefix": "أدخل حالة",
+    "entrySuffix": "",
+    "loadMore": "عرض المزيد",
+    "loadError": "تعذّر تحميل السجل: {{message}}",
+    "emptyTitle": "لا يوجد سجل بعد",
+    "emptyDescription": "ستظهر هنا الطلبات الموجَّهة إلى الأطباء، الأحدث أولاً، أولاً بأول.",
+    "emptyFilterTitle": "لا توجد إدخالات لهذا الفلتر",
+    "emptyFilterDescription": "لم يُعثر على إدخالات طلبات للدور المحدد."
+  }
+}

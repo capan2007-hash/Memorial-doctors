@@ -19,6 +19,12 @@ import arDoctors from './locales/ar/doctors.json'
 import trAdmin from './locales/tr/admin.json'
 import enAdmin from './locales/en/admin.json'
 import arAdmin from './locales/ar/admin.json'
+import trAi from './locales/tr/ai.json'
+import enAi from './locales/en/ai.json'
+import arAi from './locales/ar/ai.json'
+import trActivity from './locales/tr/activity.json'
+import enActivity from './locales/en/activity.json'
+import arActivity from './locales/ar/activity.json'
 
 export const SUPPORTED = ['tr', 'ar', 'en'] as const
 export type Lang = (typeof SUPPORTED)[number]
@@ -35,14 +41,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      tr: { common: trCommon, nav: trNav, auth: trAuth, requests: trRequests, doctors: trDoctors, admin: trAdmin },
-      en: { common: enCommon, nav: enNav, auth: enAuth, requests: enRequests, doctors: enDoctors, admin: enAdmin },
-      ar: { common: arCommon, nav: arNav, auth: arAuth, requests: arRequests, doctors: arDoctors, admin: arAdmin },
+      tr: { common: trCommon, nav: trNav, auth: trAuth, requests: trRequests, doctors: trDoctors, admin: trAdmin, ai: trAi, activity: trActivity },
+      en: { common: enCommon, nav: enNav, auth: enAuth, requests: enRequests, doctors: enDoctors, admin: enAdmin, ai: enAi, activity: enActivity },
+      ar: { common: arCommon, nav: arNav, auth: arAuth, requests: arRequests, doctors: arDoctors, admin: arAdmin, ai: arAi, activity: arActivity },
     },
     fallbackLng: 'tr',
     supportedLngs: SUPPORTED as unknown as string[],
     defaultNS: 'common',
-    ns: ['common', 'nav', 'auth', 'requests', 'doctors', 'admin'],
+    ns: ['common', 'nav', 'auth', 'requests', 'doctors', 'admin', 'ai', 'activity'],
     interpolation: { escapeValue: false },
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'] },
   })

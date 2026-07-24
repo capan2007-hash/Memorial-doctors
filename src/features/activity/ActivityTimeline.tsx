@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Briefcase, Building2, Stethoscope, UserRound, type LucideIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { Spinner } from '../../components/ui/Spinner'
@@ -53,11 +55,21 @@ interface Node {
   index: number
 }
 
-function TimelineNode({ node, isLastInGroup }: { node: Node; isLastInGroup: boolean }) {
+function TimelineNode({
+  node,
+  isLastInGroup,
+  t,
+  lang,
+}: {
+  node: Node
+  isLastInGroup: boolean
+  t: TFunction
+  lang: string
+}) {
   const { entry, index } = node
   const tone = TONE[roleAccentTone(entry.creator_role)]
   const Icon = roleIcon(entry.creator_role)
-  const caseType = caseTypeLabel(entry.category_name, entry.subcategory_name)
+  const caseType = caseTypeLabel(entry.category_name, entry.subcategory_name, t)
   const isNewest = index === 0
   const delay = Math.min(index, 12) * 45
 
@@ -86,22 +98,23 @@ function TimelineNode({ node, isLastInGroup }: { node: Node; isLastInGroup: bool
               className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${tone.badge}`}
             >
               <Icon className="h-3 w-3" strokeWidth={2} />
-              {activityRoleLabel(entry.creator_role)}
+              {activityRoleLabel(entry.creator_role, t)}
             </span>
             <span className="font-medium text-ink-primary">{entry.creator_name}</span>
-            <span className="ml-auto text-xs text-ink-muted">{relativeTime(entry.created_at)}</span>
+            <span className="ml-auto text-xs text-ink-muted">{relativeTime(entry.created_at, t)}</span>
           </div>
 
           <p className="mt-1.5 text-sm text-ink-secondary">
-            bir <span className="font-semibold text-ink-primary">{caseType}</span> vakası girişi yaptı
+            {t('timeline.entryPrefix')} <span className="font-semibold text-ink-primary">{caseType}</span>{' '}
+            {t('timeline.entrySuffix')}
           </p>
 
           <div className="mt-2 flex items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1 rounded-control bg-brand-fill px-2 py-0.5 text-xs font-semibold text-white">
               <Stethoscope className="h-3.5 w-3.5" strokeWidth={2} />
-              {doctorCountText(entry.doctor_count)}
+              {doctorCountText(entry.doctor_count, t)}
             </span>
-            <span className="tnum text-[11px] text-ink-muted">{formatActivityDateTime(entry.created_at)}</span>
+            <span className="tnum text-[11px] text-ink-muted">{formatActivityDateTime(entry.created_at, lang)}</span>
           </div>
         </div>
       </div>
@@ -128,21 +141,28 @@ interface Group {
 
 type Filter = 'all' | 'sales' | 'agent'
 
-const FILTERS: { key: Filter; label: string; activeClass: string }[] = [
-  { key: 'all', label: 'Tümü', activeClass: 'border-brand-fill bg-brand-fill text-white' },
-  { key: 'sales', label: 'Satışçı', activeClass: 'border-info-border bg-info-bg text-info-text' },
-  { key: 'agent', label: 'Acenta', activeClass: 'border-warning-border bg-warning-bg text-warning-text' },
-]
+const FILTER_ACTIVE_CLASS: Record<Filter, string> = {
+  all: 'border-brand-fill bg-brand-fill text-white',
+  sales: 'border-info-border bg-info-bg text-info-text',
+  agent: 'border-warning-border bg-warning-bg text-warning-text',
+}
 
 function FilterChips({
   value,
   counts,
   onChange,
+  t,
 }: {
   value: Filter
   counts: Record<Filter, number>
   onChange: (f: Filter) => void
+  t: TFunction
 }) {
+  const FILTERS: { key: Filter; label: string; activeClass: string }[] = [
+    { key: 'all', label: t('filters.all'), activeClass: FILTER_ACTIVE_CLASS.all },
+    { key: 'sales', label: t('filters.sales'), activeClass: FILTER_ACTIVE_CLASS.sales },
+    { key: 'agent', label: t('filters.agent'), activeClass: FILTER_ACTIVE_CLASS.agent },
+  ]
   return (
     <div className="flex flex-wrap gap-2">
       {FILTERS.map((f) => {
@@ -167,6 +187,7 @@ function FilterChips({
 }
 
 export function ActivityTimeline() {
+  const { t, i18n } = useTranslation('activity')
   const q = useActivityTimeline()
   const [filter, setFilter] = useState<Filter>('all')
   const entries = q.data?.pages.flat() ?? []
@@ -186,7 +207,7 @@ export function ActivityTimeline() {
     const key = dayKey(entry.created_at)
     let g = groups[groups.length - 1]
     if (!g || g.key !== key) {
-      g = { key, label: dayGroupLabel(entry.created_at, now), nodes: [] }
+      g = { key, label: dayGroupLabel(entry.created_at, t, i18n.language, now), nodes: [] }
       groups.push(g)
     }
     g.nodes.push({ entry, index })
@@ -195,20 +216,20 @@ export function ActivityTimeline() {
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Akış"
-        subtitle="Doktorlara yönlendirilen talep girişleri — en yeni önce."
+        title={t('timeline.title')}
+        subtitle={t('timeline.subtitle')}
         actions={
           <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-1 text-xs font-medium text-ink-secondary">
             <span className="relative flex h-2 w-2">
               <span className="activity-ping absolute inset-0 rounded-full bg-success-text" aria-hidden />
               <span className="relative h-2 w-2 rounded-full bg-success-text" />
             </span>
-            Canlı
+            {t('timeline.live')}
           </span>
         }
       />
 
-      {entries.length > 0 && <FilterChips value={filter} counts={counts} onChange={setFilter} />}
+      {entries.length > 0 && <FilterChips value={filter} counts={counts} onChange={setFilter} t={t} />}
 
       {q.isLoading && (
         <div className="flex justify-center py-10">
@@ -218,19 +239,19 @@ export function ActivityTimeline() {
 
       {q.isError && (
         <div className="rounded-control border border-danger-border bg-danger-bg p-3 text-sm text-danger-text">
-          Akış alınamadı: {(q.error as Error).message}
+          {t('timeline.loadError', { message: (q.error as Error).message })}
         </div>
       )}
 
       {!q.isLoading && !q.isError && entries.length === 0 && (
         <EmptyState
-          title="Henüz akış yok"
-          description="Doktorlara yönlendirilen talepler burada, en yeni önce, akış halinde görünür."
+          title={t('timeline.emptyTitle')}
+          description={t('timeline.emptyDescription')}
         />
       )}
 
       {entries.length > 0 && filtered.length === 0 && (
-        <EmptyState title="Bu filtrede giriş yok" description="Seçili role ait talep girişi bulunamadı." />
+        <EmptyState title={t('timeline.emptyFilterTitle')} description={t('timeline.emptyFilterDescription')} />
       )}
 
       {groups.map((group) => (
@@ -238,7 +259,13 @@ export function ActivityTimeline() {
           <GroupHeader label={group.label} />
           <ol>
             {group.nodes.map((node, i) => (
-              <TimelineNode key={node.entry.request_id} node={node} isLastInGroup={i === group.nodes.length - 1} />
+              <TimelineNode
+                key={node.entry.request_id}
+                node={node}
+                isLastInGroup={i === group.nodes.length - 1}
+                t={t}
+                lang={i18n.language}
+              />
             ))}
           </ol>
         </div>
@@ -247,7 +274,7 @@ export function ActivityTimeline() {
       {q.hasNextPage && (
         <div className="flex justify-center pt-1">
           <Button variant="secondary" type="button" loading={q.isFetchingNextPage} onClick={() => q.fetchNextPage()}>
-            Daha fazla
+            {t('timeline.loadMore')}
           </Button>
         </div>
       )}

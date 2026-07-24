@@ -1,0 +1,30 @@
+{
+  "panel": {
+    "title": "AI Triage Assessment",
+    "loading": "Preparing AI assessment…",
+    "failed": "AI assessment could not be completed",
+    "disclaimer": "Guidance only; the final decision is the physician's.",
+    "suitabilityTitle": "Suitability assessment"
+  },
+  "warnings": {
+    "photo_operation_mismatch": "Photo–procedure mismatch",
+    "demographics_operation_risk": "Demographics–procedure risk",
+    "missing_data": "Missing data",
+    "photo_quality": "Photo quality"
+  },
+  "feedback": {
+    "correct": "Correct",
+    "partial": "Partially correct",
+    "wrong": "Incorrect",
+    "prompt": "This assessment:",
+    "yourFeedback": "Your feedback: {{label}}",
+    "notePlaceholder": "Optional note",
+    "submit": "Submit"
+  },
+  "accuracy": {
+    "title": "AI Accuracy Report",
+    "loading": "Loading…",
+    "empty": "No doctor feedback yet.",
+    "barTooltip": "{{name}}: {{pct}}%"
+  }
+}

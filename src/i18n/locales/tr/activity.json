@@ -1,0 +1,50 @@
+{
+  "role": {
+    "agent": "Acenta",
+    "sales": "Satışçı",
+    "coordinator": "Koordinatör",
+    "admin": "Yönetici",
+    "superAdmin": "Süper Admin",
+    "doctor": "Doktor",
+    "default": "Kullanıcı"
+  },
+  "caseType": {
+    "fallback": "estetik"
+  },
+  "doctorCount": {
+    "none": "doktora yönlendirilmedi",
+    "referred_one": "{{count}} doktora yönlendirildi",
+    "referred_other": "{{count}} doktora yönlendirildi"
+  },
+  "dayGroup": {
+    "today": "Bugün",
+    "yesterday": "Dün"
+  },
+  "relative": {
+    "justNow": "az önce",
+    "minutes_one": "{{count}} dk önce",
+    "minutes_other": "{{count}} dk önce",
+    "hours_one": "{{count}} sa önce",
+    "hours_other": "{{count}} sa önce",
+    "days_one": "{{count}} gün önce",
+    "days_other": "{{count}} gün önce"
+  },
+  "filters": {
+    "all": "Tümü",
+    "sales": "Satışçı",
+    "agent": "Acenta"
+  },
+  "timeline": {
+    "title": "Akış",
+    "subtitle": "Doktorlara yönlendirilen talep girişleri — en yeni önce.",
+    "live": "Canlı",
+    "entryPrefix": "bir",
+    "entrySuffix": "vakası girişi yaptı",
+    "loadMore": "Daha fazla",
+    "loadError": "Akış alınamadı: {{message}}",
+    "emptyTitle": "Henüz akış yok",
+    "emptyDescription": "Doktorlara yönlendirilen talepler burada, en yeni önce, akış halinde görünür.",
+    "emptyFilterTitle": "Bu filtrede giriş yok",
+    "emptyFilterDescription": "Seçili role ait talep girişi bulunamadı."
+  }
+}

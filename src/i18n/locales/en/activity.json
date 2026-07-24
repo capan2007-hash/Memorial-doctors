@@ -1,0 +1,50 @@
+{
+  "role": {
+    "agent": "Agent",
+    "sales": "Sales rep",
+    "coordinator": "Coordinator",
+    "admin": "Admin",
+    "superAdmin": "Super Admin",
+    "doctor": "Doctor",
+    "default": "User"
+  },
+  "caseType": {
+    "fallback": "aesthetic"
+  },
+  "doctorCount": {
+    "none": "not referred to any doctor",
+    "referred_one": "referred to {{count}} doctor",
+    "referred_other": "referred to {{count}} doctors"
+  },
+  "dayGroup": {
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "relative": {
+    "justNow": "just now",
+    "minutes_one": "{{count}} min ago",
+    "minutes_other": "{{count}} min ago",
+    "hours_one": "{{count}} hr ago",
+    "hours_other": "{{count}} hrs ago",
+    "days_one": "{{count}} day ago",
+    "days_other": "{{count}} days ago"
+  },
+  "filters": {
+    "all": "All",
+    "sales": "Sales reps",
+    "agent": "Agents"
+  },
+  "timeline": {
+    "title": "Feed",
+    "subtitle": "Requests routed to doctors — newest first.",
+    "live": "Live",
+    "entryPrefix": "submitted a",
+    "entrySuffix": "case",
+    "loadMore": "Load more",
+    "loadError": "Couldn't load feed: {{message}}",
+    "emptyTitle": "No activity yet",
+    "emptyDescription": "Requests routed to doctors will appear here, newest first, as they come in.",
+    "emptyFilterTitle": "No entries for this filter",
+    "emptyFilterDescription": "No request entries found for the selected role."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "panel": {
+    "title": "AI Triyaj Değerlendirmesi",
+    "loading": "AI değerlendirmesi hazırlanıyor…",
+    "failed": "AI değerlendirmesi yapılamadı",
+    "disclaimer": "Yön göstericidir; nihai karar hekimindir.",
+    "suitabilityTitle": "Uygunluk değerlendirmesi"
+  },
+  "warnings": {
+    "photo_operation_mismatch": "Fotoğraf–operasyon uyumsuzluğu",
+    "demographics_operation_risk": "Demografi–operasyon riski",
+    "missing_data": "Eksik veri",
+    "photo_quality": "Fotoğraf kalitesi"
+  },
+  "feedback": {
+    "correct": "Doğru",
+    "partial": "Kısmen doğru",
+    "wrong": "Yanlış",
+    "prompt": "Bu değerlendirme:",
+    "yourFeedback": "Geri bildiriminiz: {{label}}",
+    "notePlaceholder": "İsteğe bağlı not",
+    "submit": "Gönder"
+  },
+  "accuracy": {
+    "title": "AI Doğruluk Raporu",
+    "loading": "Yükleniyor…",
+    "empty": "Henüz doktor geri bildirimi yok.",
+    "barTooltip": "{{name}}: %{{pct}}"
+  }
+}

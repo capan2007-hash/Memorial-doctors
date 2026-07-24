@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import type { TFunction } from 'i18next'
 import {
   activityRoleLabel,
   caseTypeLabel,
@@ -8,43 +9,74 @@ import {
   relativeTime,
   roleAccentTone,
 } from '../activity'
+import trActivity from '../../i18n/locales/tr/activity.json'
+
+/** Test için gerçek TR sözlüğünden basit bir t(): iç içe anahtar + {{count}}/{{...}} enterpolasyonu. */
+function makeT(dict: Record<string, unknown>): TFunction {
+  const flat = new Map<string, string>()
+  const walk = (o: Record<string, unknown>, prefix: string) => {
+    for (const [k, v] of Object.entries(o)) {
+      const key = prefix ? `${prefix}.${k}` : k
+      if (v && typeof v === 'object') walk(v as Record<string, unknown>, key)
+      else flat.set(key, String(v))
+    }
+  }
+  walk(dict, '')
+  return ((key: string, opts?: Record<string, unknown>) => {
+    const count = opts?.count as number | undefined
+    let resolvedKey = key
+    if (count !== undefined) {
+      const pluralKey = count === 1 ? `${key}_one` : `${key}_other`
+      if (flat.has(pluralKey)) resolvedKey = pluralKey
+    }
+    let value = flat.get(resolvedKey) ?? key
+    if (opts) {
+      for (const [k, v] of Object.entries(opts)) {
+        value = value.replace(new RegExp(`{{${k}}}`, 'g'), String(v))
+      }
+    }
+    return value
+  }) as TFunction
+}
+
+const t = makeT(trActivity)
 
 describe('activityRoleLabel', () => {
   it('agent → Acenta, sales → Satışçı', () => {
-    expect(activityRoleLabel('agent')).toBe('Acenta')
-    expect(activityRoleLabel('sales')).toBe('Satışçı')
+    expect(activityRoleLabel('agent', t)).toBe('Acenta')
+    expect(activityRoleLabel('sales', t)).toBe('Satışçı')
   })
   it('diğer roller', () => {
-    expect(activityRoleLabel('admin')).toBe('Yönetici')
-    expect(activityRoleLabel('super_admin')).toBe('Süper Admin')
-    expect(activityRoleLabel('coordinator')).toBe('Koordinatör')
-    expect(activityRoleLabel('doctor')).toBe('Doktor')
+    expect(activityRoleLabel('admin', t)).toBe('Yönetici')
+    expect(activityRoleLabel('super_admin', t)).toBe('Süper Admin')
+    expect(activityRoleLabel('coordinator', t)).toBe('Koordinatör')
+    expect(activityRoleLabel('doctor', t)).toBe('Doktor')
   })
   it('bilinmeyen rol → Kullanıcı', () => {
-    expect(activityRoleLabel('xyz')).toBe('Kullanıcı')
+    expect(activityRoleLabel('xyz', t)).toBe('Kullanıcı')
   })
 })
 
 describe('caseTypeLabel', () => {
   it('alt kırılım önceliklidir', () => {
-    expect(caseTypeLabel('Plastik Cerrahi', 'Burun estetiği')).toBe('Burun estetiği')
+    expect(caseTypeLabel('Plastik Cerrahi', 'Burun estetiği', t)).toBe('Burun estetiği')
   })
   it('alt kırılım yoksa kategori', () => {
-    expect(caseTypeLabel('Saç Ekimi', null)).toBe('Saç Ekimi')
+    expect(caseTypeLabel('Saç Ekimi', null, t)).toBe('Saç Ekimi')
   })
   it('ikisi de boşsa estetik', () => {
-    expect(caseTypeLabel(null, null)).toBe('estetik')
-    expect(caseTypeLabel('   ', null)).toBe('estetik')
+    expect(caseTypeLabel(null, null, t)).toBe('estetik')
+    expect(caseTypeLabel('   ', null, t)).toBe('estetik')
   })
 })
 
 describe('doctorCountText', () => {
   it('pozitif sayı', () => {
-    expect(doctorCountText(6)).toBe('6 doktora yönlendirildi')
-    expect(doctorCountText(1)).toBe('1 doktora yönlendirildi')
+    expect(doctorCountText(6, t)).toBe('6 doktora yönlendirildi')
+    expect(doctorCountText(1, t)).toBe('1 doktora yönlendirildi')
   })
   it('sıfır', () => {
-    expect(doctorCountText(0)).toBe('doktora yönlendirilmedi')
+    expect(doctorCountText(0, t)).toBe('doktora yönlendirilmedi')
   })
 })
 
@@ -73,20 +105,20 @@ describe('dayKey', () => {
 describe('dayGroupLabel', () => {
   const now = new Date(2026, 6, 22, 10, 0, 0) // 22 Tem 2026 yerel
   it('bugün / dün', () => {
-    expect(dayGroupLabel(new Date(2026, 6, 22, 8, 0, 0).toISOString(), now)).toBe('Bugün')
-    expect(dayGroupLabel(new Date(2026, 6, 21, 23, 0, 0).toISOString(), now)).toBe('Dün')
+    expect(dayGroupLabel(new Date(2026, 6, 22, 8, 0, 0).toISOString(), t, 'tr', now)).toBe('Bugün')
+    expect(dayGroupLabel(new Date(2026, 6, 21, 23, 0, 0).toISOString(), t, 'tr', now)).toBe('Dün')
   })
   it('daha eski → tam tarih', () => {
-    expect(dayGroupLabel(new Date(2026, 6, 18, 12, 0, 0).toISOString(), now)).toBe('18 Temmuz 2026')
+    expect(dayGroupLabel(new Date(2026, 6, 18, 12, 0, 0).toISOString(), t, 'tr', now)).toBe('18 Temmuz 2026')
   })
 })
 
 describe('relativeTime', () => {
   const now = new Date(2026, 6, 22, 12, 0, 0)
   it('eşikler', () => {
-    expect(relativeTime(new Date(2026, 6, 22, 11, 59, 30).toISOString(), now)).toBe('az önce')
-    expect(relativeTime(new Date(2026, 6, 22, 11, 45, 0).toISOString(), now)).toBe('15 dk önce')
-    expect(relativeTime(new Date(2026, 6, 22, 9, 0, 0).toISOString(), now)).toBe('3 sa önce')
-    expect(relativeTime(new Date(2026, 6, 20, 12, 0, 0).toISOString(), now)).toBe('2 gün önce')
+    expect(relativeTime(new Date(2026, 6, 22, 11, 59, 30).toISOString(), t, now)).toBe('az önce')
+    expect(relativeTime(new Date(2026, 6, 22, 11, 45, 0).toISOString(), t, now)).toBe('15 dk önce')
+    expect(relativeTime(new Date(2026, 6, 22, 9, 0, 0).toISOString(), t, now)).toBe('3 sa önce')
+    expect(relativeTime(new Date(2026, 6, 20, 12, 0, 0).toISOString(), t, now)).toBe('2 gün önce')
   })
 })

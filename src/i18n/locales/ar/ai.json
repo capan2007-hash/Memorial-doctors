@@ -1,0 +1,30 @@
+{
+  "panel": {
+    "title": "تقييم الفرز بالذكاء الاصطناعي",
+    "loading": "جارٍ إعداد تقييم الذكاء الاصطناعي…",
+    "failed": "تعذّر إجراء تقييم الذكاء الاصطناعي",
+    "disclaimer": "استرشادي فقط؛ القرار النهائي للطبيب.",
+    "suitabilityTitle": "تقييم الملاءمة"
+  },
+  "warnings": {
+    "photo_operation_mismatch": "عدم تطابق الصورة مع العملية",
+    "demographics_operation_risk": "خطر ديموغرافي مرتبط بالعملية",
+    "missing_data": "بيانات ناقصة",
+    "photo_quality": "جودة الصورة"
+  },
+  "feedback": {
+    "correct": "صحيح",
+    "partial": "صحيح جزئيًا",
+    "wrong": "خاطئ",
+    "prompt": "هذا التقييم:",
+    "yourFeedback": "ملاحظتك: {{label}}",
+    "notePlaceholder": "ملاحظة اختيارية",
+    "submit": "إرسال"
+  },
+  "accuracy": {
+    "title": "تقرير دقة الذكاء الاصطناعي",
+    "loading": "جارٍ التحميل…",
+    "empty": "لا توجد ملاحظات من الأطباء بعد.",
+    "barTooltip": "{{name}}: {{pct}}%"
+  }
+}
