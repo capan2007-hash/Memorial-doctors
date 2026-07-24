@@ -51,6 +51,7 @@ export function useTranslated(text: string | null | undefined, sourceLang: strin
     queryKey: ['translate', target, sourceLang, hashText(trimmed)],
     enabled: shouldTranslate,
     staleTime: Infinity,
+    retry: false,
     queryFn: async (): Promise<InvokeResult> => {
       const { data, error } = await supabase.functions.invoke('translate', {
         body: { text: trimmed, source_lang: sourceLang, target_lang: target },
