@@ -90,8 +90,8 @@ function TimelineNode({
 
       {/* İçerik kartı: sol renkli şerit + role rozeti + doktor sayısı */}
       <div className="flex-1 pb-4">
-        <div className="relative overflow-hidden rounded-card border border-line bg-surface-1 p-3 pl-4 shadow-card transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-pop">
-          <span className={`absolute inset-y-0 left-0 w-1 ${tone.strip}`} aria-hidden />
+        <div className="relative overflow-hidden rounded-card border border-line bg-surface-1 p-3 ps-4 shadow-card transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-pop">
+          <span className={`absolute inset-y-0 start-0 w-1 ${tone.strip}`} aria-hidden />
 
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -101,7 +101,7 @@ function TimelineNode({
               {activityRoleLabel(entry.creator_role, t)}
             </span>
             <span className="font-medium text-ink-primary">{entry.creator_name}</span>
-            <span className="ml-auto text-xs text-ink-muted">{relativeTime(entry.created_at, t)}</span>
+            <span className="ms-auto text-xs text-ink-muted">{relativeTime(entry.created_at, t)}</span>
           </div>
 
           <p className="mt-1.5 text-sm text-ink-secondary">

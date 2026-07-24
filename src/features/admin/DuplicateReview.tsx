@@ -140,7 +140,7 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
           urls={item.newPhotos}
         />
         <div className="flex items-center justify-center text-ink-muted md:px-1">
-          <Icon of={ArrowRight} size={18} className="rotate-90 md:rotate-0" />
+          <Icon of={ArrowRight} size={18} className="rotate-90 md:rotate-0 rtl:md:-scale-x-100" />
         </div>
         <SidePanel
           label={t('duplicateReview.parentRequestLabel')}

@@ -45,11 +45,11 @@ export function LoginPage() {
       {/* Sol marka paneli — gradyan + yumuşak ışık + öne çıkan değer önermesi */}
       <div className="relative hidden overflow-hidden bg-gradient-to-br from-brand-500 via-brand-700 to-brand-900 p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div
-          className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full opacity-40 blur-3xl"
+          className="pointer-events-none absolute -end-24 -top-24 h-96 w-96 rounded-full opacity-40 blur-3xl"
           style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.35), transparent 70%)' }}
         />
         <div
-          className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full opacity-20 blur-3xl"
+          className="pointer-events-none absolute -bottom-32 -start-16 h-96 w-96 rounded-full opacity-20 blur-3xl"
           style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.5), transparent 70%)' }}
         />
         <div className="relative flex items-center gap-3">
@@ -105,21 +105,21 @@ export function LoginPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email">{t('email')}</Label>
                     <div className="relative">
-                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
-                      <Input id="email" className="h-11 pl-9" placeholder={t('emailPlaceholder')} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                      <Mail className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
+                      <Input id="email" className="h-11 ps-9" placeholder={t('emailPlaceholder')} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="pw">{t('password')}</Label>
                     <div className="relative">
-                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
-                      <Input id="pw" className="h-11 pl-9" placeholder={t('passwordPlaceholder')} type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
+                      <Lock className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
+                      <Input id="pw" className="h-11 ps-9" placeholder={t('passwordPlaceholder')} type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
                     </div>
                     {err && <p className="text-sm font-medium text-destructive">{err}</p>}
                   </div>
                   <Button type="submit" disabled={submitting} className="group h-11 w-full text-[15px]">
                     {submitting ? t('signingIn') : t('signIn')}
-                    {!submitting && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />}
+                    {!submitting && <ArrowRight className="h-4 w-4 transition-transform rtl:-scale-x-100 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />}
                   </Button>
                 </form>
 
@@ -142,8 +142,8 @@ export function LoginPage() {
                     <div className="space-y-2">
                       <Label htmlFor="remail">{t('email')}</Label>
                       <div className="relative">
-                        <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
-                        <Input id="remail" className="h-11 pl-9" placeholder={t('emailPlaceholder')} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <Mail className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
+                        <Input id="remail" className="h-11 ps-9" placeholder={t('emailPlaceholder')} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                       </div>
                     </div>
                     <Button type="submit" disabled={submitting} className="h-11 w-full text-[15px]">

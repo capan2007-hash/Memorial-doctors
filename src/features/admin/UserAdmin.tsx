@@ -191,9 +191,9 @@ export function UserAdmin() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line p-4 md:px-5">
           <h3 className="font-display text-base text-ink-primary">{t('userAdmin.usersCardTitle')}</h3>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" strokeWidth={1.75} />
+            <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" strokeWidth={1.75} />
             <Input
-              className="w-56 pl-9"
+              className="w-56 ps-9"
               placeholder={t('userAdmin.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}

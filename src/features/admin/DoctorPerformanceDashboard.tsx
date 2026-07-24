@@ -53,7 +53,7 @@ function ResponseTime({ mins, size = 'sm' }: { mins: number | null; size?: 'sm' 
           <span className={`${unit} text-ink-muted`}>{t('doctorPerformance.hoursSuffix')}</span>
         </>
       )}
-      <span className={`${num} ${h > 0 ? 'ml-1' : ''}`}>{m}</span>
+      <span className={`${num} ${h > 0 ? 'ms-1' : ''}`}>{m}</span>
       <span className={`${unit} text-ink-muted`}>{t('doctorPerformance.minutesSuffix')}</span>
     </span>
   )
@@ -120,7 +120,7 @@ function compareRows(a: DoctorPerformanceRow, b: DoctorPerformanceRow, key: Sort
 
 function SortIndicator({ active, dir }: { active: boolean; dir: SortDir }) {
   if (!active) return null
-  return <Icon of={dir === 'asc' ? ArrowUp : ArrowDown} size={13} className="ml-0.5 text-brand-text" />
+  return <Icon of={dir === 'asc' ? ArrowUp : ArrowDown} size={13} className="ms-0.5 text-brand-text" />
 }
 
 /** Yönetici performans panosu (ayrı raporlama sekmesi): dönem + arama + özet karolar + sıralanabilir/sayfalanabilir tablo. */
@@ -246,9 +246,9 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
           )}
         </div>
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" strokeWidth={1.75} />
+          <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" strokeWidth={1.75} />
           <Input
-            className="w-56 pl-9"
+            className="w-56 ps-9"
             placeholder={t('doctorPerformance.searchPlaceholder')}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(0) }}
@@ -290,7 +290,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               {COLUMNS.map((col, i) => (
-                <TableHead key={col.key} className={`whitespace-nowrap px-4 text-xs uppercase tracking-wide ${i === 0 ? '' : 'text-right'}`}>
+                <TableHead key={col.key} className={`whitespace-nowrap px-4 text-xs uppercase tracking-wide ${i === 0 ? '' : 'text-end'}`}>
                   <button
                     type="button"
                     className={`inline-flex items-center rounded transition-colors hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 ${i === 0 ? '' : 'flex-row-reverse'}`}
@@ -301,7 +301,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                   </button>
                 </TableHead>
               ))}
-              <TableHead className="px-4 text-right text-xs uppercase tracking-wide">{t('doctorPerformance.columns.action')}</TableHead>
+              <TableHead className="px-4 text-end text-xs uppercase tracking-wide">{t('doctorPerformance.columns.action')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -328,19 +328,19 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="px-4 text-right">
+                  <TableCell className="px-4 text-end">
                     <span className={`tnum inline-flex min-w-[2.5rem] items-center justify-center gap-1 rounded-full px-2.5 py-1 text-sm font-semibold ${TIER_PILL[tier.bg] ?? 'bg-success-bg text-success-text'}`}>
                       {r.score}
                       {tierLabelKey && <span className="text-[10px] font-bold uppercase">{t(tierLabelKey)}</span>}
                     </span>
                   </TableCell>
-                  <TableCell className="tnum px-4 text-right text-ink-primary">{r.accept_count}</TableCell>
-                  <TableCell className="tnum px-4 text-right text-ink-secondary">{r.reject_count}</TableCell>
-                  <TableCell className="px-4 text-right"><ResponseTime mins={r.avg_response_mins} /></TableCell>
-                  <TableCell className={`tnum px-4 text-right ${r.timely_count > 0 ? 'text-success-text' : 'text-ink-muted'}`}>{r.timely_count}</TableCell>
-                  <TableCell className={`tnum px-4 text-right ${r.breach_count > 0 ? 'text-danger-text' : 'text-ink-muted'}`}>{r.breach_count}</TableCell>
-                  <TableCell className={`tnum px-4 text-right ${r.pending_count > 0 ? 'text-warning-text' : 'text-ink-muted'}`}>{r.pending_count}</TableCell>
-                  <TableCell className="px-4 text-right">
+                  <TableCell className="tnum px-4 text-end text-ink-primary">{r.accept_count}</TableCell>
+                  <TableCell className="tnum px-4 text-end text-ink-secondary">{r.reject_count}</TableCell>
+                  <TableCell className="px-4 text-end"><ResponseTime mins={r.avg_response_mins} /></TableCell>
+                  <TableCell className={`tnum px-4 text-end ${r.timely_count > 0 ? 'text-success-text' : 'text-ink-muted'}`}>{r.timely_count}</TableCell>
+                  <TableCell className={`tnum px-4 text-end ${r.breach_count > 0 ? 'text-danger-text' : 'text-ink-muted'}`}>{r.breach_count}</TableCell>
+                  <TableCell className={`tnum px-4 text-end ${r.pending_count > 0 ? 'text-warning-text' : 'text-ink-muted'}`}>{r.pending_count}</TableCell>
+                  <TableCell className="px-4 text-end">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -384,7 +384,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-secondary transition-colors hover:bg-surface-1 disabled:opacity-40"
               >
-                <Icon of={ChevronLeft} size={16} />
+                <Icon of={ChevronLeft} size={16} className="rtl:-scale-x-100" />
               </button>
               <span className="tnum px-2 font-medium text-ink-primary">{t('doctorPerformance.pageOf', { current: clampedPage + 1, total: pageCount })}</span>
               <button
@@ -394,7 +394,7 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                 onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink-secondary transition-colors hover:bg-surface-1 disabled:opacity-40"
               >
-                <Icon of={ChevronRight} size={16} />
+                <Icon of={ChevronRight} size={16} className="rtl:-scale-x-100" />
               </button>
             </div>
           )}

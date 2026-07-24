@@ -72,7 +72,7 @@ export function PhotoGrid({
           <button
             type="button"
             aria-label="Kapat"
-            className="absolute top-4 right-4 text-white/90 hover:text-white rounded-control p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="absolute top-4 end-4 text-white/90 hover:text-white rounded-control p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             onClick={() => setSelected(null)}
           >
             <Icon of={X} size={24} />

@@ -169,7 +169,7 @@ export function AllRequests() {
                 <Link
                   to={`/requests/${r.id}`}
                   className={`flex flex-1 min-w-0 items-center gap-3 rounded-card bg-surface-2 border border-line p-3 transition ease-premium duration-[var(--dur-fast)] hover:shadow-pop hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-fill/40 ${
-                    rowTab === 'overdue' ? 'border-l-4 border-l-danger-border' : ''
+                    rowTab === 'overdue' ? 'border-s-4 border-s-danger-border' : ''
                   }`}
                 >
                   <Avatar name={r.patientName} size="md" />

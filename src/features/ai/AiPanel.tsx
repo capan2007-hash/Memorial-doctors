@@ -157,12 +157,12 @@ export function AiPanel({
                 <div className="flex items-center gap-2">
                   <Icon of={WARNING_ICONS[w.type] ?? AlertTriangle} size={15} className="shrink-0 text-warning-text" />
                   <span className="font-semibold text-ink-primary">{t(WARNING_LABEL_KEYS[w.type])}</span>
-                  <span className="ml-auto inline-flex items-center rounded-full bg-warning-text/15 px-2 py-0.5 text-xs font-semibold text-warning-text tnum">
+                  <span className="ms-auto inline-flex items-center rounded-full bg-warning-text/15 px-2 py-0.5 text-xs font-semibold text-warning-text tnum">
                     %{Math.round(w.confidence * 100)}
                   </span>
                 </div>
                 {/* AI GEREKÇESİ (rationale) — DB'den gelen model çıktısı, ÇEVRİLMEZ (Faz 3 kapsamı) */}
-                <p className="mt-1.5 pl-[23px] leading-relaxed text-ink-secondary">{w.rationale}</p>
+                <p className="mt-1.5 ps-[23px] leading-relaxed text-ink-secondary">{w.rationale}</p>
               </li>
             ))}
         </ul>

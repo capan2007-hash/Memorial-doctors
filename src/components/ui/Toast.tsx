@@ -57,7 +57,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="fixed bottom-4 right-4 z-50 space-y-2"
+        className="fixed bottom-4 end-4 z-50 space-y-2"
       >
         {toasts.map((toast) => (
           <div

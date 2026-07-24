@@ -22,9 +22,9 @@ function ServiceRow({ s }: { s: BillingService }) {
   return (
     <TableRow>
       <TableCell className="text-ink-secondary">{t(`billing.services.${s.service}`, { defaultValue: s.service })}</TableCell>
-      <TableCell className="tnum text-right text-ink-primary">{fmtUsd(s.cost)}</TableCell>
-      <TableCell className="tnum text-right text-ink-muted">{s.calls}</TableCell>
-      <TableCell className="tnum text-right text-ink-muted">{s.inTok} / {s.outTok}</TableCell>
+      <TableCell className="tnum text-end text-ink-primary">{fmtUsd(s.cost)}</TableCell>
+      <TableCell className="tnum text-end text-ink-muted">{s.calls}</TableCell>
+      <TableCell className="tnum text-end text-ink-muted">{s.inTok} / {s.outTok}</TableCell>
     </TableRow>
   )
 }
@@ -35,7 +35,7 @@ function CompanyCard({ c }: { c: BillingCompany }) {
     <Card>
       <div className="flex items-center justify-between gap-3 pb-2">
         <h3 className="font-display text-base text-ink-primary">{c.name}</h3>
-        <div className="rounded-control bg-brand-fill/10 px-3 py-1 text-right">
+        <div className="rounded-control bg-brand-fill/10 px-3 py-1 text-end">
           <p className="text-[11px] text-brand-text">{t('billing.weeklyChargeLabel')}</p>
           <p className="font-display text-lg tnum text-brand-text">{fmtUsd(c.weeklyCharge)}</p>
         </div>
@@ -44,9 +44,9 @@ function CompanyCard({ c }: { c: BillingCompany }) {
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead>{t('billing.columns.service')}</TableHead>
-            <TableHead className="text-right">{t('billing.columns.cost')}</TableHead>
-            <TableHead className="text-right">{t('billing.columns.calls')}</TableHead>
-            <TableHead className="text-right">{t('billing.columns.tokens')}</TableHead>
+            <TableHead className="text-end">{t('billing.columns.cost')}</TableHead>
+            <TableHead className="text-end">{t('billing.columns.calls')}</TableHead>
+            <TableHead className="text-end">{t('billing.columns.tokens')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,9 +56,9 @@ function CompanyCard({ c }: { c: BillingCompany }) {
             <TableCell className="text-ink-secondary">
               {t('billing.infraRowLabel')} <span className="text-ink-muted">{t('billing.infraEstimated')}</span>
             </TableCell>
-            <TableCell className="tnum text-right text-ink-primary">{fmtUsd(c.infraCost)}</TableCell>
-            <TableCell className="tnum text-right text-ink-muted">—</TableCell>
-            <TableCell className="tnum text-right text-ink-muted">—</TableCell>
+            <TableCell className="tnum text-end text-ink-primary">{fmtUsd(c.infraCost)}</TableCell>
+            <TableCell className="tnum text-end text-ink-muted">—</TableCell>
+            <TableCell className="tnum text-end text-ink-muted">—</TableCell>
           </TableRow>
         </TableBody>
       </Table>
