@@ -123,7 +123,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <span className="relative inline-flex">
                 <Icon of={navIcon(l.to)} size={22} />
                 {l.to === '/doctor' && pendingCount > 0 && (
-                  <span className="absolute -right-2 -top-1.5">
+                  <span className="absolute -end-2 -top-1.5">
                     <PendingBadge count={pendingCount} />
                   </span>
                 )}
