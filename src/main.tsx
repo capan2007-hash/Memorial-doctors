@@ -9,6 +9,7 @@ import '@fontsource/plus-jakarta-sans/700.css'
 import '@fontsource/geist-mono/400.css'
 import '@fontsource/geist-mono/500.css'
 import './index.css'
+import './i18n'
 import { ThemeProvider } from './lib/theme'
 import App from './App.tsx'
 
