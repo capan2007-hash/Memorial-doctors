@@ -97,11 +97,11 @@ export function Layout({ children }: { children: ReactNode }) {
             <ThemeToggle />
             <button
               onClick={signOut}
-              aria-label={t('nav.logout')}
+              aria-label={t('logout')}
               className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <Icon of={LogOut} size={16} />
-              <span className="hidden sm:inline">{t('nav.logout')}</span>
+              <span className="hidden sm:inline">{t('logout')}</span>
             </button>
           </div>
         </div>

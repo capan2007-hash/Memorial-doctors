@@ -1,15 +1,13 @@
 {
-  "nav": {
-    "requests": "الطلبات",
-    "newRequest": "طلب جديد",
-    "activity": "النشاط",
-    "pending": "الطلبات المعلقة",
-    "profile": "ملفي الشخصي",
-    "allRequests": "جميع الطلبات",
-    "duplicates": "الطلبات المكررة",
-    "doctors": "إدارة الأطباء",
-    "users": "إدارة المستخدمين",
-    "billing": "الفوترة",
-    "logout": "تسجيل الخروج"
-  }
+  "requests": "الطلبات",
+  "newRequest": "طلب جديد",
+  "activity": "النشاط",
+  "pending": "الطلبات المعلقة",
+  "profile": "ملفي الشخصي",
+  "allRequests": "جميع الطلبات",
+  "duplicates": "الطلبات المكررة",
+  "doctors": "إدارة الأطباء",
+  "users": "إدارة المستخدمين",
+  "billing": "الفوترة",
+  "logout": "تسجيل الخروج"
 }

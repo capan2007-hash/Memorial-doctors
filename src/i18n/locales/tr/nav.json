@@ -1,15 +1,13 @@
 {
-  "nav": {
-    "requests": "Talepler",
-    "newRequest": "Yeni Talep",
-    "activity": "Akış",
-    "pending": "Bekleyen Talepler",
-    "profile": "Profilim",
-    "allRequests": "Tüm Talepler",
-    "duplicates": "Mükerrer Talep",
-    "doctors": "Doktor Yönetimi",
-    "users": "Kullanıcı Yönetimi",
-    "billing": "Billing",
-    "logout": "Çıkış"
-  }
+  "requests": "Talepler",
+  "newRequest": "Yeni Talep",
+  "activity": "Akış",
+  "pending": "Bekleyen Talepler",
+  "profile": "Profilim",
+  "allRequests": "Tüm Talepler",
+  "duplicates": "Mükerrer Talep",
+  "doctors": "Doktor Yönetimi",
+  "users": "Kullanıcı Yönetimi",
+  "billing": "Billing",
+  "logout": "Çıkış"
 }
