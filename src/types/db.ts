@@ -1,9 +1,9 @@
 import type { Role, RequestStatus, SaleStatus, Decision } from './domain'
 
 export interface AppUserRow { id: string; tenant_id: string; role: Role; full_name: string; phone: string | null; is_active: boolean; email: string | null; language: string }
-export interface CategoryRow { id: string; tenant_id: string; name: string; has_subcategories: boolean }
-export interface SubcategoryRow { id: string; category_id: string; name: string }
-export interface OperationTypeRow { id: string; category_id: string; subcategory_id: string | null; name: string }
+export interface CategoryRow { id: string; tenant_id: string; name: string; has_subcategories: boolean; name_i18n: Record<string, string> | null }
+export interface SubcategoryRow { id: string; category_id: string; name: string; name_i18n: Record<string, string> | null }
+export interface OperationTypeRow { id: string; category_id: string; subcategory_id: string | null; name: string; name_i18n: Record<string, string> | null }
 export interface DoctorRow { id: string; tenant_id: string; app_user_id: string | null; photo_url: string | null; title: string | null; specialty: string | null; category_id: string; subcategory_id: string | null; bio: string | null; weighted_work: unknown; score: number; is_active: boolean }
 export interface PatientRow { id: string; tenant_id: string; first_name: string; last_name: string; phone: string | null; email: string | null }
 export interface RequestRow { id: string; tenant_id: string; patient_id: string; created_by: string; category_id: string; subcategory_id: string | null; operation_type_id: string | null; notes: string | null; status: RequestStatus; sale_status: SaleStatus; sale_marked_at: string | null; created_at: string; submitted_at: string | null; assigned_at: string | null; age: number | null; weight_kg: number | null; height_cm: number | null; gender: 'female' | 'male' | 'other' | null; past_surgeries: string; known_conditions: string; medications: string; photos_required: boolean; consent_at: string | null; consent_channel: string | null; consented_by: string | null; smoking_status: 'never' | 'former' | 'current' | null; smoking_cigs_per_day: number | null; smoking_years: number | null; smoking_pack_years: number | null; alcohol_status: 'never' | 'occasional' | 'regular' | null; alcohol_drinks_per_week: number | null }
