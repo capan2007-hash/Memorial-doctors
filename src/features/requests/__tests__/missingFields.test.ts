@@ -21,23 +21,23 @@ describe('missingFields', () => {
       medicalOk: false, lifestyleOk: false, filesCount: 0,
     }
     expect(missingFields(empty)).toEqual([
-      'Ad', 'Soyad', 'Telefon', 'Yaş', 'Kilo', 'Boy', 'Cinsiyet', 'Kategori', 'Tıbbi geçmiş', 'Sigara/alkol bilgisi', 'Fotoğraf',
+      'first', 'last', 'phone', 'age', 'weight', 'height', 'gender', 'category', 'medical', 'lifestyle', 'photos',
     ])
   })
 
   it('yalnız sigara/alkol eksikse sadece o döner', () => {
     const input = { ...fullInput(), lifestyleOk: false }
-    expect(missingFields(input)).toEqual(['Sigara/alkol bilgisi'])
+    expect(missingFields(input)).toEqual(['lifestyle'])
   })
 
-  it('yalnız telefon eksikse sadece Telefon döner', () => {
+  it('yalnız telefon eksikse sadece phone döner', () => {
     const input = { ...fullInput(), phoneOk: false }
-    expect(missingFields(input)).toEqual(['Telefon'])
+    expect(missingFields(input)).toEqual(['phone'])
   })
 
-  it('yalnız fotoğraf eksikse sadece Fotoğraf döner', () => {
+  it('yalnız fotoğraf eksikse sadece photos döner', () => {
     const input = { ...fullInput(), filesCount: 0 }
-    expect(missingFields(input)).toEqual(['Fotoğraf'])
+    expect(missingFields(input)).toEqual(['photos'])
   })
 
   it('her şey tamamsa boş liste döner', () => {
@@ -46,6 +46,6 @@ describe('missingFields', () => {
 
   it('needsSub true iken alt kırılım seçilmemişse listelenir', () => {
     const input = { ...fullInput(), needsSub: true, subcategoryId: null }
-    expect(missingFields(input)).toEqual(['Alt kırılım'])
+    expect(missingFields(input)).toEqual(['subcategory'])
   })
 })

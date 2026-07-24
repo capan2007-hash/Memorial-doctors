@@ -14,20 +14,25 @@ export interface MissingInput {
   filesCount: number
 }
 
-/** canSubmit koşullarıyla aynı mantıktan türetilen, eksik alanların Türkçe adlarını sırayla döner. */
-export function missingFields(i: MissingInput): string[] {
-  const out: string[] = []
-  if (!i.first) out.push('Ad')
-  if (!i.last) out.push('Soyad')
-  if (!i.phoneOk) out.push('Telefon')
-  if (!i.ageOk) out.push('Yaş')
-  if (!i.weightOk) out.push('Kilo')
-  if (!i.heightOk) out.push('Boy')
-  if (!i.gender) out.push('Cinsiyet')
-  if (!i.categoryId) out.push('Kategori')
-  if (i.needsSub && !i.subcategoryId) out.push('Alt kırılım')
-  if (!i.medicalOk) out.push('Tıbbi geçmiş')
-  if (!i.lifestyleOk) out.push('Sigara/alkol bilgisi')
-  if (i.filesCount === 0) out.push('Fotoğraf')
+/** `requests.newRequest.missingLabels` altındaki anahtarlarla birebir eşleşir — çeviri çağrıcıda (NewRequestWizard) yapılır. */
+export type MissingFieldKey =
+  | 'first' | 'last' | 'phone' | 'age' | 'weight' | 'height' | 'gender'
+  | 'category' | 'subcategory' | 'medical' | 'lifestyle' | 'photos'
+
+/** canSubmit koşullarıyla aynı mantıktan türetilen, eksik alanların anahtarlarını sırayla döner. */
+export function missingFields(i: MissingInput): MissingFieldKey[] {
+  const out: MissingFieldKey[] = []
+  if (!i.first) out.push('first')
+  if (!i.last) out.push('last')
+  if (!i.phoneOk) out.push('phone')
+  if (!i.ageOk) out.push('age')
+  if (!i.weightOk) out.push('weight')
+  if (!i.heightOk) out.push('height')
+  if (!i.gender) out.push('gender')
+  if (!i.categoryId) out.push('category')
+  if (i.needsSub && !i.subcategoryId) out.push('subcategory')
+  if (!i.medicalOk) out.push('medical')
+  if (!i.lifestyleOk) out.push('lifestyle')
+  if (i.filesCount === 0) out.push('photos')
   return out
 }

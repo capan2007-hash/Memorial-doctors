@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useRequestDetail, useTenantPhotoSettings } from './useRequests'
 import { useSetSaleStatus } from './useSetSaleStatus'
 import { useSiblingOpenRequests } from './useSiblingOpenRequests'
@@ -21,16 +22,17 @@ import { photoLifecycleInfo } from '../../domain/photoLifecycle'
 import type { SaleStatus } from '../../types/domain'
 import type { RequestRow } from '../../types/db'
 
-const SALE_STATUS_LABEL: Record<SaleStatus, string> = {
-  not_completed: 'Satış bekliyor',
-  sale_done: 'Satış tamamlandı',
-  operation_done: 'Ameliyat tamamlandı',
-}
-
 function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUploadedAt: string | null }) {
+  const { t } = useTranslation('requests')
   const { role, appUser } = useAuth()
   const tenantSettings = useTenantPhotoSettings(req.tenant_id)
   const setSaleStatus = useSetSaleStatus()
+
+  const SALE_STATUS_LABEL: Record<SaleStatus, string> = {
+    not_completed: t('detail.saleStatus.notCompleted'),
+    sale_done: t('detail.saleStatus.saleDone'),
+    operation_done: t('detail.saleStatus.operationDone'),
+  }
 
   const isSales = role === 'sales' || role === 'coordinator' || role === 'admin'
   const isCoordAdmin = role === 'coordinator' || role === 'admin'
@@ -51,7 +53,7 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
     : null
 
   return (
-    <Card title="Satış Durumu">
+    <Card title={t('detail.saleStatusTitle')}>
       <div className="space-y-3.5">
         <span
           className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
@@ -70,18 +72,18 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
             <Button
               variant="primary"
               loading={setSaleStatus.isPending}
-              onClick={() => act('sale_done', 'Satışın tamamlandığını işaretlemek istediğinize emin misiniz? Fotoğraflar arşive taşınacak.')}
+              onClick={() => act('sale_done', t('detail.confirmSaleDone'))}
             >
-              Satış yapıldı
+              {t('detail.markSaleDone')}
             </Button>
           )}
           {isSales && req.sale_status !== 'not_completed' && (
             <Button
               variant="secondary"
               loading={setSaleStatus.isPending}
-              onClick={() => act('not_completed', 'Satışın olmadığını işaretlemek istediğinize emin misiniz?')}
+              onClick={() => act('not_completed', t('detail.confirmSaleNotDone'))}
             >
-              Satış olmadı
+              {t('detail.markSaleNotDone')}
             </Button>
           )}
           {isCoordAdmin && req.sale_status !== 'operation_done' && (
@@ -89,18 +91,18 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
               variant="secondary"
               disabled={req.sale_status !== 'sale_done'}
               loading={setSaleStatus.isPending}
-              onClick={() => act('operation_done', 'Ameliyatın yapıldığını işaretlemek istediğinize emin misiniz? Fotoğraflar tampon süre sonunda imha edilecek.')}
+              onClick={() => act('operation_done', t('detail.confirmOperationDone'))}
             >
-              Ameliyat yapıldı
+              {t('detail.markOperationDone')}
             </Button>
           )}
         </div>
         {lifecycle && (
           <p className="flex items-center gap-1.5 border-t border-line pt-3 text-sm text-ink-muted">
             <Icon of={Clock} size={14} />
-            {lifecycle.state === 'active_countdown' && `Fotoğraflar ${lifecycle.daysLeft} gün sonra silinecek`}
-            {lifecycle.state === 'archived' && 'Fotoğraflar arşivlendi'}
-            {lifecycle.state === 'operation_buffer' && `İmha: ${lifecycle.daysLeft} gün kaldı`}
+            {lifecycle.state === 'active_countdown' && t('detail.photosDeleteCountdown', { count: lifecycle.daysLeft })}
+            {lifecycle.state === 'archived' && t('detail.photosArchived')}
+            {lifecycle.state === 'operation_buffer' && t('detail.destructionCountdown', { count: lifecycle.daysLeft })}
           </p>
         )}
       </div>
@@ -109,13 +111,14 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
 }
 
 export function RequestDetail() {
+  const { t } = useTranslation('requests')
   const { id } = useParams()
   const q = useRequestDetail(id)
   // Hooks koşulsuz çağrılmalı (Rules of Hooks): veri gelmeden patient_id yoksa
   // hook 'enabled' değil, undefined güvenli — erken return'lerden ÖNCE çağrılır.
   const siblingOpen = useSiblingOpenRequests(q.data?.req.patient_id, q.data?.req.id)
   if (q.isError || (!q.isLoading && !q.data)) {
-    return <EmptyState title="Talep bulunamadı" description="Bu talep silinmiş veya bağlantı hatalı olabilir." />
+    return <EmptyState title={t('detail.notFoundTitle')} description={t('detail.notFoundDescription')} />
   }
   if (!q.data) {
     return (
@@ -145,7 +148,7 @@ export function RequestDetail() {
     <div className="space-y-4">
       <PageHeader
         title={title}
-        subtitle={`Talep #${req.id.slice(0, 8)} · ${timeAgo(req.created_at)}`}
+        subtitle={t('detail.subtitle', { id: req.id.slice(0, 8), time: timeAgo(req.created_at) })}
         actions={<StatusPill status={req.status} />}
       />
       {siblingCount > 0 && (
@@ -154,8 +157,8 @@ export function RequestDetail() {
             <Icon of={AlertTriangle} size={16} />
           </span>
           <p>
-            <span className="font-semibold">Bu hastanın başka açık talebi var</span> ({siblingCount}) — mükerrer
-            kayıt olabilir.
+            <span className="font-semibold">{t('detail.siblingWarningBold')}</span>{' '}
+            {t('detail.siblingWarningSuffix', { count: siblingCount })}
           </p>
         </div>
       )}
@@ -166,18 +169,18 @@ export function RequestDetail() {
         subcategoryName={subcategoryName}
         operationName={operationName}
       />
-      <Card title="Fotoğraflar">
+      <Card title={t('newRequest.photosTitle')}>
         {req.photos_required && (
           <span className="inline-flex items-center gap-1 rounded-full bg-warning-bg border border-warning-border text-warning-text text-xs font-medium px-2 py-0.5 mb-2">
             <Icon of={AlertTriangle} size={13} />
-            Fotoğraf yeniden gerekli
+            {t('detail.photosRequiredBadge')}
           </span>
         )}
-        <PhotoGrid urls={photos} title="Fotoğraf" deletedPhotos={deletedPhotos} />
+        <PhotoGrid urls={photos} title={t('detail.photoGridTitle')} deletedPhotos={deletedPhotos} />
       </Card>
       {(xrays.length > 0 || deletedXrays.length > 0) && (
-        <Card title="Diş Röntgeni">
-          <PhotoGrid urls={xrays} title="Röntgen" deletedPhotos={deletedXrays} />
+        <Card title={t('newRequest.xraysTitle')}>
+          <PhotoGrid urls={xrays} title={t('detail.xrayGridTitle')} deletedPhotos={deletedXrays} />
         </Card>
       )}
       {/* Doktor planları + AI değerlendirmesi: yalnız sales/coordinator/admin. Aracıya RLS zaten engeller; UI de gizler. */}
@@ -188,7 +191,7 @@ export function RequestDetail() {
               <Icon of={Check} size={16} />
             </span>
             <p>
-              <span className="font-semibold">Onam alındı</span> ·{' '}
+              <span className="font-semibold">{t('detail.consentReceived')}</span> ·{' '}
               <span className="tnum">{formatDate(req.consent_at)}</span> · WhatsApp
             </p>
           </div>
@@ -198,7 +201,7 @@ export function RequestDetail() {
               <Icon of={AlertTriangle} size={16} />
             </span>
             <p>
-              <span className="font-semibold">Onam alınmadı</span> — yapay zekâ ön değerlendirmesi yapılmadı
+              <span className="font-semibold">{t('detail.consentNotReceived')}</span> — {t('detail.consentNotReceivedHint')}
             </p>
           </div>
         )}
@@ -206,7 +209,7 @@ export function RequestDetail() {
         <AiPanel requestId={req.id} />
         <section className="space-y-2">
           <h3 className="flex items-center gap-2 border-b border-line pb-2 font-display text-base text-ink-primary">
-            Doktor Teklifleri
+            {t('detail.doctorOffersTitle')}
             <span className="tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-fill/12 px-1.5 text-xs font-semibold text-brand-text">
               {accepted.length}
             </span>
@@ -214,22 +217,22 @@ export function RequestDetail() {
           {accepted.map((r) => (
             <Card key={r.id} hover>
               <div className="flex items-start gap-3">
-                <Avatar name="Doktor" size="sm" />
+                <Avatar name={t('detail.doctorLabel')} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-ink-secondary">
-                    Doktor <span className="font-mono text-ink-muted">#{r.doctor_id.slice(0, 8)}</span>
+                    {t('detail.doctorLabel')} <span className="font-mono text-ink-muted">#{r.doctor_id.slice(0, 8)}</span>
                   </p>
                   <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-ink-primary">{r.treatment_plan}</p>
                 </div>
               </div>
             </Card>
           ))}
-          {accepted.length === 0 && <EmptyState title="Henüz kabul eden doktor yok" />}
+          {accepted.length === 0 && <EmptyState title={t('detail.noAcceptedDoctors')} />}
         </section>
       </RoleGate>
       <RoleGate allow={['agent']}>
         <Card>
-          <p className="text-sm text-ink-secondary">Doktor yanıtı hazır olduğunda satış ekibi sizinle paylaşacaktır.</p>
+          <p className="text-sm text-ink-secondary">{t('detail.agentWaitingNote')}</p>
         </Card>
       </RoleGate>
     </div>

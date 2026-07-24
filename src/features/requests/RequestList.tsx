@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useMyRequests } from './useRequests'
 import { StatusPill } from '../../components/ui/StatusPill'
 import { Avatar } from '../../components/ui/Avatar'
@@ -10,15 +11,16 @@ import { RoleGate } from '../../components/RoleGate'
 import { timeAgo } from '../../lib/format'
 
 export function RequestList() {
+  const { t } = useTranslation('requests')
   const q = useMyRequests()
   return (
     <div>
       <PageHeader
-        title="Talepler"
+        title={t('list.title')}
         actions={
           <RoleGate allow={['agent', 'sales']}>
             <Link to="/requests/new">
-              <Button variant="primary">Yeni Talep</Button>
+              <Button variant="primary">{t('list.newRequestButton')}</Button>
             </Link>
           </RoleGate>
         }
@@ -39,11 +41,11 @@ export function RequestList() {
       )}
       {!q.isLoading && q.data?.length === 0 && (
         <EmptyState
-          title="Henüz talep yok"
-          description="İlk talebi oluşturmak için Yeni Talep'e tıklayın."
+          title={t('list.emptyTitle')}
+          description={t('list.emptyDescription')}
           action={
             <Link to="/requests/new">
-              <Button variant="primary">Yeni Talep</Button>
+              <Button variant="primary">{t('list.newRequestButton')}</Button>
             </Link>
           }
         />

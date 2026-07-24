@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Info, User, X } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
@@ -70,12 +71,13 @@ function MedicalBlock({
   onChange: (v: MedicalField) => void
   id: string
 }) {
+  const { t } = useTranslation('requests')
   return (
     <div className="space-y-2">
       <span className="block text-sm font-medium text-foreground">{label}</span>
       <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-foreground">
         <Checkbox id={id} checked={value.none} onCheckedChange={(c) => onChange({ ...value, none: c === true })} />
-        Yok
+        {t('newRequest.none')}
       </label>
       {!value.none && (
         <Textarea placeholder={label} value={value.text} onChange={(e) => onChange({ ...value, text: e.target.value })} />
@@ -85,6 +87,7 @@ function MedicalBlock({
 }
 
 export function NewRequestWizard() {
+  const { t } = useTranslation('requests')
   const { appUser } = useAuth()
   const nav = useNavigate()
   const cats = useCategories()
@@ -223,16 +226,16 @@ export function NewRequestWizard() {
       submittedRef.current = true
       clearDraft()
       if (res.routed === 'coordinator') {
-        setWarn('Bu hastanın aktif bir talebi var — kayıt koordinatör onayına gönderildi.')
+        setWarn(t('newRequest.routedToCoordinator'))
         return
       }
       if (res.assignedCount === 0) {
-        setWarn('Talep kaydedildi ancak bu kategoride uygun aktif doktor bulunamadı; koordinatör atama yapacaktır.')
+        setWarn(t('newRequest.noDoctorAssigned'))
         return
       }
       nav('/requests')
     } catch (e) {
-      setSubmitErr('Talep gönderilemedi: ' + (e as Error).message)
+      setSubmitErr(t('newRequest.submitFailed', { message: (e as Error).message }))
     }
   }
 
@@ -246,8 +249,8 @@ export function NewRequestWizard() {
           <User className="h-5 w-5" strokeWidth={1.75} />
         </span>
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">Yeni Talep</h1>
-          <p className="text-sm text-muted-foreground">Hasta bilgilerini girin; sistem uygun doktorlara otomatik yönlendirir.</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">{t('newRequest.title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('newRequest.subtitle')}</p>
         </div>
       </div>
 
@@ -255,41 +258,41 @@ export function NewRequestWizard() {
         <div className="flex items-center justify-between gap-2 rounded-lg border border-info-border bg-info-bg px-3 py-2 text-sm text-info-text">
           <span className="flex items-center gap-2">
             <Info className="h-4 w-4" strokeWidth={1.75} />
-            Kaydedilmemiş taslak geri yüklendi.
+            {t('newRequest.draftRestored')}
           </span>
           <Button variant="ghost" onClick={clearDraftAndReset}>
-            Taslağı temizle
+            {t('newRequest.clearDraft')}
           </Button>
         </div>
       )}
 
-      <Card title="Hasta Bilgileri">
+      <Card title={t('patientInfo.title')}>
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <Field label="Ad">
-              <Input placeholder="Ad" value={first} onChange={(e) => setFirst(e.target.value)} />
+            <Field label={t('newRequest.firstNameLabel')}>
+              <Input placeholder={t('newRequest.firstNameLabel')} value={first} onChange={(e) => setFirst(e.target.value)} />
             </Field>
-            <Field label="Soyad">
-              <Input placeholder="Soyad" value={last} onChange={(e) => setLast(e.target.value)} />
+            <Field label={t('newRequest.lastNameLabel')}>
+              <Input placeholder={t('newRequest.lastNameLabel')} value={last} onChange={(e) => setLast(e.target.value)} />
             </Field>
-            <Field label="Telefon">
-              <Input type="tel" placeholder="05XX XXX XX XX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <Field label={t('newRequest.phoneLabel')}>
+              <Input type="tel" placeholder={t('newRequest.phonePlaceholder')} value={phone} onChange={(e) => setPhone(e.target.value)} />
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <Field label="Yaş">
-              <Input type="number" placeholder="Yaş" value={age} onChange={(e) => setAge(e.target.value)} />
+            <Field label={t('newRequest.ageLabel')}>
+              <Input type="number" placeholder={t('newRequest.ageLabel')} value={age} onChange={(e) => setAge(e.target.value)} />
             </Field>
-            <LabeledSelect label="Cinsiyet" value={gender} onChange={(v) => setGender(v as Gender)} placeholder="Seçin">
+            <LabeledSelect label={t('newRequest.genderLabel')} value={gender} onChange={(v) => setGender(v as Gender)} placeholder={t('newRequest.selectPlaceholder')}>
               <SelectItem value="female">Kadın</SelectItem>
               <SelectItem value="male">Erkek</SelectItem>
               <SelectItem value="other">Diğer</SelectItem>
             </LabeledSelect>
-            <Field label="Boy (cm)">
-              <Input type="number" placeholder="Boy" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} />
+            <Field label={t('newRequest.heightLabel')}>
+              <Input type="number" placeholder={t('newRequest.heightPlaceholder')} value={heightCm} onChange={(e) => setHeightCm(e.target.value)} />
             </Field>
-            <Field label="Kilo (kg)">
-              <Input type="number" placeholder="Kilo" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} />
+            <Field label={t('newRequest.weightLabel')}>
+              <Input type="number" placeholder={t('newRequest.weightPlaceholder')} value={weightKg} onChange={(e) => setWeightKg(e.target.value)} />
             </Field>
           </div>
         </div>
@@ -307,12 +310,12 @@ export function NewRequestWizard() {
         <div className="space-y-2 rounded-lg border border-brand-fill/30 bg-brand-fill/5 p-4">
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm text-brand-text">
-              Mevcut hastaya bağlanıyor:{' '}
+              {t('newRequest.linkingToExisting')}{' '}
               <span className="font-semibold">{selectedPatient.first_name} {selectedPatient.last_name}</span>
             </p>
             <button
               type="button"
-              aria-label="Seçimi geri al"
+              aria-label={t('newRequest.undoSelectionAria')}
               className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               onClick={() => setSelectedPatient(null)}
             >
@@ -322,61 +325,61 @@ export function NewRequestWizard() {
           {selectedPatient.had_deleted_photos && !selectedPatient.has_available_photos && (
             <p className="flex items-center gap-1.5 text-sm text-warning-text">
               <AlertTriangle className="h-4 w-4" strokeWidth={1.75} />
-              Fotoğraf yeniden gerekli: önceki fotoğraflar KVKK gereği silinmiş, güncel fotoğraf ekleyin.
+              {t('newRequest.photosRequiredAgain')}
             </p>
           )}
           {selectedPatient.has_open_request && (
-            <p className="text-sm text-muted-foreground">Bu hastanın doktor yanıtı bekleyen başka talebi var.</p>
+            <p className="text-sm text-muted-foreground">{t('newRequest.hasOpenRequestNote')}</p>
           )}
         </div>
       )}
 
-      <Card title="Operasyon">
+      <Card title={t('newRequest.operationSectionTitle')}>
         <div className="space-y-4">
           <LabeledSelect
-            label="Kategori"
+            label={t('newRequest.categoryLabel')}
             value={categoryId}
             onChange={(v) => { setCategoryId(v); setSubcategoryId(null); setOperationTypeId(null) }}
-            placeholder="Kategori seçin"
+            placeholder={t('newRequest.categoryPlaceholder')}
           >
             {cats.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </LabeledSelect>
           {needsSub && (
             <LabeledSelect
-              label="Alt kırılım"
+              label={t('newRequest.subcategoryLabel')}
               value={subcategoryId ?? ''}
               onChange={(v) => setSubcategoryId(v || null)}
-              placeholder="Alt kırılım seçin (zorunlu)"
+              placeholder={t('newRequest.subcategoryPlaceholder')}
             >
               {subs.data?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
             </LabeledSelect>
           )}
           {categoryId && (
             <LabeledSelect
-              label="Operasyon tipi (opsiyonel)"
+              label={t('newRequest.operationTypeLabel')}
               value={operationTypeId ?? NONE}
               onChange={(v) => setOperationTypeId(v === NONE ? null : v)}
-              placeholder="Operasyon tipi seçin"
+              placeholder={t('newRequest.operationTypePlaceholder')}
             >
-              <SelectItem value={NONE}>Seçilmedi</SelectItem>
+              <SelectItem value={NONE}>{t('newRequest.operationTypeNone')}</SelectItem>
               {ops.data?.map((o) => <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>)}
             </LabeledSelect>
           )}
         </div>
       </Card>
 
-      <Card title="Tıbbi Geçmiş">
+      <Card title={t('newRequest.medicalHistoryTitle')}>
         <div className="space-y-5">
-          <MedicalBlock id="past" label="Geçmiş ameliyatlar" value={pastSurgeries} onChange={setPastSurgeries} />
-          <MedicalBlock id="cond" label="Bilinen hastalıklar" value={knownConditions} onChange={setKnownConditions} />
-          <MedicalBlock id="meds" label="Düzenli kullanılan ilaçlar" value={medications} onChange={setMedications} />
+          <MedicalBlock id="past" label={t('newRequest.pastSurgeriesLabel')} value={pastSurgeries} onChange={setPastSurgeries} />
+          <MedicalBlock id="cond" label={t('newRequest.knownConditionsLabel')} value={knownConditions} onChange={setKnownConditions} />
+          <MedicalBlock id="meds" label={t('newRequest.medicationsLabel')} value={medications} onChange={setMedications} />
         </div>
       </Card>
 
-      <Card title="Sigara & Alkol">
+      <Card title={t('newRequest.smokingAlcoholTitle')}>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="space-y-3">
-            <LabeledSelect label="Sigara" value={smokingStatus} onChange={setSmokingStatus} placeholder="Seçin">
+            <LabeledSelect label={t('newRequest.smokingLabel')} value={smokingStatus} onChange={setSmokingStatus} placeholder={t('newRequest.selectPlaceholder')}>
               <SelectItem value="never">Hiç kullanmadı</SelectItem>
               <SelectItem value="former">Bıraktı</SelectItem>
               <SelectItem value="current">Aktif içici</SelectItem>
@@ -384,63 +387,63 @@ export function NewRequestWizard() {
             {(smokingStatus === 'current' || smokingStatus === 'former') && (
               <div className="space-y-2">
                 <div className="grid grid-cols-2 gap-2">
-                  <Field label="Günlük adet">
-                    <Input type="number" min={0} max={200} placeholder="ör. 20" value={smokingCigs} onChange={(e) => setSmokingCigs(e.target.value)} />
+                  <Field label={t('newRequest.cigsPerDayLabel')}>
+                    <Input type="number" min={0} max={200} placeholder={t('newRequest.cigsPerDayPlaceholder')} value={smokingCigs} onChange={(e) => setSmokingCigs(e.target.value)} />
                   </Field>
-                  <Field label="Kaç yıldır">
-                    <Input type="number" min={0} max={100} placeholder="ör. 10" value={smokingYears} onChange={(e) => setSmokingYears(e.target.value)} />
+                  <Field label={t('newRequest.smokingYearsLabel')}>
+                    <Input type="number" min={0} max={100} placeholder={t('newRequest.smokingYearsPlaceholder')} value={smokingYears} onChange={(e) => setSmokingYears(e.target.value)} />
                   </Field>
                 </div>
                 {packYearsVal != null && (
                   <p className="text-sm text-muted-foreground">
-                    ≈ <span className="tnum font-semibold text-foreground">{packYearsVal}</span> paket-yıl
+                    ≈ <span className="tnum font-semibold text-foreground">{packYearsVal}</span> {t('newRequest.packYearsUnit')}
                   </p>
                 )}
               </div>
             )}
           </div>
           <div className="space-y-3">
-            <LabeledSelect label="Alkol" value={alcoholStatus} onChange={setAlcoholStatus} placeholder="Seçin">
+            <LabeledSelect label={t('newRequest.alcoholLabel')} value={alcoholStatus} onChange={setAlcoholStatus} placeholder={t('newRequest.selectPlaceholder')}>
               <SelectItem value="never">Hiç</SelectItem>
               <SelectItem value="occasional">Sosyal (ara sıra)</SelectItem>
               <SelectItem value="regular">Düzenli</SelectItem>
             </LabeledSelect>
             {alcoholStatus === 'regular' && (
-              <Field label="Haftalık standart içki">
-                <Input type="number" min={0} max={200} placeholder="ör. 14" value={alcoholDrinks} onChange={(e) => setAlcoholDrinks(e.target.value)} />
+              <Field label={t('newRequest.weeklyDrinksLabel')}>
+                <Input type="number" min={0} max={200} placeholder={t('newRequest.weeklyDrinksPlaceholder')} value={alcoholDrinks} onChange={(e) => setAlcoholDrinks(e.target.value)} />
               </Field>
             )}
           </div>
         </div>
       </Card>
 
-      <Card title="Fotoğraflar">
+      <Card title={t('newRequest.photosTitle')}>
         <PhotoUploader files={files} onChange={setFiles} />
         {files.length > 0 && <p className="mt-2 text-sm text-muted-foreground">{files.map((f) => f.name).join(', ')}</p>}
       </Card>
 
       {isDental && (
-        <Card title="Diş Röntgeni">
+        <Card title={t('newRequest.xraysTitle')}>
           <PhotoUploader files={xrayFiles} onChange={setXrayFiles} />
           {xrayFiles.length > 0 && <p className="mt-2 text-sm text-muted-foreground">{xrayFiles.map((f) => f.name).join(', ')}</p>}
         </Card>
       )}
 
-      <Card title="Not">
-        <Textarea placeholder="Ek not (opsiyonel)" value={notes} onChange={(e) => setNotes(e.target.value)} />
+      <Card title={t('newRequest.notesTitle')}>
+        <Textarea placeholder={t('newRequest.notesPlaceholder')} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </Card>
 
-      <Card title="Onam">
+      <Card title={t('newRequest.consentTitle')}>
         <label className="flex cursor-pointer items-start gap-2.5 text-sm text-foreground">
           <Checkbox className="mt-0.5" checked={consentGiven} onCheckedChange={(c) => setConsentGiven(c === true)} />
           <span>
-            Hastadan aydınlatma metni paylaşıldı ve yurt dışı aktarım dahil açık rıza alındı (WhatsApp).{' '}
+            {t('newRequest.consentText')}{' '}
             <a href="/aydinlatma" target="_blank" rel="noopener" className="font-medium text-brand-text underline underline-offset-2 hover:text-brand-fill">
-              Aydınlatma metnini görüntüle
+              {t('newRequest.consentLinkText')}
             </a>
           </span>
         </label>
-        <p className="mt-2 text-sm text-muted-foreground">İşaretlenmezse yapay zekâ ön değerlendirmesi yapılmaz.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t('newRequest.consentHint')}</p>
       </Card>
 
       {(demoError || submitErr || warn) && (
@@ -457,13 +460,15 @@ export function NewRequestWizard() {
           {!canSubmit && missing.length > 0 ? (
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <AlertTriangle className="h-4 w-4 shrink-0 text-warning-text" strokeWidth={1.75} />
-              <span className="line-clamp-1">Eksik: {missing.join(', ')}</span>
+              <span className="line-clamp-1">
+                {t('newRequest.missingSummary', { list: missing.map((k) => t(`newRequest.missingLabels.${k}`)).join(', ') })}
+              </span>
             </p>
           ) : (
-            <span className="text-sm text-muted-foreground">Tüm zorunlu alanlar tamam.</span>
+            <span className="text-sm text-muted-foreground">{t('newRequest.allFieldsComplete')}</span>
           )}
           <Button variant="primary" loading={create.isPending} disabled={!canSubmit || create.isPending} onClick={submit} className="shrink-0">
-            Gönder
+            {t('newRequest.submit')}
           </Button>
         </div>
       </div>

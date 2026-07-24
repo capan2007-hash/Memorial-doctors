@@ -1,5 +1,7 @@
+import type { TFunction } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import type { RequestStatus } from '../../types/domain'
-import { STATUS_LABELS } from '../../components/ui/StatusPill'
+import { StatusPill } from '../../components/ui/StatusPill'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Icon } from '../../components/ui/Icon'
@@ -21,10 +23,10 @@ export interface MatchRow {
   match_reason: 'phone' | 'name'
 }
 
-function photoStatusText(m: MatchRow): string {
-  if (m.has_available_photos) return 'fotoğraflar mevcut'
-  if (m.had_deleted_photos) return 'önceki fotoğraflar silinmiş'
-  return 'fotoğraf yok'
+function photoStatusText(m: MatchRow, t: TFunction): string {
+  if (m.has_available_photos) return t('duplicatePanel.photoStatusAvailable')
+  if (m.had_deleted_photos) return t('duplicatePanel.photoStatusDeleted')
+  return t('duplicatePanel.photoStatusNone')
 }
 
 export function DuplicateMatchPanel({
@@ -36,6 +38,7 @@ export function DuplicateMatchPanel({
   onSelectSame: (m: MatchRow) => void
   onDismiss: () => void
 }) {
+  const { t } = useTranslation('requests')
   if (matches.length === 0) return null
 
   return (
@@ -44,9 +47,9 @@ export function DuplicateMatchPanel({
         <div className="flex items-center justify-between gap-2">
           <h4 className="flex items-center gap-1.5 font-display text-sm text-warning-text">
             <Icon of={AlertTriangle} size={15} />
-            Bu bilgilerle {matches.length} olası eşleşme
+            {t('duplicatePanel.matchCount', { count: matches.length })}
           </h4>
-          <Button variant="ghost" onClick={onDismiss}>Farklı kişi (yeni kayıt)</Button>
+          <Button variant="ghost" onClick={onDismiss}>{t('duplicatePanel.differentPerson')}</Button>
         </div>
 
         <div className="space-y-2">
@@ -59,22 +62,22 @@ export function DuplicateMatchPanel({
                   {m.has_open_request && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2 py-0.5 text-xs font-medium text-danger-text">
                       <Icon of={AlertTriangle} size={12} />
-                      Açık talep var
+                      {t('duplicatePanel.hasOpenRequest')}
                     </span>
                   )}
                 </div>
                 <p className="text-ink-muted">
-                  <span className="tnum">{m.request_count}</span> başvuru
+                  <span className="tnum">{m.request_count}</span> {t('duplicatePanel.requestCountLabel', { count: m.request_count })}
                   {m.last_status && (
                     <>
-                      {' · '}Son: {STATUS_LABELS[m.last_status]}
+                      {' · '}{t('duplicatePanel.lastLabel')} <StatusPill status={m.last_status} />
                       {m.last_request_at && <> · <span className="tnum">{formatDate(m.last_request_at)}</span></>}
                     </>
                   )}
-                  {' · '}{photoStatusText(m)}
+                  {' · '}{photoStatusText(m, t)}
                 </p>
               </div>
-              <Button variant="secondary" onClick={() => onSelectSame(m)}>Aynı hasta</Button>
+              <Button variant="secondary" onClick={() => onSelectSame(m)}>{t('duplicatePanel.samePatient')}</Button>
             </div>
           ))}
         </div>
