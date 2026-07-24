@@ -9,12 +9,14 @@ import { Spinner } from '../../components/ui/Spinner'
 import { Input } from '@/components/shadcn/input'
 import { useAiEvaluation, useAiFeedbackFor } from './useAiEvaluation'
 import { useSubmitAiFeedback } from './useAiFeedback'
+import { TranslatedText } from '../i18n-content/TranslatedText'
 import type { AiFeedbackRow } from '../../types/db'
 
 const POLL_GIVE_UP_MS = 120_000
 
 // AI tarafından üretilen uyarı TÜRLERİ sabittir (DB değil) → sabit UI metni, çevrilir.
-// Anahtarlar `ai:warnings.*` altında. Metin AI GEREKÇESİ (rationale) ayrı — o çevrilmez (Faz 3).
+// Anahtarlar `ai:warnings.*` altında. Metin AI GEREKÇESİ (rationale) ayrı — model çıktısı,
+// kanonik TR kabul edilir; görüntüleyen dili farklıysa `TranslatedText` ile çevrilir (Faz 3).
 const WARNING_LABEL_KEYS: Record<string, string> = {
   photo_operation_mismatch: 'warnings.photo_operation_mismatch',
   demographics_operation_risk: 'warnings.demographics_operation_risk',
@@ -161,16 +163,24 @@ export function AiPanel({
                     %{Math.round(w.confidence * 100)}
                   </span>
                 </div>
-                {/* AI GEREKÇESİ (rationale) — DB'den gelen model çıktısı, ÇEVRİLMEZ (Faz 3 kapsamı) */}
-                <p className="mt-1.5 ps-[23px] leading-relaxed text-ink-secondary">{w.rationale}</p>
+                {/* AI GEREKÇESİ (rationale) — DB'den gelen model çıktısı, kanonik TR; görüntüleyen-diline çevrilir. */}
+                <TranslatedText
+                  text={w.rationale}
+                  sourceLang="tr"
+                  className="mt-1.5 ps-[23px] leading-relaxed text-ink-secondary"
+                />
               </li>
             ))}
         </ul>
       )}
       <div className="rounded-card border border-line bg-surface-1 p-3">
         <h4 className="mb-1 font-display text-sm text-ink-primary">{t('panel.suitabilityTitle')}</h4>
-        {/* suitability_note — AI ÜRETİLEN İÇERİK, DB'den gelen model çıktısı, ÇEVRİLMEZ (Faz 3 kapsamı) */}
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-secondary">{evaluation.suitability_note}</p>
+        {/* suitability_note — AI ÜRETİLEN İÇERİK, kanonik TR; görüntüleyen-diline çevrilir (Faz 3). */}
+        <TranslatedText
+          text={evaluation.suitability_note}
+          sourceLang="tr"
+          className="text-sm leading-relaxed text-ink-secondary"
+        />
       </div>
       {canGiveFeedback && doctorId && (
         <FeedbackSection requestId={requestId} aiEvaluationId={evaluation.id} doctorId={doctorId} />

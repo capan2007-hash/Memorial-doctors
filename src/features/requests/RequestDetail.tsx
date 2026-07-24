@@ -16,6 +16,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { PatientInfoCard } from './PatientInfoCard'
 import { AiPanel } from '../ai/AiPanel'
+import { TranslatedText } from '../i18n-content/TranslatedText'
 import { Icon } from '../../components/ui/Icon'
 import { AlertTriangle, Check, Clock } from 'lucide-react'
 import { timeAgo, formatDate } from '../../lib/format'
@@ -226,7 +227,11 @@ export function RequestDetail() {
                   <p className="text-sm font-medium text-ink-secondary">
                     {t('detail.doctorLabel')} <span className="font-mono text-ink-muted">#{r.doctor_id.slice(0, 8)}</span>
                   </p>
-                  <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-ink-primary">{r.treatment_plan}</p>
+                  <TranslatedText
+                    text={r.treatment_plan}
+                    sourceLang={r.source_lang}
+                    className="mt-1.5 text-sm leading-relaxed text-ink-primary"
+                  />
                 </div>
               </div>
             </Card>

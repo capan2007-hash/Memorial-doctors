@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { bmi } from '../../domain/health'
 import { Card } from '../../components/ui/Card'
+import { TranslatedText } from '../i18n-content/TranslatedText'
 import type { RequestRow } from '../../types/db'
 
 function smokingDisplay(req: RequestRow, t: TFunction): string | null {
@@ -24,6 +25,12 @@ function genderDisplay(req: RequestRow, t: TFunction): string | null {
 
 function isEmpty(value: string | number | null | undefined): boolean {
   return value === null || value === undefined || value === ''
+}
+
+/** Hasta serbest-metin girdisi (Faz 3): boşsa sabit-UI yer tutucu, doluysa görüntüleyen-diline çevrilir. */
+function FreeText({ value, sourceLang, t }: { value: string | null | undefined; sourceLang: string; t: TFunction }) {
+  if (isEmpty(value)) return <span className="text-ink-muted">{t('patientInfo.notSpecified')}</span>
+  return <TranslatedText text={value} sourceLang={sourceLang} as="span" />
 }
 
 function InfoItem({ label, value, full, numeric, children }: {
@@ -73,12 +80,20 @@ export function PatientInfoCard({ req, patientName, categoryName, subcategoryNam
             </span>
           )}
         </InfoItem>
-        <InfoItem label={t('patientInfo.pastSurgeriesLabel')} value={req.past_surgeries} full />
-        <InfoItem label={t('patientInfo.knownConditionsLabel')} value={req.known_conditions} full />
-        <InfoItem label={t('patientInfo.medicationsLabel')} value={req.medications} full />
+        <InfoItem label={t('patientInfo.pastSurgeriesLabel')} full>
+          <FreeText value={req.past_surgeries} sourceLang={req.source_lang} t={t} />
+        </InfoItem>
+        <InfoItem label={t('patientInfo.knownConditionsLabel')} full>
+          <FreeText value={req.known_conditions} sourceLang={req.source_lang} t={t} />
+        </InfoItem>
+        <InfoItem label={t('patientInfo.medicationsLabel')} full>
+          <FreeText value={req.medications} sourceLang={req.source_lang} t={t} />
+        </InfoItem>
         <InfoItem label={t('patientInfo.smokingLabel')} value={smokingDisplay(req, t)} />
         <InfoItem label={t('patientInfo.alcoholLabel')} value={alcoholDisplay(req, t)} />
-        <InfoItem label={t('patientInfo.notesLabel')} value={req.notes} full />
+        <InfoItem label={t('patientInfo.notesLabel')} full>
+          <FreeText value={req.notes} sourceLang={req.source_lang} t={t} />
+        </InfoItem>
       </dl>
     </Card>
   )
