@@ -16,16 +16,23 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { Field } from '../../components/ui/Field'
 import { Avatar } from '../../components/ui/Avatar'
-import { Spinner } from '../../components/ui/Spinner'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../components/ui/Toast'
 import { Icon } from '../../components/ui/Icon'
 import { Upload, Check, Plus } from 'lucide-react'
 import { formatMins } from '../../lib/format'
+import { Input } from '@/components/shadcn/input'
+import { Textarea } from '@/components/shadcn/textarea'
+import { Skeleton } from '@/components/shadcn/skeleton'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/shadcn/select'
 
 const levelLabels: Record<WeightedWorkLevel, string> = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
-
-const inputClass = 'w-full rounded-control border border-line bg-surface-1 text-ink-primary p-2 focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
 
 function scopeKey(s: DoctorScope) { return `${s.categoryId}::${s.subcategoryId ?? ''}` }
 
@@ -128,18 +135,20 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
         <div className="space-y-2">
           {value.items.map((it, idx) => (
             <div key={idx} className="flex items-center gap-2">
-              <input
-                className={`${inputClass} flex-1 text-sm`} placeholder="Alan (ör. rinoplasti)"
+              <Input
+                className="flex-1" placeholder="Alan (ör. rinoplasti)"
                 value={it.area} onChange={(e) => updateItem(idx, { area: e.target.value })}
               />
-              <select
-                className={`${inputClass} w-auto shrink-0 text-sm`} value={it.level}
-                onChange={(e) => updateItem(idx, { level: e.target.value as WeightedWorkLevel })}
-              >
-                {(['high', 'medium', 'low'] as WeightedWorkLevel[]).map((l) => (
-                  <option key={l} value={l}>{levelLabels[l]}</option>
-                ))}
-              </select>
+              <Select value={it.level} onValueChange={(v) => updateItem(idx, { level: v as WeightedWorkLevel })}>
+                <SelectTrigger className="w-28 shrink-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(['high', 'medium', 'low'] as WeightedWorkLevel[]).map((l) => (
+                    <SelectItem key={l} value={l}>{levelLabels[l]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button variant="ghost" type="button" onClick={() => removeItem(idx)}>Sil</Button>
             </div>
           ))}
@@ -154,8 +163,8 @@ function WeightedWorkEditor({ value, onChange }: { value: WeightedWork; onChange
       </button>
       <div className="pt-1">
         <label className="mb-1 block text-xs font-medium text-ink-muted">Serbest not</label>
-        <textarea
-          className={`${inputClass} text-sm`} placeholder="Öne çıkan deneyim, ilgi alanı…"
+        <Textarea
+          placeholder="Öne çıkan deneyim, ilgi alanı…"
           value={value.note} onChange={(e) => onChange({ ...value, note: e.target.value })}
         />
       </div>
@@ -289,8 +298,20 @@ export function DoctorProfile() {
 
   if (own.isLoading) {
     return (
-      <div className="flex justify-center py-10">
-        <Spinner />
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-40" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card md:p-5">
+            <Skeleton className="mb-3 h-5 w-28" />
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-2/3" />
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
@@ -327,14 +348,14 @@ export function DoctorProfile() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Field label="Unvan">
-            <input className={inputClass} placeholder="ör. Op. Dr." value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input placeholder="ör. Op. Dr." value={title} onChange={(e) => setTitle(e.target.value)} />
           </Field>
           <Field label="Branş">
-            <input className={inputClass} value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
+            <Input value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
           </Field>
         </div>
         <Field label="Biyografi">
-          <textarea className={inputClass} placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
+          <Textarea placeholder="Biyografi / CV" value={bio} onChange={(e) => setBio(e.target.value)} />
         </Field>
 
         <div>
@@ -372,7 +393,11 @@ export function DoctorProfile() {
 
       <Card title="Performansım">
         {perf.isLoading && (
-          <div className="flex justify-center py-6"><Spinner /></div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-20 rounded-control" />
+            ))}
+          </div>
         )}
         {!perf.isLoading && perf.data && <PerformanceSection perf={perf.data} />}
         {!perf.isLoading && !perf.data && (
