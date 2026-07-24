@@ -3,17 +3,16 @@ import { Card } from '../../components/ui/Card'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { Spinner } from '../../components/ui/Spinner'
 import { Icon } from '../../components/ui/Icon'
 import { useToast } from '../../components/ui/Toast'
 import { Sparkles, ImageOff, UserPlus, ArrowRight } from 'lucide-react'
 import { dupConfidenceClass, formatConfidencePct } from '../../domain/duplicate'
 import { useDuplicateQueue, useResolveDuplicate, type DuplicateItem } from './useDuplicateQueue'
+import { Textarea } from '@/components/shadcn/textarea'
+import { Skeleton } from '@/components/shadcn/skeleton'
 
 // AI güven eşiği DB varsayılanı (tenant.dup_confidence_threshold default 0.75).
 const CONFIDENCE_THRESHOLD = 0.75
-
-const inputClass = 'w-full rounded-control border border-line bg-surface-1 text-ink-primary p-2 text-sm focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20'
 
 function formatDate(x: string | null): string {
   if (!x) return '—'
@@ -154,8 +153,7 @@ function DuplicateCard({ item }: { item: DuplicateItem }) {
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">Not (opsiyonel)</label>
-        <textarea
-          className={inputClass}
+        <Textarea
           placeholder="Karar gerekçesi…"
           value={note}
           onChange={(e) => setNote(e.target.value)}
@@ -198,8 +196,16 @@ export function DuplicateReview() {
       />
 
       {queue.isLoading && (
-        <div className="flex justify-center py-10">
-          <Spinner />
+        <div className="space-y-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="rounded-card border border-line bg-surface-2 p-4 shadow-card md:p-5">
+              <div className="flex flex-col gap-3 md:flex-row">
+                <Skeleton className="h-32 flex-1 rounded-control" />
+                <Skeleton className="h-32 flex-1 rounded-control" />
+              </div>
+              <Skeleton className="mt-4 h-16 w-full rounded-control" />
+            </div>
+          ))}
         </div>
       )}
 
