@@ -48,6 +48,16 @@
     "alcoholLabel": "Alcohol",
     "weeklyDrinksLabel": "Standard drinks per week",
     "weeklyDrinksPlaceholder": "e.g. 14",
+    "smoking": {
+      "never": "Never smoked",
+      "former": "Former smoker",
+      "current": "Current smoker"
+    },
+    "alcohol": {
+      "never": "Never",
+      "occasional": "Social (occasional)",
+      "regular": "Regular"
+    },
     "photosTitle": "Photos",
     "xraysTitle": "Dental X-ray",
     "notesTitle": "Note",

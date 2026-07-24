@@ -48,6 +48,16 @@
     "alcoholLabel": "Alkol",
     "weeklyDrinksLabel": "Haftalık standart içki",
     "weeklyDrinksPlaceholder": "ör. 14",
+    "smoking": {
+      "never": "Hiç kullanmadı",
+      "former": "Bıraktı",
+      "current": "Aktif içici"
+    },
+    "alcohol": {
+      "never": "Hiç",
+      "occasional": "Sosyal (ara sıra)",
+      "regular": "Düzenli"
+    },
     "photosTitle": "Fotoğraflar",
     "xraysTitle": "Diş Röntgeni",
     "notesTitle": "Not",

@@ -48,6 +48,16 @@
     "alcoholLabel": "الكحول",
     "weeklyDrinksLabel": "عدد المشروبات القياسية أسبوعيًا",
     "weeklyDrinksPlaceholder": "مثال: 14",
+    "smoking": {
+      "never": "لم يدخن قط",
+      "former": "توقف عن التدخين",
+      "current": "مدخن حالي"
+    },
+    "alcohol": {
+      "never": "لا يوجد",
+      "occasional": "اجتماعي (أحيانًا)",
+      "regular": "منتظم"
+    },
     "photosTitle": "الصور",
     "xraysTitle": "أشعة الأسنان",
     "notesTitle": "ملاحظة",

@@ -380,9 +380,9 @@ export function NewRequestWizard() {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="space-y-3">
             <LabeledSelect label={t('newRequest.smokingLabel')} value={smokingStatus} onChange={setSmokingStatus} placeholder={t('newRequest.selectPlaceholder')}>
-              <SelectItem value="never">Hiç kullanmadı</SelectItem>
-              <SelectItem value="former">Bıraktı</SelectItem>
-              <SelectItem value="current">Aktif içici</SelectItem>
+              <SelectItem value="never">{t('newRequest.smoking.never')}</SelectItem>
+              <SelectItem value="former">{t('newRequest.smoking.former')}</SelectItem>
+              <SelectItem value="current">{t('newRequest.smoking.current')}</SelectItem>
             </LabeledSelect>
             {(smokingStatus === 'current' || smokingStatus === 'former') && (
               <div className="space-y-2">
@@ -404,9 +404,9 @@ export function NewRequestWizard() {
           </div>
           <div className="space-y-3">
             <LabeledSelect label={t('newRequest.alcoholLabel')} value={alcoholStatus} onChange={setAlcoholStatus} placeholder={t('newRequest.selectPlaceholder')}>
-              <SelectItem value="never">Hiç</SelectItem>
-              <SelectItem value="occasional">Sosyal (ara sıra)</SelectItem>
-              <SelectItem value="regular">Düzenli</SelectItem>
+              <SelectItem value="never">{t('newRequest.alcohol.never')}</SelectItem>
+              <SelectItem value="occasional">{t('newRequest.alcohol.occasional')}</SelectItem>
+              <SelectItem value="regular">{t('newRequest.alcohol.regular')}</SelectItem>
             </LabeledSelect>
             {alcoholStatus === 'regular' && (
               <Field label={t('newRequest.weeklyDrinksLabel')}>

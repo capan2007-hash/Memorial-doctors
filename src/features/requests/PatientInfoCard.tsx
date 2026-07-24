@@ -2,19 +2,18 @@ import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { bmi } from '../../domain/health'
-import { smokingStatusLabel, alcoholStatusLabel } from '../../domain/lifestyle'
 import { Card } from '../../components/ui/Card'
 import type { RequestRow } from '../../types/db'
 
 function smokingDisplay(req: RequestRow, t: TFunction): string | null {
   if (!req.smoking_status) return null
-  const base = smokingStatusLabel(req.smoking_status)
+  const base = t(`newRequest.smoking.${req.smoking_status}`)
   return req.smoking_pack_years != null ? `${base} · ${req.smoking_pack_years} ${t('patientInfo.packYearsUnit')}` : base
 }
 
 function alcoholDisplay(req: RequestRow, t: TFunction): string | null {
   if (!req.alcohol_status) return null
-  const base = alcoholStatusLabel(req.alcohol_status)
+  const base = t(`newRequest.alcohol.${req.alcohol_status}`)
   return req.alcohol_drinks_per_week != null ? `${base} · ${req.alcohol_drinks_per_week}${t('patientInfo.weeklyUnit')}` : base
 }
 
