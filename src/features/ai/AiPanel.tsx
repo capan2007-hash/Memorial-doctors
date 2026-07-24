@@ -5,6 +5,7 @@ import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Icon } from '../../components/ui/Icon'
 import { Spinner } from '../../components/ui/Spinner'
+import { Input } from '@/components/shadcn/input'
 import { useAiEvaluation, useAiFeedbackFor } from './useAiEvaluation'
 import { useSubmitAiFeedback } from './useAiFeedback'
 import type { AiFeedbackRow } from '../../types/db'
@@ -69,17 +70,15 @@ function FeedbackSection({
           <Button
             key={label}
             type="button"
-            variant="secondary"
-            className={selected === label ? 'ring-2 ring-brand-fill' : ''}
+            variant={selected === label ? 'primary' : 'secondary'}
             onClick={() => setSelected(label)}
           >
             {FEEDBACK_LABELS[label]}
           </Button>
         ))}
       </div>
-      <input
+      <Input
         type="text"
-        className="w-full bg-surface-1 border border-line rounded-control p-2 text-sm text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-brand-fill focus:ring-2 focus:ring-brand-fill/20"
         placeholder="İsteğe bağlı not"
         value={note}
         onChange={(e) => setNote(e.target.value)}
@@ -148,25 +147,30 @@ export function AiPanel({
         <span>Yön göstericidir; nihai karar hekimindir.</span>
       </div>
       {evaluation.warnings.length > 0 && (
-        <ul className="space-y-2 mb-4">
+        <ul className="mb-4 space-y-2">
           {evaluation.warnings
             .filter((w) => WARNING_LABELS[w.type])
             .map((w, i) => (
-              <li key={i} className="text-sm">
+              <li
+                key={i}
+                className="rounded-card border border-warning-border bg-warning-bg/60 p-3 text-sm"
+              >
                 <div className="flex items-center gap-2">
-                  <Icon of={WARNING_ICONS[w.type] ?? AlertTriangle} size={15} className="text-warning-text" />
-                  <span className="font-medium text-ink-primary">{WARNING_LABELS[w.type]}</span>
-                  <span className="inline-block rounded-full bg-warning-bg text-warning-text text-xs font-medium px-2 py-0.5 tnum">
+                  <Icon of={WARNING_ICONS[w.type] ?? AlertTriangle} size={15} className="shrink-0 text-warning-text" />
+                  <span className="font-semibold text-ink-primary">{WARNING_LABELS[w.type]}</span>
+                  <span className="ml-auto inline-flex items-center rounded-full bg-warning-text/15 px-2 py-0.5 text-xs font-semibold text-warning-text tnum">
                     %{Math.round(w.confidence * 100)}
                   </span>
                 </div>
-                <p className="text-ink-secondary mt-0.5 pl-[23px]">{w.rationale}</p>
+                <p className="mt-1.5 pl-[23px] leading-relaxed text-ink-secondary">{w.rationale}</p>
               </li>
             ))}
         </ul>
       )}
-      <h4 className="font-display text-sm text-ink-primary mb-1">Uygunluk değerlendirmesi</h4>
-      <p className="whitespace-pre-wrap text-sm text-ink-secondary">{evaluation.suitability_note}</p>
+      <div className="rounded-card border border-line bg-surface-1 p-3">
+        <h4 className="mb-1 font-display text-sm text-ink-primary">Uygunluk değerlendirmesi</h4>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-secondary">{evaluation.suitability_note}</p>
+      </div>
       {canGiveFeedback && doctorId && (
         <FeedbackSection requestId={requestId} aiEvaluationId={evaluation.id} doctorId={doctorId} />
       )}
