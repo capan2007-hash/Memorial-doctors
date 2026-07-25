@@ -36,7 +36,7 @@ export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { tenantId, doctorId, session, loading } = useAuth()
   const { colors } = useTheme()
-  const { t } = useTranslation('request')
+  const { t, i18n } = useTranslation('request')
   const styles = makeStyles(colors)
   const detail = useRequestDetail(id)
   const respond = useRespond()
@@ -101,6 +101,7 @@ export default function RequestDetailScreen() {
         decision: mode === 'accept' ? 'accept' : 'reject',
         treatmentPlan: mode === 'accept' ? plan : undefined,
         rejectReason: mode === 'reject' ? reason : undefined,
+        sourceLang: i18n.language,
       })
       setMode('none')
       setSuccess(true)

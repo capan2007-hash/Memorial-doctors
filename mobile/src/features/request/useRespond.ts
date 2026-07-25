@@ -17,6 +17,8 @@ export function useRespond() {
       decision: Decision
       rejectReason?: string
       treatmentPlan?: string
+      /** Faz M2: yanıtın girildiği dil (yazma-anında kaydedilir) — içerik çevirisi kaynak dili belirler. */
+      sourceLang: string
     }) => {
       const { error } = await supabase.from('response').insert({
         tenant_id: input.tenantId,
@@ -25,6 +27,7 @@ export function useRespond() {
         decision: input.decision,
         reject_reason: input.rejectReason ?? null,
         treatment_plan: input.decision === 'accept' ? (input.treatmentPlan ?? null) : null,
+        source_lang: input.sourceLang,
       })
       if (error) throw error
     },

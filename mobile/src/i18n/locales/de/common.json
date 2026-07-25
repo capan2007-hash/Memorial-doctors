@@ -46,6 +46,9 @@
     "accept": "Annehmen",
     "reject": "Ablehnen"
   },
+  "autoTranslated": "Automatisch übersetzt",
+  "showOriginal": "Original anzeigen",
+  "showTranslation": "Übersetzung anzeigen",
   "language": {
     "sectionLabel": "Sprache",
     "restartTitle": "Neustart erforderlich",

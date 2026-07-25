@@ -46,6 +46,9 @@
     "accept": "Accept",
     "reject": "Reject"
   },
+  "autoTranslated": "Auto-translated",
+  "showOriginal": "Show original",
+  "showTranslation": "Show translation",
   "language": {
     "sectionLabel": "Language",
     "restartTitle": "Restart required",

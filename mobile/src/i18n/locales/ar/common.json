@@ -46,6 +46,9 @@
     "accept": "قبول",
     "reject": "رفض"
   },
+  "autoTranslated": "ترجمة تلقائية",
+  "showOriginal": "إظهار النص الأصلي",
+  "showTranslation": "إظهار الترجمة",
   "language": {
     "sectionLabel": "اللغة",
     "restartTitle": "إعادة التشغيل مطلوبة",

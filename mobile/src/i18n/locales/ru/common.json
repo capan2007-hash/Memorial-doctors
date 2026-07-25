@@ -46,6 +46,9 @@
     "accept": "Принять",
     "reject": "Отклонить"
   },
+  "autoTranslated": "Автоматически переведено",
+  "showOriginal": "Показать оригинал",
+  "showTranslation": "Показать перевод",
   "language": {
     "sectionLabel": "Язык",
     "restartTitle": "Требуется перезапуск",

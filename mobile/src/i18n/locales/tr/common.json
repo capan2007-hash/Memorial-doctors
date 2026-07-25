@@ -46,6 +46,9 @@
     "accept": "Kabul",
     "reject": "Red"
   },
+  "autoTranslated": "otomatik çeviri",
+  "showOriginal": "orijinali göster",
+  "showTranslation": "çeviriyi göster",
   "language": {
     "sectionLabel": "Dil",
     "restartTitle": "Yeniden başlatma gerekli",
