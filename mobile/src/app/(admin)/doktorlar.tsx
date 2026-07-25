@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { formatMins } from '@/domain/format'
 import { scoreTier } from '@/domain/score'
 import { useDoctorPerformance, useDoctorsFull, type DoctorPerformanceRow, type DoctorWithScopes } from '@/features/admin/useDoctors'
+import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 import { useTheme } from '@/lib/theme'
 import { rtlIconStyle } from '@/lib/rtl'
 import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
@@ -44,14 +45,23 @@ function DoctorCard({
       style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}
     >
       <View style={styles.cardTop}>
+        {/* Avatar baş-harfi HAM kalır (kanonik TR/orijinal unvan) — yalnız görünen metin çevrilir. */}
         <Avatar name={name} size={40} />
         <View style={styles.cardHead}>
-          <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
-            {name}
-          </Text>
-          <Text style={[styles.specialty, { color: colors.textMuted }]} numberOfLines={1}>
-            {doctor.specialty || '—'}
-          </Text>
+          {doctor.title ? (
+            <TranslatedText text={doctor.title} sourceLang="tr" compact style={[styles.name, { color: colors.textPrimary }]} />
+          ) : (
+            <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
+              {name}
+            </Text>
+          )}
+          {doctor.specialty ? (
+            <TranslatedText text={doctor.specialty} sourceLang="tr" compact style={[styles.specialty, { color: colors.textMuted }]} />
+          ) : (
+            <Text style={[styles.specialty, { color: colors.textMuted }]} numberOfLines={1}>
+              —
+            </Text>
+          )}
         </View>
         {!doctor.is_active && activeTint === null && (
           <View style={[styles.badge, { backgroundColor: colors.surface3, borderColor: colors.border }]}>

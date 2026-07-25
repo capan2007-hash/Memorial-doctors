@@ -27,6 +27,7 @@ import { PhotoStrip } from '@/components/PhotoStrip'
 import { StatusPill } from '@/components/StatusPill'
 import { DecisionBadge } from '@/components/DecisionBadge'
 import { AiPanel } from '@/features/ai/AiPanel'
+import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 import { timeAgo } from '@/domain/format'
 import { fontFamily, radius, spacing, type Palette } from '@/theme'
 
@@ -158,11 +159,15 @@ export default function RequestDetailScreen() {
               <Text style={styles.cardTitle}>{t('decisionHeading')}</Text>
               <DecisionBadge decision={myResponse.decision} />
             </View>
-            <Text style={styles.value}>
-              {myResponse.decision === 'accept'
-                ? myResponse.treatment_plan || t('planNotSpecified')
-                : myResponse.reject_reason || t('reasonNotSpecified')}
-            </Text>
+            {myResponse.decision === 'accept' ? (
+              myResponse.treatment_plan ? (
+                <TranslatedText text={myResponse.treatment_plan} sourceLang={myResponse.source_lang} style={styles.value} />
+              ) : (
+                <Text style={styles.value}>{t('planNotSpecified')}</Text>
+              )
+            ) : (
+              <Text style={styles.value}>{myResponse.reject_reason || t('reasonNotSpecified')}</Text>
+            )}
           </View>
         )}
 

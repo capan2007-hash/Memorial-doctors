@@ -12,6 +12,7 @@ import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing, type Palette } from '@/theme'
 import type { AiFeedbackRow } from '@/types/db'
+import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 import { useAiEvaluation, useAiFeedbackFor } from './useAiEvaluation'
 import { useSubmitAiFeedback } from './useAiFeedback'
 
@@ -169,13 +170,13 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
                     <Text style={styles.confidenceBadgeText}>%{Math.round(w.confidence * 100)}</Text>
                   </View>
                 </View>
-                <Text style={styles.rationale}>{w.rationale}</Text>
+                <TranslatedText text={w.rationale} sourceLang="tr" style={styles.rationale} />
               </View>
             ))}
         </View>
       )}
       <Text style={styles.suitabilityHeading}>{t('panel.suitabilityHeading')}</Text>
-      <Text style={styles.suitabilityNote}>{evaluation.suitability_note}</Text>
+      <TranslatedText text={evaluation.suitability_note} sourceLang="tr" style={styles.suitabilityNote} />
       {doctorId && tenantId && (
         <FeedbackSection
           tenantId={tenantId}

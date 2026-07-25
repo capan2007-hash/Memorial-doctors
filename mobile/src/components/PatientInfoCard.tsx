@@ -9,9 +9,27 @@ import { bmi } from '@/domain/health'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing, type Palette } from '@/theme'
 import type { RequestRow } from '@/types/db'
+import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 
 function isEmpty(value: string | number | null | undefined): boolean {
   return value === null || value === undefined || value === ''
+}
+
+// Hasta serbest-metin girdisi: boşsa sabit-UI yer tutucu, doluysa görüntüleyen-diline
+// çevrilir (kaynak = req.source_lang). Kaynak deseni: web FreeText (PatientInfoCard.tsx).
+function FreeText({
+  value,
+  sourceLang,
+  notSpecifiedLabel,
+  styles,
+}: {
+  value: string | null | undefined
+  sourceLang: string
+  notSpecifiedLabel: string
+  styles: ReturnType<typeof makeStyles>
+}) {
+  if (isEmpty(value)) return <Text style={styles.valueEmpty}>{notSpecifiedLabel}</Text>
+  return <TranslatedText text={value} sourceLang={sourceLang} style={styles.value} />
 }
 
 // Etiketler webdeki domain/lifestyle.ts ile aynı (mobil kopya); metinler i18n'den gelir.
@@ -106,20 +124,28 @@ export function PatientInfoCard({
         </InfoItem>
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label={t('patientInfo.fields.pastSurgeries')} value={req.past_surgeries} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.pastSurgeries')} styles={styles} notSpecifiedLabel={notSpecified}>
+          <FreeText value={req.past_surgeries} sourceLang={req.source_lang} notSpecifiedLabel={notSpecified} styles={styles} />
+        </InfoItem>
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label={t('patientInfo.fields.knownConditions')} value={req.known_conditions} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.knownConditions')} styles={styles} notSpecifiedLabel={notSpecified}>
+          <FreeText value={req.known_conditions} sourceLang={req.source_lang} notSpecifiedLabel={notSpecified} styles={styles} />
+        </InfoItem>
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label={t('patientInfo.fields.medications')} value={req.medications} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.medications')} styles={styles} notSpecifiedLabel={notSpecified}>
+          <FreeText value={req.medications} sourceLang={req.source_lang} notSpecifiedLabel={notSpecified} styles={styles} />
+        </InfoItem>
       </View>
       <View style={styles.grid}>
         <InfoItem label={t('patientInfo.fields.smoking')} value={smokingDisplay(req, t)} styles={styles} notSpecifiedLabel={notSpecified} />
         <InfoItem label={t('patientInfo.fields.alcohol')} value={alcoholDisplay(req, t)} styles={styles} notSpecifiedLabel={notSpecified} />
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label={t('patientInfo.fields.notes')} value={req.notes} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.notes')} styles={styles} notSpecifiedLabel={notSpecified}>
+          <FreeText value={req.notes} sourceLang={req.source_lang} notSpecifiedLabel={notSpecified} styles={styles} />
+        </InfoItem>
       </View>
     </View>
   )

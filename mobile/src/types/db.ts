@@ -43,6 +43,7 @@ export interface RequestRow {
   smoking_pack_years: number | null
   alcohol_status: 'never' | 'occasional' | 'regular' | null
   alcohol_drinks_per_week: number | null
+  source_lang: string
 }
 
 export interface PhotoRow {
@@ -72,6 +73,7 @@ export interface ResponseRow {
   reject_reason: string | null
   treatment_plan: string | null
   responded_at: string
+  source_lang: string
 }
 
 export interface AiEvaluationRow {
