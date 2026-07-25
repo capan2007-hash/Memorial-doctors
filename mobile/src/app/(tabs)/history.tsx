@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router'
 import { Inbox } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
@@ -14,10 +15,11 @@ export default function HistoryScreen() {
   const queue = useDoctorQueue(doctorId)
   const router = useRouter()
   const { colors } = useTheme()
+  const { t } = useTranslation('queue')
 
   return (
     <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
-      <Text style={[styles.title, { color: colors.textPrimary }]}>Geçmiş</Text>
+      <Text style={[styles.title, { color: colors.textPrimary }]}>{t('history.title')}</Text>
       {queue.isLoading ? (
         <View style={styles.center}>
           <ActivityIndicator color={colors.brandText} />
@@ -43,7 +45,7 @@ export default function HistoryScreen() {
           ListEmptyComponent={
             <View style={styles.center}>
               <Inbox color={colors.textMuted} size={40} strokeWidth={1.5} />
-              <Text style={[styles.hint, { color: colors.textMuted }]}>Yanıtladığınız talep yok</Text>
+              <Text style={[styles.hint, { color: colors.textMuted }]}>{t('history.empty')}</Text>
             </View>
           }
         />

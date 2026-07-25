@@ -1,8 +1,55 @@
 {
   "title": "Profil",
+  "doctorLabel": "Doktor",
+  "notFound": "Doktor kaydınıza ulaşılamadı.",
+  "photoLabel": "Profil fotoğrafı",
   "fields": {
     "fullName": "Ad Soyad",
-    "specialty": "Uzmanlık"
+    "title": "Unvan",
+    "titlePlaceholder": "ör. Op. Dr.",
+    "specialty": "Branş",
+    "specialtyPlaceholder": "ör. Plastik Cerrahi",
+    "bio": "Biyografi",
+    "bioPlaceholder": "Biyografi / CV"
   },
-  "edit": "Profili düzenle"
+  "edit": "Profili düzenle",
+  "alerts": {
+    "savedTitle": "Kaydedildi",
+    "profileSaved": "Profiliniz güncellendi.",
+    "saveFailedTitle": "Kaydedilemedi"
+  },
+  "scopes": {
+    "title": "Yetkinlikler",
+    "helper": "Bu tedaviler için yeni talepler size gönderilir.",
+    "noSubcategories": "Alt kırılım yok",
+    "warnMin": "En az bir yetkinlik seçilmeli.",
+    "submit": "Onayla ve kaydet",
+    "alerts": {
+      "requiredTitle": "Yetkinlik gerekli",
+      "requiredMessage": "En az bir yetkinlik seçmelisiniz.",
+      "saved": "Yetkinlikleriniz güncellendi."
+    }
+  },
+  "dashboard": {
+    "performance": {
+      "title": "Performansım",
+      "empty": "Henüz performans verisi yok.",
+      "score": "Skor",
+      "incoming": "Gelen",
+      "answered": "Cevaplanan",
+      "avgResponse": "Ort. yanıt",
+      "timely": "Zamanında",
+      "breach": "Hedef dışı"
+    },
+    "ranks": {
+      "title": "Sıralamam",
+      "subtitle": "Kliniğinizdeki aktif doktorlar arasındaki sıranız.",
+      "empty": "Sıralama verisi yok.",
+      "scoreRank": "Puan sırası",
+      "responseRank": "Yanıt hızı sırası",
+      "noRankScore": "Sıralama yok",
+      "noRankResponse": "Henüz yanıt yok",
+      "insufficientCompare": "Kıyas için yeterli doktor yok"
+    }
+  }
 }

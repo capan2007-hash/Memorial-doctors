@@ -19,7 +19,11 @@ export default function SettingsScreen() {
 
   const granted = permissionStatus === 'granted'
   const permissionLabel =
-    permissionStatus === null ? '—' : granted ? 'İzin verildi' : 'İzin verilmedi'
+    permissionStatus === null
+      ? t('notifications.unknown')
+      : granted
+        ? t('notifications.granted')
+        : t('notifications.notGranted')
 
   const requestPermission = async () => {
     if (!doctorId || !tenantId) return
@@ -42,7 +46,7 @@ export default function SettingsScreen() {
       <View style={cardStyle}>
         <View style={styles.cardHeader}>
           <User color={colors.textSecondary} size={16} strokeWidth={1.75} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Doktor</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile:doctorLabel')}</Text>
         </View>
         <Text style={[styles.name, { color: colors.textPrimary }]}>{fullName ?? '—'}</Text>
       </View>
@@ -50,7 +54,7 @@ export default function SettingsScreen() {
       <View style={cardStyle}>
         <View style={styles.cardHeader}>
           <Bell color={colors.textSecondary} size={16} strokeWidth={1.75} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Bildirimler</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('notifications.title')}</Text>
         </View>
         <Text style={[styles.name, { color: colors.textPrimary }]}>{permissionLabel}</Text>
         {!granted && (
@@ -68,7 +72,7 @@ export default function SettingsScreen() {
               <ActivityIndicator color={colors.brandOn} />
             ) : (
               <Text style={[styles.permissionButtonText, { color: colors.brandOn }]}>
-                Bildirimlere izin ver
+                {t('notifications.requestButton')}
               </Text>
             )}
           </Pressable>
@@ -76,7 +80,7 @@ export default function SettingsScreen() {
       </View>
 
       <View>
-        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Görünüm</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>{t('appearance.sectionLabel')}</Text>
         <ThemeToggle />
       </View>
 
@@ -93,7 +97,7 @@ export default function SettingsScreen() {
         accessibilityRole="button"
       >
         <LogOut color={colors.dangerText} size={18} strokeWidth={1.75} />
-        <Text style={[styles.signOutButtonText, { color: colors.dangerText }]}>Çıkış</Text>
+        <Text style={[styles.signOutButtonText, { color: colors.dangerText }]}>{t('actions.signOut')}</Text>
       </Pressable>
     </View>
   )

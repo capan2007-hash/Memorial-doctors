@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Image } from 'expo-image'
 import { useQuery } from '@tanstack/react-query'
 import { Check, Save, UserCircle } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
   Alert,
@@ -32,6 +33,7 @@ import {
 
 /** Doktor fotoğrafı: depo yolu imzalanır (photos bucket); yoksa baş harf rozeti. Salt görüntü. */
 function ProfileAvatar({ photoUrl, name, colors }: { photoUrl: string | null; name: string; colors: Palette }) {
+  const { t } = useTranslation('profile')
   const signed = useQuery({
     queryKey: ['doctor-photo-signed', photoUrl],
     enabled: !!photoUrl,
@@ -47,7 +49,7 @@ function ProfileAvatar({ photoUrl, name, colors }: { photoUrl: string | null; na
         source={{ uri: signed.data }}
         style={styles.avatar}
         contentFit="cover"
-        accessibilityLabel="Profil fotoğrafı"
+        accessibilityLabel={t('photoLabel')}
       />
     )
   }
@@ -70,6 +72,7 @@ function CategoryScopeRow({
   onChange: (next: DoctorScope[]) => void
   colors: Palette
 }) {
+  const { t } = useTranslation('profile')
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
 
   if (!category.has_subcategories) {
@@ -98,7 +101,7 @@ function CategoryScopeRow({
           />
         ))}
         {!subs.data?.length && (
-          <Text style={[styles.scopeEmpty, { color: colors.textMuted }]}>Alt kırılım yok</Text>
+          <Text style={[styles.scopeEmpty, { color: colors.textMuted }]}>{t('scopes.noSubcategories')}</Text>
         )}
       </View>
     </View>
@@ -136,6 +139,7 @@ function ScopeChip({
 
 export default function ProfileScreen() {
   const { colors } = useTheme()
+  const { t } = useTranslation('profile')
   const own = useOwnDoctor()
   const cats = useCategories()
   const updateProfile = useUpdateOwnProfile()
@@ -166,22 +170,22 @@ export default function ProfileScreen() {
         weightedWork: doctor.weighted_work ?? null,
         photoUrl: doctor.photo_url,
       })
-      Alert.alert('Kaydedildi', 'Profiliniz güncellendi.')
+      Alert.alert(t('alerts.savedTitle'), t('alerts.profileSaved'))
     } catch (e) {
-      Alert.alert('Kaydedilemedi', (e as Error).message)
+      Alert.alert(t('alerts.saveFailedTitle'), (e as Error).message)
     }
   }
 
   const saveScopes = async () => {
     if (!scopes.length) {
-      Alert.alert('Yetkinlik gerekli', 'En az bir yetkinlik seçmelisiniz.')
+      Alert.alert(t('scopes.alerts.requiredTitle'), t('scopes.alerts.requiredMessage'))
       return
     }
     try {
       await setScopes.mutateAsync(scopes)
-      Alert.alert('Kaydedildi', 'Yetkinlikleriniz güncellendi.')
+      Alert.alert(t('alerts.savedTitle'), t('scopes.alerts.saved'))
     } catch (e) {
-      Alert.alert('Kaydedilemedi', (e as Error).message)
+      Alert.alert(t('alerts.saveFailedTitle'), (e as Error).message)
     }
   }
 
@@ -205,7 +209,7 @@ export default function ProfileScreen() {
   if (!doctor) {
     return (
       <View style={[styles.centered, { backgroundColor: colors.surface0 }]}>
-        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Doktor kaydınıza ulaşılamadı.</Text>
+        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('notFound')}</Text>
       </View>
     )
   }
@@ -220,37 +224,37 @@ export default function ProfileScreen() {
         <View style={cardStyle}>
           <View style={styles.cardHeader}>
             <UserCircle color={colors.textSecondary} size={18} strokeWidth={1.75} />
-            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Profil</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('title')}</Text>
           </View>
 
           <View style={styles.avatarRow}>
-            <ProfileAvatar photoUrl={doctor.photo_url} name={title || 'Doktor'} colors={colors} />
+            <ProfileAvatar photoUrl={doctor.photo_url} name={title || t('doctorLabel')} colors={colors} />
           </View>
 
-          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Unvan</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('fields.title')}</Text>
           <TextInput
             style={inputStyle}
             value={title}
             onChangeText={setTitle}
-            placeholder="ör. Op. Dr."
+            placeholder={t('fields.titlePlaceholder')}
             placeholderTextColor={colors.textMuted}
           />
 
-          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Branş</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('fields.specialty')}</Text>
           <TextInput
             style={inputStyle}
             value={specialty}
             onChangeText={setSpecialty}
-            placeholder="ör. Plastik Cerrahi"
+            placeholder={t('fields.specialtyPlaceholder')}
             placeholderTextColor={colors.textMuted}
           />
 
-          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Biyografi</Text>
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('fields.bio')}</Text>
           <TextInput
             style={[inputStyle, styles.multiline]}
             value={bio}
             onChangeText={setBio}
-            placeholder="Biyografi / CV"
+            placeholder={t('fields.bioPlaceholder')}
             placeholderTextColor={colors.textMuted}
             multiline
             textAlignVertical="top"
@@ -267,7 +271,7 @@ export default function ProfileScreen() {
             ) : (
               <>
                 <Save color={colors.brandOn} size={18} strokeWidth={1.75} />
-                <Text style={[styles.primaryButtonText, { color: colors.brandOn }]}>Kaydet</Text>
+                <Text style={[styles.primaryButtonText, { color: colors.brandOn }]}>{t('common:actions.save')}</Text>
               </>
             )}
           </Pressable>
@@ -277,10 +281,10 @@ export default function ProfileScreen() {
         <View style={cardStyle}>
           <View style={styles.cardHeader}>
             <Check color={colors.textSecondary} size={18} strokeWidth={1.75} />
-            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Yetkinlikler</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('scopes.title')}</Text>
           </View>
           <Text style={[styles.helperText, { color: colors.textSecondary }]}>
-            Bu tedaviler için yeni talepler size gönderilir.
+            {t('scopes.helper')}
           </Text>
 
           <View style={styles.scopeList}>
@@ -290,7 +294,7 @@ export default function ProfileScreen() {
           </View>
 
           {!scopes.length && (
-            <Text style={[styles.warnText, { color: colors.warningText }]}>En az bir yetkinlik seçilmeli.</Text>
+            <Text style={[styles.warnText, { color: colors.warningText }]}>{t('scopes.warnMin')}</Text>
           )}
 
           <Pressable
@@ -308,7 +312,7 @@ export default function ProfileScreen() {
             ) : (
               <>
                 <Check color={colors.brandOn} size={18} strokeWidth={1.75} />
-                <Text style={[styles.primaryButtonText, { color: colors.brandOn }]}>Onayla ve kaydet</Text>
+                <Text style={[styles.primaryButtonText, { color: colors.brandOn }]}>{t('scopes.submit')}</Text>
               </>
             )}
           </Pressable>

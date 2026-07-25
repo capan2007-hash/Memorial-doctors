@@ -2,7 +2,18 @@
   "actions": {
     "save": "Kaydet",
     "cancel": "Vazgeç",
-    "delete": "Sil"
+    "delete": "Sil",
+    "signOut": "Çıkış"
+  },
+  "appearance": {
+    "sectionLabel": "Görünüm"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "granted": "İzin verildi",
+    "notGranted": "İzin verilmedi",
+    "unknown": "—",
+    "requestButton": "Bildirimlere izin ver"
   },
   "status": {
     "draft": "Taslak",

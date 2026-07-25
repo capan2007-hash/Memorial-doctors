@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Award, BarChart3, Clock, Trophy } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import { useTheme } from '@/lib/theme'
@@ -39,23 +40,24 @@ function MetricTile({
 }
 
 function PerformanceSection({ perf, colors }: { perf: OwnPerformance; colors: Palette }) {
+  const { t } = useTranslation('profile')
   const incoming = perf.accept_count + perf.reject_count + perf.pending_count
   const answered = perf.accept_count + perf.reject_count
   const tier = scoreTier(perf.score)
   return (
     <View style={styles.tileGrid}>
-      <MetricTile value={perf.score} label="Skor" role={tier.role} note={tier.label} colors={colors} />
-      <MetricTile value={incoming} label="Gelen" colors={colors} />
-      <MetricTile value={answered} label="Cevaplanan" colors={colors} />
+      <MetricTile value={perf.score} label={t('dashboard.performance.score')} role={tier.role} note={tier.label} colors={colors} />
+      <MetricTile value={incoming} label={t('dashboard.performance.incoming')} colors={colors} />
+      <MetricTile value={answered} label={t('dashboard.performance.answered')} colors={colors} />
       <MetricTile
         value={perf.avg_response_mins != null ? formatMins(perf.avg_response_mins) : '—'}
-        label="Ort. yanıt"
+        label={t('dashboard.performance.avgResponse')}
         colors={colors}
       />
-      <MetricTile value={perf.timely_count} label="Zamanında" colors={colors} />
+      <MetricTile value={perf.timely_count} label={t('dashboard.performance.timely')} colors={colors} />
       <MetricTile
         value={perf.breach_count}
-        label="Hedef dışı"
+        label={t('dashboard.performance.breach')}
         role={perf.breach_count > 0 ? 'danger' : undefined}
         colors={colors}
       />
@@ -81,6 +83,7 @@ function RankRow({
   emptyText: string
   colors: Palette
 }) {
+  const { t } = useTranslation('profile')
   const has = rank != null && total > 0
   const tint = has ? roleColors(colors, rankTier(rank, total)) : null
   const pctLabel = has && comparable(total) ? topPercentLabel(pct) : null
@@ -102,7 +105,7 @@ function RankRow({
               <Text style={[styles.pctText, { color: tint!.text }]}>{pctLabel}</Text>
             </View>
           ) : (
-            <Text style={[styles.rankNote, { color: colors.textMuted }]}>Kıyas için yeterli doktor yok</Text>
+            <Text style={[styles.rankNote, { color: colors.textMuted }]}>{t('dashboard.ranks.insufficientCompare')}</Text>
           )}
         </View>
       ) : (
@@ -113,24 +116,25 @@ function RankRow({
 }
 
 function RankSection({ ranks, colors }: { ranks: OwnRanks; colors: Palette }) {
+  const { t } = useTranslation('profile')
   return (
     <View style={styles.rankList}>
       <RankRow
         icon={<Trophy color={colors.textSecondary} size={16} strokeWidth={1.75} />}
-        label="Puan sırası"
+        label={t('dashboard.ranks.scoreRank')}
         rank={ranks.score_rank}
         total={ranks.score_total}
         pct={ranks.score_pct}
-        emptyText="Sıralama yok"
+        emptyText={t('dashboard.ranks.noRankScore')}
         colors={colors}
       />
       <RankRow
         icon={<Clock color={colors.textSecondary} size={16} strokeWidth={1.75} />}
-        label="Yanıt hızı sırası"
+        label={t('dashboard.ranks.responseRank')}
         rank={ranks.response_rank}
         total={ranks.response_total}
         pct={ranks.response_pct}
-        emptyText="Henüz yanıt yok"
+        emptyText={t('dashboard.ranks.noRankResponse')}
         colors={colors}
       />
     </View>
@@ -139,6 +143,7 @@ function RankSection({ ranks, colors }: { ranks: OwnRanks; colors: Palette }) {
 
 export default function DashboardScreen() {
   const { colors } = useTheme()
+  const { t } = useTranslation('profile')
   const perf = useOwnPerformance()
   const ranks = useOwnRanks()
 
@@ -156,7 +161,7 @@ export default function DashboardScreen() {
       <View style={cardStyle}>
         <View style={styles.cardHeader}>
           <Award color={colors.textSecondary} size={18} strokeWidth={1.75} />
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Performansım</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('dashboard.performance.title')}</Text>
         </View>
         {perf.isLoading ? (
           <View style={styles.loadingBox}>
@@ -165,7 +170,7 @@ export default function DashboardScreen() {
         ) : perf.data ? (
           <PerformanceSection perf={perf.data} colors={colors} />
         ) : (
-          <Text style={[styles.helperText, { color: colors.textMuted }]}>Henüz performans verisi yok.</Text>
+          <Text style={[styles.helperText, { color: colors.textMuted }]}>{t('dashboard.performance.empty')}</Text>
         )}
       </View>
 
@@ -173,10 +178,10 @@ export default function DashboardScreen() {
       <View style={cardStyle}>
         <View style={styles.cardHeader}>
           <BarChart3 color={colors.textSecondary} size={18} strokeWidth={1.75} />
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Sıralamam</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('dashboard.ranks.title')}</Text>
         </View>
         <Text style={[styles.helperText, { color: colors.textSecondary }]}>
-          Kliniğinizdeki aktif doktorlar arasındaki sıranız.
+          {t('dashboard.ranks.subtitle')}
         </Text>
         {ranks.isLoading ? (
           <View style={styles.loadingBox}>
@@ -185,7 +190,7 @@ export default function DashboardScreen() {
         ) : ranks.data ? (
           <RankSection ranks={ranks.data} colors={colors} />
         ) : (
-          <Text style={[styles.helperText, { color: colors.textMuted }]}>Sıralama verisi yok.</Text>
+          <Text style={[styles.helperText, { color: colors.textMuted }]}>{t('dashboard.ranks.empty')}</Text>
         )}
       </View>
     </ScrollView>
