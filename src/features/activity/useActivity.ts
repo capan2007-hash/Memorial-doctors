@@ -8,6 +8,8 @@ export interface ActivityEntry {
   creator_role: string
   category_name: string | null
   subcategory_name: string | null
+  category_name_i18n: Record<string, string> | null
+  subcategory_name_i18n: Record<string, string> | null
   doctor_count: number
 }
 

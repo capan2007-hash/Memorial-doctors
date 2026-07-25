@@ -6,6 +6,7 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { Spinner } from '../../components/ui/Spinner'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { catalogName } from '../catalog/catalogName'
 import {
   activityRoleLabel,
   caseTypeLabel,
@@ -69,7 +70,15 @@ function TimelineNode({
   const { entry, index } = node
   const tone = TONE[roleAccentTone(entry.creator_role)]
   const Icon = roleIcon(entry.creator_role)
-  const caseType = caseTypeLabel(entry.category_name, entry.subcategory_name, t)
+  const localizedCategory =
+    entry.category_name != null
+      ? catalogName({ name: entry.category_name, name_i18n: entry.category_name_i18n }, lang)
+      : null
+  const localizedSubcategory =
+    entry.subcategory_name != null
+      ? catalogName({ name: entry.subcategory_name, name_i18n: entry.subcategory_name_i18n }, lang)
+      : null
+  const caseType = caseTypeLabel(localizedCategory, localizedSubcategory, t)
   const isNewest = index === 0
   const delay = Math.min(index, 12) * 45
 
