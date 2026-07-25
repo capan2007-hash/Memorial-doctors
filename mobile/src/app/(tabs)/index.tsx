@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router'
 import { Inbox } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
+import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
 
+import { SkeletonList } from '@/components/ui/Skeleton'
 import { useAuth } from '@/lib/auth'
 import { useDoctorQueue, type DoctorQueueRow } from '@/features/queue/useDoctorQueue'
 import { QueueRow, SlaBadge } from '@/features/queue/QueueRow'
@@ -21,9 +22,7 @@ export default function PendingQueueScreen() {
     <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
       <Text style={[styles.title, { color: colors.textPrimary }]}>{t('pending.title')}</Text>
       {queue.isLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={colors.brandText} />
-        </View>
+        <SkeletonList />
       ) : (
         <FlatList
           data={queue.pending}

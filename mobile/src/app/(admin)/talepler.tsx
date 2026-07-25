@@ -6,13 +6,13 @@ import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, StyleSheet, 
 
 import { Avatar } from '@/components/ui/Avatar'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Spinner } from '@/components/ui/Spinner'
+import { SkeletonList } from '@/components/ui/Skeleton'
 import { StatusPill } from '@/components/StatusPill'
 import { timeAgo } from '@/domain/format'
 import { slaLabel } from '@/domain/sla'
 import { useTheme } from '@/lib/theme'
 import { rtlIconStyle } from '@/lib/rtl'
-import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
+import { fontFamily, radius, roleColors, shadow, spacing, type Palette } from '@/theme'
 import {
   classify,
   useAllRequests,
@@ -92,10 +92,12 @@ function RequestRow({
       <Pressable
         onPress={() => router.push(`/talep/${r.id}`)}
         accessibilityRole="button"
-        style={[
+        style={({ pressed }) => [
           styles.card,
+          shadow.card,
           { backgroundColor: colors.surface2, borderColor: colors.border },
           tab === 'overdue' && { borderLeftWidth: 3, borderLeftColor: danger.border },
+          pressed && { opacity: 0.9 },
         ]}
       >
         <Avatar name={r.patientName} size={40} />
@@ -134,10 +136,11 @@ function RequestRow({
         onPress={onReassign}
         disabled={isClosed || reassigning}
         accessibilityRole="button"
-        style={[
+        style={({ pressed }) => [
           styles.reassign,
           { borderColor: colors.border, backgroundColor: colors.surface1 },
           (isClosed || reassigning) && styles.disabled,
+          pressed && !(isClosed || reassigning) && { backgroundColor: colors.surface2 },
         ]}
       >
         {reassigning ? (
@@ -200,7 +203,9 @@ export default function TaleplerScreen() {
   if (reqs.isLoading) {
     return (
       <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
-        <Spinner />
+        <View style={styles.list}>
+          <SkeletonList count={6} />
+        </View>
       </View>
     )
   }
@@ -257,7 +262,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.two,
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     padding: spacing.three,
   },
   cardBody: { flex: 1, minWidth: 0, gap: 2 },

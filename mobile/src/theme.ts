@@ -1,6 +1,8 @@
 // Rafine Klinik — mobil tema. İki palet (açık/koyu); spacing/radius/font tema-bağımsız.
 // Web token'larıyla (src/styles/tokens.css) hizalı. Renk erişimi useTheme() üzerinden.
 
+import { Platform } from 'react-native'
+
 export interface Palette {
   surface0: string
   surface1: string
@@ -123,6 +125,33 @@ export const radius = {
   md: 12,
   lg: 16,
   full: 999,
+} as const
+
+/**
+ * Kart/panel gölge token'ları — iOS shadow* + Android elevation (Platform.select).
+ * Tema-bağımsız (nötr siyah, düşük opaklık); açık/koyuda aynı davranır.
+ */
+export const shadow = {
+  card: Platform.select({
+    ios: {
+      shadowColor: '#0B1210',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+    },
+    android: { elevation: 2 },
+    default: {},
+  }),
+  raised: Platform.select({
+    ios: {
+      shadowColor: '#0B1210',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.16,
+      shadowRadius: 24,
+    },
+    android: { elevation: 8 },
+    default: {},
+  }),
 } as const
 
 export const fontFamily = {

@@ -3,11 +3,12 @@ import { ChevronRight, Clock } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
+import { Avatar } from '@/components/ui/Avatar'
 import { timeAgo } from '@/domain/format'
 import type { SlaInfo } from '@/domain/sla'
 import { useTheme } from '@/lib/theme'
 import { rtlIconStyle } from '@/lib/rtl'
-import { fontFamily, radius, roleColors, spacing } from '@/theme'
+import { fontFamily, radius, roleColors, shadow, spacing } from '@/theme'
 
 // FR-24/25/26/29: kuyruk satırı SLA geri sayım rozeti (bkz. web DoctorQueue.tsx aynı desen).
 export function SlaBadge({ state, label }: { state: SlaInfo['state']; label: string }) {
@@ -58,15 +59,17 @@ export function QueueRow({
     <Pressable
       style={({ pressed }) => [
         styles.row,
+        shadow.card,
         {
           backgroundColor: colors.surface2,
           borderColor: colors.border,
-          borderRadius: radius.md,
         },
-        pressed && { backgroundColor: colors.surface1 },
+        pressed && { backgroundColor: colors.surface1, opacity: 0.9 },
       ]}
       onPress={onPress}
+      accessibilityRole="button"
     >
+      <Avatar name={patientName} size={44} />
       <View style={styles.main}>
         <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
           {patientName}
@@ -90,8 +93,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.two,
     borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.lg,
     padding: spacing.three,
-    minHeight: 64,
+    minHeight: 72,
   },
   main: {
     flex: 1,
