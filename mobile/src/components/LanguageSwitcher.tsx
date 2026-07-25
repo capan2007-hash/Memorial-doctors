@@ -19,10 +19,12 @@ const LANGUAGES: Array<{ code: Lang; flag: string; label: string }> = [
 ]
 
 /**
- * Not: RTL yönü senkronizasyonu (I18nManager.forceRTL + yeniden başlatma uyarısı) artık
- * burada değil, merkezi olarak `useAppLanguage`'da yaşıyor: `changeLang` → i18next
- * `languageChanged` olayı → `syncRtlDirection` (bkz. src/lib/rtl.ts). Böylece hem elle dil
- * seçiminde hem de açılışta otomatik dil algılamasında aynı tek akış çalışır (Faz M1 Task 8).
+ * Not: RTL yönü senkronizasyonu (I18nManager.forceRTL + yeniden başlatma uyarısı) burada
+ * değil, `src/lib/rtl.ts`'te modül-seviyesinde TEK bir `i18n.on('languageChanged', …)`
+ * dinleyicisi olarak yaşıyor: `changeLang` → `i18n.changeLanguage` → o tek dinleyici →
+ * `syncRtlDirection`. Böylece hem elle dil seçiminde hem de açılışta otomatik dil
+ * algılamasında aynı tek akış çalışır, ve bu bileşen ile RootNavigator'ın `useAppLanguage`'ı
+ * aynı anda mount etmesi çift Alert'e yol açmaz (Faz M1 Task 8 düzeltmesi).
  * `expo-updates` şu an proje bağımlılığı DEĞİL — bu yüzden gerçek RTL geçişi ancak
  * uygulama tam olarak yeniden açıldığında (Alert'te belirtildiği gibi) yansır.
  */

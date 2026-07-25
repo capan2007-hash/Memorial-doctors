@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Award, BarChart3, Clock, Trophy } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
@@ -248,5 +248,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   pctText: { fontFamily: fontFamily.semibold, fontSize: 12 },
-  rankNote: { fontFamily: fontFamily.regular, fontSize: 12, flexShrink: 1, textAlign: 'right' },
+  // Yön-farkında: RTL'de sağa değil sola hizala (row zaten otomatik aynalanır ama
+  // textAlign mantıksal değil, elle çevrilmesi gerekir). LTR'de önceki davranış korunur.
+  rankNote: { fontFamily: fontFamily.regular, fontSize: 12, flexShrink: 1, textAlign: I18nManager.isRTL ? 'left' : 'right' },
 })
