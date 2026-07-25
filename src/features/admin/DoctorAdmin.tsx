@@ -24,6 +24,7 @@ import { Avatar } from '../../components/ui/Avatar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../components/ui/Toast'
 import { Icon } from '../../components/ui/Icon'
+import { TranslatedText } from '../i18n-content/TranslatedText'
 import { toDateInputValue, startOfDayIso, endOfDayIso } from '../../lib/format'
 import { DoctorPerformanceDashboard } from './DoctorPerformanceDashboard'
 import { Input } from '@/components/shadcn/input'
@@ -527,8 +528,28 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
           <div className="flex items-center gap-3 min-w-0">
             <DoctorAvatar photoUrl={doctor.photo_url} name={doctor.title || t('doctorAdmin.avatarFallbackName')} />
             <div className="min-w-0">
-              <p className="font-medium text-ink-primary truncate">{doctor.title || t('doctorAdmin.noTitle')}</p>
-              <p className="text-sm text-ink-muted truncate">{doctor.specialty || '—'}</p>
+              {doctor.title ? (
+                <TranslatedText
+                  as="p"
+                  text={doctor.title}
+                  sourceLang="tr"
+                  compact
+                  className="font-medium text-ink-primary truncate"
+                />
+              ) : (
+                <p className="font-medium text-ink-primary truncate">{t('doctorAdmin.noTitle')}</p>
+              )}
+              {doctor.specialty ? (
+                <TranslatedText
+                  as="p"
+                  text={doctor.specialty}
+                  sourceLang="tr"
+                  compact
+                  className="text-sm text-ink-muted truncate"
+                />
+              ) : (
+                <p className="text-sm text-ink-muted truncate">—</p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">

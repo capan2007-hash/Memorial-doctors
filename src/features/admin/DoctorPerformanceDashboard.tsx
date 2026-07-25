@@ -6,6 +6,7 @@ import { scoreTier } from '../../domain/score'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Avatar } from '../../components/ui/Avatar'
 import { Icon } from '../../components/ui/Icon'
+import { TranslatedText } from '../i18n-content/TranslatedText'
 import {
   ArrowDown, ArrowUp, Users, AlertTriangle, Gauge, Clock, Search, MoreVertical,
   ChevronLeft, ChevronRight, type LucideIcon,
@@ -319,12 +320,20 @@ export function DoctorPerformanceDashboard({ onSelectDoctor }: { onSelectDoctor:
                       <Avatar name={r.title || t('doctorPerformance.noTitle')} size="sm" />
                       <div className="min-w-0">
                         <p className="flex items-center gap-1.5 truncate text-ink-primary">
-                          {r.title || t('doctorPerformance.noTitle')}
+                          {r.title ? (
+                            <TranslatedText as="span" text={r.title} sourceLang="tr" compact className="truncate" />
+                          ) : (
+                            <span className="truncate">{t('doctorPerformance.noTitle')}</span>
+                          )}
                           {!r.is_active && (
                             <span className="rounded-full bg-surface-3 px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">{t('doctorPerformance.inactiveBadge')}</span>
                           )}
                         </p>
-                        <p className="truncate text-xs text-ink-muted">{r.specialty || '—'}</p>
+                        {r.specialty ? (
+                          <TranslatedText as="p" text={r.specialty} sourceLang="tr" compact className="truncate text-xs text-ink-muted" />
+                        ) : (
+                          <p className="truncate text-xs text-ink-muted">—</p>
+                        )}
                       </div>
                     </div>
                   </TableCell>
