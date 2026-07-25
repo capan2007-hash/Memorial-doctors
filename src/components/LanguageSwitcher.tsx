@@ -7,12 +7,18 @@ const LANG_LABELS: Record<Lang, string> = {
   tr: 'Türkçe',
   ar: 'العربية',
   en: 'English',
+  ru: 'Русский',
+  de: 'Deutsch',
+  fr: 'Français',
 }
 
 const LANG_FLAGS: Record<Lang, string> = {
   tr: '🇹🇷',
   ar: '🇸🇦',
   en: '🇬🇧',
+  ru: '🇷🇺',
+  de: '🇩🇪',
+  fr: '🇫🇷',
 }
 
 /** Dil seçici — header'da ThemeToggle yanında. Tetikleyici buton aktif dilin bayrağını gösterir. */

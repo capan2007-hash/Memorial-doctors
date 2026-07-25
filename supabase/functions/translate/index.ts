@@ -19,12 +19,15 @@ const MAX_TEXT_LENGTH = 5000
 
 // src/i18n/index.ts SUPPORTED ile birebir — katalog dışı serbest metin de aynı
 // dil kümesiyle sınırlı (uygulamanın desteklediği tek diller).
-const SUPPORTED_LANGS = new Set(['tr', 'ar', 'en'])
+const SUPPORTED_LANGS = new Set(['tr', 'ar', 'en', 'ru', 'de', 'fr'])
 
 const LANG_NAMES: Record<string, string> = {
   tr: 'Türkçe',
   ar: 'Arapça',
   en: 'İngilizce',
+  ru: 'Rusça',
+  de: 'Almanca',
+  fr: 'Fransızca',
 }
 
 function json(o: unknown, status: number) {

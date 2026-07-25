@@ -1,0 +1,50 @@
+{
+  "role": {
+    "agent": "Agent",
+    "sales": "Vertriebsmitarbeiter",
+    "coordinator": "Koordinator",
+    "admin": "Administrator",
+    "superAdmin": "Super-Administrator",
+    "doctor": "Arzt",
+    "default": "Benutzer"
+  },
+  "caseType": {
+    "fallback": "Ästhetik"
+  },
+  "doctorCount": {
+    "none": "an keinen Arzt überwiesen",
+    "referred_one": "an {{count}} Arzt überwiesen",
+    "referred_other": "an {{count}} Ärzte überwiesen"
+  },
+  "dayGroup": {
+    "today": "Heute",
+    "yesterday": "Gestern"
+  },
+  "relative": {
+    "justNow": "gerade eben",
+    "minutes_one": "vor {{count}} Min.",
+    "minutes_other": "vor {{count}} Min.",
+    "hours_one": "vor {{count}} Std.",
+    "hours_other": "vor {{count}} Std.",
+    "days_one": "vor {{count}} Tag",
+    "days_other": "vor {{count}} Tagen"
+  },
+  "filters": {
+    "all": "Alle",
+    "sales": "Vertriebsmitarbeiter",
+    "agent": "Agenten"
+  },
+  "timeline": {
+    "title": "Feed",
+    "subtitle": "An Ärzte weitergeleitete Anfragen — neueste zuerst.",
+    "live": "Live",
+    "entryPrefix": "hat eine Anfrage zu",
+    "entrySuffix": "eingereicht",
+    "loadMore": "Mehr laden",
+    "loadError": "Feed konnte nicht geladen werden: {{message}}",
+    "emptyTitle": "Noch keine Aktivität",
+    "emptyDescription": "An Ärzte weitergeleitete Anfragen erscheinen hier, neueste zuerst, sobald sie eingehen.",
+    "emptyFilterTitle": "Keine Einträge für diesen Filter",
+    "emptyFilterDescription": "Keine Anfrageeinträge für die ausgewählte Rolle gefunden."
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "queue": {
+    "title": "Demandes en attente",
+    "emptyTitle": "Aucune demande en attente",
+    "slaRemaining_one": "SLA : {{count}} h restante",
+    "slaRemaining_other": "SLA : {{count}} h restantes",
+    "slaOverdue_one": "SLA dépassé · {{count}} h",
+    "slaOverdue_other": "SLA dépassé · {{count}} h"
+  },
+  "requestView": {
+    "notFoundTitle": "Demande introuvable",
+    "notFoundDescription": "Cette demande a peut-être été supprimée, ou le lien est peut-être invalide.",
+    "subtitle": "Demande n° {{id}} · {{time}}",
+    "photosCardTitle": "Photos",
+    "photoGridTitle": "Photo",
+    "xraysCardTitle": "Radiographie dentaire",
+    "xrayGridTitle": "Radiographie",
+    "acceptButton": "Accepter",
+    "rejectButton": "Refuser",
+    "treatmentPlanLabel": "Plan de traitement",
+    "acceptSubmit": "Accepter",
+    "rejectReasonLabel": "Motif du refus",
+    "rejectReasonPlaceholder": "Motif du refus (obligatoire)",
+    "rejectSubmit": "Refuser",
+    "responseSaved": "Votre réponse a été enregistrée",
+    "responseSaveFailed": "La réponse n'a pas pu être enregistrée : {{message}}"
+  },
+  "profile": {
+    "title": "Mon profil",
+    "subtitle": "Gérez votre profil, les traitements que vous pouvez proposer et vos performances.",
+    "notFoundTitle": "Profil introuvable",
+    "notFoundDescription": "Votre fiche médecin est introuvable.",
+    "profileCardTitle": "Profil",
+    "choosePhotoLabel": "Choisir une photo",
+    "photoUploadPending": "Sera téléchargée lorsque vous appuierez sur Enregistrer : {{name}}",
+    "titleLabel": "Titre",
+    "titlePlaceholder": "ex. Op. Dr.",
+    "specialtyLabel": "Spécialité",
+    "bioLabel": "Biographie",
+    "bioPlaceholder": "Biographie / CV",
+    "weightedWorkTitle": "Travail pondéré",
+    "saveButton": "Enregistrer",
+    "avatarFallbackName": "Médecin",
+    "levelLabels": {
+      "high": "Élevé",
+      "medium": "Moyen",
+      "low": "Faible"
+    },
+    "unworkableTier": "Non exploitable",
+    "weightedWork": {
+      "emptyNote": "Vous n'avez pas encore ajouté de travail pondéré.",
+      "areaPlaceholder": "Domaine (ex. rhinoplastie)",
+      "removeButton": "Supprimer",
+      "addRowButton": "Ajouter une ligne",
+      "noteLabel": "Note libre",
+      "notePlaceholder": "Expérience notable, domaine d'intérêt…"
+    },
+    "scopesCardTitle": "Compétences (traitements que je peux proposer)",
+    "scopesDescription": "Les nouvelles demandes pour ces traitements vous seront envoyées.",
+    "scopesSelectedCount_one": "{{count}} sélectionnée",
+    "scopesSelectedCount_other": "{{count}} sélectionnées",
+    "noSubcategories": "Aucune sous-catégorie",
+    "scopesMinWarning": "Au moins une compétence doit être sélectionnée.",
+    "scopesMinToast": "Vous devez sélectionner au moins une compétence",
+    "scopesSaveButton": "Confirmer et enregistrer",
+    "scopesSaved": "Compétences enregistrées",
+    "performanceCardTitle": "Mes performances",
+    "noPerformanceData": "Aucune donnée de performance pour le moment.",
+    "performance": {
+      "incoming": "Reçues",
+      "answered": "Répondues",
+      "avgResponse": "Réponse moy.",
+      "breach": "Hors délai",
+      "pending": "En attente",
+      "score": "Score",
+      "onTime": "À temps :",
+      "late": "En retard :"
+    },
+    "profileSaved": "Profil enregistré",
+    "saveFailed": "Impossible d'enregistrer : {{message}}"
+  }
+}

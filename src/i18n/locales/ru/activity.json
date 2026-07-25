@@ -1,0 +1,50 @@
+{
+  "role": {
+    "agent": "Агент",
+    "sales": "Менеджер по продажам",
+    "coordinator": "Координатор",
+    "admin": "Администратор",
+    "superAdmin": "Супер администратор",
+    "doctor": "Врач",
+    "default": "Пользователь"
+  },
+  "caseType": {
+    "fallback": "эстетическую"
+  },
+  "doctorCount": {
+    "none": "не направлено ни одному врачу",
+    "referred_one": "направлено {{count}} врачу",
+    "referred_other": "направлено {{count}} врачам"
+  },
+  "dayGroup": {
+    "today": "Сегодня",
+    "yesterday": "Вчера"
+  },
+  "relative": {
+    "justNow": "только что",
+    "minutes_one": "{{count}} мин. назад",
+    "minutes_other": "{{count}} мин. назад",
+    "hours_one": "{{count}} ч. назад",
+    "hours_other": "{{count}} ч. назад",
+    "days_one": "{{count}} день назад",
+    "days_other": "{{count}} дн. назад"
+  },
+  "filters": {
+    "all": "Все",
+    "sales": "Менеджеры по продажам",
+    "agent": "Агенты"
+  },
+  "timeline": {
+    "title": "Лента",
+    "subtitle": "Заявки, направленные врачам — сначала новые.",
+    "live": "В реальном времени",
+    "entryPrefix": "оформил(а)",
+    "entrySuffix": "заявку",
+    "loadMore": "Загрузить ещё",
+    "loadError": "Не удалось загрузить ленту: {{message}}",
+    "emptyTitle": "Пока нет активности",
+    "emptyDescription": "Заявки, направленные врачам, будут появляться здесь, сначала новые, по мере поступления.",
+    "emptyFilterTitle": "Нет записей для этого фильтра",
+    "emptyFilterDescription": "Записи заявок для выбранной роли не найдены."
+  }
+}

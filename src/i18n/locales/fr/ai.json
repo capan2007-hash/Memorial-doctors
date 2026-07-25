@@ -1,0 +1,30 @@
+{
+  "panel": {
+    "title": "Évaluation du triage IA",
+    "loading": "Préparation de l'évaluation IA…",
+    "failed": "L'évaluation IA n'a pas pu être effectuée",
+    "disclaimer": "À titre indicatif uniquement ; la décision finale revient au médecin.",
+    "suitabilityTitle": "Évaluation d'aptitude"
+  },
+  "warnings": {
+    "photo_operation_mismatch": "Inadéquation photo–procédure",
+    "demographics_operation_risk": "Risque démographie–procédure",
+    "missing_data": "Données manquantes",
+    "photo_quality": "Qualité de la photo"
+  },
+  "feedback": {
+    "correct": "Correct",
+    "partial": "Partiellement correct",
+    "wrong": "Incorrect",
+    "prompt": "Cette évaluation :",
+    "yourFeedback": "Votre retour : {{label}}",
+    "notePlaceholder": "Note facultative",
+    "submit": "Envoyer"
+  },
+  "accuracy": {
+    "title": "Rapport de précision IA",
+    "loading": "Chargement…",
+    "empty": "Aucun retour de médecin pour le moment.",
+    "barTooltip": "{{name}} : {{pct}} %"
+  }
+}

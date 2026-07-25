@@ -1,0 +1,82 @@
+{
+  "queue": {
+    "title": "Заявки в ожидании",
+    "emptyTitle": "Нет заявок в ожидании",
+    "slaRemaining_one": "SLA: осталось {{count}} ч",
+    "slaRemaining_other": "SLA: осталось {{count}} ч",
+    "slaOverdue_one": "SLA нарушен · {{count}} ч",
+    "slaOverdue_other": "SLA нарушен · {{count}} ч"
+  },
+  "requestView": {
+    "notFoundTitle": "Заявка не найдена",
+    "notFoundDescription": "Возможно, эта заявка была удалена, или ссылка недействительна.",
+    "subtitle": "Заявка №{{id}} · {{time}}",
+    "photosCardTitle": "Фото",
+    "photoGridTitle": "Фото",
+    "xraysCardTitle": "Стоматологический рентген",
+    "xrayGridTitle": "Рентген",
+    "acceptButton": "Принять",
+    "rejectButton": "Отклонить",
+    "treatmentPlanLabel": "План лечения",
+    "acceptSubmit": "Принять",
+    "rejectReasonLabel": "Причина отклонения",
+    "rejectReasonPlaceholder": "Причина отклонения (обязательно)",
+    "rejectSubmit": "Отклонить",
+    "responseSaved": "Ваш ответ сохранён",
+    "responseSaveFailed": "Не удалось сохранить ответ: {{message}}"
+  },
+  "profile": {
+    "title": "Мой профиль",
+    "subtitle": "Управляйте своим профилем, доступными процедурами и показателями эффективности.",
+    "notFoundTitle": "Профиль не найден",
+    "notFoundDescription": "Ваша запись врача не найдена.",
+    "profileCardTitle": "Профиль",
+    "choosePhotoLabel": "Выбрать фото",
+    "photoUploadPending": "Будет загружено при нажатии «Сохранить»: {{name}}",
+    "titleLabel": "Звание",
+    "titlePlaceholder": "напр. Оп. Др.",
+    "specialtyLabel": "Специализация",
+    "bioLabel": "Биография",
+    "bioPlaceholder": "Биография / резюме",
+    "weightedWorkTitle": "Взвешенная нагрузка",
+    "saveButton": "Сохранить",
+    "avatarFallbackName": "Врач",
+    "levelLabels": {
+      "high": "Высокий",
+      "medium": "Средний",
+      "low": "Низкий"
+    },
+    "unworkableTier": "Неработоспособен",
+    "weightedWork": {
+      "emptyNote": "Вы ещё не добавили взвешенную нагрузку.",
+      "areaPlaceholder": "Область (напр. ринопластика)",
+      "removeButton": "Удалить",
+      "addRowButton": "Добавить строку",
+      "noteLabel": "Произвольное примечание",
+      "notePlaceholder": "Значимый опыт, область интереса…"
+    },
+    "scopesCardTitle": "Компетенции (процедуры, которые я могу предложить)",
+    "scopesDescription": "Новые заявки на эти процедуры будут направляться вам.",
+    "scopesSelectedCount_one": "Выбрано {{count}}",
+    "scopesSelectedCount_other": "Выбрано {{count}}",
+    "noSubcategories": "Нет подкатегорий",
+    "scopesMinWarning": "Необходимо выбрать хотя бы одну компетенцию.",
+    "scopesMinToast": "Вы должны выбрать хотя бы одну компетенцию",
+    "scopesSaveButton": "Подтвердить и сохранить",
+    "scopesSaved": "Компетенции сохранены",
+    "performanceCardTitle": "Моя эффективность",
+    "noPerformanceData": "Пока нет данных об эффективности.",
+    "performance": {
+      "incoming": "Поступило",
+      "answered": "Обработано",
+      "avgResponse": "Ср. время ответа",
+      "breach": "Не в срок",
+      "pending": "В ожидании",
+      "score": "Рейтинг",
+      "onTime": "Вовремя:",
+      "late": "С опозданием:"
+    },
+    "profileSaved": "Профиль сохранён",
+    "saveFailed": "Не удалось сохранить: {{message}}"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "queue": {
+    "title": "Ausstehende Anfragen",
+    "emptyTitle": "Keine ausstehenden Anfragen",
+    "slaRemaining_one": "SLA: noch {{count}} Std.",
+    "slaRemaining_other": "SLA: noch {{count}} Std.",
+    "slaOverdue_one": "SLA überschritten · {{count}} Std.",
+    "slaOverdue_other": "SLA überschritten · {{count}} Std."
+  },
+  "requestView": {
+    "notFoundTitle": "Anfrage nicht gefunden",
+    "notFoundDescription": "Diese Anfrage wurde möglicherweise gelöscht, oder der Link ist ungültig.",
+    "subtitle": "Anfrage #{{id}} · {{time}}",
+    "photosCardTitle": "Fotos",
+    "photoGridTitle": "Foto",
+    "xraysCardTitle": "Zahnröntgen",
+    "xrayGridTitle": "Röntgenbild",
+    "acceptButton": "Annehmen",
+    "rejectButton": "Ablehnen",
+    "treatmentPlanLabel": "Behandlungsplan",
+    "acceptSubmit": "Annehmen",
+    "rejectReasonLabel": "Ablehnungsgrund",
+    "rejectReasonPlaceholder": "Ablehnungsgrund (erforderlich)",
+    "rejectSubmit": "Ablehnen",
+    "responseSaved": "Ihre Antwort wurde gespeichert",
+    "responseSaveFailed": "Antwort konnte nicht gespeichert werden: {{message}}"
+  },
+  "profile": {
+    "title": "Mein Profil",
+    "subtitle": "Verwalten Sie Ihr Profil, die Behandlungen, die Sie anbieten können, und Ihre Leistung.",
+    "notFoundTitle": "Profil nicht gefunden",
+    "notFoundDescription": "Ihr Arztdatensatz konnte nicht gefunden werden.",
+    "profileCardTitle": "Profil",
+    "choosePhotoLabel": "Foto auswählen",
+    "photoUploadPending": "Wird beim Klicken auf Speichern hochgeladen: {{name}}",
+    "titleLabel": "Titel",
+    "titlePlaceholder": "z. B. Op. Dr.",
+    "specialtyLabel": "Fachgebiet",
+    "bioLabel": "Biografie",
+    "bioPlaceholder": "Biografie / Lebenslauf",
+    "weightedWorkTitle": "Gewichtete Arbeit",
+    "saveButton": "Speichern",
+    "avatarFallbackName": "Arzt",
+    "levelLabels": {
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    },
+    "unworkableTier": "Nicht belastbar",
+    "weightedWork": {
+      "emptyNote": "Sie haben noch keine gewichtete Arbeit hinzugefügt.",
+      "areaPlaceholder": "Bereich (z. B. Rhinoplastik)",
+      "removeButton": "Löschen",
+      "addRowButton": "Zeile hinzufügen",
+      "noteLabel": "Freitext-Notiz",
+      "notePlaceholder": "Bemerkenswerte Erfahrung, Interessengebiet…"
+    },
+    "scopesCardTitle": "Kompetenzen (Behandlungen, die ich anbieten kann)",
+    "scopesDescription": "Neue Anfragen für diese Behandlungen werden an Sie gesendet.",
+    "scopesSelectedCount_one": "{{count}} ausgewählt",
+    "scopesSelectedCount_other": "{{count}} ausgewählt",
+    "noSubcategories": "Keine Unterkategorien",
+    "scopesMinWarning": "Mindestens eine Kompetenz muss ausgewählt werden.",
+    "scopesMinToast": "Sie müssen mindestens eine Kompetenz auswählen",
+    "scopesSaveButton": "Bestätigen und speichern",
+    "scopesSaved": "Kompetenzen gespeichert",
+    "performanceCardTitle": "Meine Leistung",
+    "noPerformanceData": "Noch keine Leistungsdaten.",
+    "performance": {
+      "incoming": "Eingehend",
+      "answered": "Beantwortet",
+      "avgResponse": "Ø Antwortzeit",
+      "breach": "Außerhalb des Ziels",
+      "pending": "Ausstehend",
+      "score": "Wertung",
+      "onTime": "Pünktlich:",
+      "late": "Verspätet:"
+    },
+    "profileSaved": "Profil gespeichert",
+    "saveFailed": "Konnte nicht gespeichert werden: {{message}}"
+  }
+}

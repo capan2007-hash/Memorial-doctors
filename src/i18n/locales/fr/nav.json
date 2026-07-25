@@ -1,0 +1,13 @@
+{
+  "requests": "Demandes",
+  "newRequest": "Nouvelle demande",
+  "activity": "Activité",
+  "pending": "Demandes en attente",
+  "profile": "Mon profil",
+  "allRequests": "Toutes les demandes",
+  "duplicates": "Demandes en double",
+  "doctors": "Gestion des médecins",
+  "users": "Gestion des utilisateurs",
+  "billing": "Facturation",
+  "logout": "Se déconnecter"
+}

@@ -1,0 +1,27 @@
+{
+  "actions": { "save": "Enregistrer", "cancel": "Annuler", "delete": "Supprimer", "search": "Rechercher…", "close": "Fermer" },
+  "status": {
+    "draft": "Brouillon",
+    "submitted": "Soumise",
+    "assigned": "Assignée",
+    "in_review": "En cours d'examen",
+    "offers_ready": "Offre prête",
+    "escalated": "Escaladée",
+    "closed": "Clôturée"
+  },
+  "photoUploader": {
+    "selectedCount_one": "{{count}} photo sélectionnée",
+    "selectedCount_other": "{{count}} photos sélectionnées"
+  },
+  "autoTranslated": "Traduit automatiquement",
+  "showOriginal": "Afficher l'original",
+  "showTranslation": "Afficher la traduction",
+  "time": {
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {{count}} min",
+    "hoursAgo": "il y a {{count}} h",
+    "daysAgo": "il y a {{count}} j",
+    "hoursShort": "h",
+    "minutesShort": "min"
+  }
+}

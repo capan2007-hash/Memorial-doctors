@@ -1,0 +1,27 @@
+{
+  "actions": { "save": "Сохранить", "cancel": "Отмена", "delete": "Удалить", "search": "Поиск…", "close": "Закрыть" },
+  "status": {
+    "draft": "Черновик",
+    "submitted": "Отправлено",
+    "assigned": "Назначено",
+    "in_review": "На рассмотрении",
+    "offers_ready": "Предложение готово",
+    "escalated": "Эскалировано",
+    "closed": "Закрыто"
+  },
+  "photoUploader": {
+    "selectedCount_one": "Выбрано {{count}} фото",
+    "selectedCount_other": "Выбрано {{count}} фото"
+  },
+  "autoTranslated": "Автоматически переведено",
+  "showOriginal": "Показать оригинал",
+  "showTranslation": "Показать перевод",
+  "time": {
+    "justNow": "только что",
+    "minutesAgo": "{{count}} мин. назад",
+    "hoursAgo": "{{count}} ч. назад",
+    "daysAgo": "{{count}} дн. назад",
+    "hoursShort": "ч",
+    "minutesShort": "мин"
+  }
+}

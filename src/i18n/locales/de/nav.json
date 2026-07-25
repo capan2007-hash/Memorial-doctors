@@ -1,0 +1,13 @@
+{
+  "requests": "Anfragen",
+  "newRequest": "Neue Anfrage",
+  "activity": "Aktivität",
+  "pending": "Ausstehende Anfragen",
+  "profile": "Mein Profil",
+  "allRequests": "Alle Anfragen",
+  "duplicates": "Doppelte Anfragen",
+  "doctors": "Ärzteverwaltung",
+  "users": "Benutzerverwaltung",
+  "billing": "Abrechnung",
+  "logout": "Abmelden"
+}

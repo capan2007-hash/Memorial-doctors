@@ -1,0 +1,50 @@
+{
+  "role": {
+    "agent": "Agent",
+    "sales": "Commercial",
+    "coordinator": "Coordinateur",
+    "admin": "Administrateur",
+    "superAdmin": "Super administrateur",
+    "doctor": "Médecin",
+    "default": "Utilisateur"
+  },
+  "caseType": {
+    "fallback": "esthétique"
+  },
+  "doctorCount": {
+    "none": "non transmis à un médecin",
+    "referred_one": "transmis à {{count}} médecin",
+    "referred_other": "transmis à {{count}} médecins"
+  },
+  "dayGroup": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier"
+  },
+  "relative": {
+    "justNow": "à l'instant",
+    "minutes_one": "il y a {{count}} min",
+    "minutes_other": "il y a {{count}} min",
+    "hours_one": "il y a {{count}} h",
+    "hours_other": "il y a {{count}} h",
+    "days_one": "il y a {{count}} jour",
+    "days_other": "il y a {{count}} jours"
+  },
+  "filters": {
+    "all": "Toutes",
+    "sales": "Commerciaux",
+    "agent": "Agents"
+  },
+  "timeline": {
+    "title": "Fil d'activité",
+    "subtitle": "Demandes transmises aux médecins — les plus récentes en premier.",
+    "live": "En direct",
+    "entryPrefix": "a soumis un",
+    "entrySuffix": "dossier",
+    "loadMore": "Charger plus",
+    "loadError": "Impossible de charger le fil : {{message}}",
+    "emptyTitle": "Aucune activité pour le moment",
+    "emptyDescription": "Les demandes transmises aux médecins apparaîtront ici, les plus récentes en premier, au fur et à mesure.",
+    "emptyFilterTitle": "Aucune entrée pour ce filtre",
+    "emptyFilterDescription": "Aucune entrée de demande trouvée pour le rôle sélectionné."
+  }
+}

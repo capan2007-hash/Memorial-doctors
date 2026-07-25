@@ -1,0 +1,30 @@
+{
+  "panel": {
+    "title": "KI-Triage-Bewertung",
+    "loading": "KI-Bewertung wird vorbereitet…",
+    "failed": "KI-Bewertung konnte nicht abgeschlossen werden",
+    "disclaimer": "Nur als Orientierung; die endgültige Entscheidung liegt beim Arzt.",
+    "suitabilityTitle": "Eignungsbewertung"
+  },
+  "warnings": {
+    "photo_operation_mismatch": "Foto-Eingriff-Diskrepanz",
+    "demographics_operation_risk": "Demografie-Eingriff-Risiko",
+    "missing_data": "Fehlende Daten",
+    "photo_quality": "Fotoqualität"
+  },
+  "feedback": {
+    "correct": "Korrekt",
+    "partial": "Teilweise korrekt",
+    "wrong": "Falsch",
+    "prompt": "Diese Bewertung:",
+    "yourFeedback": "Ihre Rückmeldung: {{label}}",
+    "notePlaceholder": "Optionale Notiz",
+    "submit": "Absenden"
+  },
+  "accuracy": {
+    "title": "KI-Genauigkeitsbericht",
+    "loading": "Wird geladen…",
+    "empty": "Noch keine Rückmeldung von Ärzten.",
+    "barTooltip": "{{name}}: {{pct}}%"
+  }
+}

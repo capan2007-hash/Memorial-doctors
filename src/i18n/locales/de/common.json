@@ -1,0 +1,27 @@
+{
+  "actions": { "save": "Speichern", "cancel": "Abbrechen", "delete": "Löschen", "search": "Suchen…", "close": "Schließen" },
+  "status": {
+    "draft": "Entwurf",
+    "submitted": "Eingereicht",
+    "assigned": "Zugewiesen",
+    "in_review": "In Prüfung",
+    "offers_ready": "Angebot bereit",
+    "escalated": "Eskaliert",
+    "closed": "Geschlossen"
+  },
+  "photoUploader": {
+    "selectedCount_one": "{{count}} Foto ausgewählt",
+    "selectedCount_other": "{{count}} Fotos ausgewählt"
+  },
+  "autoTranslated": "Automatisch übersetzt",
+  "showOriginal": "Original anzeigen",
+  "showTranslation": "Übersetzung anzeigen",
+  "time": {
+    "justNow": "gerade eben",
+    "minutesAgo": "vor {{count}} Min.",
+    "hoursAgo": "vor {{count}} Std.",
+    "daysAgo": "vor {{count}} Tagen",
+    "hoursShort": "Std.",
+    "minutesShort": "Min."
+  }
+}
