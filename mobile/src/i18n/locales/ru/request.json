@@ -1,0 +1,75 @@
+{
+  "title": "Заявка",
+  "decision": {
+    "accept": "Принять",
+    "reject": "Отклонить"
+  },
+  "photos": "Фото",
+  "photosEmpty": "Фото не добавлены",
+  "photoAlt": "Фото",
+  "xrays": "Стоматологический рентген",
+  "xrayAlt": "Рентген",
+  "notes": "Примечания",
+  "backLabel": "Назад",
+  "idSubtitle": "Заявка №{{shortId}} · {{time}}",
+  "decisionHeading": "Ваше решение",
+  "planNotSpecified": "План лечения не указан",
+  "reasonNotSpecified": "Причина не указана",
+  "responseSaved": "Ваш ответ сохранён.",
+  "errors": {
+    "loadFailed": "Не удалось загрузить заявку. Проверьте подключение.",
+    "loadFailedShort": "Не удалось загрузить заявку.",
+    "respondFailed": "Не удалось сохранить ответ: {{message}}"
+  },
+  "actions": {
+    "accept": "Принять",
+    "reject": "Отклонить",
+    "acceptConfirm": "Принять",
+    "rejectConfirm": "Отклонить",
+    "planLabel": "План лечения",
+    "planPlaceholder": "План лечения",
+    "reasonLabel": "Причина отклонения",
+    "reasonPlaceholder": "Причина отклонения (обязательно)"
+  },
+  "admin": {
+    "backToList": "Заявки",
+    "backLink": "Назад"
+  },
+  "patientInfo": {
+    "title": "Информация о пациенте",
+    "notSpecified": "Не указано",
+    "fields": {
+      "patientName": "Имя пациента",
+      "category": "Категория",
+      "operation": "Запрашиваемая операция",
+      "age": "Возраст",
+      "gender": "Пол",
+      "height": "Рост (см)",
+      "weight": "Вес (кг)",
+      "bmi": "ИМТ",
+      "pastSurgeries": "Перенесённые операции",
+      "knownConditions": "Известные заболевания",
+      "medications": "Регулярные препараты",
+      "smoking": "Курение",
+      "alcohol": "Алкоголь",
+      "notes": "Примечание"
+    },
+    "gender": {
+      "female": "Женский",
+      "male": "Мужской",
+      "other": "Другой"
+    },
+    "smoking": {
+      "never": "Никогда не курил(а)",
+      "former": "Бывший курильщик",
+      "current": "Курит в настоящее время",
+      "packYears": "{{value}} пачко-лет"
+    },
+    "alcohol": {
+      "never": "Никогда",
+      "occasional": "Изредка (в компании)",
+      "regular": "Регулярно",
+      "perWeek": "{{value}}/нед."
+    }
+  }
+}

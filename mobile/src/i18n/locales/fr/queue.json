@@ -1,0 +1,15 @@
+{
+  "pending": {
+    "title": "Demandes en attente",
+    "empty": "Aucune demande en attente"
+  },
+  "history": {
+    "title": "Historique",
+    "empty": "Aucune demande à laquelle vous avez répondu"
+  },
+  "filters": {
+    "all": "Toutes",
+    "pending": "En attente"
+  },
+  "refresh": "Actualiser"
+}

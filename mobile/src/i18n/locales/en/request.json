@@ -1,0 +1,75 @@
+{
+  "title": "Request",
+  "decision": {
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "photos": "Photos",
+  "photosEmpty": "No photos added",
+  "photoAlt": "Photo",
+  "xrays": "Dental X-ray",
+  "xrayAlt": "X-ray",
+  "notes": "Notes",
+  "backLabel": "Back",
+  "idSubtitle": "Request #{{shortId}} · {{time}}",
+  "decisionHeading": "Your decision",
+  "planNotSpecified": "Treatment plan not specified",
+  "reasonNotSpecified": "Reason not specified",
+  "responseSaved": "Your response has been saved.",
+  "errors": {
+    "loadFailed": "Could not load the request. Check your connection.",
+    "loadFailedShort": "Could not load the request.",
+    "respondFailed": "Response could not be saved: {{message}}"
+  },
+  "actions": {
+    "accept": "Accept",
+    "reject": "Reject",
+    "acceptConfirm": "Accept",
+    "rejectConfirm": "Reject",
+    "planLabel": "Treatment plan",
+    "planPlaceholder": "Treatment plan",
+    "reasonLabel": "Rejection reason",
+    "reasonPlaceholder": "Rejection reason (required)"
+  },
+  "admin": {
+    "backToList": "Requests",
+    "backLink": "Go back"
+  },
+  "patientInfo": {
+    "title": "Patient Information",
+    "notSpecified": "Not specified",
+    "fields": {
+      "patientName": "Patient name",
+      "category": "Category",
+      "operation": "Requested operation",
+      "age": "Age",
+      "gender": "Gender",
+      "height": "Height (cm)",
+      "weight": "Weight (kg)",
+      "bmi": "BMI",
+      "pastSurgeries": "Past surgeries",
+      "knownConditions": "Known conditions",
+      "medications": "Regular medications",
+      "smoking": "Smoking",
+      "alcohol": "Alcohol",
+      "notes": "Note"
+    },
+    "gender": {
+      "female": "Female",
+      "male": "Male",
+      "other": "Other"
+    },
+    "smoking": {
+      "never": "Never smoked",
+      "former": "Former smoker",
+      "current": "Current smoker",
+      "packYears": "{{value}} pack-years"
+    },
+    "alcohol": {
+      "never": "Never",
+      "occasional": "Social (occasional)",
+      "regular": "Regular",
+      "perWeek": "{{value}}/week"
+    }
+  }
+}

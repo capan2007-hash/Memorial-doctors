@@ -1,0 +1,83 @@
+{
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "signOut": "Abmelden",
+    "close": "Schließen"
+  },
+  "appearance": {
+    "sectionLabel": "Erscheinungsbild"
+  },
+  "theme": {
+    "light": "Helles Design",
+    "dark": "Dunkles Design"
+  },
+  "placeholder": {
+    "comingSoon": "Dieser Bildschirm wird bald hinzugefügt."
+  },
+  "doctorTabs": {
+    "blocked": "Diese App ist nur für Ärzte.",
+    "tabs": {
+      "pending": "Ausstehend",
+      "history": "Verlauf",
+      "dashboard": "Übersicht",
+      "profile": "Profil",
+      "settings": "Einstellungen"
+    }
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "granted": "Erlaubt",
+    "notGranted": "Nicht erlaubt",
+    "unknown": "—",
+    "requestButton": "Benachrichtigungen erlauben"
+  },
+  "status": {
+    "draft": "Entwurf",
+    "submitted": "Eingereicht",
+    "assigned": "Zugewiesen",
+    "in_review": "In Prüfung",
+    "offers_ready": "Angebot bereit",
+    "escalated": "Eskaliert",
+    "closed": "Geschlossen"
+  },
+  "decision": {
+    "accept": "Annehmen",
+    "reject": "Ablehnen"
+  },
+  "language": {
+    "sectionLabel": "Sprache",
+    "restartTitle": "Neustart erforderlich",
+    "restartMessage": "Für die Änderung der Ausrichtung muss die App neu gestartet werden.",
+    "restartConfirm": "OK"
+  },
+  "time": {
+    "justNow": "gerade eben",
+    "minutesAgo": "vor {{count}} Min.",
+    "hoursAgo": "vor {{count}} Std.",
+    "daysAgo": "vor {{count}} Tagen",
+    "minutesShort": "{{count}} Min.",
+    "hoursMinutesShort": "{{hours}} Std. {{minutes}} Min."
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mär",
+    "apr": "Apr",
+    "may": "Mai",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Okt",
+    "nov": "Nov",
+    "dec": "Dez"
+  },
+  "score": {
+    "unworkable": "Nicht belastbar"
+  },
+  "rank": {
+    "topPercent": "Top {{pct}}%"
+  }
+}

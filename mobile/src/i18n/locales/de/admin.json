@@ -1,0 +1,134 @@
+{
+  "title": "Verwaltung",
+  "roles": {
+    "coordinator": "Koordinator",
+    "admin": "Administrator",
+    "super_admin": "Super-Administrator",
+    "sales": "Vertriebsmitarbeiter",
+    "agent": "Agent",
+    "doctor": "Arzt"
+  },
+  "tabs": {
+    "requests": "Anfragen",
+    "duplicates": "Duplikate",
+    "doctors": "Ärzte",
+    "users": "Benutzer",
+    "settings": "Einstellungen"
+  },
+  "blocked": {
+    "message": "Dieses Panel ist nur für das Koordinationsteam."
+  },
+  "requests": {
+    "tabs": {
+      "all": "Alle",
+      "pending": "Ausstehend",
+      "overdue": "Überfällig",
+      "completed": "Abgeschlossen"
+    },
+    "unassignedBadge": "Kein Arzt zugewiesen",
+    "reassign": "Neu zuweisen",
+    "empty": {
+      "noneTitle": "Noch keine Anfragen",
+      "filteredTitle": "Keine Anfragen in diesem Filter",
+      "description": "Neue Anfragen erscheinen hier."
+    },
+    "alerts": {
+      "reassignedTitle": "Neu zugewiesen",
+      "reassignedMessage": "Die Anfrage wurde den Ärzten neu zugewiesen.",
+      "noDoctorTitle": "Kein geeigneter Arzt",
+      "noDoctorMessage": "Für diese Kategorie wurde kein geeigneter Arzt gefunden.",
+      "failedTitle": "Zuweisung fehlgeschlagen",
+      "closedCannotReassign": "Eine geschlossene Anfrage kann nicht neu zugewiesen werden"
+    }
+  },
+  "duplicates": {
+    "newApplication": "Neue Einreichung",
+    "parentRequest": "Ursprüngliche Anfrage",
+    "phone": "Telefon",
+    "category": "Kategorie",
+    "date": "Datum",
+    "requestIdLabel": "Anfrage",
+    "noPhoto": "Kein Foto",
+    "aiNoVerdict": "Keine visuelle KI-Bewertung (keine Einwilligung oder ausstehend)",
+    "aiSamePerson": "Dieselbe Person: {{pct}}",
+    "noteLabel": "Notiz (optional)",
+    "notePlaceholder": "Grund für die Entscheidung…",
+    "notDuplicateButton": "Kein Duplikat — an Ärzte",
+    "confirmDuplicateButton": "Duplikat — als inaktiv markieren",
+    "alerts": {
+      "decidedTitle": "Entscheidung gespeichert",
+      "confirmedMessage": "Die Anfrage ist ein Duplikat — als inaktiv markiert.",
+      "dismissedMessage": "Die Anfrage wurde an die Ärzte gesendet.",
+      "failedTitle": "Konnte nicht gespeichert werden"
+    },
+    "emptyTitle": "Keine doppelten Anfragen ausstehend",
+    "emptyDescription": "Mögliche Zweiteinreichungen warten hier auf Ihre Prüfung."
+  },
+  "doctorsList": {
+    "newButton": "Neuer Arzt",
+    "inactiveBadge": "Inaktiv",
+    "stats": {
+      "score": "Wertung",
+      "accept": "Angenommen",
+      "reject": "Abgelehnt",
+      "avgResponse": "Ø Antwortzeit"
+    },
+    "emptyTitle": "Noch keine Ärzte",
+    "emptyDescription": "Beginnen Sie, indem Sie einen neuen Arzt hinzufügen."
+  },
+  "users": {
+    "newButton": "Neuer Benutzer",
+    "manageDoctorsHint": "Verwalten Sie Ärzte über den Bildschirm Ärzteverwaltung.",
+    "emptyTitle": "Keine Benutzer",
+    "passwordAction": "Passwort",
+    "activateAction": "Aktivieren",
+    "deactivateAction": "Deaktivieren",
+    "resetPassword": {
+      "title": "Passwort zurücksetzen",
+      "message": "Geben Sie ein neues Passwort für {{name}} ein (mindestens 8 Zeichen).",
+      "cancel": "Abbrechen",
+      "confirm": "Zurücksetzen",
+      "invalidTitle": "Ungültiges Passwort",
+      "invalidMessage": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+      "successTitle": "Zurückgesetzt",
+      "successMessage": "Das Passwort wurde aktualisiert.",
+      "failedTitle": "Konnte nicht zurückgesetzt werden"
+    },
+    "toggleActive": {
+      "activateTitle": "Aktivieren",
+      "deactivateTitle": "Deaktivieren",
+      "message": "{{name}} wird {{action}}. Sind Sie sicher?",
+      "activateWord": "aktiviert",
+      "deactivateWord": "deaktiviert",
+      "cancel": "Abbrechen",
+      "failedTitle": "Vorgang fehlgeschlagen"
+    }
+  },
+  "newUser": {
+    "backLabel": "Benutzer",
+    "title": "Neuer Benutzer",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "benutzer@klinik.com",
+    "passwordLabel": "Temporäres Passwort",
+    "passwordPlaceholder": "Temporäres Passwort",
+    "fullNameLabel": "Vollständiger Name",
+    "fullNamePlaceholder": "Vollständiger Name",
+    "phoneLabel": "Telefon (optional)",
+    "phonePlaceholder": "+90…",
+    "roleTitle": "Rolle",
+    "submit": "Benutzer erstellen",
+    "alerts": {
+      "missingFieldsTitle": "Fehlende Angaben",
+      "missingFieldsMessage": "E-Mail, Passwort, Name und Rolle sind erforderlich.",
+      "createdTitle": "Benutzer hinzugefügt",
+      "createdMessage": "{{name}} wurde erstellt.",
+      "createFailedTitle": "Konnte nicht hinzugefügt werden"
+    }
+  },
+  "scopeEditor": {
+    "noSubcategories": "Keine Unterkategorien"
+  },
+  "settings": {
+    "userLabel": "Benutzer"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "title": "Demande",
+  "decision": {
+    "accept": "Accepter",
+    "reject": "Refuser"
+  },
+  "photos": "Photos",
+  "photosEmpty": "Aucune photo ajoutée",
+  "photoAlt": "Photo",
+  "xrays": "Radiographie dentaire",
+  "xrayAlt": "Radiographie",
+  "notes": "Notes",
+  "backLabel": "Retour",
+  "idSubtitle": "Demande n° {{shortId}} · {{time}}",
+  "decisionHeading": "Votre décision",
+  "planNotSpecified": "Plan de traitement non précisé",
+  "reasonNotSpecified": "Motif non précisé",
+  "responseSaved": "Votre réponse a été enregistrée.",
+  "errors": {
+    "loadFailed": "La demande n'a pas pu être chargée. Vérifiez votre connexion.",
+    "loadFailedShort": "La demande n'a pas pu être chargée.",
+    "respondFailed": "La réponse n'a pas pu être enregistrée : {{message}}"
+  },
+  "actions": {
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "acceptConfirm": "Accepter",
+    "rejectConfirm": "Refuser",
+    "planLabel": "Plan de traitement",
+    "planPlaceholder": "Plan de traitement",
+    "reasonLabel": "Motif du refus",
+    "reasonPlaceholder": "Motif du refus (obligatoire)"
+  },
+  "admin": {
+    "backToList": "Demandes",
+    "backLink": "Retour"
+  },
+  "patientInfo": {
+    "title": "Informations du patient",
+    "notSpecified": "Non précisé",
+    "fields": {
+      "patientName": "Nom du patient",
+      "category": "Catégorie",
+      "operation": "Opération demandée",
+      "age": "Âge",
+      "gender": "Sexe",
+      "height": "Taille (cm)",
+      "weight": "Poids (kg)",
+      "bmi": "IMC",
+      "pastSurgeries": "Chirurgies antérieures",
+      "knownConditions": "Affections connues",
+      "medications": "Médicaments réguliers",
+      "smoking": "Tabac",
+      "alcohol": "Alcool",
+      "notes": "Note"
+    },
+    "gender": {
+      "female": "Femme",
+      "male": "Homme",
+      "other": "Autre"
+    },
+    "smoking": {
+      "never": "N'a jamais fumé",
+      "former": "Ancien fumeur",
+      "current": "Fumeur actuel",
+      "packYears": "{{value}} paquets-années"
+    },
+    "alcohol": {
+      "never": "Jamais",
+      "occasional": "Occasionnel",
+      "regular": "Régulier",
+      "perWeek": "{{value}}/semaine"
+    }
+  }
+}

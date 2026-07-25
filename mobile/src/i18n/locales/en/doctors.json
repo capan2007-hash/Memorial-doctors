@@ -1,0 +1,87 @@
+{
+  "backLabel": "Doctors",
+  "notFound": "Doctor not found.",
+  "backLink": "Go back",
+  "weightedWork": {
+    "levels": { "high": "High", "medium": "Medium", "low": "Low" },
+    "areaPlaceholder": "Area (e.g. Rhinoplasty)",
+    "addButton": "Add area",
+    "notePlaceholder": "Note (optional)"
+  },
+  "scoreHistory": {
+    "timely": "On time",
+    "offTarget": "Off-target"
+  },
+  "photo": {
+    "change": "Change photo",
+    "add": "Add photo",
+    "uploadFailedTitle": "Upload failed",
+    "galleryPermissionRequired": "Gallery permission required",
+    "processingFailed": "Could not process image"
+  },
+  "active": {
+    "title": "Active",
+    "helper": "Inactive doctors will not be assigned new requests."
+  },
+  "profile": {
+    "title": "Profile",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. Op. Dr.",
+    "specialtyLabel": "Specialty",
+    "specialtyPlaceholder": "e.g. Plastic Surgery",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Bio / CV",
+    "defaultName": "Doctor"
+  },
+  "scopes": {
+    "title": "Scopes",
+    "helperEdit": "New requests for these treatments will be sent to this doctor.",
+    "warnMin": "At least one scope must be selected."
+  },
+  "weightedWorkCard": {
+    "title": "Weighted Work"
+  },
+  "scoreHistoryCard": {
+    "title": "Score History"
+  },
+  "save": "Save",
+  "deactivate": "Deactivate doctor",
+  "alerts": {
+    "scopeRequiredTitle": "Scope required",
+    "scopeRequiredMessage": "You must select at least one scope.",
+    "savedTitle": "Saved",
+    "savedMessage": "Doctor information updated.",
+    "saveFailedTitle": "Could not save",
+    "noUserRecordTitle": "Could not delete",
+    "noUserRecordMessage": "This doctor has no linked user record.",
+    "deactivateConfirmTitle": "Deactivate doctor",
+    "deactivateConfirmMessage": "{{name}} will be deactivated. Are you sure?",
+    "cancel": "Cancel",
+    "deactivateConfirm": "Deactivate",
+    "deactivatedTitle": "Deactivated",
+    "deactivatedMessage": "Doctor has been deactivated.",
+    "deactivateFailedTitle": "Could not delete"
+  },
+  "new": {
+    "title": "New Doctor",
+    "account": {
+      "title": "Account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "doctor@clinic.com",
+      "passwordLabel": "Temporary password",
+      "passwordPlaceholder": "Temporary password",
+      "fullNameLabel": "Full name",
+      "fullNamePlaceholder": "Full name"
+    },
+    "submit": "Create doctor",
+    "alerts": {
+      "missingFieldsTitle": "Missing information",
+      "missingFieldsMessage": "Email, password, and name are required.",
+      "scopeRequiredTitle": "Scope required",
+      "scopeRequiredMessage": "You must select at least one scope.",
+      "createdTitle": "Doctor added",
+      "createdMessage": "{{name}} has been created.",
+      "createFailedTitle": "Could not add"
+    }
+  }
+}

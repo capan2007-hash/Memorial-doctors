@@ -1,0 +1,83 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "signOut": "Sign out",
+    "close": "Close"
+  },
+  "appearance": {
+    "sectionLabel": "Appearance"
+  },
+  "theme": {
+    "light": "Light theme",
+    "dark": "Dark theme"
+  },
+  "placeholder": {
+    "comingSoon": "This screen is coming soon."
+  },
+  "doctorTabs": {
+    "blocked": "This app is for doctors only.",
+    "tabs": {
+      "pending": "Pending",
+      "history": "History",
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "settings": "Settings"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "granted": "Granted",
+    "notGranted": "Not granted",
+    "unknown": "—",
+    "requestButton": "Allow notifications"
+  },
+  "status": {
+    "draft": "Draft",
+    "submitted": "Submitted",
+    "assigned": "Assigned",
+    "in_review": "In review",
+    "offers_ready": "Offer ready",
+    "escalated": "Escalated",
+    "closed": "Closed"
+  },
+  "decision": {
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "language": {
+    "sectionLabel": "Language",
+    "restartTitle": "Restart required",
+    "restartMessage": "The app needs to be reopened for the direction change to take effect.",
+    "restartConfirm": "OK"
+  },
+  "time": {
+    "justNow": "just now",
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}} hr ago",
+    "daysAgo": "{{count}} days ago",
+    "minutesShort": "{{count}} min",
+    "hoursMinutesShort": "{{hours}} hr {{minutes}} min"
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
+  },
+  "score": {
+    "unworkable": "Unworkable"
+  },
+  "rank": {
+    "topPercent": "top {{pct}}%"
+  }
+}

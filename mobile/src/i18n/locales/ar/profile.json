@@ -1,0 +1,55 @@
+{
+  "title": "الملف الشخصي",
+  "doctorLabel": "طبيب",
+  "notFound": "تعذّر العثور على سجل الطبيب الخاص بك.",
+  "photoLabel": "صورة الملف الشخصي",
+  "fields": {
+    "fullName": "الاسم الكامل",
+    "title": "اللقب الوظيفي",
+    "titlePlaceholder": "مثال: طبيب عمليات",
+    "specialty": "التخصص",
+    "specialtyPlaceholder": "مثال: جراحة تجميلية",
+    "bio": "السيرة الذاتية",
+    "bioPlaceholder": "السيرة الذاتية / CV"
+  },
+  "edit": "تعديل الملف الشخصي",
+  "alerts": {
+    "savedTitle": "تم الحفظ",
+    "profileSaved": "تم تحديث ملفك الشخصي.",
+    "saveFailedTitle": "تعذّر الحفظ"
+  },
+  "scopes": {
+    "title": "الكفاءات",
+    "helper": "ستُرسل إليك الطلبات الجديدة لهذه العلاجات.",
+    "noSubcategories": "لا توجد فئة فرعية",
+    "warnMin": "يجب اختيار كفاءة واحدة على الأقل.",
+    "submit": "تأكيد وحفظ",
+    "alerts": {
+      "requiredTitle": "كفاءة مطلوبة",
+      "requiredMessage": "يجب اختيار كفاءة واحدة على الأقل.",
+      "saved": "تم تحديث كفاءاتك."
+    }
+  },
+  "dashboard": {
+    "performance": {
+      "title": "أدائي",
+      "empty": "لا توجد بيانات أداء بعد.",
+      "score": "النقاط",
+      "incoming": "الوارد",
+      "answered": "تمت الإجابة",
+      "avgResponse": "متوسط الرد",
+      "timely": "في الوقت المحدد",
+      "breach": "خارج الهدف"
+    },
+    "ranks": {
+      "title": "ترتيبي",
+      "subtitle": "ترتيبك بين الأطباء النشطين في عيادتك.",
+      "empty": "لا توجد بيانات ترتيب.",
+      "scoreRank": "ترتيب النقاط",
+      "responseRank": "ترتيب سرعة الاستجابة",
+      "noRankScore": "لا يوجد ترتيب",
+      "noRankResponse": "لا يوجد رد بعد",
+      "insufficientCompare": "لا يوجد عدد كافٍ من الأطباء للمقارنة"
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "title": "Administration",
+  "roles": {
+    "coordinator": "Coordinateur",
+    "admin": "Administrateur",
+    "super_admin": "Super administrateur",
+    "sales": "Commercial",
+    "agent": "Agent",
+    "doctor": "Médecin"
+  },
+  "tabs": {
+    "requests": "Demandes",
+    "duplicates": "Doublons",
+    "doctors": "Médecins",
+    "users": "Utilisateurs",
+    "settings": "Paramètres"
+  },
+  "blocked": {
+    "message": "Ce panneau est réservé à l'équipe de coordination."
+  },
+  "requests": {
+    "tabs": {
+      "all": "Toutes",
+      "pending": "En attente",
+      "overdue": "En retard",
+      "completed": "Terminées"
+    },
+    "unassignedBadge": "Aucun médecin assigné",
+    "reassign": "Réassigner",
+    "empty": {
+      "noneTitle": "Aucune demande pour le moment",
+      "filteredTitle": "Aucune demande dans ce filtre",
+      "description": "Les nouvelles demandes apparaîtront ici."
+    },
+    "alerts": {
+      "reassignedTitle": "Réassignée",
+      "reassignedMessage": "La demande a été réassignée aux médecins.",
+      "noDoctorTitle": "Aucun médecin éligible",
+      "noDoctorMessage": "Aucun médecin éligible n'a été trouvé pour cette catégorie.",
+      "failedTitle": "Impossible d'assigner",
+      "closedCannotReassign": "Une demande clôturée ne peut pas être réassignée"
+    }
+  },
+  "duplicates": {
+    "newApplication": "Nouvelle soumission",
+    "parentRequest": "Demande d'origine",
+    "phone": "Téléphone",
+    "category": "Catégorie",
+    "date": "Date",
+    "requestIdLabel": "Demande",
+    "noPhoto": "Aucune photo",
+    "aiNoVerdict": "Aucune évaluation visuelle par IA (pas de consentement, ou en attente)",
+    "aiSamePerson": "Même personne : {{pct}}",
+    "noteLabel": "Note (facultatif)",
+    "notePlaceholder": "Motif de la décision…",
+    "notDuplicateButton": "Pas un doublon — envoyer aux médecins",
+    "confirmDuplicateButton": "Doublon — marquer comme inactif",
+    "alerts": {
+      "decidedTitle": "Décision enregistrée",
+      "confirmedMessage": "Demande en double — marquée comme inactive.",
+      "dismissedMessage": "La demande a été envoyée aux médecins.",
+      "failedTitle": "Impossible d'enregistrer"
+    },
+    "emptyTitle": "Aucune demande en double en attente",
+    "emptyDescription": "Les éventuelles doubles soumissions apparaîtront ici pour examen."
+  },
+  "doctorsList": {
+    "newButton": "Nouveau médecin",
+    "inactiveBadge": "Inactif",
+    "stats": {
+      "score": "score",
+      "accept": "Acceptées",
+      "reject": "Refusées",
+      "avgResponse": "Réponse moy."
+    },
+    "emptyTitle": "Aucun médecin pour le moment",
+    "emptyDescription": "Commencez par ajouter un nouveau médecin."
+  },
+  "users": {
+    "newButton": "Nouvel utilisateur",
+    "manageDoctorsHint": "Gérez les médecins depuis l'écran Gestion des médecins.",
+    "emptyTitle": "Aucun utilisateur",
+    "passwordAction": "Mot de passe",
+    "activateAction": "Activer",
+    "deactivateAction": "Désactiver",
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "message": "Saisissez un nouveau mot de passe pour {{name}} (au moins 8 caractères).",
+      "cancel": "Annuler",
+      "confirm": "Réinitialiser",
+      "invalidTitle": "Mot de passe invalide",
+      "invalidMessage": "Le mot de passe doit contenir au moins 8 caractères.",
+      "successTitle": "Réinitialisé",
+      "successMessage": "Le mot de passe a été mis à jour.",
+      "failedTitle": "Impossible de réinitialiser"
+    },
+    "toggleActive": {
+      "activateTitle": "Activer",
+      "deactivateTitle": "Désactiver",
+      "message": "{{name}} sera {{action}}. Confirmez-vous ?",
+      "activateWord": "activé",
+      "deactivateWord": "désactivé",
+      "cancel": "Annuler",
+      "failedTitle": "Échec de l'action"
+    }
+  },
+  "newUser": {
+    "backLabel": "Utilisateurs",
+    "title": "Nouvel utilisateur",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "utilisateur@clinique.com",
+    "passwordLabel": "Mot de passe temporaire",
+    "passwordPlaceholder": "Mot de passe temporaire",
+    "fullNameLabel": "Nom complet",
+    "fullNamePlaceholder": "Nom complet",
+    "phoneLabel": "Téléphone (facultatif)",
+    "phonePlaceholder": "+90…",
+    "roleTitle": "Rôle",
+    "submit": "Créer l'utilisateur",
+    "alerts": {
+      "missingFieldsTitle": "Informations manquantes",
+      "missingFieldsMessage": "L'e-mail, le mot de passe, le nom et le rôle sont obligatoires.",
+      "createdTitle": "Utilisateur ajouté",
+      "createdMessage": "{{name}} a été créé.",
+      "createFailedTitle": "Impossible d'ajouter"
+    }
+  },
+  "scopeEditor": {
+    "noSubcategories": "Aucune sous-catégorie"
+  },
+  "settings": {
+    "userLabel": "Utilisateur"
+  }
+}

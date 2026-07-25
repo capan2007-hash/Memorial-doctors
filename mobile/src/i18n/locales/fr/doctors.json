@@ -1,0 +1,87 @@
+{
+  "backLabel": "Médecins",
+  "notFound": "Médecin introuvable.",
+  "backLink": "Retour",
+  "weightedWork": {
+    "levels": { "high": "Élevé", "medium": "Moyen", "low": "Faible" },
+    "areaPlaceholder": "Domaine (ex. rhinoplastie)",
+    "addButton": "Ajouter un domaine",
+    "notePlaceholder": "Note (facultatif)"
+  },
+  "scoreHistory": {
+    "timely": "À temps",
+    "offTarget": "Hors délai"
+  },
+  "photo": {
+    "change": "Changer la photo",
+    "add": "Ajouter une photo",
+    "uploadFailedTitle": "Échec du téléchargement",
+    "galleryPermissionRequired": "Autorisation d'accès à la galerie requise",
+    "processingFailed": "L'image n'a pas pu être traitée"
+  },
+  "active": {
+    "title": "Actif",
+    "helper": "Aucune nouvelle demande n'est assignée à un médecin inactif."
+  },
+  "profile": {
+    "title": "Profil",
+    "titleLabel": "Titre",
+    "titlePlaceholder": "ex. Op. Dr.",
+    "specialtyLabel": "Spécialité",
+    "specialtyPlaceholder": "ex. Chirurgie plastique",
+    "bioLabel": "Biographie",
+    "bioPlaceholder": "Biographie / CV",
+    "defaultName": "Médecin"
+  },
+  "scopes": {
+    "title": "Compétences",
+    "helperEdit": "Les nouvelles demandes pour ces traitements seront envoyées à ce médecin.",
+    "warnMin": "Au moins une compétence doit être sélectionnée."
+  },
+  "weightedWorkCard": {
+    "title": "Travail pondéré"
+  },
+  "scoreHistoryCard": {
+    "title": "Historique du score"
+  },
+  "save": "Enregistrer",
+  "deactivate": "Désactiver le médecin",
+  "alerts": {
+    "scopeRequiredTitle": "Compétence requise",
+    "scopeRequiredMessage": "Vous devez sélectionner au moins une compétence.",
+    "savedTitle": "Enregistré",
+    "savedMessage": "Les informations du médecin ont été mises à jour.",
+    "saveFailedTitle": "Impossible d'enregistrer",
+    "noUserRecordTitle": "Suppression impossible",
+    "noUserRecordMessage": "Ce médecin n'a aucun compte utilisateur associé.",
+    "deactivateConfirmTitle": "Désactiver le médecin",
+    "deactivateConfirmMessage": "{{name}} sera désactivé. Confirmez-vous ?",
+    "cancel": "Annuler",
+    "deactivateConfirm": "Désactiver",
+    "deactivatedTitle": "Désactivé",
+    "deactivatedMessage": "Le médecin a été désactivé.",
+    "deactivateFailedTitle": "Suppression impossible"
+  },
+  "new": {
+    "title": "Nouveau médecin",
+    "account": {
+      "title": "Compte",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "medecin@clinique.com",
+      "passwordLabel": "Mot de passe temporaire",
+      "passwordPlaceholder": "Mot de passe temporaire",
+      "fullNameLabel": "Nom complet",
+      "fullNamePlaceholder": "Nom complet"
+    },
+    "submit": "Créer le médecin",
+    "alerts": {
+      "missingFieldsTitle": "Informations manquantes",
+      "missingFieldsMessage": "L'e-mail, le mot de passe et le nom sont obligatoires.",
+      "scopeRequiredTitle": "Compétence requise",
+      "scopeRequiredMessage": "Vous devez sélectionner au moins une compétence.",
+      "createdTitle": "Médecin ajouté",
+      "createdMessage": "{{name}} a été créé.",
+      "createFailedTitle": "Impossible d'ajouter"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "backLabel": "الأطباء",
+  "notFound": "لم يُعثر على الطبيب.",
+  "backLink": "العودة",
+  "weightedWork": {
+    "levels": { "high": "مرتفع", "medium": "متوسط", "low": "منخفض" },
+    "areaPlaceholder": "المجال (مثال: تجميل الأنف)",
+    "addButton": "إضافة مجال",
+    "notePlaceholder": "ملاحظة (اختياري)"
+  },
+  "scoreHistory": {
+    "timely": "في الوقت المحدد",
+    "offTarget": "خارج الهدف"
+  },
+  "photo": {
+    "change": "تغيير الصورة",
+    "add": "إضافة صورة",
+    "uploadFailedTitle": "تعذّر الرفع",
+    "galleryPermissionRequired": "إذن الوصول إلى المعرض مطلوب",
+    "processingFailed": "تعذّرت معالجة الصورة"
+  },
+  "active": {
+    "title": "نشط",
+    "helper": "لن تُسند طلبات جديدة إلى طبيب غير نشط."
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "titleLabel": "اللقب",
+    "titlePlaceholder": "مثال: د.",
+    "specialtyLabel": "التخصص",
+    "specialtyPlaceholder": "مثال: جراحة تجميلية",
+    "bioLabel": "السيرة الذاتية",
+    "bioPlaceholder": "السيرة الذاتية / CV",
+    "defaultName": "طبيب"
+  },
+  "scopes": {
+    "title": "الصلاحيات",
+    "helperEdit": "ستُرسل الطلبات الجديدة لهذه العلاجات إلى هذا الطبيب.",
+    "warnMin": "يجب اختيار صلاحية واحدة على الأقل."
+  },
+  "weightedWorkCard": {
+    "title": "الأعمال الموزونة"
+  },
+  "scoreHistoryCard": {
+    "title": "سجل النقاط"
+  },
+  "save": "حفظ",
+  "deactivate": "تعطيل الطبيب",
+  "alerts": {
+    "scopeRequiredTitle": "صلاحية مطلوبة",
+    "scopeRequiredMessage": "يجب اختيار صلاحية واحدة على الأقل.",
+    "savedTitle": "تم الحفظ",
+    "savedMessage": "تم تحديث بيانات الطبيب.",
+    "saveFailedTitle": "تعذّر الحفظ",
+    "noUserRecordTitle": "تعذّر الحذف",
+    "noUserRecordMessage": "لا يوجد حساب مرتبط بهذا الطبيب.",
+    "deactivateConfirmTitle": "تعطيل الطبيب",
+    "deactivateConfirmMessage": "سيتم تعطيل {{name}}. هل أنت متأكد؟",
+    "cancel": "إلغاء",
+    "deactivateConfirm": "تعطيل",
+    "deactivatedTitle": "تم التعطيل",
+    "deactivatedMessage": "تم تعطيل الطبيب.",
+    "deactivateFailedTitle": "تعذّر الحذف"
+  },
+  "new": {
+    "title": "طبيب جديد",
+    "account": {
+      "title": "الحساب",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "doctor@clinic.com",
+      "passwordLabel": "كلمة مرور مؤقتة",
+      "passwordPlaceholder": "كلمة مرور مؤقتة",
+      "fullNameLabel": "الاسم الكامل",
+      "fullNamePlaceholder": "الاسم الكامل"
+    },
+    "submit": "إنشاء الطبيب",
+    "alerts": {
+      "missingFieldsTitle": "معلومات ناقصة",
+      "missingFieldsMessage": "البريد الإلكتروني وكلمة المرور والاسم إلزامية.",
+      "scopeRequiredTitle": "صلاحية مطلوبة",
+      "scopeRequiredMessage": "يجب اختيار صلاحية واحدة على الأقل.",
+      "createdTitle": "تمت إضافة الطبيب",
+      "createdMessage": "تم إنشاء {{name}}.",
+      "createFailedTitle": "تعذّرت الإضافة"
+    }
+  }
+}

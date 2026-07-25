@@ -1,0 +1,83 @@
+{
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "signOut": "Déconnexion",
+    "close": "Fermer"
+  },
+  "appearance": {
+    "sectionLabel": "Apparence"
+  },
+  "theme": {
+    "light": "Thème clair",
+    "dark": "Thème sombre"
+  },
+  "placeholder": {
+    "comingSoon": "Cet écran sera bientôt disponible."
+  },
+  "doctorTabs": {
+    "blocked": "Cette application est réservée aux médecins.",
+    "tabs": {
+      "pending": "En attente",
+      "history": "Historique",
+      "dashboard": "Tableau de bord",
+      "profile": "Profil",
+      "settings": "Paramètres"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "granted": "Autorisées",
+    "notGranted": "Non autorisées",
+    "unknown": "—",
+    "requestButton": "Autoriser les notifications"
+  },
+  "status": {
+    "draft": "Brouillon",
+    "submitted": "Soumise",
+    "assigned": "Assignée",
+    "in_review": "En cours d'examen",
+    "offers_ready": "Offre prête",
+    "escalated": "Escaladée",
+    "closed": "Clôturée"
+  },
+  "decision": {
+    "accept": "Accepter",
+    "reject": "Refuser"
+  },
+  "language": {
+    "sectionLabel": "Langue",
+    "restartTitle": "Redémarrage requis",
+    "restartMessage": "L'application doit être redémarrée pour appliquer le changement de sens d'écriture.",
+    "restartConfirm": "OK"
+  },
+  "time": {
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {{count}} min",
+    "hoursAgo": "il y a {{count}} h",
+    "daysAgo": "il y a {{count}} j",
+    "minutesShort": "{{count}} min",
+    "hoursMinutesShort": "{{hours}} h {{minutes}} min"
+  },
+  "months": {
+    "jan": "janv.",
+    "feb": "févr.",
+    "mar": "mars",
+    "apr": "avr.",
+    "may": "mai",
+    "jun": "juin",
+    "jul": "juil.",
+    "aug": "août",
+    "sep": "sept.",
+    "oct": "oct.",
+    "nov": "nov.",
+    "dec": "déc."
+  },
+  "score": {
+    "unworkable": "Non exploitable"
+  },
+  "rank": {
+    "topPercent": "top {{pct}} %"
+  }
+}

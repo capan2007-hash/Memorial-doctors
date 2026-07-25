@@ -1,0 +1,83 @@
+{
+  "actions": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "signOut": "تسجيل الخروج",
+    "close": "إغلاق"
+  },
+  "appearance": {
+    "sectionLabel": "المظهر"
+  },
+  "theme": {
+    "light": "فاتح",
+    "dark": "داكن"
+  },
+  "placeholder": {
+    "comingSoon": "ستتم إضافة هذه الشاشة قريبًا."
+  },
+  "doctorTabs": {
+    "blocked": "هذا التطبيق مخصص للأطباء.",
+    "tabs": {
+      "pending": "قيد الانتظار",
+      "history": "السجل",
+      "dashboard": "اللوحة",
+      "profile": "الملف الشخصي",
+      "settings": "الإعدادات"
+    }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "granted": "تم منح الإذن",
+    "notGranted": "لم يُمنح الإذن",
+    "unknown": "—",
+    "requestButton": "السماح بالإشعارات"
+  },
+  "status": {
+    "draft": "مسودة",
+    "submitted": "تم الإرسال",
+    "assigned": "معيّن",
+    "in_review": "قيد المراجعة",
+    "offers_ready": "العرض جاهز",
+    "escalated": "تصعيد",
+    "closed": "مغلق"
+  },
+  "decision": {
+    "accept": "قبول",
+    "reject": "رفض"
+  },
+  "language": {
+    "sectionLabel": "اللغة",
+    "restartTitle": "إعادة التشغيل مطلوبة",
+    "restartMessage": "يجب إعادة فتح التطبيق لتطبيق تغيير الاتجاه.",
+    "restartConfirm": "حسنًا"
+  },
+  "time": {
+    "justNow": "الآن",
+    "minutesAgo": "قبل {{count}} دقيقة",
+    "hoursAgo": "قبل {{count}} ساعة",
+    "daysAgo": "قبل {{count}} أيام",
+    "minutesShort": "{{count}} د",
+    "hoursMinutesShort": "{{hours}} س {{minutes}} د"
+  },
+  "months": {
+    "jan": "ينا",
+    "feb": "فبر",
+    "mar": "مار",
+    "apr": "أبر",
+    "may": "ماي",
+    "jun": "يون",
+    "jul": "يول",
+    "aug": "أغس",
+    "sep": "سبت",
+    "oct": "أكت",
+    "nov": "نوف",
+    "dec": "ديس"
+  },
+  "score": {
+    "unworkable": "غير قابل للعمل"
+  },
+  "rank": {
+    "topPercent": "ضمن أعلى {{pct}}%"
+  }
+}

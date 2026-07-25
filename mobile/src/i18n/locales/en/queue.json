@@ -1,0 +1,15 @@
+{
+  "pending": {
+    "title": "Pending Requests",
+    "empty": "No pending requests"
+  },
+  "history": {
+    "title": "History",
+    "empty": "You haven't responded to any requests"
+  },
+  "filters": {
+    "all": "All",
+    "pending": "Pending"
+  },
+  "refresh": "Refresh"
+}

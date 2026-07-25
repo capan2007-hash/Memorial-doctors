@@ -1,0 +1,87 @@
+{
+  "backLabel": "Врачи",
+  "notFound": "Врач не найден.",
+  "backLink": "Назад",
+  "weightedWork": {
+    "levels": { "high": "Высокий", "medium": "Средний", "low": "Низкий" },
+    "areaPlaceholder": "Область (напр. ринопластика)",
+    "addButton": "Добавить область",
+    "notePlaceholder": "Примечание (необязательно)"
+  },
+  "scoreHistory": {
+    "timely": "Вовремя",
+    "offTarget": "С опозданием"
+  },
+  "photo": {
+    "change": "Изменить фото",
+    "add": "Добавить фото",
+    "uploadFailedTitle": "Не удалось загрузить",
+    "galleryPermissionRequired": "Требуется доступ к галерее",
+    "processingFailed": "Не удалось обработать изображение"
+  },
+  "active": {
+    "title": "Активен",
+    "helper": "Неактивному врачу новые заявки не назначаются."
+  },
+  "profile": {
+    "title": "Профиль",
+    "titleLabel": "Звание",
+    "titlePlaceholder": "напр. Оп. Др.",
+    "specialtyLabel": "Специализация",
+    "specialtyPlaceholder": "напр. Пластическая хирургия",
+    "bioLabel": "Биография",
+    "bioPlaceholder": "Биография / резюме",
+    "defaultName": "Врач"
+  },
+  "scopes": {
+    "title": "Компетенции",
+    "helperEdit": "Новые заявки на эти процедуры будут направляться этому врачу.",
+    "warnMin": "Необходимо выбрать хотя бы одну компетенцию."
+  },
+  "weightedWorkCard": {
+    "title": "Взвешенная нагрузка"
+  },
+  "scoreHistoryCard": {
+    "title": "История рейтинга"
+  },
+  "save": "Сохранить",
+  "deactivate": "Деактивировать врача",
+  "alerts": {
+    "scopeRequiredTitle": "Требуется компетенция",
+    "scopeRequiredMessage": "Вы должны выбрать хотя бы одну компетенцию.",
+    "savedTitle": "Сохранено",
+    "savedMessage": "Информация о враче обновлена.",
+    "saveFailedTitle": "Не удалось сохранить",
+    "noUserRecordTitle": "Не удалось удалить",
+    "noUserRecordMessage": "У этого врача нет учётной записи пользователя.",
+    "deactivateConfirmTitle": "Деактивировать врача",
+    "deactivateConfirmMessage": "{{name}} будет деактивирован(а). Вы уверены?",
+    "cancel": "Отмена",
+    "deactivateConfirm": "Деактивировать",
+    "deactivatedTitle": "Деактивирован",
+    "deactivatedMessage": "Врач деактивирован.",
+    "deactivateFailedTitle": "Не удалось удалить"
+  },
+  "new": {
+    "title": "Новый врач",
+    "account": {
+      "title": "Аккаунт",
+      "emailLabel": "Email",
+      "emailPlaceholder": "doctor@clinic.com",
+      "passwordLabel": "Временный пароль",
+      "passwordPlaceholder": "Временный пароль",
+      "fullNameLabel": "Полное имя",
+      "fullNamePlaceholder": "Полное имя"
+    },
+    "submit": "Создать врача",
+    "alerts": {
+      "missingFieldsTitle": "Недостающая информация",
+      "missingFieldsMessage": "Email, пароль и имя обязательны.",
+      "scopeRequiredTitle": "Требуется компетенция",
+      "scopeRequiredMessage": "Вы должны выбрать хотя бы одну компетенцию.",
+      "createdTitle": "Врач добавлен",
+      "createdMessage": "{{name}} создан(а).",
+      "createFailedTitle": "Не удалось добавить"
+    }
+  }
+}

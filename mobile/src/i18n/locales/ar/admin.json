@@ -1,0 +1,134 @@
+{
+  "title": "الإدارة",
+  "roles": {
+    "coordinator": "منسّق",
+    "admin": "مدير",
+    "super_admin": "مدير عام",
+    "sales": "مندوب مبيعات",
+    "agent": "وكيل",
+    "doctor": "طبيب"
+  },
+  "tabs": {
+    "requests": "الطلبات",
+    "duplicates": "مكرر",
+    "doctors": "الأطباء",
+    "users": "المستخدمون",
+    "settings": "الإعدادات"
+  },
+  "blocked": {
+    "message": "هذه اللوحة مخصصة لفريق المنسقين."
+  },
+  "requests": {
+    "tabs": {
+      "all": "الكل",
+      "pending": "قيد الانتظار",
+      "overdue": "متأخر",
+      "completed": "مكتمل"
+    },
+    "unassignedBadge": "لم يُعيَّن طبيب",
+    "reassign": "إعادة تعيين",
+    "empty": {
+      "noneTitle": "لا توجد طلبات بعد",
+      "filteredTitle": "لا توجد طلبات في هذا الفلتر",
+      "description": "تظهر الطلبات الجديدة هنا."
+    },
+    "alerts": {
+      "reassignedTitle": "أُعيد التعيين",
+      "reassignedMessage": "تمت إعادة تعيين الطلب إلى الأطباء.",
+      "noDoctorTitle": "لا يوجد طبيب مناسب",
+      "noDoctorMessage": "لا يوجد طبيب مناسب لهذه الفئة.",
+      "failedTitle": "تعذّر التعيين",
+      "closedCannotReassign": "لا يمكن إعادة تعيين طلب مغلق"
+    }
+  },
+  "duplicates": {
+    "newApplication": "الطلب الجديد",
+    "parentRequest": "الطلب الأصلي",
+    "phone": "الهاتف",
+    "category": "الفئة",
+    "date": "التاريخ",
+    "requestIdLabel": "الطلب",
+    "noPhoto": "لا توجد صور",
+    "aiNoVerdict": "لا يوجد تقييم بصري بالذكاء الاصطناعي (لا توجد موافقة أو قيد الانتظار)",
+    "aiSamePerson": "نفس الشخص: {{pct}}",
+    "noteLabel": "ملاحظة (اختياري)",
+    "notePlaceholder": "سبب القرار…",
+    "notDuplicateButton": "ليس مكررًا — إلى الأطباء",
+    "confirmDuplicateButton": "مكرر — تعطيل",
+    "alerts": {
+      "decidedTitle": "تم حفظ القرار",
+      "confirmedMessage": "الطلب مكرر — تم تعطيله.",
+      "dismissedMessage": "تم إرسال الطلب إلى الأطباء.",
+      "failedTitle": "تعذّر الحفظ"
+    },
+    "emptyTitle": "لا توجد طلبات مكررة معلّقة",
+    "emptyDescription": "تنتظر مراجعتك هنا الطلبات الثانية المحتملة."
+  },
+  "doctorsList": {
+    "newButton": "طبيب جديد",
+    "inactiveBadge": "غير نشط",
+    "stats": {
+      "score": "النقاط",
+      "accept": "مقبول",
+      "reject": "مرفوض",
+      "avgResponse": "متوسط الاستجابة"
+    },
+    "emptyTitle": "لا يوجد أطباء بعد",
+    "emptyDescription": "ابدأ بإضافة طبيب جديد."
+  },
+  "users": {
+    "newButton": "مستخدم جديد",
+    "manageDoctorsHint": "لإدارة الأطباء، استخدم شاشة إدارة الأطباء.",
+    "emptyTitle": "لا يوجد مستخدمون",
+    "passwordAction": "كلمة المرور",
+    "activateAction": "تفعيل",
+    "deactivateAction": "تعطيل",
+    "resetPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "message": "أدخل كلمة مرور جديدة لـ {{name}} (8 أحرف على الأقل).",
+      "cancel": "إلغاء",
+      "confirm": "إعادة تعيين",
+      "invalidTitle": "كلمة مرور غير صالحة",
+      "invalidMessage": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+      "successTitle": "تمت إعادة التعيين",
+      "successMessage": "تم تحديث كلمة المرور.",
+      "failedTitle": "تعذّرت إعادة التعيين"
+    },
+    "toggleActive": {
+      "activateTitle": "تفعيل",
+      "deactivateTitle": "تعطيل",
+      "message": "{{name}} {{action}}. هل أنت متأكد؟",
+      "activateWord": "سيتم تفعيله",
+      "deactivateWord": "سيتم تعطيله",
+      "cancel": "إلغاء",
+      "failedTitle": "فشل الإجراء"
+    }
+  },
+  "newUser": {
+    "backLabel": "المستخدمون",
+    "title": "مستخدم جديد",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "user@clinic.com",
+    "passwordLabel": "كلمة مرور مؤقتة",
+    "passwordPlaceholder": "كلمة مرور مؤقتة",
+    "fullNameLabel": "الاسم الكامل",
+    "fullNamePlaceholder": "الاسم الكامل",
+    "phoneLabel": "الهاتف (اختياري)",
+    "phonePlaceholder": "+90…",
+    "roleTitle": "الدور",
+    "submit": "إنشاء مستخدم",
+    "alerts": {
+      "missingFieldsTitle": "معلومات ناقصة",
+      "missingFieldsMessage": "البريد الإلكتروني وكلمة المرور والاسم والدور إلزامية.",
+      "createdTitle": "تمت إضافة المستخدم",
+      "createdMessage": "تم إنشاء {{name}}.",
+      "createFailedTitle": "تعذّرت الإضافة"
+    }
+  },
+  "scopeEditor": {
+    "noSubcategories": "لا توجد فئات فرعية"
+  },
+  "settings": {
+    "userLabel": "المستخدم"
+  }
+}

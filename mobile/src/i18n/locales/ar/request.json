@@ -1,0 +1,75 @@
+{
+  "title": "الطلب",
+  "decision": {
+    "accept": "قبول",
+    "reject": "رفض"
+  },
+  "photos": "الصور",
+  "photosEmpty": "لم تتم إضافة صور",
+  "photoAlt": "صورة",
+  "xrays": "أشعة الأسنان",
+  "xrayAlt": "أشعة",
+  "notes": "الملاحظات",
+  "backLabel": "رجوع",
+  "idSubtitle": "الطلب #{{shortId}} · {{time}}",
+  "decisionHeading": "قرارك",
+  "planNotSpecified": "لم تُحدد خطة العلاج",
+  "reasonNotSpecified": "لم يُحدد السبب",
+  "responseSaved": "تم حفظ ردك.",
+  "errors": {
+    "loadFailed": "تعذّر تحميل الطلب. تحقق من اتصالك.",
+    "loadFailedShort": "تعذّر تحميل الطلب.",
+    "respondFailed": "تعذّر حفظ الرد: {{message}}"
+  },
+  "actions": {
+    "accept": "قبول",
+    "reject": "رفض",
+    "acceptConfirm": "قبول",
+    "rejectConfirm": "رفض",
+    "planLabel": "خطة العلاج",
+    "planPlaceholder": "خطة العلاج",
+    "reasonLabel": "سبب الرفض",
+    "reasonPlaceholder": "سبب الرفض (إلزامي)"
+  },
+  "admin": {
+    "backToList": "الطلبات",
+    "backLink": "العودة"
+  },
+  "patientInfo": {
+    "title": "بيانات المريض",
+    "notSpecified": "غير محدد",
+    "fields": {
+      "patientName": "اسم المريض",
+      "category": "الفئة",
+      "operation": "العملية المطلوبة",
+      "age": "العمر",
+      "gender": "الجنس",
+      "height": "الطول (سم)",
+      "weight": "الوزن (كغ)",
+      "bmi": "مؤشر كتلة الجسم",
+      "pastSurgeries": "العمليات الجراحية السابقة",
+      "knownConditions": "الحالات الطبية المعروفة",
+      "medications": "الأدوية المنتظمة",
+      "smoking": "التدخين",
+      "alcohol": "الكحول",
+      "notes": "ملاحظة"
+    },
+    "gender": {
+      "female": "أنثى",
+      "male": "ذكر",
+      "other": "آخر"
+    },
+    "smoking": {
+      "never": "لم يدخن قط",
+      "former": "توقف عن التدخين",
+      "current": "مدخن حالي",
+      "packYears": "{{value}} علبة-سنة"
+    },
+    "alcohol": {
+      "never": "لا يوجد",
+      "occasional": "اجتماعي (أحيانًا)",
+      "regular": "منتظم",
+      "perWeek": "{{value}}/أسبوعيًا"
+    }
+  }
+}

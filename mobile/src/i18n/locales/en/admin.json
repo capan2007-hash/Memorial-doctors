@@ -1,0 +1,134 @@
+{
+  "title": "Admin",
+  "roles": {
+    "coordinator": "Coordinator",
+    "admin": "Admin",
+    "super_admin": "Super Admin",
+    "sales": "Sales rep",
+    "agent": "Agent",
+    "doctor": "Doctor"
+  },
+  "tabs": {
+    "requests": "Requests",
+    "duplicates": "Duplicates",
+    "doctors": "Doctors",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "blocked": {
+    "message": "This panel is for the coordinator team only."
+  },
+  "requests": {
+    "tabs": {
+      "all": "All",
+      "pending": "Pending",
+      "overdue": "Overdue",
+      "completed": "Completed"
+    },
+    "unassignedBadge": "No doctor assigned",
+    "reassign": "Reassign",
+    "empty": {
+      "noneTitle": "No requests yet",
+      "filteredTitle": "No requests in this filter",
+      "description": "New requests will appear here."
+    },
+    "alerts": {
+      "reassignedTitle": "Reassigned",
+      "reassignedMessage": "The request has been reassigned to doctors.",
+      "noDoctorTitle": "No eligible doctor",
+      "noDoctorMessage": "No eligible doctor was found for this category.",
+      "failedTitle": "Could not assign",
+      "closedCannotReassign": "A closed request cannot be reassigned"
+    }
+  },
+  "duplicates": {
+    "newApplication": "New submission",
+    "parentRequest": "Original request",
+    "phone": "Phone",
+    "category": "Category",
+    "date": "Date",
+    "requestIdLabel": "Request",
+    "noPhoto": "No photos",
+    "aiNoVerdict": "No AI visual assessment (no consent, or pending)",
+    "aiSamePerson": "Same person: {{pct}}",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "Reason for decision…",
+    "notDuplicateButton": "Not a duplicate — send to doctors",
+    "confirmDuplicateButton": "Duplicate — mark inactive",
+    "alerts": {
+      "decidedTitle": "Decision saved",
+      "confirmedMessage": "The request is a duplicate — marked inactive.",
+      "dismissedMessage": "The request has been sent to doctors.",
+      "failedTitle": "Could not save"
+    },
+    "emptyTitle": "No duplicate requests pending",
+    "emptyDescription": "Possible second submissions will appear here for review."
+  },
+  "doctorsList": {
+    "newButton": "New Doctor",
+    "inactiveBadge": "Inactive",
+    "stats": {
+      "score": "score",
+      "accept": "Accepted",
+      "reject": "Rejected",
+      "avgResponse": "Avg. response"
+    },
+    "emptyTitle": "No doctors yet",
+    "emptyDescription": "Get started by adding a new doctor."
+  },
+  "users": {
+    "newButton": "New User",
+    "manageDoctorsHint": "Manage doctors from the Doctor Management screen.",
+    "emptyTitle": "No users",
+    "passwordAction": "Password",
+    "activateAction": "Activate",
+    "deactivateAction": "Deactivate",
+    "resetPassword": {
+      "title": "Reset password",
+      "message": "Enter a new password for {{name}} (at least 8 characters).",
+      "cancel": "Cancel",
+      "confirm": "Reset",
+      "invalidTitle": "Invalid password",
+      "invalidMessage": "Password must be at least 8 characters.",
+      "successTitle": "Reset",
+      "successMessage": "Password updated.",
+      "failedTitle": "Could not reset"
+    },
+    "toggleActive": {
+      "activateTitle": "Activate",
+      "deactivateTitle": "Deactivate",
+      "message": "{{name}} will be {{action}}. Are you sure?",
+      "activateWord": "activated",
+      "deactivateWord": "deactivated",
+      "cancel": "Cancel",
+      "failedTitle": "Action failed"
+    }
+  },
+  "newUser": {
+    "backLabel": "Users",
+    "title": "New User",
+    "emailLabel": "Email",
+    "emailPlaceholder": "user@clinic.com",
+    "passwordLabel": "Temporary password",
+    "passwordPlaceholder": "Temporary password",
+    "fullNameLabel": "Full name",
+    "fullNamePlaceholder": "Full name",
+    "phoneLabel": "Phone (optional)",
+    "phonePlaceholder": "+90…",
+    "roleTitle": "Role",
+    "submit": "Create user",
+    "alerts": {
+      "missingFieldsTitle": "Missing information",
+      "missingFieldsMessage": "Email, password, name, and role are required.",
+      "createdTitle": "User added",
+      "createdMessage": "{{name}} has been created.",
+      "createFailedTitle": "Could not add"
+    }
+  },
+  "scopeEditor": {
+    "noSubcategories": "No subcategories"
+  },
+  "settings": {
+    "userLabel": "User"
+  }
+}

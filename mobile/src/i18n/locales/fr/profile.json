@@ -1,0 +1,55 @@
+{
+  "title": "Profil",
+  "doctorLabel": "Médecin",
+  "notFound": "Votre fiche médecin est introuvable.",
+  "photoLabel": "Photo de profil",
+  "fields": {
+    "fullName": "Nom complet",
+    "title": "Titre",
+    "titlePlaceholder": "ex. Op. Dr.",
+    "specialty": "Spécialité",
+    "specialtyPlaceholder": "ex. Chirurgie plastique",
+    "bio": "Biographie",
+    "bioPlaceholder": "Biographie / CV"
+  },
+  "edit": "Modifier le profil",
+  "alerts": {
+    "savedTitle": "Enregistré",
+    "profileSaved": "Votre profil a été mis à jour.",
+    "saveFailedTitle": "Impossible d'enregistrer"
+  },
+  "scopes": {
+    "title": "Compétences",
+    "helper": "Les nouvelles demandes pour ces traitements vous seront envoyées.",
+    "noSubcategories": "Aucune sous-catégorie",
+    "warnMin": "Au moins une compétence doit être sélectionnée.",
+    "submit": "Confirmer et enregistrer",
+    "alerts": {
+      "requiredTitle": "Compétence requise",
+      "requiredMessage": "Vous devez sélectionner au moins une compétence.",
+      "saved": "Vos compétences ont été mises à jour."
+    }
+  },
+  "dashboard": {
+    "performance": {
+      "title": "Mes performances",
+      "empty": "Aucune donnée de performance pour le moment.",
+      "score": "Score",
+      "incoming": "Reçues",
+      "answered": "Répondues",
+      "avgResponse": "Réponse moy.",
+      "timely": "À temps",
+      "breach": "Hors délai"
+    },
+    "ranks": {
+      "title": "Mon classement",
+      "subtitle": "Votre rang parmi les médecins actifs de votre clinique.",
+      "empty": "Aucune donnée de classement.",
+      "scoreRank": "Rang par score",
+      "responseRank": "Rang par temps de réponse",
+      "noRankScore": "Pas de classement",
+      "noRankResponse": "Aucune réponse pour le moment",
+      "insufficientCompare": "Pas assez de médecins pour comparer"
+    }
+  }
+}

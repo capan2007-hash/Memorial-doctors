@@ -1,0 +1,55 @@
+{
+  "title": "Profile",
+  "doctorLabel": "Doctor",
+  "notFound": "Your doctor record could not be found.",
+  "photoLabel": "Profile photo",
+  "fields": {
+    "fullName": "Full name",
+    "title": "Title",
+    "titlePlaceholder": "e.g. Op. Dr.",
+    "specialty": "Specialty",
+    "specialtyPlaceholder": "e.g. Plastic Surgery",
+    "bio": "Bio",
+    "bioPlaceholder": "Bio / CV"
+  },
+  "edit": "Edit profile",
+  "alerts": {
+    "savedTitle": "Saved",
+    "profileSaved": "Your profile has been updated.",
+    "saveFailedTitle": "Could not save"
+  },
+  "scopes": {
+    "title": "Competencies",
+    "helper": "New requests for these treatments will be sent to you.",
+    "noSubcategories": "No subcategories",
+    "warnMin": "At least one competency must be selected.",
+    "submit": "Confirm and save",
+    "alerts": {
+      "requiredTitle": "Competency required",
+      "requiredMessage": "You must select at least one competency.",
+      "saved": "Your competencies have been updated."
+    }
+  },
+  "dashboard": {
+    "performance": {
+      "title": "My Performance",
+      "empty": "No performance data yet.",
+      "score": "Score",
+      "incoming": "Incoming",
+      "answered": "Answered",
+      "avgResponse": "Avg. response",
+      "timely": "On time",
+      "breach": "Off-target"
+    },
+    "ranks": {
+      "title": "My Ranking",
+      "subtitle": "Your rank among active doctors in your clinic.",
+      "empty": "No ranking data.",
+      "scoreRank": "Score rank",
+      "responseRank": "Response time rank",
+      "noRankScore": "No ranking",
+      "noRankResponse": "No responses yet",
+      "insufficientCompare": "Not enough doctors to compare"
+    }
+  }
+}

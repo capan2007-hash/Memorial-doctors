@@ -1,0 +1,55 @@
+{
+  "title": "Profil",
+  "doctorLabel": "Arzt",
+  "notFound": "Ihr Arztdatensatz konnte nicht gefunden werden.",
+  "photoLabel": "Profilfoto",
+  "fields": {
+    "fullName": "Vollständiger Name",
+    "title": "Titel",
+    "titlePlaceholder": "z. B. Op. Dr.",
+    "specialty": "Fachgebiet",
+    "specialtyPlaceholder": "z. B. Plastische Chirurgie",
+    "bio": "Biografie",
+    "bioPlaceholder": "Biografie / Lebenslauf"
+  },
+  "edit": "Profil bearbeiten",
+  "alerts": {
+    "savedTitle": "Gespeichert",
+    "profileSaved": "Ihr Profil wurde aktualisiert.",
+    "saveFailedTitle": "Konnte nicht gespeichert werden"
+  },
+  "scopes": {
+    "title": "Kompetenzen",
+    "helper": "Neue Anfragen für diese Behandlungen werden an Sie gesendet.",
+    "noSubcategories": "Keine Unterkategorien",
+    "warnMin": "Mindestens eine Kompetenz muss ausgewählt werden.",
+    "submit": "Bestätigen und speichern",
+    "alerts": {
+      "requiredTitle": "Kompetenz erforderlich",
+      "requiredMessage": "Sie müssen mindestens eine Kompetenz auswählen.",
+      "saved": "Ihre Kompetenzen wurden aktualisiert."
+    }
+  },
+  "dashboard": {
+    "performance": {
+      "title": "Meine Leistung",
+      "empty": "Noch keine Leistungsdaten.",
+      "score": "Wertung",
+      "incoming": "Eingehend",
+      "answered": "Beantwortet",
+      "avgResponse": "Ø Antwortzeit",
+      "timely": "Pünktlich",
+      "breach": "Außerhalb des Ziels"
+    },
+    "ranks": {
+      "title": "Meine Rangfolge",
+      "subtitle": "Ihr Rang unter den aktiven Ärzten Ihrer Klinik.",
+      "empty": "Keine Rangdaten vorhanden.",
+      "scoreRank": "Wertungsrang",
+      "responseRank": "Antwortzeit-Rang",
+      "noRankScore": "Kein Rang",
+      "noRankResponse": "Noch keine Antwort",
+      "insufficientCompare": "Nicht genügend Ärzte für einen Vergleich"
+    }
+  }
+}

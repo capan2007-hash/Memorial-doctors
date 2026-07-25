@@ -1,0 +1,83 @@
+{
+  "actions": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "signOut": "Выход",
+    "close": "Закрыть"
+  },
+  "appearance": {
+    "sectionLabel": "Внешний вид"
+  },
+  "theme": {
+    "light": "Светлая тема",
+    "dark": "Тёмная тема"
+  },
+  "placeholder": {
+    "comingSoon": "Этот экран скоро появится."
+  },
+  "doctorTabs": {
+    "blocked": "Это приложение предназначено для врачей.",
+    "tabs": {
+      "pending": "В ожидании",
+      "history": "История",
+      "dashboard": "Панель",
+      "profile": "Профиль",
+      "settings": "Настройки"
+    }
+  },
+  "notifications": {
+    "title": "Уведомления",
+    "granted": "Разрешено",
+    "notGranted": "Не разрешено",
+    "unknown": "—",
+    "requestButton": "Разрешить уведомления"
+  },
+  "status": {
+    "draft": "Черновик",
+    "submitted": "Отправлено",
+    "assigned": "Назначено",
+    "in_review": "На рассмотрении",
+    "offers_ready": "Предложение готово",
+    "escalated": "Эскалировано",
+    "closed": "Закрыто"
+  },
+  "decision": {
+    "accept": "Принять",
+    "reject": "Отклонить"
+  },
+  "language": {
+    "sectionLabel": "Язык",
+    "restartTitle": "Требуется перезапуск",
+    "restartMessage": "Для изменения направления текста приложение необходимо перезапустить.",
+    "restartConfirm": "ОК"
+  },
+  "time": {
+    "justNow": "только что",
+    "minutesAgo": "{{count}} мин. назад",
+    "hoursAgo": "{{count}} ч. назад",
+    "daysAgo": "{{count}} дн. назад",
+    "minutesShort": "{{count}} мин",
+    "hoursMinutesShort": "{{hours}} ч {{minutes}} мин"
+  },
+  "months": {
+    "jan": "Янв",
+    "feb": "Фев",
+    "mar": "Мар",
+    "apr": "Апр",
+    "may": "Май",
+    "jun": "Июн",
+    "jul": "Июл",
+    "aug": "Авг",
+    "sep": "Сен",
+    "oct": "Окт",
+    "nov": "Ноя",
+    "dec": "Дек"
+  },
+  "score": {
+    "unworkable": "Неработоспособен"
+  },
+  "rank": {
+    "topPercent": "топ {{pct}}%"
+  }
+}

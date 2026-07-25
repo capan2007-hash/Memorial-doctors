@@ -1,0 +1,75 @@
+{
+  "title": "Anfrage",
+  "decision": {
+    "accept": "Annehmen",
+    "reject": "Ablehnen"
+  },
+  "photos": "Fotos",
+  "photosEmpty": "Keine Fotos hinzugefügt",
+  "photoAlt": "Foto",
+  "xrays": "Zahnröntgen",
+  "xrayAlt": "Röntgenbild",
+  "notes": "Notizen",
+  "backLabel": "Zurück",
+  "idSubtitle": "Anfrage #{{shortId}} · {{time}}",
+  "decisionHeading": "Ihre Entscheidung",
+  "planNotSpecified": "Behandlungsplan nicht angegeben",
+  "reasonNotSpecified": "Grund nicht angegeben",
+  "responseSaved": "Ihre Antwort wurde gespeichert.",
+  "errors": {
+    "loadFailed": "Anfrage konnte nicht geladen werden. Überprüfen Sie Ihre Verbindung.",
+    "loadFailedShort": "Anfrage konnte nicht geladen werden.",
+    "respondFailed": "Antwort konnte nicht gespeichert werden: {{message}}"
+  },
+  "actions": {
+    "accept": "Annehmen",
+    "reject": "Ablehnen",
+    "acceptConfirm": "Annehmen",
+    "rejectConfirm": "Ablehnen",
+    "planLabel": "Behandlungsplan",
+    "planPlaceholder": "Behandlungsplan",
+    "reasonLabel": "Ablehnungsgrund",
+    "reasonPlaceholder": "Ablehnungsgrund (erforderlich)"
+  },
+  "admin": {
+    "backToList": "Anfragen",
+    "backLink": "Zurück"
+  },
+  "patientInfo": {
+    "title": "Patienteninformationen",
+    "notSpecified": "Nicht angegeben",
+    "fields": {
+      "patientName": "Patientenname",
+      "category": "Kategorie",
+      "operation": "Gewünschte Operation",
+      "age": "Alter",
+      "gender": "Geschlecht",
+      "height": "Größe (cm)",
+      "weight": "Gewicht (kg)",
+      "bmi": "BMI",
+      "pastSurgeries": "Frühere Operationen",
+      "knownConditions": "Bekannte Erkrankungen",
+      "medications": "Regelmäßige Medikamente",
+      "smoking": "Rauchen",
+      "alcohol": "Alkohol",
+      "notes": "Notiz"
+    },
+    "gender": {
+      "female": "Weiblich",
+      "male": "Männlich",
+      "other": "Divers"
+    },
+    "smoking": {
+      "never": "Nie geraucht",
+      "former": "Ehemaliger Raucher",
+      "current": "Aktueller Raucher",
+      "packYears": "{{value}} Packungsjahre"
+    },
+    "alcohol": {
+      "never": "Nie",
+      "occasional": "Gesellschaftlich",
+      "regular": "Regelmäßig",
+      "perWeek": "{{value}}/Woche"
+    }
+  }
+}

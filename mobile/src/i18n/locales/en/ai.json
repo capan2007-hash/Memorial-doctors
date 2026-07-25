@@ -1,0 +1,27 @@
+{
+  "title": "AI",
+  "loading": "Preparing AI assessment…",
+  "failed": "AI assessment could not be completed",
+  "error": "An error occurred",
+  "panel": {
+    "title": "AI Triage Assessment",
+    "disclaimer": "Guidance only; the final decision is the physician's.",
+    "suitabilityHeading": "Suitability assessment"
+  },
+  "warnings": {
+    "photo_operation_mismatch": "Photo–procedure mismatch",
+    "demographics_operation_risk": "Demographics–procedure risk",
+    "missing_data": "Missing data",
+    "photo_quality": "Photo quality"
+  },
+  "feedback": {
+    "correct": "Correct",
+    "partial": "Partially correct",
+    "wrong": "Incorrect",
+    "prompt": "This assessment:",
+    "notePlaceholder": "Optional note",
+    "submit": "Submit",
+    "submitError": "Could not submit feedback",
+    "yoursLabel": "Your feedback: {{label}}"
+  }
+}

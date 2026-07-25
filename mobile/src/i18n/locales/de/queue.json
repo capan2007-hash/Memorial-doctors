@@ -1,0 +1,15 @@
+{
+  "pending": {
+    "title": "Ausstehende Anfragen",
+    "empty": "Keine ausstehenden Anfragen"
+  },
+  "history": {
+    "title": "Verlauf",
+    "empty": "Keine beantworteten Anfragen"
+  },
+  "filters": {
+    "all": "Alle",
+    "pending": "Ausstehend"
+  },
+  "refresh": "Aktualisieren"
+}

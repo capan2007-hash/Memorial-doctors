@@ -1,0 +1,134 @@
+{
+  "title": "Управление",
+  "roles": {
+    "coordinator": "Координатор",
+    "admin": "Администратор",
+    "super_admin": "Супер администратор",
+    "sales": "Менеджер по продажам",
+    "agent": "Агент",
+    "doctor": "Врач"
+  },
+  "tabs": {
+    "requests": "Заявки",
+    "duplicates": "Дубликаты",
+    "doctors": "Врачи",
+    "users": "Пользователи",
+    "settings": "Настройки"
+  },
+  "blocked": {
+    "message": "Эта панель предназначена для команды координаторов."
+  },
+  "requests": {
+    "tabs": {
+      "all": "Все",
+      "pending": "В ожидании",
+      "overdue": "Просроченные",
+      "completed": "Завершённые"
+    },
+    "unassignedBadge": "Врач не назначен",
+    "reassign": "Переназначить",
+    "empty": {
+      "noneTitle": "Пока нет заявок",
+      "filteredTitle": "Нет заявок в этом фильтре",
+      "description": "Новые заявки будут отображаться здесь."
+    },
+    "alerts": {
+      "reassignedTitle": "Переназначено",
+      "reassignedMessage": "Заявка переназначена врачам.",
+      "noDoctorTitle": "Нет подходящего врача",
+      "noDoctorMessage": "Не найден подходящий врач для этой категории.",
+      "failedTitle": "Не удалось назначить",
+      "closedCannotReassign": "Закрытую заявку нельзя переназначить"
+    }
+  },
+  "duplicates": {
+    "newApplication": "Новое обращение",
+    "parentRequest": "Исходная заявка",
+    "phone": "Телефон",
+    "category": "Категория",
+    "date": "Дата",
+    "requestIdLabel": "Заявка",
+    "noPhoto": "Нет фото",
+    "aiNoVerdict": "Нет визуальной оценки ИИ (нет согласия или ожидается)",
+    "aiSamePerson": "Один и тот же человек: {{pct}}",
+    "noteLabel": "Примечание (необязательно)",
+    "notePlaceholder": "Причина решения…",
+    "notDuplicateButton": "Не дубликат — отправить врачам",
+    "confirmDuplicateButton": "Дубликат — пометить неактивной",
+    "alerts": {
+      "decidedTitle": "Решение сохранено",
+      "confirmedMessage": "Заявка помечена как дубликат — деактивирована.",
+      "dismissedMessage": "Заявка отправлена врачам.",
+      "failedTitle": "Не удалось сохранить"
+    },
+    "emptyTitle": "Нет заявок, ожидающих проверки на дубликат",
+    "emptyDescription": "Возможные повторные обращения ожидают здесь вашей проверки."
+  },
+  "doctorsList": {
+    "newButton": "Новый врач",
+    "inactiveBadge": "Неактивен",
+    "stats": {
+      "score": "рейтинг",
+      "accept": "Принято",
+      "reject": "Отклонено",
+      "avgResponse": "Ср. ответ"
+    },
+    "emptyTitle": "Пока нет врачей",
+    "emptyDescription": "Начните с добавления нового врача."
+  },
+  "users": {
+    "newButton": "Новый пользователь",
+    "manageDoctorsHint": "Управляйте врачами на экране «Управление врачами».",
+    "emptyTitle": "Нет пользователей",
+    "passwordAction": "Пароль",
+    "activateAction": "Активировать",
+    "deactivateAction": "Деактивировать",
+    "resetPassword": {
+      "title": "Сброс пароля",
+      "message": "Введите новый пароль для {{name}} (не менее 8 символов).",
+      "cancel": "Отмена",
+      "confirm": "Сбросить",
+      "invalidTitle": "Недействительный пароль",
+      "invalidMessage": "Пароль должен содержать не менее 8 символов.",
+      "successTitle": "Сброшено",
+      "successMessage": "Пароль обновлён.",
+      "failedTitle": "Не удалось сбросить"
+    },
+    "toggleActive": {
+      "activateTitle": "Активировать",
+      "deactivateTitle": "Деактивировать",
+      "message": "{{name}} {{action}}. Вы уверены?",
+      "activateWord": "будет активирован",
+      "deactivateWord": "будет деактивирован",
+      "cancel": "Отмена",
+      "failedTitle": "Действие не выполнено"
+    }
+  },
+  "newUser": {
+    "backLabel": "Пользователи",
+    "title": "Новый пользователь",
+    "emailLabel": "Email",
+    "emailPlaceholder": "user@clinic.com",
+    "passwordLabel": "Временный пароль",
+    "passwordPlaceholder": "Временный пароль",
+    "fullNameLabel": "Полное имя",
+    "fullNamePlaceholder": "Полное имя",
+    "phoneLabel": "Телефон (необязательно)",
+    "phonePlaceholder": "+90…",
+    "roleTitle": "Роль",
+    "submit": "Создать пользователя",
+    "alerts": {
+      "missingFieldsTitle": "Недостающая информация",
+      "missingFieldsMessage": "Email, пароль, имя и роль обязательны.",
+      "createdTitle": "Пользователь добавлен",
+      "createdMessage": "{{name}} создан(а).",
+      "createFailedTitle": "Не удалось добавить"
+    }
+  },
+  "scopeEditor": {
+    "noSubcategories": "Нет подкатегорий"
+  },
+  "settings": {
+    "userLabel": "Пользователь"
+  }
+}

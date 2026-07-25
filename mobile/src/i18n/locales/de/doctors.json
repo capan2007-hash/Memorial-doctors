@@ -1,0 +1,87 @@
+{
+  "backLabel": "Ärzte",
+  "notFound": "Arzt nicht gefunden.",
+  "backLink": "Zurück",
+  "weightedWork": {
+    "levels": { "high": "Hoch", "medium": "Mittel", "low": "Niedrig" },
+    "areaPlaceholder": "Bereich (z. B. Rhinoplastik)",
+    "addButton": "Bereich hinzufügen",
+    "notePlaceholder": "Notiz (optional)"
+  },
+  "scoreHistory": {
+    "timely": "Pünktlich",
+    "offTarget": "Verspätet"
+  },
+  "photo": {
+    "change": "Foto ändern",
+    "add": "Foto hinzufügen",
+    "uploadFailedTitle": "Hochladen fehlgeschlagen",
+    "galleryPermissionRequired": "Galerieberechtigung erforderlich",
+    "processingFailed": "Bild konnte nicht verarbeitet werden"
+  },
+  "active": {
+    "title": "Aktiv",
+    "helper": "Einem inaktiven Arzt werden keine neuen Anfragen zugewiesen."
+  },
+  "profile": {
+    "title": "Profil",
+    "titleLabel": "Titel",
+    "titlePlaceholder": "z. B. Op. Dr.",
+    "specialtyLabel": "Fachgebiet",
+    "specialtyPlaceholder": "z. B. Plastische Chirurgie",
+    "bioLabel": "Biografie",
+    "bioPlaceholder": "Biografie / Lebenslauf",
+    "defaultName": "Arzt"
+  },
+  "scopes": {
+    "title": "Zuständigkeiten",
+    "helperEdit": "Neue Anfragen für diese Behandlungen werden an diesen Arzt gesendet.",
+    "warnMin": "Mindestens eine Zuständigkeit muss ausgewählt werden."
+  },
+  "weightedWorkCard": {
+    "title": "Gewichtete Arbeit"
+  },
+  "scoreHistoryCard": {
+    "title": "Wertungsverlauf"
+  },
+  "save": "Speichern",
+  "deactivate": "Arzt deaktivieren",
+  "alerts": {
+    "scopeRequiredTitle": "Zuständigkeit erforderlich",
+    "scopeRequiredMessage": "Sie müssen mindestens eine Zuständigkeit auswählen.",
+    "savedTitle": "Gespeichert",
+    "savedMessage": "Die Arztdaten wurden aktualisiert.",
+    "saveFailedTitle": "Konnte nicht gespeichert werden",
+    "noUserRecordTitle": "Konnte nicht gelöscht werden",
+    "noUserRecordMessage": "Dieser Arzt hat keinen Benutzerdatensatz.",
+    "deactivateConfirmTitle": "Arzt deaktivieren",
+    "deactivateConfirmMessage": "{{name}} wird deaktiviert. Sind Sie sicher?",
+    "cancel": "Abbrechen",
+    "deactivateConfirm": "Deaktivieren",
+    "deactivatedTitle": "Deaktiviert",
+    "deactivatedMessage": "Der Arzt wurde deaktiviert.",
+    "deactivateFailedTitle": "Konnte nicht gelöscht werden"
+  },
+  "new": {
+    "title": "Neuer Arzt",
+    "account": {
+      "title": "Konto",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "arzt@klinik.com",
+      "passwordLabel": "Temporäres Passwort",
+      "passwordPlaceholder": "Temporäres Passwort",
+      "fullNameLabel": "Vollständiger Name",
+      "fullNamePlaceholder": "Vollständiger Name"
+    },
+    "submit": "Arzt erstellen",
+    "alerts": {
+      "missingFieldsTitle": "Fehlende Angaben",
+      "missingFieldsMessage": "E-Mail, Passwort und Name sind erforderlich.",
+      "scopeRequiredTitle": "Zuständigkeit erforderlich",
+      "scopeRequiredMessage": "Sie müssen mindestens eine Zuständigkeit auswählen.",
+      "createdTitle": "Arzt hinzugefügt",
+      "createdMessage": "{{name}} wurde erstellt.",
+      "createFailedTitle": "Konnte nicht hinzugefügt werden"
+    }
+  }
+}
