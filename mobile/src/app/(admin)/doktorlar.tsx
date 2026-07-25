@@ -49,14 +49,26 @@ function DoctorCard({
         <Avatar name={name} size={40} />
         <View style={styles.cardHead}>
           {doctor.title ? (
-            <TranslatedText text={doctor.title} sourceLang="tr" compact style={[styles.name, { color: colors.textPrimary }]} />
+            <TranslatedText
+              text={doctor.title}
+              sourceLang="tr"
+              compact
+              numberOfLines={1}
+              style={[styles.name, { color: colors.textPrimary }]}
+            />
           ) : (
             <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
               {name}
             </Text>
           )}
           {doctor.specialty ? (
-            <TranslatedText text={doctor.specialty} sourceLang="tr" compact style={[styles.specialty, { color: colors.textMuted }]} />
+            <TranslatedText
+              text={doctor.specialty}
+              sourceLang="tr"
+              compact
+              numberOfLines={1}
+              style={[styles.specialty, { color: colors.textMuted }]}
+            />
           ) : (
             <Text style={[styles.specialty, { color: colors.textMuted }]} numberOfLines={1}>
               —

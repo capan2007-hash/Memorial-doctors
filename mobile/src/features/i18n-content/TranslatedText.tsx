@@ -20,9 +20,20 @@ export interface TranslatedTextProps {
    * göster/gizle toggle'ı GÖSTERİLMEZ — yalnız çevrilmiş metin render edilir.
    */
   compact?: boolean
+  /**
+   * Render edilen metin `<Text>`'ine geçirilir. Verilmezse (undefined) mevcut
+   * davranış (sınırsız satır) korunur.
+   */
+  numberOfLines?: number
 }
 
-export function TranslatedText({ text, sourceLang, style, compact = false }: TranslatedTextProps) {
+export function TranslatedText({
+  text,
+  sourceLang,
+  style,
+  compact = false,
+  numberOfLines,
+}: TranslatedTextProps) {
   const { colors } = useTheme()
   const { t } = useTranslation('common')
   const [showOriginal, setShowOriginal] = useState(false)
@@ -30,19 +41,29 @@ export function TranslatedText({ text, sourceLang, style, compact = false }: Tra
 
   // Kaynak=hedef (veya sessiz hata fallback'i): düz metin, etiket yok.
   if (!isTranslated && !isLoading) {
-    return <Text style={style}>{resolvedText}</Text>
+    return (
+      <Text style={style} numberOfLines={numberOfLines}>
+        {resolvedText}
+      </Text>
+    )
   }
 
   if (compact) {
     // Yükleniyorken orijinali opak göster.
-    return <Text style={[style, isLoading && styles.loading]}>{resolvedText}</Text>
+    return (
+      <Text style={[style, isLoading && styles.loading]} numberOfLines={numberOfLines}>
+        {resolvedText}
+      </Text>
+    )
   }
 
   const displayText = showOriginal ? (text ?? '') : resolvedText
 
   return (
     <View style={styles.container}>
-      <Text style={[style, isLoading && styles.loading]}>{displayText}</Text>
+      <Text style={[style, isLoading && styles.loading]} numberOfLines={numberOfLines}>
+        {displayText}
+      </Text>
       {isTranslated && (
         <View style={styles.meta}>
           <Text style={[styles.metaText, { color: colors.textMuted }]}>{t('autoTranslated')}</Text>
