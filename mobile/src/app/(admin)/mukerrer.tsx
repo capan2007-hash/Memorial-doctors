@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Image } from 'expo-image'
 import { ArrowDown, ImageOff, Sparkles, UserPlus } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -20,11 +21,12 @@ function formatDate(x: string | null): string {
 }
 
 function PhotoThumbs({ urls, colors }: { urls: string[]; colors: Palette }) {
+  const { t } = useTranslation('admin')
   if (!urls.length) {
     return (
       <View style={styles.noPhoto}>
         <ImageOff color={colors.textMuted} size={14} strokeWidth={1.75} />
-        <Text style={[styles.noPhotoText, { color: colors.textMuted }]}>Fotoğraf yok</Text>
+        <Text style={[styles.noPhotoText, { color: colors.textMuted }]}>{t('duplicates.noPhoto')}</Text>
       </View>
     )
   }
@@ -77,13 +79,14 @@ function SidePanel({
 }
 
 function AiVerdict({ item, colors }: { item: DuplicateItem; colors: Palette }) {
+  const { t } = useTranslation('admin')
   if (item.aiSame == null) {
     return (
       <View style={[styles.verdict, { borderColor: colors.border, backgroundColor: colors.surface1 }]}>
         <Sparkles color={colors.textMuted} size={16} strokeWidth={1.75} />
         <View style={styles.verdictBody}>
           <Text style={[styles.verdictTitle, { color: colors.textSecondary }]}>
-            AI görsel değerlendirmesi yok (onam yok veya bekliyor)
+            {t('duplicates.aiNoVerdict')}
           </Text>
           {item.aiReason ? <Text style={[styles.verdictReason, { color: colors.textMuted }]}>{item.aiReason}</Text> : null}
         </View>
@@ -97,7 +100,7 @@ function AiVerdict({ item, colors }: { item: DuplicateItem; colors: Palette }) {
       <Sparkles color={tint.text} size={16} strokeWidth={2} />
       <View style={styles.verdictBody}>
         <Text style={[styles.verdictTitleStrong, { color: tint.text }]}>
-          Aynı kişi: {formatConfidencePct(item.aiConfidence)}
+          {t('duplicates.aiSamePerson', { pct: formatConfidencePct(item.aiConfidence) })}
         </Text>
         {item.aiReason ? <Text style={[styles.verdictReason, { color: tint.text }]}>{item.aiReason}</Text> : null}
       </View>
@@ -106,6 +109,7 @@ function AiVerdict({ item, colors }: { item: DuplicateItem; colors: Palette }) {
 }
 
 function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette }) {
+  const { t } = useTranslation('admin')
   const resolve = useResolveDuplicate()
   const [note, setNote] = useState('')
   const [pending, setPending] = useState<'confirmed' | 'dismissed' | null>(null)
@@ -114,9 +118,12 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
     setPending(decision)
     try {
       await resolve.mutateAsync({ requestId: item.requestId, decision, note: note.trim() || undefined })
-      Alert.alert('Karar kaydedildi', decision === 'confirmed' ? 'Talep mükerrer — pasife alındı.' : 'Talep doktorlara gönderildi.')
+      Alert.alert(
+        t('duplicates.alerts.decidedTitle'),
+        decision === 'confirmed' ? t('duplicates.alerts.confirmedMessage') : t('duplicates.alerts.dismissedMessage'),
+      )
     } catch (e) {
-      Alert.alert('Kaydedilemedi', (e as Error).message)
+      Alert.alert(t('duplicates.alerts.failedTitle'), (e as Error).message)
     } finally {
       setPending(null)
     }
@@ -127,12 +134,12 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
   return (
     <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.surface2 }]}>
       <SidePanel
-        label="Yeni başvuru"
+        label={t('duplicates.newApplication')}
         name={item.patientName}
         meta={[
-          { k: 'Telefon', v: item.phone ?? '—' },
-          { k: 'Kategori', v: item.categoryName },
-          { k: 'Tarih', v: formatDate(item.createdAt) },
+          { k: t('duplicates.phone'), v: item.phone ?? '—' },
+          { k: t('duplicates.category'), v: item.categoryName },
+          { k: t('duplicates.date'), v: formatDate(item.createdAt) },
         ]}
         urls={item.newPhotos}
         colors={colors}
@@ -141,11 +148,11 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
         <ArrowDown color={colors.textMuted} size={18} strokeWidth={1.75} />
       </View>
       <SidePanel
-        label="Ana talep"
+        label={t('duplicates.parentRequest')}
         name={item.parentPatientName}
         meta={[
-          { k: 'Tarih', v: formatDate(item.parentCreatedAt) },
-          { k: 'Talep', v: item.parentRequestId.slice(0, 8) },
+          { k: t('duplicates.date'), v: formatDate(item.parentCreatedAt) },
+          { k: t('duplicates.requestIdLabel'), v: item.parentRequestId.slice(0, 8) },
         ]}
         urls={item.parentPhotos}
         colors={colors}
@@ -154,10 +161,10 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
       <AiVerdict item={item} colors={colors} />
 
       <View>
-        <Text style={[styles.noteLabel, { color: colors.textMuted }]}>Not (opsiyonel)</Text>
+        <Text style={[styles.noteLabel, { color: colors.textMuted }]}>{t('duplicates.noteLabel')}</Text>
         <TextInput
           style={[styles.noteInput, { borderColor: colors.border, backgroundColor: colors.surface1, color: colors.textPrimary }]}
-          placeholder="Karar gerekçesi…"
+          placeholder={t('duplicates.notePlaceholder')}
           placeholderTextColor={colors.textMuted}
           value={note}
           onChangeText={setNote}
@@ -178,7 +185,7 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
           ) : (
             <>
               <UserPlus color={colors.textSecondary} size={15} strokeWidth={1.75} />
-              <Text style={[styles.btnSecondaryText, { color: colors.textSecondary }]}>Mükerrer değil — doktorlara</Text>
+              <Text style={[styles.btnSecondaryText, { color: colors.textSecondary }]}>{t('duplicates.notDuplicateButton')}</Text>
             </>
           )}
         </Pressable>
@@ -191,7 +198,7 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
           {pending === 'confirmed' ? (
             <ActivityIndicator color={colors.brandOn} size="small" />
           ) : (
-            <Text style={[styles.btnPrimaryText, { color: colors.brandOn }]}>Mükerrer — pasife al</Text>
+            <Text style={[styles.btnPrimaryText, { color: colors.brandOn }]}>{t('duplicates.confirmDuplicateButton')}</Text>
           )}
         </Pressable>
       </View>
@@ -201,6 +208,7 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
 
 export default function MukerrerScreen() {
   const { colors } = useTheme()
+  const { t } = useTranslation('admin')
   const queue = useDuplicateQueue()
 
   if (queue.isLoading) {
@@ -214,7 +222,7 @@ export default function MukerrerScreen() {
   if (!queue.data || queue.data.length === 0) {
     return (
       <View style={[styles.root, styles.centered, { backgroundColor: colors.surface0 }]}>
-        <EmptyState title="Bekleyen mükerrer talep yok" description="Olası ikinci başvurular burada incelemenizi bekler." />
+        <EmptyState title={t('duplicates.emptyTitle')} description={t('duplicates.emptyDescription')} />
       </View>
     )
   }

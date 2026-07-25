@@ -8,16 +8,10 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing } from '@/theme'
 
-const ROLE_LABEL: Record<string, string> = {
-  coordinator: 'Koordinatör',
-  admin: 'Yönetici',
-  super_admin: 'Süper Admin',
-}
-
 export default function AdminSettingsScreen() {
   const { fullName, role, signOut } = useAuth()
   const { colors } = useTheme()
-  const { t } = useTranslation('common')
+  const { t } = useTranslation(['common', 'admin'])
 
   const cardStyle = [
     styles.card,
@@ -29,17 +23,17 @@ export default function AdminSettingsScreen() {
       <View style={cardStyle}>
         <View style={styles.cardHeader}>
           <User color={colors.textSecondary} size={16} strokeWidth={1.75} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Kullanıcı</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('admin:settings.userLabel')}</Text>
         </View>
         <Text style={[styles.name, { color: colors.textPrimary }]}>{fullName ?? '—'}</Text>
         <View style={styles.roleRow}>
           <ShieldCheck color={colors.brandText} size={14} strokeWidth={2} />
-          <Text style={[styles.role, { color: colors.brandText }]}>{ROLE_LABEL[role ?? ''] ?? role ?? '—'}</Text>
+          <Text style={[styles.role, { color: colors.brandText }]}>{role ? t(`admin:roles.${role}`) : '—'}</Text>
         </View>
       </View>
 
       <View>
-        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Görünüm</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>{t('appearance.sectionLabel')}</Text>
         <ThemeToggle />
       </View>
 
@@ -56,7 +50,7 @@ export default function AdminSettingsScreen() {
         accessibilityRole="button"
       >
         <LogOut color={colors.dangerText} size={18} strokeWidth={1.75} />
-        <Text style={[styles.signOutButtonText, { color: colors.dangerText }]}>Çıkış</Text>
+        <Text style={[styles.signOutButtonText, { color: colors.dangerText }]}>{t('actions.signOut')}</Text>
       </Pressable>
     </View>
   )

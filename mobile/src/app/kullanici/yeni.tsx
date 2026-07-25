@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Redirect, Stack, router } from 'expo-router'
 import { Check, ChevronLeft, UserPlus } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +15,7 @@ import {
   View,
 } from 'react-native'
 
-import { creatableRoles, roleLabel } from '@/domain/userRoles'
+import { creatableRoles } from '@/domain/userRoles'
 import { useCreateUser } from '@/features/admin/useUsers'
 import { useAuth, type Role } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
@@ -23,6 +24,7 @@ import { fontFamily, radius, spacing } from '@/theme'
 export default function NewUserScreen() {
   const { role } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('admin')
   const create = useCreateUser()
 
   const options = useMemo(() => (role ? creatableRoles(role) : []), [role])
@@ -37,7 +39,7 @@ export default function NewUserScreen() {
 
   const submit = async () => {
     if (!email.trim() || !password.trim() || !fullName.trim() || !selectedRole) {
-      Alert.alert('Eksik bilgi', 'E-posta, şifre, ad ve rol zorunludur.')
+      Alert.alert(t('newUser.alerts.missingFieldsTitle'), t('newUser.alerts.missingFieldsMessage'))
       return
     }
     try {
@@ -48,10 +50,10 @@ export default function NewUserScreen() {
         phone: phone.trim() || undefined,
         role: selectedRole,
       })
-      Alert.alert('Kullanıcı eklendi', `${fullName.trim()} oluşturuldu.`)
+      Alert.alert(t('newUser.alerts.createdTitle'), t('newUser.alerts.createdMessage', { name: fullName.trim() }))
       router.back()
     } catch (e) {
-      Alert.alert('Eklenemedi', (e as Error).message)
+      Alert.alert(t('newUser.alerts.createFailedTitle'), (e as Error).message)
     }
   }
 
@@ -69,24 +71,24 @@ export default function NewUserScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <Pressable onPress={() => router.back()} accessibilityRole="button" style={styles.back} hitSlop={8}>
           <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} />
-          <Text style={[styles.backText, { color: colors.textSecondary }]}>Kullanıcılar</Text>
+          <Text style={[styles.backText, { color: colors.textSecondary }]}>{t('newUser.backLabel')}</Text>
         </Pressable>
 
-        <Text style={[styles.title, { color: colors.textPrimary }]}>Yeni Kullanıcı</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>{t('newUser.title')}</Text>
 
         <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>E-posta</Text>
-          <TextInput style={inputStyle} value={email} onChangeText={setEmail} placeholder="kullanici@klinik.com" placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Geçici şifre</Text>
-          <TextInput style={inputStyle} value={password} onChangeText={setPassword} placeholder="Geçici şifre" placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Ad Soyad</Text>
-          <TextInput style={inputStyle} value={fullName} onChangeText={setFullName} placeholder="Ad Soyad" placeholderTextColor={colors.textMuted} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Telefon (opsiyonel)</Text>
-          <TextInput style={inputStyle} value={phone} onChangeText={setPhone} placeholder="+90…" placeholderTextColor={colors.textMuted} keyboardType="phone-pad" />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('newUser.emailLabel')}</Text>
+          <TextInput style={inputStyle} value={email} onChangeText={setEmail} placeholder={t('newUser.emailPlaceholder')} placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('newUser.passwordLabel')}</Text>
+          <TextInput style={inputStyle} value={password} onChangeText={setPassword} placeholder={t('newUser.passwordPlaceholder')} placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('newUser.fullNameLabel')}</Text>
+          <TextInput style={inputStyle} value={fullName} onChangeText={setFullName} placeholder={t('newUser.fullNamePlaceholder')} placeholderTextColor={colors.textMuted} />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('newUser.phoneLabel')}</Text>
+          <TextInput style={inputStyle} value={phone} onChangeText={setPhone} placeholder={t('newUser.phonePlaceholder')} placeholderTextColor={colors.textMuted} keyboardType="phone-pad" />
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Rol</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('newUser.roleTitle')}</Text>
           <View style={styles.chipWrap}>
             {options.map((r) => {
               const selected = selectedRole === r
@@ -104,7 +106,7 @@ export default function NewUserScreen() {
                   ]}
                 >
                   {selected && <Check color={colors.brandOn} size={13} strokeWidth={2} />}
-                  <Text style={[styles.chipText, { color: selected ? colors.brandOn : colors.textSecondary }]}>{roleLabel(r)}</Text>
+                  <Text style={[styles.chipText, { color: selected ? colors.brandOn : colors.textSecondary }]}>{t(`roles.${r}`)}</Text>
                 </Pressable>
               )
             })}
@@ -117,7 +119,7 @@ export default function NewUserScreen() {
           ) : (
             <>
               <UserPlus color={colors.brandOn} size={18} strokeWidth={1.75} />
-              <Text style={[styles.primaryBtnText, { color: colors.brandOn }]}>Kullanıcı oluştur</Text>
+              <Text style={[styles.primaryBtnText, { color: colors.brandOn }]}>{t('newUser.submit')}</Text>
             </>
           )}
         </Pressable>

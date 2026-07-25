@@ -1,5 +1,6 @@
 import { router } from 'expo-router'
 import { ChevronRight, Plus } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { Avatar } from '@/components/ui/Avatar'
@@ -29,7 +30,8 @@ function DoctorCard({
   perf: DoctorPerformanceRow | undefined
   colors: Palette
 }) {
-  const name = doctor.title || 'Doktor'
+  const { t } = useTranslation('admin')
+  const name = doctor.title || t('roles.doctor')
   const tier = scoreTier(perf?.score ?? doctor.score)
   const tint = roleColors(colors, tier.role)
   const activeTint = doctor.is_active ? roleColors(colors, 'success') : null
@@ -52,7 +54,7 @@ function DoctorCard({
         </View>
         {!doctor.is_active && activeTint === null && (
           <View style={[styles.badge, { backgroundColor: colors.surface3, borderColor: colors.border }]}>
-            <Text style={[styles.badgeText, { color: colors.textMuted }]}>Pasif</Text>
+            <Text style={[styles.badgeText, { color: colors.textMuted }]}>{t('doctorsList.inactiveBadge')}</Text>
           </View>
         )}
         <ChevronRight color={colors.textMuted} size={18} strokeWidth={1.75} />
@@ -61,12 +63,12 @@ function DoctorCard({
       <View style={[styles.statRow, { borderTopColor: colors.border }]}>
         <View style={[styles.scoreChip, { backgroundColor: tint.bg }]}>
           <Text style={[styles.scoreValue, { color: tint.text }]}>{perf?.score ?? doctor.score}</Text>
-          <Text style={[styles.scoreLabel, { color: tint.text }]}>skor</Text>
+          <Text style={[styles.scoreLabel, { color: tint.text }]}>{t('doctorsList.stats.score')}</Text>
         </View>
-        <Stat label="Kabul" value={perf?.accept_count ?? 0} colors={colors} />
-        <Stat label="Red" value={perf?.reject_count ?? 0} colors={colors} />
+        <Stat label={t('doctorsList.stats.accept')} value={perf?.accept_count ?? 0} colors={colors} />
+        <Stat label={t('doctorsList.stats.reject')} value={perf?.reject_count ?? 0} colors={colors} />
         <Stat
-          label="Ort. yanıt"
+          label={t('doctorsList.stats.avgResponse')}
           value={perf?.avg_response_mins != null ? formatMins(perf.avg_response_mins) : '—'}
           colors={colors}
         />
@@ -77,6 +79,7 @@ function DoctorCard({
 
 export default function DoktorlarScreen() {
   const { colors } = useTheme()
+  const { t } = useTranslation('admin')
   const doctors = useDoctorsFull()
   const perf = useDoctorPerformance()
 
@@ -89,7 +92,7 @@ export default function DoktorlarScreen() {
       style={[styles.newBtn, { backgroundColor: colors.brandFill }]}
     >
       <Plus color={colors.brandOn} size={18} strokeWidth={2} />
-      <Text style={[styles.newBtnText, { color: colors.brandOn }]}>Yeni Doktor</Text>
+      <Text style={[styles.newBtnText, { color: colors.brandOn }]}>{t('doctorsList.newButton')}</Text>
     </Pressable>
   )
 
@@ -108,7 +111,7 @@ export default function DoktorlarScreen() {
         keyExtractor={(d) => d.id}
         contentContainerStyle={styles.list}
         ListHeaderComponent={<View style={styles.header}>{NewButton}</View>}
-        ListEmptyComponent={<EmptyState title="Henüz doktor yok" description="Yeni doktor ekleyerek başlayın." />}
+        ListEmptyComponent={<EmptyState title={t('doctorsList.emptyTitle')} description={t('doctorsList.emptyDescription')} />}
         renderItem={({ item }) => <DoctorCard doctor={item} perf={perfMap.get(item.id)} colors={colors} />}
       />
     </View>

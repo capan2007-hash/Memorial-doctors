@@ -1,5 +1,6 @@
 import { Redirect, Tabs } from 'expo-router'
 import { ClipboardList, Copy, LogOut, Settings, Stethoscope, Users } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
@@ -10,16 +11,17 @@ import { fontFamily, radius, spacing } from '@/theme'
 function BlockedScreen() {
   const { signOut } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation(['admin', 'common'])
   return (
     <View style={[styles.blocked, { backgroundColor: colors.surface0 }]}>
-      <Text style={[styles.blockedText, { color: colors.textSecondary }]}>Bu panel koordinatör ekibi içindir.</Text>
+      <Text style={[styles.blockedText, { color: colors.textSecondary }]}>{t('blocked.message')}</Text>
       <Pressable
         style={[styles.signOutButton, { backgroundColor: colors.brandFill }]}
         onPress={signOut}
         accessibilityRole="button"
       >
         <LogOut color={colors.brandOn} size={18} strokeWidth={1.75} />
-        <Text style={[styles.signOutButtonText, { color: colors.brandOn }]}>Çıkış</Text>
+        <Text style={[styles.signOutButtonText, { color: colors.brandOn }]}>{t('common:actions.signOut')}</Text>
       </Pressable>
     </View>
   )
@@ -28,6 +30,7 @@ function BlockedScreen() {
 export default function AdminTabsLayout() {
   const { session, role, loading } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('admin')
 
   if (loading) {
     return (
@@ -61,35 +64,35 @@ export default function AdminTabsLayout() {
       <Tabs.Screen
         name="talepler"
         options={{
-          title: 'Talepler',
+          title: t('tabs.requests'),
           tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
         name="mukerrer"
         options={{
-          title: 'Mükerrer',
+          title: t('tabs.duplicates'),
           tabBarIcon: ({ color, size }) => <Copy color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
         name="doktorlar"
         options={{
-          title: 'Doktorlar',
+          title: t('tabs.doctors'),
           tabBarIcon: ({ color, size }) => <Stethoscope color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
         name="kullanicilar"
         options={{
-          title: 'Kullanıcılar',
+          title: t('tabs.users'),
           tabBarIcon: ({ color, size }) => <Users color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
         name="ayarlar"
         options={{
-          title: 'Ayarlar',
+          title: t('tabs.settings'),
           tabBarIcon: ({ color, size }) => <Settings color={color} size={size} strokeWidth={1.75} />,
         }}
       />

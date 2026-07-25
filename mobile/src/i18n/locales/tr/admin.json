@@ -3,6 +3,131 @@
   "roles": {
     "coordinator": "Koordinatör",
     "admin": "Yönetici",
-    "super_admin": "Süper Admin"
+    "super_admin": "Süper Admin",
+    "sales": "Satışçı",
+    "agent": "Aracı",
+    "doctor": "Doktor"
+  },
+  "tabs": {
+    "requests": "Talepler",
+    "duplicates": "Mükerrer",
+    "doctors": "Doktorlar",
+    "users": "Kullanıcılar",
+    "settings": "Ayarlar"
+  },
+  "blocked": {
+    "message": "Bu panel koordinatör ekibi içindir."
+  },
+  "requests": {
+    "tabs": {
+      "all": "Tümü",
+      "pending": "Bekleyen",
+      "overdue": "Geciken",
+      "completed": "Tamamlanan"
+    },
+    "unassignedBadge": "Doktor atanmadı",
+    "reassign": "Yeniden ata",
+    "empty": {
+      "noneTitle": "Henüz talep yok",
+      "filteredTitle": "Bu filtrede talep yok",
+      "description": "Yeni talepler burada görünür."
+    },
+    "alerts": {
+      "reassignedTitle": "Yeniden atandı",
+      "reassignedMessage": "Talep doktorlara yeniden atandı.",
+      "noDoctorTitle": "Uygun doktor yok",
+      "noDoctorMessage": "Bu kategoriye uygun doktor bulunamadı.",
+      "failedTitle": "Atanamadı"
+    }
+  },
+  "duplicates": {
+    "newApplication": "Yeni başvuru",
+    "parentRequest": "Ana talep",
+    "phone": "Telefon",
+    "category": "Kategori",
+    "date": "Tarih",
+    "requestIdLabel": "Talep",
+    "noPhoto": "Fotoğraf yok",
+    "aiNoVerdict": "AI görsel değerlendirmesi yok (onam yok veya bekliyor)",
+    "aiSamePerson": "Aynı kişi: {{pct}}",
+    "noteLabel": "Not (opsiyonel)",
+    "notePlaceholder": "Karar gerekçesi…",
+    "notDuplicateButton": "Mükerrer değil — doktorlara",
+    "confirmDuplicateButton": "Mükerrer — pasife al",
+    "alerts": {
+      "decidedTitle": "Karar kaydedildi",
+      "confirmedMessage": "Talep mükerrer — pasife alındı.",
+      "dismissedMessage": "Talep doktorlara gönderildi.",
+      "failedTitle": "Kaydedilemedi"
+    },
+    "emptyTitle": "Bekleyen mükerrer talep yok",
+    "emptyDescription": "Olası ikinci başvurular burada incelemenizi bekler."
+  },
+  "doctorsList": {
+    "newButton": "Yeni Doktor",
+    "inactiveBadge": "Pasif",
+    "stats": {
+      "score": "skor",
+      "accept": "Kabul",
+      "reject": "Red",
+      "avgResponse": "Ort. yanıt"
+    },
+    "emptyTitle": "Henüz doktor yok",
+    "emptyDescription": "Yeni doktor ekleyerek başlayın."
+  },
+  "users": {
+    "newButton": "Yeni Kullanıcı",
+    "manageDoctorsHint": "Doktorları Doktor Yönetimi ekranından yönetin.",
+    "emptyTitle": "Kullanıcı yok",
+    "passwordAction": "Şifre",
+    "activateAction": "Aktifleştir",
+    "deactivateAction": "Pasifleştir",
+    "resetPassword": {
+      "title": "Şifre sıfırla",
+      "message": "{{name}} için yeni şifre girin (en az 8 karakter).",
+      "cancel": "Vazgeç",
+      "confirm": "Sıfırla",
+      "invalidTitle": "Geçersiz şifre",
+      "invalidMessage": "Şifre en az 8 karakter olmalı.",
+      "successTitle": "Sıfırlandı",
+      "successMessage": "Şifre güncellendi.",
+      "failedTitle": "Sıfırlanamadı"
+    },
+    "toggleActive": {
+      "activateTitle": "Aktifleştir",
+      "deactivateTitle": "Pasifleştir",
+      "message": "{{name}} {{action}}. Emin misiniz?",
+      "activateWord": "aktifleştirilecek",
+      "deactivateWord": "pasifleştirilecek",
+      "cancel": "Vazgeç",
+      "failedTitle": "İşlem başarısız"
+    }
+  },
+  "newUser": {
+    "backLabel": "Kullanıcılar",
+    "title": "Yeni Kullanıcı",
+    "emailLabel": "E-posta",
+    "emailPlaceholder": "kullanici@klinik.com",
+    "passwordLabel": "Geçici şifre",
+    "passwordPlaceholder": "Geçici şifre",
+    "fullNameLabel": "Ad Soyad",
+    "fullNamePlaceholder": "Ad Soyad",
+    "phoneLabel": "Telefon (opsiyonel)",
+    "phonePlaceholder": "+90…",
+    "roleTitle": "Rol",
+    "submit": "Kullanıcı oluştur",
+    "alerts": {
+      "missingFieldsTitle": "Eksik bilgi",
+      "missingFieldsMessage": "E-posta, şifre, ad ve rol zorunludur.",
+      "createdTitle": "Kullanıcı eklendi",
+      "createdMessage": "{{name}} oluşturuldu.",
+      "createFailedTitle": "Eklenemedi"
+    }
+  },
+  "scopeEditor": {
+    "noSubcategories": "Alt kırılım yok"
+  },
+  "settings": {
+    "userLabel": "Kullanıcı"
   }
 }

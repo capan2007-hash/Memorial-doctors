@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { router } from 'expo-router'
 import { AlertTriangle, ChevronRight, Clock, RefreshCw } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import { Avatar } from '@/components/ui/Avatar'
@@ -13,7 +14,6 @@ import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
 import {
   classify,
-  TAB_LABEL,
   useAllRequests,
   useReassign,
   useTenantSla,
@@ -36,6 +36,7 @@ function FilterTabs({
   onChange: (t: SlaTab) => void
   colors: Palette
 }) {
+  const { t } = useTranslation('admin')
   return (
     <ScrollView
       horizontal
@@ -43,12 +44,12 @@ function FilterTabs({
       style={styles.tabScroll}
       contentContainerStyle={styles.tabRow}
     >
-      {TABS.map((t) => {
-        const active = value === t
+      {TABS.map((tabKey) => {
+        const active = value === tabKey
         return (
           <Pressable
-            key={t}
-            onPress={() => onChange(t)}
+            key={tabKey}
+            onPress={() => onChange(tabKey)}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
             style={[
@@ -59,7 +60,7 @@ function FilterTabs({
             ]}
           >
             <Text style={[styles.tabText, { color: active ? colors.brandOn : colors.textSecondary }]}>
-              {TAB_LABEL[t]} <Text style={styles.tnum}>{counts[t]}</Text>
+              {t(`requests.tabs.${tabKey}`)} <Text style={styles.tnum}>{counts[tabKey]}</Text>
             </Text>
           </Pressable>
         )
@@ -79,6 +80,7 @@ function RequestRow({
   onReassign: () => void
   colors: Palette
 }) {
+  const { t } = useTranslation('admin')
   const { row: r, tab, info } = item
   const isClosed = r.status === 'closed'
   const danger = roleColors(colors, 'danger')
@@ -106,7 +108,7 @@ function RequestRow({
           <View style={styles.badgeRow}>
             {r.status === 'submitted' && (
               <View style={[styles.badge, { backgroundColor: warning.bg }]}>
-                <Text style={[styles.badgeText, { color: warning.text }]}>Doktor atanmadı</Text>
+                <Text style={[styles.badgeText, { color: warning.text }]}>{t('requests.unassignedBadge')}</Text>
               </View>
             )}
             {info && tab === 'overdue' && (
@@ -142,7 +144,7 @@ function RequestRow({
         ) : (
           <>
             <RefreshCw color={colors.textSecondary} size={14} strokeWidth={1.75} />
-            <Text style={[styles.reassignText, { color: colors.textSecondary }]}>Yeniden ata</Text>
+            <Text style={[styles.reassignText, { color: colors.textSecondary }]}>{t('requests.reassign')}</Text>
           </>
         )}
       </Pressable>
@@ -152,6 +154,7 @@ function RequestRow({
 
 export default function TaleplerScreen() {
   const { colors } = useTheme()
+  const { t } = useTranslation('admin')
   const reqs = useAllRequests()
   const tenantSla = useTenantSla()
   const reassign = useReassign()
@@ -182,9 +185,12 @@ export default function TaleplerScreen() {
     setReassigningId(item.row.id)
     try {
       const { assigned } = await reassign.mutateAsync(item.row)
-      Alert.alert(assigned ? 'Yeniden atandı' : 'Uygun doktor yok', assigned ? 'Talep doktorlara yeniden atandı.' : 'Bu kategoriye uygun doktor bulunamadı.')
+      Alert.alert(
+        assigned ? t('requests.alerts.reassignedTitle') : t('requests.alerts.noDoctorTitle'),
+        assigned ? t('requests.alerts.reassignedMessage') : t('requests.alerts.noDoctorMessage'),
+      )
     } catch (e) {
-      Alert.alert('Atanamadı', (e as Error).message)
+      Alert.alert(t('requests.alerts.failedTitle'), (e as Error).message)
     } finally {
       setReassigningId(null)
     }
@@ -203,8 +209,8 @@ export default function TaleplerScreen() {
       <FilterTabs value={tab} counts={counts} onChange={setTab} colors={colors} />
       {visible.length === 0 ? (
         <EmptyState
-          title={counts.all === 0 ? 'Henüz talep yok' : 'Bu filtrede talep yok'}
-          description={counts.all === 0 ? 'Yeni talepler burada görünür.' : undefined}
+          title={counts.all === 0 ? t('requests.empty.noneTitle') : t('requests.empty.filteredTitle')}
+          description={counts.all === 0 ? t('requests.empty.description') : undefined}
         />
       ) : (
         <FlatList

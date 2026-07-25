@@ -31,13 +31,6 @@ export function classify(
   return { tab: info.state === 'overdue' ? 'overdue' : 'pending', info }
 }
 
-export const TAB_LABEL: Record<SlaTab, string> = {
-  all: 'Tümü',
-  pending: 'Bekleyen',
-  overdue: 'Geciken',
-  completed: 'Tamamlanan',
-}
-
 /** Tüm talepler (en yeni → eski), hasta/kategori/kabul ile zenginleştirilmiş. */
 export function useAllRequests() {
   return useQuery({

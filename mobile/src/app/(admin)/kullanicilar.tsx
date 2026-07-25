@@ -1,10 +1,11 @@
 import { router } from 'expo-router'
 import { KeyRound, Plus, Power, Users } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
-import { canManageTarget, creatableRoles, roleLabel } from '@/domain/userRoles'
+import { canManageTarget, creatableRoles } from '@/domain/userRoles'
 import { useManageUser, useUsers, type ManagedUser } from '@/features/admin/useUsers'
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
@@ -25,6 +26,7 @@ function UserRow({
   onToggleActive: () => void
   colors: Palette
 }) {
+  const { t } = useTranslation('admin')
   const activeTint = roleColors(colors, user.is_active ? 'success' : 'danger')
   return (
     <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
@@ -39,7 +41,7 @@ function UserRow({
         </View>
         <View style={styles.rowMeta}>
           <View style={[styles.roleChip, { backgroundColor: colors.surface3, borderColor: colors.border }]}>
-            <Text style={[styles.roleChipText, { color: colors.textSecondary }]}>{roleLabel(user.role)}</Text>
+            <Text style={[styles.roleChipText, { color: colors.textSecondary }]}>{t(`roles.${user.role}`)}</Text>
           </View>
           <View style={[styles.statusDot, { backgroundColor: activeTint.text }]} />
         </View>
@@ -49,7 +51,7 @@ function UserRow({
         <View style={[styles.actions, { borderTopColor: colors.border }]}>
           <Pressable onPress={onReset} accessibilityRole="button" style={styles.actionBtn} hitSlop={6}>
             <KeyRound color={colors.textSecondary} size={15} strokeWidth={1.75} />
-            <Text style={[styles.actionText, { color: colors.textSecondary }]}>Şifre</Text>
+            <Text style={[styles.actionText, { color: colors.textSecondary }]}>{t('users.passwordAction')}</Text>
           </Pressable>
           <Pressable
             onPress={onToggleActive}
@@ -60,7 +62,7 @@ function UserRow({
           >
             <Power color={user.is_active ? colors.dangerText : colors.brandText} size={15} strokeWidth={1.75} />
             <Text style={[styles.actionText, { color: user.is_active ? colors.dangerText : colors.brandText }]}>
-              {user.is_active ? 'Pasifleştir' : 'Aktifleştir'}
+              {user.is_active ? t('users.deactivateAction') : t('users.activateAction')}
             </Text>
           </Pressable>
         </View>
@@ -71,6 +73,7 @@ function UserRow({
 
 export default function KullanicilarScreen() {
   const { colors } = useTheme()
+  const { t } = useTranslation('admin')
   const { role, session } = useAuth()
   const users = useUsers()
   const manage = useManageUser()
@@ -82,22 +85,22 @@ export default function KullanicilarScreen() {
 
   const resetPassword = (user: ManagedUser) => {
     Alert.prompt(
-      'Şifre sıfırla',
-      `${user.full_name} için yeni şifre girin (en az 8 karakter).`,
+      t('users.resetPassword.title'),
+      t('users.resetPassword.message', { name: user.full_name }),
       [
-        { text: 'Vazgeç', style: 'cancel' },
+        { text: t('users.resetPassword.cancel'), style: 'cancel' },
         {
-          text: 'Sıfırla',
+          text: t('users.resetPassword.confirm'),
           onPress: async (pw?: string) => {
             if (!pw || pw.length < 8) {
-              Alert.alert('Geçersiz şifre', 'Şifre en az 8 karakter olmalı.')
+              Alert.alert(t('users.resetPassword.invalidTitle'), t('users.resetPassword.invalidMessage'))
               return
             }
             try {
               await manage.mutateAsync({ userId: user.id, action: 'reset_password', password: pw })
-              Alert.alert('Sıfırlandı', 'Şifre güncellendi.')
+              Alert.alert(t('users.resetPassword.successTitle'), t('users.resetPassword.successMessage'))
             } catch (e) {
-              Alert.alert('Sıfırlanamadı', (e as Error).message)
+              Alert.alert(t('users.resetPassword.failedTitle'), (e as Error).message)
             }
           },
         },
@@ -109,18 +112,21 @@ export default function KullanicilarScreen() {
   const toggleActive = (user: ManagedUser) => {
     const next = !user.is_active
     Alert.alert(
-      next ? 'Aktifleştir' : 'Pasifleştir',
-      `${user.full_name} ${next ? 'aktifleştirilecek' : 'pasifleştirilecek'}. Emin misiniz?`,
+      next ? t('users.toggleActive.activateTitle') : t('users.toggleActive.deactivateTitle'),
+      t('users.toggleActive.message', {
+        name: user.full_name,
+        action: next ? t('users.toggleActive.activateWord') : t('users.toggleActive.deactivateWord'),
+      }),
       [
-        { text: 'Vazgeç', style: 'cancel' },
+        { text: t('users.toggleActive.cancel'), style: 'cancel' },
         {
-          text: next ? 'Aktifleştir' : 'Pasifleştir',
+          text: next ? t('users.toggleActive.activateTitle') : t('users.toggleActive.deactivateTitle'),
           style: next ? 'default' : 'destructive',
           onPress: async () => {
             try {
               await manage.mutateAsync({ userId: user.id, action: 'set_active', isActive: next })
             } catch (e) {
-              Alert.alert('İşlem başarısız', (e as Error).message)
+              Alert.alert(t('users.toggleActive.failedTitle'), (e as Error).message)
             }
           },
         },
@@ -147,7 +153,7 @@ export default function KullanicilarScreen() {
             <View style={[styles.info, { backgroundColor: colors.surface1, borderColor: colors.border }]}>
               <Users color={colors.textMuted} size={15} strokeWidth={1.75} />
               <Text style={[styles.infoText, { color: colors.textMuted }]}>
-                Doktorları Doktor Yönetimi ekranından yönetin.
+                {t('users.manageDoctorsHint')}
               </Text>
             </View>
             {canCreate && (
@@ -157,12 +163,12 @@ export default function KullanicilarScreen() {
                 style={[styles.newBtn, { backgroundColor: colors.brandFill }]}
               >
                 <Plus color={colors.brandOn} size={18} strokeWidth={2} />
-                <Text style={[styles.newBtnText, { color: colors.brandOn }]}>Yeni Kullanıcı</Text>
+                <Text style={[styles.newBtnText, { color: colors.brandOn }]}>{t('users.newButton')}</Text>
               </Pressable>
             )}
           </View>
         }
-        ListEmptyComponent={<EmptyState title="Kullanıcı yok" />}
+        ListEmptyComponent={<EmptyState title={t('users.emptyTitle')} />}
         renderItem={({ item }) => (
           <UserRow
             user={item}

@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import {
@@ -52,6 +53,7 @@ function CategoryScopeRow({
   onChange: (next: DoctorScope[]) => void
   colors: Palette
 }) {
+  const { t } = useTranslation('admin')
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
 
   if (!category.has_subcategories) {
@@ -78,7 +80,7 @@ function CategoryScopeRow({
             colors={colors}
           />
         ))}
-        {!subs.data?.length && <Text style={[styles.empty, { color: colors.textMuted }]}>Alt kırılım yok</Text>}
+        {!subs.data?.length && <Text style={[styles.empty, { color: colors.textMuted }]}>{t('scopeEditor.noSubcategories')}</Text>}
       </View>
     </View>
   )
