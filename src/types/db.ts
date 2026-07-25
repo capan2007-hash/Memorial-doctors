@@ -14,4 +14,4 @@ export interface DoctorScopeRow { id: string; tenant_id: string; doctor_id: stri
 export interface AiEvaluationRow { id: string; tenant_id: string; request_id: string; status: 'ok' | 'warning' | 'failed'; warnings: { type: string; confidence: number; rationale: string }[]; suitability_note: string | null; disclaimer: string; model: string; model_version: string | null; error: string | null; created_at: string }
 export interface AiFeedbackRow { id: string; tenant_id: string; request_id: string; ai_evaluation_id: string; doctor_id: string; label: 'correct' | 'partial' | 'wrong'; note: string | null; created_at: string }
 /** Faz 3: içerik çeviri önbelleği — client doğrudan erişmez (RLS: 0 satır); yalnız edge fn service-role ile. */
-export interface ContentTranslationRow { id: string; source_hash: string; source_lang: string; target_lang: string; translated_text: string; created_at: string }
+export interface ContentTranslationRow { id: string; tenant_id: string; source_hash: string; source_lang: string; target_lang: string; translated_text: string; created_at: string }

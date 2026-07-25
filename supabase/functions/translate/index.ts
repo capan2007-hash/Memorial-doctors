@@ -64,6 +64,8 @@ Deno.serve(async (req) => {
     const caller = createClient(url, anonKey, { global: { headers: { Authorization: authHeader } } })
     const { data: userRes } = await caller.auth.getUser()
     if (!userRes?.user) return json({ error: 'unauthorized' }, 401)
+    const { data: me } = await caller.from('app_user').select('tenant_id').eq('id', userRes.user.id).single()
+    if (!me) return json({ error: 'forbidden' }, 403)
 
     const body = await req.json().catch(() => null)
     if (!body) return json({ error: 'bad json' }, 400)
@@ -86,10 +88,12 @@ Deno.serve(async (req) => {
     const admin = createClient(url, serviceKey)
     const sourceHash = await sha256Hex(text)
 
-    // Önbellek: service-role ile (source_hash, target_lang) sorgula.
+    // Önbellek: service-role ile (tenant_id, source_hash, target_lang) sorgula.
+    // tenant_id filtresi: PHI çeviri önbelleği firma sınırları arasında SIZMASIN.
     const { data: existing } = await admin
       .from('content_translation')
       .select('translated_text')
+      .eq('tenant_id', me.tenant_id)
       .eq('source_hash', sourceHash)
       .eq('target_lang', targetLang)
       .maybeSingle()
@@ -110,13 +114,13 @@ Deno.serve(async (req) => {
     const translated = textBlock && 'text' in textBlock ? textBlock.text.trim() : ''
     if (!translated) return json({ error: 'model çıktısı boş' }, 500)
 
-    // Çakışmada yok say: aynı (source_hash, target_lang) için yarış durumunda
-    // ilk yazan kazanır, ikinci istek hata almaz.
+    // Çakışmada yok say: aynı (tenant_id, source_hash, target_lang) için yarış
+    // durumunda ilk yazan kazanır, ikinci istek hata almaz.
     await admin
       .from('content_translation')
       .upsert(
-        { source_hash: sourceHash, source_lang: sourceLang, target_lang: targetLang, translated_text: translated },
-        { onConflict: 'source_hash,target_lang', ignoreDuplicates: true },
+        { tenant_id: me.tenant_id, source_hash: sourceHash, source_lang: sourceLang, target_lang: targetLang, translated_text: translated },
+        { onConflict: 'tenant_id,source_hash,target_lang', ignoreDuplicates: true },
       )
       .then(() => {}, () => {})
 
