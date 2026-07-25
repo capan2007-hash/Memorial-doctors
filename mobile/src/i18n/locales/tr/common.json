@@ -3,10 +3,28 @@
     "save": "Kaydet",
     "cancel": "Vazgeç",
     "delete": "Sil",
-    "signOut": "Çıkış"
+    "signOut": "Çıkış",
+    "close": "Kapat"
   },
   "appearance": {
     "sectionLabel": "Görünüm"
+  },
+  "theme": {
+    "light": "Açık tema",
+    "dark": "Koyu tema"
+  },
+  "placeholder": {
+    "comingSoon": "Bu ekran yakında eklenecek."
+  },
+  "doctorTabs": {
+    "blocked": "Bu uygulama doktorlar içindir.",
+    "tabs": {
+      "pending": "Bekleyen",
+      "history": "Geçmiş",
+      "dashboard": "Panel",
+      "profile": "Profil",
+      "settings": "Ayarlar"
+    }
   },
   "notifications": {
     "title": "Bildirimler",
@@ -33,5 +51,33 @@
     "restartTitle": "Yeniden başlatma gerekli",
     "restartMessage": "Yön değişikliği için uygulamanın yeniden açılması gerekiyor.",
     "restartConfirm": "Tamam"
+  },
+  "time": {
+    "justNow": "az önce",
+    "minutesAgo": "{{count}} dk önce",
+    "hoursAgo": "{{count}} sa önce",
+    "daysAgo": "{{count}} gün önce",
+    "minutesShort": "{{count}} dk",
+    "hoursMinutesShort": "{{hours}} sa {{minutes}} dk"
+  },
+  "months": {
+    "jan": "Oca",
+    "feb": "Şub",
+    "mar": "Mar",
+    "apr": "Nis",
+    "may": "May",
+    "jun": "Haz",
+    "jul": "Tem",
+    "aug": "Ağu",
+    "sep": "Eyl",
+    "oct": "Eki",
+    "nov": "Kas",
+    "dec": "Ara"
+  },
+  "score": {
+    "unworkable": "Çalışılmaz"
+  },
+  "rank": {
+    "topPercent": "üst %{{pct}}"
   }
 }

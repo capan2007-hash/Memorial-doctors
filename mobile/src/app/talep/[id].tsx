@@ -63,7 +63,7 @@ export default function AdminRequestDetail() {
               {title}
             </Text>
             <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-              {t('idSubtitle', { shortId: req.id.slice(0, 8), time: timeAgo(req.created_at) })}
+              {t('idSubtitle', { shortId: req.id.slice(0, 8), time: timeAgo(req.created_at, t) })}
             </Text>
           </View>
           <StatusPill status={req.status} />
@@ -80,7 +80,7 @@ export default function AdminRequestDetail() {
         <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('photos')}</Text>
           {photos.length > 0 ? (
-            <PhotoStrip urls={photos} altLabel="Fotoğraf" />
+            <PhotoStrip urls={photos} altLabel={t('photoAlt')} />
           ) : (
             <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('photosEmpty')}</Text>
           )}
@@ -89,7 +89,7 @@ export default function AdminRequestDetail() {
         {xrays.length > 0 && (
           <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
             <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('xrays')}</Text>
-            <PhotoStrip urls={xrays} altLabel="Röntgen" />
+            <PhotoStrip urls={xrays} altLabel={t('xrayAlt')} />
           </View>
         )}
       </ScrollView>

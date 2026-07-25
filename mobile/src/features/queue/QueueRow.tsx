@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { ChevronRight, Clock } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { timeAgo } from '@/domain/format'
@@ -51,6 +52,7 @@ export function QueueRow({
   badge?: ReactNode
 }) {
   const { colors } = useTheme()
+  const { t } = useTranslation()
   return (
     <Pressable
       style={({ pressed }) => [
@@ -74,7 +76,7 @@ export function QueueRow({
       </View>
       <View style={styles.aside}>
         {badge}
-        <Text style={[styles.time, { color: colors.textMuted }]}>{timeAgo(assignedAt)}</Text>
+        <Text style={[styles.time, { color: colors.textMuted }]}>{timeAgo(assignedAt, t)}</Text>
       </View>
       <ChevronRight color={colors.textMuted} size={20} strokeWidth={1.75} />
     </Pressable>

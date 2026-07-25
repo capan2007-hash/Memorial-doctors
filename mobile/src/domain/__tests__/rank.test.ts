@@ -1,4 +1,5 @@
 import { comparable, rankTier, topPercentLabel } from '../rank'
+import { testT } from '@/test-utils/testT'
 
 describe('comparable', () => {
   it('en az 2 doktor gerekir', () => {
@@ -11,11 +12,11 @@ describe('comparable', () => {
 
 describe('topPercentLabel', () => {
   it('yüzdelik etiketi üretir', () => {
-    expect(topPercentLabel(25)).toBe('üst %25')
-    expect(topPercentLabel(100)).toBe('üst %100')
+    expect(topPercentLabel(25, testT)).toBe('üst %25')
+    expect(topPercentLabel(100, testT)).toBe('üst %100')
   })
   it('null için etiket üretmez', () => {
-    expect(topPercentLabel(null)).toBeNull()
+    expect(topPercentLabel(null, testT)).toBeNull()
   })
 })
 

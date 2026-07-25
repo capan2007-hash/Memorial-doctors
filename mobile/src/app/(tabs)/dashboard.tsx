@@ -43,14 +43,14 @@ function PerformanceSection({ perf, colors }: { perf: OwnPerformance; colors: Pa
   const { t } = useTranslation('profile')
   const incoming = perf.accept_count + perf.reject_count + perf.pending_count
   const answered = perf.accept_count + perf.reject_count
-  const tier = scoreTier(perf.score)
+  const tier = scoreTier(perf.score, t)
   return (
     <View style={styles.tileGrid}>
       <MetricTile value={perf.score} label={t('dashboard.performance.score')} role={tier.role} note={tier.label} colors={colors} />
       <MetricTile value={incoming} label={t('dashboard.performance.incoming')} colors={colors} />
       <MetricTile value={answered} label={t('dashboard.performance.answered')} colors={colors} />
       <MetricTile
-        value={perf.avg_response_mins != null ? formatMins(perf.avg_response_mins) : '—'}
+        value={perf.avg_response_mins != null ? formatMins(perf.avg_response_mins, t) : '—'}
         label={t('dashboard.performance.avgResponse')}
         colors={colors}
       />
@@ -86,7 +86,7 @@ function RankRow({
   const { t } = useTranslation('profile')
   const has = rank != null && total > 0
   const tint = has ? roleColors(colors, rankTier(rank, total)) : null
-  const pctLabel = has && comparable(total) ? topPercentLabel(pct) : null
+  const pctLabel = has && comparable(total) ? topPercentLabel(pct, t) : null
 
   return (
     <View style={[styles.rankRow, { borderColor: colors.border, backgroundColor: colors.surface1 }]}>

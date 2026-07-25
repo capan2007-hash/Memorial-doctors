@@ -15,7 +15,9 @@
   "photo": {
     "change": "Fotoğrafı değiştir",
     "add": "Fotoğraf ekle",
-    "uploadFailedTitle": "Yüklenemedi"
+    "uploadFailedTitle": "Yüklenemedi",
+    "galleryPermissionRequired": "Galeri izni gerekli",
+    "processingFailed": "Görsel işlenemedi"
   },
   "active": {
     "title": "Aktif",

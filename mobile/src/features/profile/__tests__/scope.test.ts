@@ -1,5 +1,6 @@
 import { hasScope, toggleScope } from '../scope'
 import { scoreTier } from '@/domain/score'
+import { testT } from '@/test-utils/testT'
 import type { DoctorScope } from '../scope'
 
 const base: DoctorScope[] = [
@@ -37,15 +38,15 @@ describe('toggleScope', () => {
 
 describe('scoreTier', () => {
   it('< 10 danger + "Çalışılmaz"', () => {
-    expect(scoreTier(0)).toEqual({ role: 'danger', label: 'Çalışılmaz' })
-    expect(scoreTier(9)).toEqual({ role: 'danger', label: 'Çalışılmaz' })
+    expect(scoreTier(0, testT)).toEqual({ role: 'danger', label: 'Çalışılmaz' })
+    expect(scoreTier(9, testT)).toEqual({ role: 'danger', label: 'Çalışılmaz' })
   })
   it('10-49 warning', () => {
-    expect(scoreTier(10)).toEqual({ role: 'warning' })
-    expect(scoreTier(49)).toEqual({ role: 'warning' })
+    expect(scoreTier(10, testT)).toEqual({ role: 'warning' })
+    expect(scoreTier(49, testT)).toEqual({ role: 'warning' })
   })
   it('>= 50 success', () => {
-    expect(scoreTier(50)).toEqual({ role: 'success' })
-    expect(scoreTier(100)).toEqual({ role: 'success' })
+    expect(scoreTier(50, testT)).toEqual({ role: 'success' })
+    expect(scoreTier(100, testT)).toEqual({ role: 'success' })
   })
 })

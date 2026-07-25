@@ -32,7 +32,7 @@ function DoctorCard({
 }) {
   const { t } = useTranslation('admin')
   const name = doctor.title || t('roles.doctor')
-  const tier = scoreTier(perf?.score ?? doctor.score)
+  const tier = scoreTier(perf?.score ?? doctor.score, t)
   const tint = roleColors(colors, tier.role)
   const activeTint = doctor.is_active ? roleColors(colors, 'success') : null
 
@@ -69,7 +69,7 @@ function DoctorCard({
         <Stat label={t('doctorsList.stats.reject')} value={perf?.reject_count ?? 0} colors={colors} />
         <Stat
           label={t('doctorsList.stats.avgResponse')}
-          value={perf?.avg_response_mins != null ? formatMins(perf.avg_response_mins) : '—'}
+          value={perf?.avg_response_mins != null ? formatMins(perf.avg_response_mins, t) : '—'}
           colors={colors}
         />
       </View>

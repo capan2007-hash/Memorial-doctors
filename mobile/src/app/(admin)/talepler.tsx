@@ -103,7 +103,7 @@ function RequestRow({
             {r.patientName}
           </Text>
           <Text style={[styles.meta, { color: colors.textMuted }]} numberOfLines={1}>
-            {r.categoryName} · {timeAgo(r.created_at)}
+            {r.categoryName} · {timeAgo(r.created_at, t)}
           </Text>
           <View style={styles.badgeRow}>
             {r.status === 'submitted' && (

@@ -37,7 +37,8 @@
       "reassignedMessage": "Talep doktorlara yeniden atandı.",
       "noDoctorTitle": "Uygun doktor yok",
       "noDoctorMessage": "Bu kategoriye uygun doktor bulunamadı.",
-      "failedTitle": "Atanamadı"
+      "failedTitle": "Atanamadı",
+      "closedCannotReassign": "Kapanmış talep yeniden atanamaz"
     }
   },
   "duplicates": {

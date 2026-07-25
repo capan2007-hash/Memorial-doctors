@@ -202,10 +202,15 @@ function randomId(): string {
 /**
  * Galeriden foto seç → yeniden kodla (resize + jpeg, EXIF düşer) → tenant-scoped
  * storage yoluna yükle; storage_path döner. Kullanıcı iptal ederse null.
+ * i18n: doctors.photo.* (Faz M1 Task 6) — bu bir hook olmadığı için `t` çağıran taraftan alınır.
  */
-export async function pickAndUploadDoctorPhoto(tenantId: string, doctorId: string): Promise<string | null> {
+export async function pickAndUploadDoctorPhoto(
+  tenantId: string,
+  doctorId: string,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): Promise<string | null> {
   const perm = await ImagePicker.requestMediaLibraryPermissionsAsync()
-  if (!perm.granted) throw new Error('Galeri izni gerekli')
+  if (!perm.granted) throw new Error(t('photo.galleryPermissionRequired'))
   const res = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     quality: 1,
@@ -216,7 +221,7 @@ export async function pickAndUploadDoctorPhoto(tenantId: string, doctorId: strin
     format: ImageManipulator.SaveFormat.JPEG,
     base64: true,
   })
-  if (!manip.base64) throw new Error('Görsel işlenemedi')
+  if (!manip.base64) throw new Error(t('photo.processingFailed'))
   const path = `${tenantId}/doctors/${doctorId}/${randomId()}.jpg`
   const { error } = await supabase.storage
     .from('photos')

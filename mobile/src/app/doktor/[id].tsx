@@ -120,7 +120,7 @@ function ScoreHistory({ doctorId, colors }: { doctorId: string; colors: Palette 
   const events = useScoreEvents(doctorId)
   const rows = events.data ?? []
   const total = useMemo(() => netChangeInRange(rows, '1970-01-01T00:00:00.000Z', new Date().toISOString()), [rows])
-  const monthly = useMemo(() => monthlyNetChanges(rows), [rows])
+  const monthly = useMemo(() => monthlyNetChanges(rows, t), [rows, t])
   const success = roleColors(colors, 'success')
   const danger = roleColors(colors, 'danger')
   const maxAbs = Math.max(1, ...monthly.map((m) => Math.abs(m.net)))
@@ -237,7 +237,7 @@ export default function DoctorEditScreen() {
     if (!tenantId) return
     setUploading(true)
     try {
-      const path = await pickAndUploadDoctorPhoto(tenantId, doctor.id)
+      const path = await pickAndUploadDoctorPhoto(tenantId, doctor.id, t)
       if (path) setPhotoUrl(path) // Kaydet ile doctor.photo_url'e yazılır
     } catch (e) {
       Alert.alert(t('photo.uploadFailedTitle'), (e as Error).message)

@@ -2,6 +2,7 @@
 // veri katmanı mobile mirror. request+patient+category+response(accept) istemci-JOIN,
 // tenant SLA, ve manuel yeniden-atama (assign_request_doctors RPC).
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
@@ -78,9 +79,10 @@ export function useTenantSla() {
 /** Manuel yeniden atama: assign_request_doctors RPC. 0 uygun doktor → assigned:false. */
 export function useReassign() {
   const qc = useQueryClient()
+  const { t } = useTranslation('admin')
   return useMutation({
     mutationFn: async (req: EnrichedRequestRow): Promise<{ assigned: boolean }> => {
-      if (req.status === 'closed') throw new Error('Kapanmış talep yeniden atanamaz')
+      if (req.status === 'closed') throw new Error(t('requests.alerts.closedCannotReassign'))
       const { data: count, error } = await supabase.rpc('assign_request_doctors', {
         p_request_id: req.id,
         p_type: 'manual',

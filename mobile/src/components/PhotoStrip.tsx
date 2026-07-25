@@ -2,6 +2,7 @@
 // modal. Mobilde yatay ScrollView + Modal olarak sadeleştirildi (pinch/zoom yok).
 import { useState } from 'react'
 import { Image } from 'expo-image'
+import { useTranslation } from 'react-i18next'
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { X } from 'lucide-react-native'
 
@@ -10,6 +11,7 @@ import { radius, spacing } from '@/theme'
 
 export function PhotoStrip({ urls, altLabel }: { urls: string[]; altLabel: string }) {
   const { colors } = useTheme()
+  const { t } = useTranslation('common')
   const [selected, setSelected] = useState<string | null>(null)
 
   if (urls.length === 0) return null
@@ -41,7 +43,7 @@ export function PhotoStrip({ urls, altLabel }: { urls: string[]; altLabel: strin
             style={styles.closeButton}
             onPress={() => setSelected(null)}
             accessibilityRole="button"
-            accessibilityLabel="Kapat"
+            accessibilityLabel={t('actions.close')}
             hitSlop={8}
           >
             <X color="#FFFFFF" size={22} strokeWidth={2} />

@@ -1,5 +1,6 @@
 import { Redirect, Tabs } from 'expo-router'
 import { BarChart3, Clock, Inbox, LogOut, Settings, UserCircle } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
@@ -9,16 +10,17 @@ import { fontFamily, radius, spacing } from '@/theme'
 function BlockedScreen() {
   const { signOut } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('common')
   return (
     <View style={[styles.blocked, { backgroundColor: colors.surface0 }]}>
-      <Text style={[styles.blockedText, { color: colors.textSecondary }]}>Bu uygulama doktorlar içindir.</Text>
+      <Text style={[styles.blockedText, { color: colors.textSecondary }]}>{t('doctorTabs.blocked')}</Text>
       <Pressable
         style={[styles.signOutButton, { backgroundColor: colors.brandFill }]}
         onPress={signOut}
         accessibilityRole="button"
       >
         <LogOut color={colors.brandOn} size={18} strokeWidth={1.75} />
-        <Text style={[styles.signOutButtonText, { color: colors.brandOn }]}>Çıkış</Text>
+        <Text style={[styles.signOutButtonText, { color: colors.brandOn }]}>{t('actions.signOut')}</Text>
       </Pressable>
     </View>
   )
@@ -27,6 +29,7 @@ function BlockedScreen() {
 export default function TabsLayout() {
   const { session, role, loading } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('common')
 
   if (loading) {
     return (
@@ -59,35 +62,35 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Bekleyen',
+          title: t('doctorTabs.tabs.pending'),
           tabBarIcon: ({ color, size }) => <Inbox color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
-          title: 'Geçmiş',
+          title: t('doctorTabs.tabs.history'),
           tabBarIcon: ({ color, size }) => <Clock color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Panel',
+          title: t('doctorTabs.tabs.dashboard'),
           tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profil',
+          title: t('doctorTabs.tabs.profile'),
           tabBarIcon: ({ color, size }) => <UserCircle color={color} size={size} strokeWidth={1.75} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Ayarlar',
+          title: t('doctorTabs.tabs.settings'),
           tabBarIcon: ({ color, size }) => <Settings color={color} size={size} strokeWidth={1.75} />,
         }}
       />

@@ -7,9 +7,11 @@ export interface ScoreTier {
   label?: string
 }
 
-/** <10 "Çalışılmaz" (danger), 10-49 uyarı (warning), >=50 iyi (success). */
-export function scoreTier(score: number): ScoreTier {
-  if (score < 10) return { role: 'danger', label: 'Çalışılmaz' }
+type TFunc = (key: string, opts?: Record<string, unknown>) => string
+
+/** <10 "Çalışılmaz" (danger), 10-49 uyarı (warning), >=50 iyi (success). i18n: common.score.*. */
+export function scoreTier(score: number, t: TFunc): ScoreTier {
+  if (score < 10) return { role: 'danger', label: t('common:score.unworkable') }
   if (score < 50) return { role: 'warning' }
   return { role: 'success' }
 }
@@ -41,7 +43,8 @@ export function netChangeInRange(events: ScoreEventLite[], fromIso: string, toIs
   return { positive, negative, net: positive - negative }
 }
 
-const TR_MONTHS_SHORT = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara']
+// i18n: common.months.* (Faz M1 Task 6) — kısa ay anahtarları, `t` ile çözülür.
+const MONTH_KEYS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
 export interface MonthlyNet {
   key: string
@@ -50,12 +53,18 @@ export interface MonthlyNet {
 }
 
 /** Son `monthsBack` ayın (bugün dahil, eskiden yeniye) net skor değişimi — boş aylar 0. */
-export function monthlyNetChanges(events: ScoreEventLite[], now: Date = new Date(), monthsBack = 6): MonthlyNet[] {
+export function monthlyNetChanges(
+  events: ScoreEventLite[],
+  t: TFunc,
+  now: Date = new Date(),
+  monthsBack = 6,
+): MonthlyNet[] {
   const buckets: MonthlyNet[] = []
   for (let i = monthsBack - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    buckets.push({ key, label: `${TR_MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`, net: 0 })
+    const monthLabel = t(`common:months.${MONTH_KEYS[d.getMonth()]}`)
+    buckets.push({ key, label: `${monthLabel} ${d.getFullYear()}`, net: 0 })
   }
   const indexByKey = new Map(buckets.map((b, i) => [b.key, i]))
   for (const e of events) {

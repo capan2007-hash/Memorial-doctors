@@ -9,10 +9,13 @@ export function comparable(total: number): boolean {
   return total >= 2
 }
 
-/** "üst %25" gibi bir etiket. pct null ise etiket üretilmez. */
-export function topPercentLabel(pct: number | null): string | null {
+/** "üst %25" gibi bir etiket. pct null ise etiket üretilmez. i18n: common.rank.topPercent. */
+export function topPercentLabel(
+  pct: number | null,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): string | null {
   if (pct == null) return null
-  return `üst %${pct}`
+  return t('common:rank.topPercent', { pct })
 }
 
 /** Üst ⅓ success, orta ⅓ warning, alt ⅓ danger. total<=0 ise warning (nötr). */

@@ -118,7 +118,7 @@ export default function RequestDetailScreen() {
               {title}
             </Text>
             <Text style={styles.subtitle}>
-              {t('idSubtitle', { shortId: req.id.slice(0, 8), time: timeAgo(req.created_at) })}
+              {t('idSubtitle', { shortId: req.id.slice(0, 8), time: timeAgo(req.created_at, t) })}
             </Text>
           </View>
           <StatusPill status={req.status} />
@@ -135,7 +135,7 @@ export default function RequestDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t('photos')}</Text>
           {photos.length > 0 ? (
-            <PhotoStrip urls={photos} altLabel="Fotoğraf" />
+            <PhotoStrip urls={photos} altLabel={t('photoAlt')} />
           ) : (
             <Text style={styles.emptyText}>{t('photosEmpty')}</Text>
           )}
@@ -144,7 +144,7 @@ export default function RequestDetailScreen() {
         {xrays.length > 0 && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>{t('xrays')}</Text>
-            <PhotoStrip urls={xrays} altLabel="Röntgen" />
+            <PhotoStrip urls={xrays} altLabel={t('xrayAlt')} />
           </View>
         )}
 

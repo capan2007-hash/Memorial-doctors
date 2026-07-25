@@ -1,4 +1,5 @@
 import { Moon, Sun } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useTheme } from '@/lib/theme'
@@ -7,9 +8,10 @@ import { fontFamily, radius, spacing } from '@/theme'
 /** Yeniden kullanılabilir tema anahtarı satırı — açık/koyu arası geçiş yapar. */
 export function ThemeToggle() {
   const { mode, colors, toggle } = useTheme()
+  const { t } = useTranslation('common')
   const isDark = mode === 'dark'
   const Icon = isDark ? Sun : Moon
-  const label = isDark ? 'Açık tema' : 'Koyu tema'
+  const label = isDark ? t('theme.light') : t('theme.dark')
 
   return (
     <Pressable

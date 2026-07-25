@@ -1,10 +1,14 @@
 import { monthlyNetChanges, netChangeInRange, scoreTier } from '../score'
+import { testT } from '@/test-utils/testT'
 
 describe('scoreTier', () => {
   it('kelepçe eşikleri', () => {
-    expect(scoreTier(5).role).toBe('danger')
-    expect(scoreTier(30).role).toBe('warning')
-    expect(scoreTier(70).role).toBe('success')
+    expect(scoreTier(5, testT).role).toBe('danger')
+    expect(scoreTier(30, testT).role).toBe('warning')
+    expect(scoreTier(70, testT).role).toBe('success')
+  })
+  it('< 10 için "Çalışılmaz" etiketi döner', () => {
+    expect(scoreTier(5, testT).label).toBe('Çalışılmaz')
   })
 })
 
@@ -31,7 +35,7 @@ describe('monthlyNetChanges', () => {
       { delta: 1, created_at: new Date(2026, 6, 5).toISOString() },
       { delta: -1, created_at: new Date(2026, 5, 20).toISOString() }, // Haz
     ]
-    const buckets = monthlyNetChanges(events, now, 6)
+    const buckets = monthlyNetChanges(events, testT, now, 6)
     expect(buckets).toHaveLength(6)
     expect(buckets[buckets.length - 1].net).toBe(2) // Tem
     expect(buckets[buckets.length - 2].net).toBe(-1) // Haz
