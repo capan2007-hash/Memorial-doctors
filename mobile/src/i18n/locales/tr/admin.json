@@ -1,0 +1,8 @@
+{
+  "title": "Yönetim",
+  "roles": {
+    "coordinator": "Koordinatör",
+    "admin": "Yönetici",
+    "super_admin": "Süper Admin"
+  }
+}

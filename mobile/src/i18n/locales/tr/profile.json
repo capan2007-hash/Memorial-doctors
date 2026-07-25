@@ -1,0 +1,8 @@
+{
+  "title": "Profil",
+  "fields": {
+    "fullName": "Ad Soyad",
+    "specialty": "Uzmanlık"
+  },
+  "edit": "Profili düzenle"
+}

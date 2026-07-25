@@ -3,5 +3,20 @@
     "save": "Kaydet",
     "cancel": "Vazgeç",
     "delete": "Sil"
+  },
+  "status": {
+    "draft": "Taslak",
+    "submitted": "Gönderildi",
+    "assigned": "Atandı",
+    "in_review": "Yanıtlanıyor",
+    "offers_ready": "Teklif hazır",
+    "escalated": "Eskalasyon",
+    "closed": "Kapandı"
+  },
+  "language": {
+    "sectionLabel": "Dil",
+    "restartTitle": "Yeniden başlatma gerekli",
+    "restartMessage": "Yön değişikliği için uygulamanın yeniden açılması gerekiyor.",
+    "restartConfirm": "Tamam"
   }
 }

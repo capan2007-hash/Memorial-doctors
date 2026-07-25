@@ -1,7 +1,9 @@
 import { LogOut, ShieldCheck, User } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing } from '@/theme'
@@ -15,6 +17,7 @@ const ROLE_LABEL: Record<string, string> = {
 export default function AdminSettingsScreen() {
   const { fullName, role, signOut } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('common')
 
   const cardStyle = [
     styles.card,
@@ -38,6 +41,13 @@ export default function AdminSettingsScreen() {
       <View>
         <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Görünüm</Text>
         <ThemeToggle />
+      </View>
+
+      <View>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+          {t('language.sectionLabel')}
+        </Text>
+        <LanguageSwitcher />
       </View>
 
       <Pressable

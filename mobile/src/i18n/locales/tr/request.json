@@ -1,0 +1,9 @@
+{
+  "title": "Talep",
+  "decision": {
+    "accept": "Kabul",
+    "reject": "Red"
+  },
+  "photos": "Fotoğraflar",
+  "notes": "Notlar"
+}

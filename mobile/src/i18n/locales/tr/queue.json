@@ -1,0 +1,9 @@
+{
+  "title": "Kuyruk",
+  "empty": "Kuyrukta talep yok",
+  "filters": {
+    "all": "Tümü",
+    "pending": "Bekleyen"
+  },
+  "refresh": "Yenile"
+}

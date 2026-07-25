@@ -11,6 +11,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Localization from 'expo-localization'
 
 import trCommon from './locales/tr/common.json'
+import trAuth from './locales/tr/auth.json'
+import trQueue from './locales/tr/queue.json'
+import trRequest from './locales/tr/request.json'
+import trProfile from './locales/tr/profile.json'
+import trAdmin from './locales/tr/admin.json'
+import trAi from './locales/tr/ai.json'
 
 export const SUPPORTED = ['tr', 'ar', 'en', 'ru', 'de', 'fr'] as const
 export type Lang = (typeof SUPPORTED)[number]
@@ -54,12 +60,20 @@ void i18n
   .use(initReactI18next)
   .init({
     resources: {
-      tr: { common: trCommon },
+      tr: {
+        common: trCommon,
+        auth: trAuth,
+        queue: trQueue,
+        request: trRequest,
+        profile: trProfile,
+        admin: trAdmin,
+        ai: trAi,
+      },
     },
     fallbackLng: 'tr',
     supportedLngs: SUPPORTED as unknown as string[],
     defaultNS: 'common',
-    ns: ['common'],
+    ns: ['common', 'auth', 'queue', 'request', 'profile', 'admin', 'ai'],
     interpolation: { escapeValue: false },
   })
 

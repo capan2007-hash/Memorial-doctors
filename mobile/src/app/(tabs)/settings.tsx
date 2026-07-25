@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Bell, LogOut, User } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
 import { registerForPush, usePushSetup } from '@/features/push/usePushRegistration'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing } from '@/theme'
@@ -13,6 +15,7 @@ export default function SettingsScreen() {
   const { permissionStatus, refresh } = usePushSetup(doctorId, tenantId)
   const [requesting, setRequesting] = useState(false)
   const { colors } = useTheme()
+  const { t } = useTranslation('common')
 
   const granted = permissionStatus === 'granted'
   const permissionLabel =
@@ -75,6 +78,13 @@ export default function SettingsScreen() {
       <View>
         <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Görünüm</Text>
         <ThemeToggle />
+      </View>
+
+      <View>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+          {t('language.sectionLabel')}
+        </Text>
+        <LanguageSwitcher />
       </View>
 
       <Pressable
