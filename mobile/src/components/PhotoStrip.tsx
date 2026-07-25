@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   closeButton: {
     position: 'absolute',
     top: 56,
-    right: spacing.four,
+    end: spacing.four,
     width: 44,
     height: 44,
     alignItems: 'center',

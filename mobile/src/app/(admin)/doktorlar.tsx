@@ -10,6 +10,7 @@ import { formatMins } from '@/domain/format'
 import { scoreTier } from '@/domain/score'
 import { useDoctorPerformance, useDoctorsFull, type DoctorPerformanceRow, type DoctorWithScopes } from '@/features/admin/useDoctors'
 import { useTheme } from '@/lib/theme'
+import { rtlIconStyle } from '@/lib/rtl'
 import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
 
 function Stat({ label, value, colors }: { label: string; value: string | number; colors: Palette }) {
@@ -57,7 +58,7 @@ function DoctorCard({
             <Text style={[styles.badgeText, { color: colors.textMuted }]}>{t('doctorsList.inactiveBadge')}</Text>
           </View>
         )}
-        <ChevronRight color={colors.textMuted} size={18} strokeWidth={1.75} />
+        <ChevronRight color={colors.textMuted} size={18} strokeWidth={1.75} style={rtlIconStyle} />
       </View>
 
       <View style={[styles.statRow, { borderTopColor: colors.border }]}>

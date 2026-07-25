@@ -11,6 +11,7 @@ import { StatusPill } from '@/components/StatusPill'
 import { timeAgo } from '@/domain/format'
 import { slaLabel } from '@/domain/sla'
 import { useTheme } from '@/lib/theme'
+import { rtlIconStyle } from '@/lib/rtl'
 import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
 import {
   classify,
@@ -126,7 +127,7 @@ function RequestRow({
             <StatusPill status={r.status} />
           </View>
         </View>
-        <ChevronRight color={colors.textMuted} size={18} strokeWidth={1.75} />
+        <ChevronRight color={colors.textMuted} size={18} strokeWidth={1.75} style={rtlIconStyle} />
       </Pressable>
 
       <Pressable

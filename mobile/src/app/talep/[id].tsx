@@ -11,6 +11,7 @@ import { useRequestDetail } from '@/features/request/useRequestDetail'
 import { timeAgo } from '@/domain/format'
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
+import { rtlIconStyle } from '@/lib/rtl'
 import { fontFamily, radius, spacing } from '@/theme'
 
 /** Koordinatör talep detayı — salt okunur (kabul/red yok; yönetim listede). */
@@ -53,7 +54,7 @@ export default function AdminRequestDetail() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Pressable onPress={() => router.back()} accessibilityRole="button" style={styles.back} hitSlop={8}>
-          <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} />
+          <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} style={rtlIconStyle} />
           <Text style={[styles.backText, { color: colors.textSecondary }]}>{t('admin.backToList')}</Text>
         </Pressable>
 
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
   backLink: { padding: spacing.two },
   backLinkText: { fontFamily: fontFamily.semibold, fontSize: 14 },
   scrollContent: { padding: spacing.four, gap: spacing.three },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: -6 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginStart: -6 },
   backText: { fontFamily: fontFamily.medium, fontSize: 15 },
   header: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.two },
   headerText: { flex: 1 },

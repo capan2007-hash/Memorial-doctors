@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   name: { fontFamily: fontFamily.semibold, fontSize: 18, marginTop: spacing.half },
   roleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.half, marginTop: spacing.one },
   role: { fontFamily: fontFamily.semibold, fontSize: 13 },
-  sectionLabel: { fontFamily: fontFamily.medium, fontSize: 13, marginBottom: spacing.one, marginLeft: spacing.half },
+  sectionLabel: { fontFamily: fontFamily.medium, fontSize: 13, marginBottom: spacing.one, marginStart: spacing.half },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',

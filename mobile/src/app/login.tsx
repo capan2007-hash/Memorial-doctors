@@ -7,6 +7,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleShee
 import { useAuth } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { useTheme } from '@/lib/theme'
+import { rtlIconStyle } from '@/lib/rtl'
 import { fontFamily, radius, spacing } from '@/theme'
 
 // Web sıfırlama sayfası — link tarayıcıda web /reset'i açar (mobilde ayrı sıfırlama ekranı yok).
@@ -185,7 +186,7 @@ export default function LoginScreen() {
           )}
 
           <Pressable onPress={backToLogin} accessibilityRole="button" style={styles.linkButton}>
-            <ChevronLeft color={colors.brandText} size={16} strokeWidth={2} />
+            <ChevronLeft color={colors.brandText} size={16} strokeWidth={2} style={rtlIconStyle} />
             <Text style={[styles.linkText, { color: colors.brandText }]}>{t('backToLogin')}</Text>
           </Pressable>
         </View>

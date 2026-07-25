@@ -19,6 +19,7 @@ import { creatableRoles } from '@/domain/userRoles'
 import { useCreateUser } from '@/features/admin/useUsers'
 import { useAuth, type Role } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
+import { rtlIconStyle } from '@/lib/rtl'
 import { fontFamily, radius, spacing } from '@/theme'
 
 export default function NewUserScreen() {
@@ -70,7 +71,7 @@ export default function NewUserScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <Pressable onPress={() => router.back()} accessibilityRole="button" style={styles.back} hitSlop={8}>
-          <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} />
+          <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} style={rtlIconStyle} />
           <Text style={[styles.backText, { color: colors.textSecondary }]}>{t('newUser.backLabel')}</Text>
         </Pressable>
 
@@ -131,7 +132,7 @@ export default function NewUserScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   scrollContent: { padding: spacing.four, gap: spacing.three },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: -6 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginStart: -6 },
   backText: { fontFamily: fontFamily.medium, fontSize: 15 },
   title: { fontFamily: fontFamily.display, fontSize: 22 },
   card: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.md, padding: spacing.three, gap: spacing.one },

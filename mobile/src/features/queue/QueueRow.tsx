@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { timeAgo } from '@/domain/format'
 import type { SlaInfo } from '@/domain/sla'
 import { useTheme } from '@/lib/theme'
+import { rtlIconStyle } from '@/lib/rtl'
 import { fontFamily, radius, roleColors, spacing } from '@/theme'
 
 // FR-24/25/26/29: kuyruk satırı SLA geri sayım rozeti (bkz. web DoctorQueue.tsx aynı desen).
@@ -78,7 +79,7 @@ export function QueueRow({
         {badge}
         <Text style={[styles.time, { color: colors.textMuted }]}>{timeAgo(assignedAt, t)}</Text>
       </View>
-      <ChevronRight color={colors.textMuted} size={20} strokeWidth={1.75} />
+      <ChevronRight color={colors.textMuted} size={20} strokeWidth={1.75} style={rtlIconStyle} />
     </Pressable>
   )
 }

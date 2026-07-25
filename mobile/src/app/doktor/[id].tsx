@@ -35,6 +35,7 @@ import type { DoctorScope } from '@/features/profile/scope'
 import { monthlyNetChanges, netChangeInRange } from '@/domain/score'
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
+import { rtlIconStyle } from '@/lib/rtl'
 import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
 
 function WeightedWorkEditor({
@@ -309,7 +310,7 @@ export default function DoctorEditScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <Pressable onPress={() => router.back()} accessibilityRole="button" style={styles.back} hitSlop={8}>
-          <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} />
+          <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} style={rtlIconStyle} />
           <Text style={[styles.backText, { color: colors.textSecondary }]}>{t('backLabel')}</Text>
         </Pressable>
 
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
   errorText: { fontFamily: fontFamily.medium, fontSize: 15 },
   linkText: { fontFamily: fontFamily.semibold, fontSize: 14 },
   scrollContent: { padding: spacing.four, gap: spacing.three },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: -6 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginStart: -6 },
   backText: { fontFamily: fontFamily.medium, fontSize: 15 },
   photoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.three },
   photo: { width: 64, height: 64, borderRadius: radius.full },

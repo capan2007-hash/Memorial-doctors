@@ -19,6 +19,7 @@ import { Check, ChevronLeft, X } from 'lucide-react-native'
 
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
+import { rtlIconStyle } from '@/lib/rtl'
 import { useRequestDetail } from '@/features/request/useRequestDetail'
 import { useRespond } from '@/features/request/useRespond'
 import { PatientInfoCard } from '@/components/PatientInfoCard'
@@ -60,7 +61,7 @@ export default function RequestDetailScreen() {
         hitSlop={8}
         style={styles.backButton}
       >
-        <ChevronLeft color={colors.textPrimary} size={26} strokeWidth={2} />
+        <ChevronLeft color={colors.textPrimary} size={26} strokeWidth={2} style={rtlIconStyle} />
       </Pressable>
     ),
   } as const
@@ -259,7 +260,7 @@ const makeStyles = (colors: Palette) =>
       height: 44,
       alignItems: 'center',
       justifyContent: 'center',
-      marginLeft: -8,
+      marginStart: -8,
     },
     scrollContent: {
       padding: spacing.four,

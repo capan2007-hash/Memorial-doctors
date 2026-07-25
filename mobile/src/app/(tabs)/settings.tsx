@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.medium,
     fontSize: 13,
     marginBottom: spacing.one,
-    marginLeft: spacing.half,
+    marginStart: spacing.half,
   },
   name: {
     fontFamily: fontFamily.semibold,

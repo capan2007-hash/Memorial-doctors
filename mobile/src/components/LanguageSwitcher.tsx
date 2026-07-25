@@ -2,10 +2,9 @@
 // Yeniden kullanılabilir dil seçici satır listesi — Ayarlar (doktor) ve Ayarlar
 // (koordinatör/admin) ekranlarında ortak kullanılır.
 import { Check } from 'lucide-react-native'
-import { useTranslation } from 'react-i18next'
-import { Alert, I18nManager, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { RTL_LANGS, type Lang } from '@/i18n'
+import type { Lang } from '@/i18n'
 import { useAppLanguage } from '@/i18n/useAppLanguage'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing } from '@/theme'
@@ -20,27 +19,20 @@ const LANGUAGES: Array<{ code: Lang; flag: string; label: string }> = [
 ]
 
 /**
- * Not: RTL yönü (I18nManager.forceRTL) yalnızca uygulama yeniden başlatıldığında tam olarak
- * yansır. `expo-updates` şu an proje bağımlılığı DEĞİL — bu yüzden burada yalnızca Alert ile
- * "uygulamayı yeniden açın" uyarısı gösterilir. `expo-updates` eklendiğinde bu Alert,
- * `Updates.reloadAsync()` çağrısıyla değiştirilebilir (tam RTL görsel geçiş: Faz M1 Task 8).
+ * Not: RTL yönü senkronizasyonu (I18nManager.forceRTL + yeniden başlatma uyarısı) artık
+ * burada değil, merkezi olarak `useAppLanguage`'da yaşıyor: `changeLang` → i18next
+ * `languageChanged` olayı → `syncRtlDirection` (bkz. src/lib/rtl.ts). Böylece hem elle dil
+ * seçiminde hem de açılışta otomatik dil algılamasında aynı tek akış çalışır (Faz M1 Task 8).
+ * `expo-updates` şu an proje bağımlılığı DEĞİL — bu yüzden gerçek RTL geçişi ancak
+ * uygulama tam olarak yeniden açıldığında (Alert'te belirtildiği gibi) yansır.
  */
 export function LanguageSwitcher() {
   const { colors } = useTheme()
-  const { t } = useTranslation('common')
   const { lang, changeLang } = useAppLanguage()
 
   const handleSelect = (code: Lang) => {
     if (code === lang) return
     changeLang(code)
-
-    const shouldBeRTL = RTL_LANGS.has(code)
-    if (I18nManager.isRTL !== shouldBeRTL) {
-      I18nManager.forceRTL(shouldBeRTL)
-      Alert.alert(t('language.restartTitle'), t('language.restartMessage'), [
-        { text: t('language.restartConfirm') },
-      ])
-    }
   }
 
   return (
