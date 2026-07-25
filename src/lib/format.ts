@@ -1,3 +1,5 @@
+import i18n from '../i18n'
+
 export function timeAgo(iso: string, now: Date = new Date()): string {
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return ''
@@ -5,21 +7,18 @@ export function timeAgo(iso: string, now: Date = new Date()): string {
   const diffMs = now.getTime() - date.getTime()
   const diffSec = Math.floor(diffMs / 1000)
 
-  if (diffSec < 60) return 'az önce'
+  if (diffSec < 60) return i18n.t('time.justNow', { ns: 'common' })
 
   const diffMin = Math.floor(diffSec / 60)
-  if (diffMin < 60) return `${diffMin} dk önce`
+  if (diffMin < 60) return i18n.t('time.minutesAgo', { ns: 'common', count: diffMin })
 
   const diffHour = Math.floor(diffMin / 60)
-  if (diffHour < 24) return `${diffHour} sa önce`
+  if (diffHour < 24) return i18n.t('time.hoursAgo', { ns: 'common', count: diffHour })
 
   const diffDay = Math.floor(diffHour / 24)
-  if (diffDay < 7) return `${diffDay} gün önce`
+  if (diffDay < 7) return i18n.t('time.daysAgo', { ns: 'common', count: diffDay })
 
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = String(date.getFullYear())
-  return `${day}.${month}.${year}`
+  return formatDate(iso)
 }
 
 /** dd.mm.yyyy biçiminde tarih (imha/arşiv göstergeleri için, M4). */
@@ -35,10 +34,10 @@ export function formatDate(iso: string): string {
 /** Dakikayı okunur süreye çevirir: <60 → "N dk", aksi halde "H sa M dk". */
 export function formatMins(n: number): string {
   const rounded = Math.round(n)
-  if (rounded < 60) return `${rounded} dk`
+  if (rounded < 60) return `${rounded} ${i18n.t('time.minutesShort', { ns: 'common' })}`
   const h = Math.floor(rounded / 60)
   const m = rounded % 60
-  return `${h} sa ${m} dk`
+  return `${h} ${i18n.t('time.hoursShort', { ns: 'common' })} ${m} ${i18n.t('time.minutesShort', { ns: 'common' })}`
 }
 
 /** <input type="date"> için yerel tarih (toISOString/UTC gece 03:00 öncesi TR'de bir önceki günü gösterirdi). */

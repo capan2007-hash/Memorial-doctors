@@ -19,5 +19,13 @@
   },
   "autoTranslated": "ترجمة تلقائية",
   "showOriginal": "إظهار النص الأصلي",
-  "showTranslation": "إظهار الترجمة"
+  "showTranslation": "إظهار الترجمة",
+  "time": {
+    "justNow": "الآن",
+    "minutesAgo": "قبل {{count}} دقيقة",
+    "hoursAgo": "قبل {{count}} ساعة",
+    "daysAgo": "قبل {{count}} أيام",
+    "hoursShort": "س",
+    "minutesShort": "د"
+  }
 }
