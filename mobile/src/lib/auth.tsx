@@ -4,17 +4,9 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 import { unregisterPush } from '@/features/push/usePushRegistration'
+import type { AppUserRow } from '@/types/db'
 
 export type Role = 'agent' | 'sales' | 'doctor' | 'coordinator' | 'admin' | 'super_admin'
-
-interface AppUserRow {
-  id: string
-  tenant_id: string
-  role: Role
-  full_name: string
-  phone: string | null
-  is_active: boolean
-}
 
 interface DoctorRow {
   id: string
@@ -27,6 +19,7 @@ interface AuthValue {
   fullName: string | null
   tenantId: string | null
   doctorId: string | null
+  language: string | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
@@ -106,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fullName: appUser?.full_name ?? null,
         tenantId: appUser?.tenant_id ?? null,
         doctorId,
+        language: appUser?.language ?? null,
         loading,
         signIn,
         signOut,

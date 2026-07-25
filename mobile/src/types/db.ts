@@ -1,9 +1,20 @@
 // Kaynak: /src/types/db.ts (web) — Metro repo-kökü dışı import kısıtı nedeniyle
 // yalnız mobil ekranların kullandığı satır tipleri kopyalandı.
 import type { RequestStatus } from '@/domain/status'
+import type { Role } from '@/lib/auth'
 
 export type Decision = 'accept' | 'reject'
 export type SaleStatus = 'not_completed' | 'sale_done' | 'operation_done'
+
+export interface AppUserRow {
+  id: string
+  tenant_id: string
+  role: Role
+  full_name: string
+  phone: string | null
+  is_active: boolean
+  language: string
+}
 
 export interface RequestRow {
   id: string

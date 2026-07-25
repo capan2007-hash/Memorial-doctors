@@ -11,8 +11,10 @@ import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
 
+import '@/i18n'
 import { AuthProvider, useAuth } from '@/lib/auth'
 import { ThemeProvider } from '@/lib/theme'
+import { useAppLanguage } from '@/i18n/useAppLanguage'
 import { useNotificationDeepLink, usePushSetup } from '@/features/push/usePushRegistration'
 
 SplashScreen.preventAutoHideAsync()
@@ -25,6 +27,7 @@ function RootNavigator() {
   const { doctorId, tenantId } = useAuth()
   usePushSetup(doctorId, tenantId)
   useNotificationDeepLink()
+  useAppLanguage()
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
