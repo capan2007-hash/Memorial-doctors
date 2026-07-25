@@ -4,6 +4,7 @@
 // sözleşmeyle native'e taşındı. Bu uygulamada kullanıcı her zaman doktor
 // olduğundan web'deki canGiveFeedback prop'u yerine yalnız doctorId kontrol edilir.
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { AlertTriangle, Info, SlashIcon } from 'lucide-react-native'
 
@@ -16,18 +17,8 @@ import { useSubmitAiFeedback } from './useAiFeedback'
 
 const POLL_GIVE_UP_MS = 120_000
 
-const WARNING_LABELS: Record<string, string> = {
-  photo_operation_mismatch: 'Fotoğraf–operasyon uyumsuzluğu',
-  demographics_operation_risk: 'Demografi–operasyon riski',
-  missing_data: 'Eksik veri',
-  photo_quality: 'Fotoğraf kalitesi',
-}
-
-const FEEDBACK_LABELS: Record<AiFeedbackRow['label'], string> = {
-  correct: 'Doğru',
-  partial: 'Kısmen doğru',
-  wrong: 'Yanlış',
-}
+// Uyarı tipi anahtarları ai.json'daki warnings.* ile birebir eşleşir.
+const WARNING_TYPES = ['photo_operation_mismatch', 'demographics_operation_risk', 'missing_data', 'photo_quality']
 
 const FEEDBACK_OPTIONS: AiFeedbackRow['label'][] = ['correct', 'partial', 'wrong']
 
@@ -43,6 +34,7 @@ function FeedbackSection({
   doctorId: string
 }) {
   const { colors } = useTheme()
+  const { t } = useTranslation('ai')
   const styles = makeStyles(colors)
   const existing = useAiFeedbackFor(aiEvaluationId, doctorId)
   const submit = useSubmitAiFeedback()
@@ -55,7 +47,7 @@ function FeedbackSection({
       <View style={styles.feedbackDivider}>
         <View style={styles.feedbackBadge}>
           <Text style={styles.feedbackBadgeText}>
-            Geri bildiriminiz: {FEEDBACK_LABELS[existing.data.label]}
+            {t('feedback.yoursLabel', { label: t(`feedback.${existing.data.label}`) })}
           </Text>
         </View>
         {existing.data.note && <Text style={styles.feedbackNoteText}>{existing.data.note}</Text>}
@@ -65,7 +57,7 @@ function FeedbackSection({
 
   return (
     <View style={[styles.feedbackDivider, styles.gap]}>
-      <Text style={styles.feedbackPrompt}>Bu değerlendirme:</Text>
+      <Text style={styles.feedbackPrompt}>{t('feedback.prompt')}</Text>
       <View style={styles.feedbackButtonsRow}>
         {FEEDBACK_OPTIONS.map((label) => {
           const isSelected = selected === label
@@ -78,7 +70,7 @@ function FeedbackSection({
               accessibilityState={{ selected: isSelected }}
             >
               <Text style={[styles.feedbackButtonText, isSelected && styles.feedbackButtonTextSelected]}>
-                {FEEDBACK_LABELS[label]}
+                {t(`feedback.${label}`)}
               </Text>
             </Pressable>
           )
@@ -86,7 +78,7 @@ function FeedbackSection({
       </View>
       <TextInput
         style={styles.noteInput}
-        placeholder="İsteğe bağlı not"
+        placeholder={t('feedback.notePlaceholder')}
         placeholderTextColor={colors.textMuted}
         value={note}
         onChangeText={setNote}
@@ -106,14 +98,14 @@ function FeedbackSection({
               label: selected,
               note: note || undefined,
             },
-            { onError: () => setSubmitError('Geri bildirim gönderilemedi') },
+            { onError: () => setSubmitError(t('feedback.submitError')) },
           )
         }}
       >
         {submit.isPending ? (
           <ActivityIndicator color={colors.brandOn} />
         ) : (
-          <Text style={styles.submitButtonText}>Gönder</Text>
+          <Text style={styles.submitButtonText}>{t('feedback.submit')}</Text>
         )}
       </Pressable>
       {submitError && <Text style={styles.feedbackErrorText}>{submitError}</Text>}
@@ -124,13 +116,14 @@ function FeedbackSection({
 export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?: string | null }) {
   const { tenantId } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('ai')
   const styles = makeStyles(colors)
   // Veri null kaldıkça React Query yeni render tetiklemez; süre kontrolü
   // ancak zamanlayıcıyla zorlanan bir render'da yeniden değerlendirilebilir.
   const [gaveUp, setGaveUp] = useState(false)
   useEffect(() => {
-    const t = setTimeout(() => setGaveUp(true), POLL_GIVE_UP_MS)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setGaveUp(true), POLL_GIVE_UP_MS)
+    return () => clearTimeout(timer)
   }, [requestId])
   const q = useAiEvaluation(requestId)
 
@@ -138,7 +131,7 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
     return (
       <View style={styles.loadingRow}>
         <ActivityIndicator color={colors.textSecondary} />
-        <Text style={styles.loadingText}>AI değerlendirmesi hazırlanıyor…</Text>
+        <Text style={styles.loadingText}>{t('loading')}</Text>
       </View>
     )
   }
@@ -151,27 +144,27 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
     return (
       <View style={styles.failedRow}>
         <SlashIcon color={colors.textMuted} size={16} strokeWidth={1.75} />
-        <Text style={styles.failedText}>AI değerlendirmesi yapılamadı</Text>
+        <Text style={styles.failedText}>{t('failed')}</Text>
       </View>
     )
   }
 
   return (
     <View style={styles.card}>
-      <Text style={styles.cardTitle}>AI Triyaj Değerlendirmesi</Text>
+      <Text style={styles.cardTitle}>{t('panel.title')}</Text>
       <View style={styles.band}>
         <Info color={colors.infoText} size={16} strokeWidth={1.75} />
-        <Text style={styles.bandText}>Yön göstericidir; nihai karar hekimindir.</Text>
+        <Text style={styles.bandText}>{t('panel.disclaimer')}</Text>
       </View>
       {evaluation.warnings.length > 0 && (
         <View style={styles.gap}>
           {evaluation.warnings
-            .filter((w) => WARNING_LABELS[w.type])
+            .filter((w) => WARNING_TYPES.includes(w.type))
             .map((w, i) => (
               <View key={i} style={styles.warningItem}>
                 <View style={styles.warningHeaderRow}>
                   <AlertTriangle color={colors.warningText} size={16} strokeWidth={1.75} />
-                  <Text style={styles.warningLabel}>{WARNING_LABELS[w.type]}</Text>
+                  <Text style={styles.warningLabel}>{t(`warnings.${w.type}`)}</Text>
                   <View style={styles.confidenceBadge}>
                     <Text style={styles.confidenceBadgeText}>%{Math.round(w.confidence * 100)}</Text>
                   </View>
@@ -181,7 +174,7 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
             ))}
         </View>
       )}
-      <Text style={styles.suitabilityHeading}>Uygunluk değerlendirmesi</Text>
+      <Text style={styles.suitabilityHeading}>{t('panel.suitabilityHeading')}</Text>
       <Text style={styles.suitabilityNote}>{evaluation.suitability_note}</Text>
       {doctorId && tenantId && (
         <FeedbackSection

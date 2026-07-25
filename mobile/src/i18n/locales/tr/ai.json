@@ -1,5 +1,27 @@
 {
   "title": "Yapay Zeka",
-  "loading": "Analiz ediliyor…",
-  "error": "Bir hata oluştu"
+  "loading": "AI değerlendirmesi hazırlanıyor…",
+  "failed": "AI değerlendirmesi yapılamadı",
+  "error": "Bir hata oluştu",
+  "panel": {
+    "title": "AI Triyaj Değerlendirmesi",
+    "disclaimer": "Yön göstericidir; nihai karar hekimindir.",
+    "suitabilityHeading": "Uygunluk değerlendirmesi"
+  },
+  "warnings": {
+    "photo_operation_mismatch": "Fotoğraf–operasyon uyumsuzluğu",
+    "demographics_operation_risk": "Demografi–operasyon riski",
+    "missing_data": "Eksik veri",
+    "photo_quality": "Fotoğraf kalitesi"
+  },
+  "feedback": {
+    "correct": "Doğru",
+    "partial": "Kısmen doğru",
+    "wrong": "Yanlış",
+    "prompt": "Bu değerlendirme:",
+    "notePlaceholder": "İsteğe bağlı not",
+    "submit": "Gönder",
+    "submitError": "Geri bildirim gönderilemedi",
+    "yoursLabel": "Geri bildiriminiz: {{label}}"
+  }
 }

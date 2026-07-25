@@ -13,6 +13,7 @@ import trRequest from '../locales/tr/request.json'
 import trProfile from '../locales/tr/profile.json'
 import trAdmin from '../locales/tr/admin.json'
 import trAi from '../locales/tr/ai.json'
+import trDoctors from '../locales/tr/doctors.json'
 
 function keys(obj: object, prefix = ''): string[] {
   return Object.entries(obj).flatMap(([k, v]) =>
@@ -42,6 +43,7 @@ describe('i18n key parity (tr iskeleti — Task 7 6 dile genişletilecek)', () =
     ['profile', trProfile],
     ['admin', trAdmin],
     ['ai', trAi],
+    ['doctors', trDoctors],
   ])('%s: geçerli JSON + en az bir TABAN anahtar içerir', (_ns, tr) => {
     expect(tr && typeof tr === 'object').toBe(true)
     const base = baseKeys(tr)

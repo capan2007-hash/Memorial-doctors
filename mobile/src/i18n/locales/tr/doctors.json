@@ -1,0 +1,85 @@
+{
+  "backLabel": "Doktorlar",
+  "notFound": "Doktor bulunamadı.",
+  "backLink": "Geri dön",
+  "weightedWork": {
+    "levels": { "high": "Yüksek", "medium": "Orta", "low": "Düşük" },
+    "areaPlaceholder": "Alan (ör. Rinoplasti)",
+    "addButton": "Alan ekle",
+    "notePlaceholder": "Not (opsiyonel)"
+  },
+  "scoreHistory": {
+    "timely": "Zamanında",
+    "offTarget": "Hedef dışı"
+  },
+  "photo": {
+    "change": "Fotoğrafı değiştir",
+    "add": "Fotoğraf ekle",
+    "uploadFailedTitle": "Yüklenemedi"
+  },
+  "active": {
+    "title": "Aktif",
+    "helper": "Pasif doktora yeni talep atanmaz."
+  },
+  "profile": {
+    "title": "Profil",
+    "titleLabel": "Unvan",
+    "titlePlaceholder": "ör. Op. Dr.",
+    "specialtyLabel": "Branş",
+    "specialtyPlaceholder": "ör. Plastik Cerrahi",
+    "bioLabel": "Biyografi",
+    "bioPlaceholder": "Biyografi / CV",
+    "defaultName": "Doktor"
+  },
+  "scopes": {
+    "title": "Yetkinlikler",
+    "helperEdit": "Bu tedaviler için yeni talepler bu doktora gönderilir.",
+    "warnMin": "En az bir yetkinlik seçilmeli."
+  },
+  "weightedWorkCard": {
+    "title": "Ağırlıklı işler"
+  },
+  "scoreHistoryCard": {
+    "title": "Skor geçmişi"
+  },
+  "save": "Kaydet",
+  "deactivate": "Doktoru pasifleştir",
+  "alerts": {
+    "scopeRequiredTitle": "Yetkinlik gerekli",
+    "scopeRequiredMessage": "En az bir yetkinlik seçmelisiniz.",
+    "savedTitle": "Kaydedildi",
+    "savedMessage": "Doktor bilgileri güncellendi.",
+    "saveFailedTitle": "Kaydedilemedi",
+    "noUserRecordTitle": "Silinemedi",
+    "noUserRecordMessage": "Bu doktorun kullanıcı kaydı yok.",
+    "deactivateConfirmTitle": "Doktoru pasifleştir",
+    "deactivateConfirmMessage": "{{name}} pasife alınacak. Emin misiniz?",
+    "cancel": "Vazgeç",
+    "deactivateConfirm": "Pasifleştir",
+    "deactivatedTitle": "Pasifleştirildi",
+    "deactivatedMessage": "Doktor pasife alındı.",
+    "deactivateFailedTitle": "Silinemedi"
+  },
+  "new": {
+    "title": "Yeni Doktor",
+    "account": {
+      "title": "Hesap",
+      "emailLabel": "E-posta",
+      "emailPlaceholder": "doktor@klinik.com",
+      "passwordLabel": "Geçici şifre",
+      "passwordPlaceholder": "Geçici şifre",
+      "fullNameLabel": "Ad Soyad",
+      "fullNamePlaceholder": "Ad Soyad"
+    },
+    "submit": "Doktoru oluştur",
+    "alerts": {
+      "missingFieldsTitle": "Eksik bilgi",
+      "missingFieldsMessage": "E-posta, şifre ve ad zorunludur.",
+      "scopeRequiredTitle": "Yetkinlik gerekli",
+      "scopeRequiredMessage": "En az bir yetkinlik seçmelisiniz.",
+      "createdTitle": "Doktor eklendi",
+      "createdMessage": "{{name}} oluşturuldu.",
+      "createFailedTitle": "Eklenemedi"
+    }
+  }
+}

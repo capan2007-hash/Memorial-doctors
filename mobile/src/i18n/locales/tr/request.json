@@ -5,5 +5,69 @@
     "reject": "Red"
   },
   "photos": "Fotoğraflar",
-  "notes": "Notlar"
+  "photosEmpty": "Fotoğraf eklenmemiş",
+  "xrays": "Diş Röntgeni",
+  "notes": "Notlar",
+  "backLabel": "Geri",
+  "idSubtitle": "Talep #{{shortId}} · {{time}}",
+  "decisionHeading": "Kararınız",
+  "planNotSpecified": "Tedavi planı belirtilmedi",
+  "reasonNotSpecified": "Gerekçe belirtilmedi",
+  "responseSaved": "Yanıtınız kaydedildi.",
+  "errors": {
+    "loadFailed": "Talep yüklenemedi. Bağlantınızı kontrol edin.",
+    "loadFailedShort": "Talep yüklenemedi.",
+    "respondFailed": "Yanıt kaydedilemedi: {{message}}"
+  },
+  "actions": {
+    "accept": "Kabul",
+    "reject": "Red",
+    "acceptConfirm": "Kabul et",
+    "rejectConfirm": "Reddet",
+    "planLabel": "Tedavi planı",
+    "planPlaceholder": "Tedavi planı",
+    "reasonLabel": "Red gerekçesi",
+    "reasonPlaceholder": "Red gerekçesi (zorunlu)"
+  },
+  "admin": {
+    "backToList": "Talepler",
+    "backLink": "Geri dön"
+  },
+  "patientInfo": {
+    "title": "Hasta Bilgileri",
+    "notSpecified": "Belirtilmedi",
+    "fields": {
+      "patientName": "Hasta adı",
+      "category": "Kategori",
+      "operation": "İstenen operasyon",
+      "age": "Yaş",
+      "gender": "Cinsiyet",
+      "height": "Boy (cm)",
+      "weight": "Kilo (kg)",
+      "bmi": "BMI",
+      "pastSurgeries": "Geçmiş ameliyatlar",
+      "knownConditions": "Bilinen hastalıklar",
+      "medications": "Düzenli ilaçlar",
+      "smoking": "Sigara",
+      "alcohol": "Alkol",
+      "notes": "Not"
+    },
+    "gender": {
+      "female": "Kadın",
+      "male": "Erkek",
+      "other": "Diğer"
+    },
+    "smoking": {
+      "never": "Hiç kullanmadı",
+      "former": "Bıraktı",
+      "current": "Aktif içici",
+      "packYears": "{{value}} paket-yıl"
+    },
+    "alcohol": {
+      "never": "Hiç",
+      "occasional": "Sosyal",
+      "regular": "Düzenli",
+      "perWeek": "{{value}}/hafta"
+    }
+  }
 }

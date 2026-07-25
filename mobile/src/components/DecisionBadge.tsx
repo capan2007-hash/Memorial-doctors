@@ -1,16 +1,19 @@
+import { useTranslation } from 'react-i18next'
 import { StyleSheet, Text, View } from 'react-native'
 
-import { DECISION_LABELS, DECISION_ROLE, type Decision } from '@/domain/status'
+import { DECISION_ROLE, type Decision } from '@/domain/status'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, roleColors } from '@/theme'
 
+/** Karar rozeti (i18n: common.decision.*). */
 export function DecisionBadge({ decision }: { decision: Decision }) {
   const { colors } = useTheme()
+  const { t } = useTranslation()
   const c = roleColors(colors, DECISION_ROLE[decision])
   return (
     <View style={[styles.root, { backgroundColor: c.bg, borderColor: c.border }]}>
       <View style={[styles.dot, { backgroundColor: c.text }]} />
-      <Text style={[styles.text, { color: c.text }]}>{DECISION_LABELS[decision]}</Text>
+      <Text style={[styles.text, { color: c.text }]}>{t(`common:decision.${decision}`)}</Text>
     </View>
   )
 }

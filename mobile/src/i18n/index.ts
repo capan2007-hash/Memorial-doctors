@@ -17,6 +17,7 @@ import trRequest from './locales/tr/request.json'
 import trProfile from './locales/tr/profile.json'
 import trAdmin from './locales/tr/admin.json'
 import trAi from './locales/tr/ai.json'
+import trDoctors from './locales/tr/doctors.json'
 
 export const SUPPORTED = ['tr', 'ar', 'en', 'ru', 'de', 'fr'] as const
 export type Lang = (typeof SUPPORTED)[number]
@@ -68,12 +69,13 @@ void i18n
         profile: trProfile,
         admin: trAdmin,
         ai: trAi,
+        doctors: trDoctors,
       },
     },
     fallbackLng: 'tr',
     supportedLngs: SUPPORTED as unknown as string[],
     defaultNS: 'common',
-    ns: ['common', 'auth', 'queue', 'request', 'profile', 'admin', 'ai'],
+    ns: ['common', 'auth', 'queue', 'request', 'profile', 'admin', 'ai', 'doctors'],
     interpolation: { escapeValue: false },
   })
 

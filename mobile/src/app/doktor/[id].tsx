@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Image } from 'expo-image'
 import { Redirect, Stack, router, useLocalSearchParams } from 'expo-router'
 import { Camera, ChevronLeft, Plus, Save, Trash2, X } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
   Alert,
@@ -36,12 +37,6 @@ import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
 
-const LEVELS: { key: WeightedWorkLevel; label: string }[] = [
-  { key: 'high', label: 'Yüksek' },
-  { key: 'medium', label: 'Orta' },
-  { key: 'low', label: 'Düşük' },
-]
-
 function WeightedWorkEditor({
   value,
   onChange,
@@ -51,6 +46,12 @@ function WeightedWorkEditor({
   onChange: (next: WeightedWork) => void
   colors: Palette
 }) {
+  const { t } = useTranslation('doctors')
+  const LEVELS: { key: WeightedWorkLevel; label: string }[] = [
+    { key: 'high', label: t('weightedWork.levels.high') },
+    { key: 'medium', label: t('weightedWork.levels.medium') },
+    { key: 'low', label: t('weightedWork.levels.low') },
+  ]
   const setItem = (i: number, patch: Partial<{ area: string; level: WeightedWorkLevel }>) => {
     const items = value.items.map((it, idx) => (idx === i ? { ...it, ...patch } : it))
     onChange({ ...value, items })
@@ -66,8 +67,8 @@ function WeightedWorkEditor({
             <TextInput
               style={[styles.wwArea, { color: colors.textPrimary }]}
               value={it.area}
-              onChangeText={(t) => setItem(i, { area: t })}
-              placeholder="Alan (ör. Rinoplasti)"
+              onChangeText={(text) => setItem(i, { area: text })}
+              placeholder={t('weightedWork.areaPlaceholder')}
               placeholderTextColor={colors.textMuted}
             />
             <Pressable onPress={() => removeItem(i)} hitSlop={8} accessibilityRole="button">
@@ -99,13 +100,13 @@ function WeightedWorkEditor({
       ))}
       <Pressable onPress={addItem} accessibilityRole="button" style={[styles.addBtn, { borderColor: colors.border }]}>
         <Plus color={colors.textSecondary} size={15} strokeWidth={1.75} />
-        <Text style={[styles.addBtnText, { color: colors.textSecondary }]}>Alan ekle</Text>
+        <Text style={[styles.addBtnText, { color: colors.textSecondary }]}>{t('weightedWork.addButton')}</Text>
       </Pressable>
       <TextInput
         style={[styles.input, styles.multiline, { backgroundColor: colors.surface1, borderColor: colors.border, color: colors.textPrimary }]}
         value={value.note}
-        onChangeText={(t) => onChange({ ...value, note: t })}
-        placeholder="Not (opsiyonel)"
+        onChangeText={(text) => onChange({ ...value, note: text })}
+        placeholder={t('weightedWork.notePlaceholder')}
         placeholderTextColor={colors.textMuted}
         multiline
         textAlignVertical="top"
@@ -115,6 +116,7 @@ function WeightedWorkEditor({
 }
 
 function ScoreHistory({ doctorId, colors }: { doctorId: string; colors: Palette }) {
+  const { t } = useTranslation('doctors')
   const events = useScoreEvents(doctorId)
   const rows = events.data ?? []
   const total = useMemo(() => netChangeInRange(rows, '1970-01-01T00:00:00.000Z', new Date().toISOString()), [rows])
@@ -130,11 +132,11 @@ function ScoreHistory({ doctorId, colors }: { doctorId: string; colors: Palette 
       <View style={styles.scoreTotals}>
         <View style={[styles.totalChip, { backgroundColor: success.bg }]}>
           <Text style={[styles.totalValue, { color: success.text }]}>{total.positive}</Text>
-          <Text style={[styles.totalLabel, { color: success.text }]}>Zamanında</Text>
+          <Text style={[styles.totalLabel, { color: success.text }]}>{t('scoreHistory.timely')}</Text>
         </View>
         <View style={[styles.totalChip, { backgroundColor: danger.bg }]}>
           <Text style={[styles.totalValue, { color: danger.text }]}>{total.negative}</Text>
-          <Text style={[styles.totalLabel, { color: danger.text }]}>Hedef dışı</Text>
+          <Text style={[styles.totalLabel, { color: danger.text }]}>{t('scoreHistory.offTarget')}</Text>
         </View>
       </View>
       <View style={styles.barRow}>
@@ -165,6 +167,7 @@ export default function DoctorEditScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { role, tenantId } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('doctors')
   const doctors = useDoctorsFull()
   const update = useUpdateDoctor()
   const manage = useManageUser()
@@ -222,9 +225,9 @@ export default function DoctorEditScreen() {
     return (
       <View style={[styles.root, styles.centered, { backgroundColor: colors.surface0 }]}>
         <Stack.Screen options={{ headerShown: false }} />
-        <Text style={[styles.errorText, { color: colors.textSecondary }]}>Doktor bulunamadı.</Text>
+        <Text style={[styles.errorText, { color: colors.textSecondary }]}>{t('notFound')}</Text>
         <Pressable onPress={() => router.back()} style={{ padding: spacing.two }}>
-          <Text style={[styles.linkText, { color: colors.brandText }]}>Geri dön</Text>
+          <Text style={[styles.linkText, { color: colors.brandText }]}>{t('backLink')}</Text>
         </Pressable>
       </View>
     )
@@ -237,7 +240,7 @@ export default function DoctorEditScreen() {
       const path = await pickAndUploadDoctorPhoto(tenantId, doctor.id)
       if (path) setPhotoUrl(path) // Kaydet ile doctor.photo_url'e yazılır
     } catch (e) {
-      Alert.alert('Yüklenemedi', (e as Error).message)
+      Alert.alert(t('photo.uploadFailedTitle'), (e as Error).message)
     } finally {
       setUploading(false)
     }
@@ -245,7 +248,7 @@ export default function DoctorEditScreen() {
 
   const save = async () => {
     if (!scopes.length) {
-      Alert.alert('Yetkinlik gerekli', 'En az bir yetkinlik seçmelisiniz.')
+      Alert.alert(t('alerts.scopeRequiredTitle'), t('alerts.scopeRequiredMessage'))
       return
     }
     try {
@@ -259,33 +262,37 @@ export default function DoctorEditScreen() {
         photoUrl,
         scopes,
       })
-      Alert.alert('Kaydedildi', 'Doktor bilgileri güncellendi.')
+      Alert.alert(t('alerts.savedTitle'), t('alerts.savedMessage'))
     } catch (e) {
-      Alert.alert('Kaydedilemedi', (e as Error).message)
+      Alert.alert(t('alerts.saveFailedTitle'), (e as Error).message)
     }
   }
 
   const confirmDelete = () => {
     if (!doctor.app_user_id) {
-      Alert.alert('Silinemedi', 'Bu doktorun kullanıcı kaydı yok.')
+      Alert.alert(t('alerts.noUserRecordTitle'), t('alerts.noUserRecordMessage'))
       return
     }
-    Alert.alert('Doktoru pasifleştir', `${title || 'Doktor'} pasife alınacak. Emin misiniz?`, [
-      { text: 'Vazgeç', style: 'cancel' },
-      {
-        text: 'Pasifleştir',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await manage.mutateAsync({ userId: doctor.app_user_id!, action: 'delete_doctor' })
-            Alert.alert('Pasifleştirildi', 'Doktor pasife alındı.')
-            router.back()
-          } catch (e) {
-            Alert.alert('Silinemedi', (e as Error).message)
-          }
+    Alert.alert(
+      t('alerts.deactivateConfirmTitle'),
+      t('alerts.deactivateConfirmMessage', { name: title || t('profile.defaultName') }),
+      [
+        { text: t('alerts.cancel'), style: 'cancel' },
+        {
+          text: t('alerts.deactivateConfirm'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await manage.mutateAsync({ userId: doctor.app_user_id!, action: 'delete_doctor' })
+              Alert.alert(t('alerts.deactivatedTitle'), t('alerts.deactivatedMessage'))
+              router.back()
+            } catch (e) {
+              Alert.alert(t('alerts.deactivateFailedTitle'), (e as Error).message)
+            }
+          },
         },
-      },
-    ])
+      ],
+    )
   }
 
   const inputStyle = [
@@ -303,7 +310,7 @@ export default function DoctorEditScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <Pressable onPress={() => router.back()} accessibilityRole="button" style={styles.back} hitSlop={8}>
           <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} />
-          <Text style={[styles.backText, { color: colors.textSecondary }]}>Doktorlar</Text>
+          <Text style={[styles.backText, { color: colors.textSecondary }]}>{t('backLabel')}</Text>
         </Pressable>
 
         {/* Foto + isim */}
@@ -311,10 +318,10 @@ export default function DoctorEditScreen() {
           {photoSigned ? (
             <Image source={{ uri: photoSigned }} style={styles.photo} contentFit="cover" />
           ) : (
-            <Avatar name={title || 'Doktor'} size={64} />
+            <Avatar name={title || t('profile.defaultName')} size={64} />
           )}
           <View style={styles.photoInfo}>
-            <Text style={[styles.title, { color: colors.textPrimary }]}>{title || 'Doktor'}</Text>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{title || t('profile.defaultName')}</Text>
             <Pressable onPress={changePhoto} disabled={uploading} accessibilityRole="button" style={styles.photoBtn} hitSlop={6}>
               {uploading ? (
                 <ActivityIndicator color={colors.brandText} size="small" />
@@ -322,7 +329,7 @@ export default function DoctorEditScreen() {
                 <>
                   <Camera color={colors.brandText} size={15} strokeWidth={1.75} />
                   <Text style={[styles.photoBtnText, { color: colors.brandText }]}>
-                    {photoSigned ? 'Fotoğrafı değiştir' : 'Fotoğraf ekle'}
+                    {photoSigned ? t('photo.change') : t('photo.add')}
                   </Text>
                 </>
               )}
@@ -334,8 +341,8 @@ export default function DoctorEditScreen() {
         <View style={card}>
           <View style={styles.switchRow}>
             <View>
-              <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Aktif</Text>
-              <Text style={[styles.helper, { color: colors.textMuted }]}>Pasif doktora yeni talep atanmaz.</Text>
+              <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('active.title')}</Text>
+              <Text style={[styles.helper, { color: colors.textMuted }]}>{t('active.helper')}</Text>
             </View>
             <Switch value={isActive} onValueChange={setIsActive} />
           </View>
@@ -343,32 +350,32 @@ export default function DoctorEditScreen() {
 
         {/* Profil */}
         <View style={card}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Profil</Text>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Unvan</Text>
-          <TextInput style={inputStyle} value={title} onChangeText={setTitle} placeholder="ör. Op. Dr." placeholderTextColor={colors.textMuted} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Branş</Text>
-          <TextInput style={inputStyle} value={specialty} onChangeText={setSpecialty} placeholder="ör. Plastik Cerrahi" placeholderTextColor={colors.textMuted} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Biyografi</Text>
-          <TextInput style={[inputStyle, styles.multiline]} value={bio} onChangeText={setBio} placeholder="Biyografi / CV" placeholderTextColor={colors.textMuted} multiline textAlignVertical="top" />
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('profile.title')}</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.titleLabel')}</Text>
+          <TextInput style={inputStyle} value={title} onChangeText={setTitle} placeholder={t('profile.titlePlaceholder')} placeholderTextColor={colors.textMuted} />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.specialtyLabel')}</Text>
+          <TextInput style={inputStyle} value={specialty} onChangeText={setSpecialty} placeholder={t('profile.specialtyPlaceholder')} placeholderTextColor={colors.textMuted} />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.bioLabel')}</Text>
+          <TextInput style={[inputStyle, styles.multiline]} value={bio} onChangeText={setBio} placeholder={t('profile.bioPlaceholder')} placeholderTextColor={colors.textMuted} multiline textAlignVertical="top" />
         </View>
 
         {/* Yetkinlikler */}
         <View style={card}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Yetkinlikler</Text>
-          <Text style={[styles.helper, { color: colors.textSecondary }]}>Bu tedaviler için yeni talepler bu doktora gönderilir.</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('scopes.title')}</Text>
+          <Text style={[styles.helper, { color: colors.textSecondary }]}>{t('scopes.helperEdit')}</Text>
           <ScopeEditor scopes={scopes} onChange={setScopes} />
-          {!scopes.length && <Text style={[styles.warn, { color: colors.warningText }]}>En az bir yetkinlik seçilmeli.</Text>}
+          {!scopes.length && <Text style={[styles.warn, { color: colors.warningText }]}>{t('scopes.warnMin')}</Text>}
         </View>
 
         {/* Ağırlıklı işler */}
         <View style={card}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Ağırlıklı işler</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('weightedWorkCard.title')}</Text>
           <WeightedWorkEditor value={weightedWork} onChange={setWeightedWork} colors={colors} />
         </View>
 
         {/* Skor geçmişi */}
         <View style={card}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Skor geçmişi</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('scoreHistoryCard.title')}</Text>
           <ScoreHistory doctorId={doctor.id} colors={colors} />
         </View>
 
@@ -378,7 +385,7 @@ export default function DoctorEditScreen() {
           ) : (
             <>
               <Save color={colors.brandOn} size={18} strokeWidth={1.75} />
-              <Text style={[styles.primaryBtnText, { color: colors.brandOn }]}>Kaydet</Text>
+              <Text style={[styles.primaryBtnText, { color: colors.brandOn }]}>{t('save')}</Text>
             </>
           )}
         </Pressable>
@@ -386,7 +393,7 @@ export default function DoctorEditScreen() {
         {canDelete && (
           <Pressable onPress={confirmDelete} disabled={manage.isPending} accessibilityRole="button" style={[styles.deleteBtn, { borderColor: colors.dangerBorder, backgroundColor: colors.dangerBg }, manage.isPending && styles.disabled]}>
             <Trash2 color={colors.dangerText} size={16} strokeWidth={1.75} />
-            <Text style={[styles.deleteBtnText, { color: colors.dangerText }]}>Doktoru pasifleştir</Text>
+            <Text style={[styles.deleteBtnText, { color: colors.dangerText }]}>{t('deactivate')}</Text>
           </Pressable>
         )}
       </ScrollView>

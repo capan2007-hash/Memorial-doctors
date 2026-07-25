@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Redirect, Stack, router } from 'expo-router'
 import { ChevronLeft, UserPlus } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
   Alert,
@@ -24,6 +25,7 @@ import { fontFamily, radius, spacing } from '@/theme'
 export default function NewDoctorScreen() {
   const { role } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('doctors')
   const create = useCreateDoctor()
 
   const [email, setEmail] = useState('')
@@ -38,11 +40,11 @@ export default function NewDoctorScreen() {
 
   const submit = async () => {
     if (!email.trim() || !password.trim() || !fullName.trim()) {
-      Alert.alert('Eksik bilgi', 'E-posta, şifre ve ad zorunludur.')
+      Alert.alert(t('new.alerts.missingFieldsTitle'), t('new.alerts.missingFieldsMessage'))
       return
     }
     if (!scopes.length) {
-      Alert.alert('Yetkinlik gerekli', 'En az bir yetkinlik seçmelisiniz.')
+      Alert.alert(t('new.alerts.scopeRequiredTitle'), t('new.alerts.scopeRequiredMessage'))
       return
     }
     try {
@@ -56,10 +58,10 @@ export default function NewDoctorScreen() {
         weightedWork: { items: [], note: '' },
         scopes,
       })
-      Alert.alert('Doktor eklendi', `${fullName.trim()} oluşturuldu.`)
+      Alert.alert(t('new.alerts.createdTitle'), t('new.alerts.createdMessage', { name: fullName.trim() }))
       router.back()
     } catch (e) {
-      Alert.alert('Eklenemedi', (e as Error).message)
+      Alert.alert(t('new.alerts.createFailedTitle'), (e as Error).message)
     }
   }
 
@@ -77,35 +79,35 @@ export default function NewDoctorScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <Pressable onPress={() => router.back()} accessibilityRole="button" style={styles.back} hitSlop={8}>
           <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} />
-          <Text style={[styles.backText, { color: colors.textSecondary }]}>Doktorlar</Text>
+          <Text style={[styles.backText, { color: colors.textSecondary }]}>{t('backLabel')}</Text>
         </Pressable>
 
-        <Text style={[styles.title, { color: colors.textPrimary }]}>Yeni Doktor</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>{t('new.title')}</Text>
 
         <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Hesap</Text>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>E-posta</Text>
-          <TextInput style={inputStyle} value={email} onChangeText={setEmail} placeholder="doktor@klinik.com" placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Geçici şifre</Text>
-          <TextInput style={inputStyle} value={password} onChangeText={setPassword} placeholder="Geçici şifre" placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Ad Soyad</Text>
-          <TextInput style={inputStyle} value={fullName} onChangeText={setFullName} placeholder="Ad Soyad" placeholderTextColor={colors.textMuted} />
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('new.account.title')}</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('new.account.emailLabel')}</Text>
+          <TextInput style={inputStyle} value={email} onChangeText={setEmail} placeholder={t('new.account.emailPlaceholder')} placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('new.account.passwordLabel')}</Text>
+          <TextInput style={inputStyle} value={password} onChangeText={setPassword} placeholder={t('new.account.passwordPlaceholder')} placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('new.account.fullNameLabel')}</Text>
+          <TextInput style={inputStyle} value={fullName} onChangeText={setFullName} placeholder={t('new.account.fullNamePlaceholder')} placeholderTextColor={colors.textMuted} />
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Profil</Text>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Unvan</Text>
-          <TextInput style={inputStyle} value={title} onChangeText={setTitle} placeholder="ör. Op. Dr." placeholderTextColor={colors.textMuted} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Branş</Text>
-          <TextInput style={inputStyle} value={specialty} onChangeText={setSpecialty} placeholder="ör. Plastik Cerrahi" placeholderTextColor={colors.textMuted} />
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Biyografi</Text>
-          <TextInput style={[inputStyle, styles.multiline]} value={bio} onChangeText={setBio} placeholder="Biyografi / CV" placeholderTextColor={colors.textMuted} multiline textAlignVertical="top" />
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('profile.title')}</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.titleLabel')}</Text>
+          <TextInput style={inputStyle} value={title} onChangeText={setTitle} placeholder={t('profile.titlePlaceholder')} placeholderTextColor={colors.textMuted} />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.specialtyLabel')}</Text>
+          <TextInput style={inputStyle} value={specialty} onChangeText={setSpecialty} placeholder={t('profile.specialtyPlaceholder')} placeholderTextColor={colors.textMuted} />
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.bioLabel')}</Text>
+          <TextInput style={[inputStyle, styles.multiline]} value={bio} onChangeText={setBio} placeholder={t('profile.bioPlaceholder')} placeholderTextColor={colors.textMuted} multiline textAlignVertical="top" />
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Yetkinlikler</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('scopes.title')}</Text>
           <ScopeEditor scopes={scopes} onChange={setScopes} />
-          {!scopes.length && <Text style={[styles.warn, { color: colors.warningText }]}>En az bir yetkinlik seçilmeli.</Text>}
+          {!scopes.length && <Text style={[styles.warn, { color: colors.warningText }]}>{t('scopes.warnMin')}</Text>}
         </View>
 
         <Pressable onPress={submit} disabled={create.isPending} accessibilityRole="button" style={[styles.primaryBtn, { backgroundColor: colors.brandFill }, create.isPending && styles.disabled]}>
@@ -114,7 +116,7 @@ export default function NewDoctorScreen() {
           ) : (
             <>
               <UserPlus color={colors.brandOn} size={18} strokeWidth={1.75} />
-              <Text style={[styles.primaryBtnText, { color: colors.brandOn }]}>Doktoru oluştur</Text>
+              <Text style={[styles.primaryBtnText, { color: colors.brandOn }]}>{t('new.submit')}</Text>
             </>
           )}
         </Pressable>

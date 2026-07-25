@@ -1,17 +1,19 @@
+import { useTranslation } from 'react-i18next'
 import { StyleSheet, Text, View } from 'react-native'
 
-import { STATUS_LABELS, STATUS_ROLE, type RequestStatus } from '@/domain/status'
+import { STATUS_ROLE, type RequestStatus } from '@/domain/status'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, roleColors } from '@/theme'
 
-/** State-dot çip: öncü nokta + Türkçe etiket, semantik renk (temaya göre). */
+/** State-dot çip: öncü nokta + etiket (i18n: common.status.*), semantik renk (temaya göre). */
 export function StatusPill({ status }: { status: RequestStatus }) {
   const { colors } = useTheme()
+  const { t } = useTranslation()
   const c = roleColors(colors, STATUS_ROLE[status])
   return (
     <View style={[styles.root, { backgroundColor: c.bg, borderColor: c.border }]}>
       <View style={[styles.dot, { backgroundColor: c.text }]} />
-      <Text style={[styles.text, { color: c.text }]}>{STATUS_LABELS[status]}</Text>
+      <Text style={[styles.text, { color: c.text }]}>{t(`common:status.${status}`)}</Text>
     </View>
   )
 }

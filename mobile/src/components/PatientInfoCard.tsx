@@ -1,6 +1,8 @@
 // Kaynak: /src/features/requests/PatientInfoCard.tsx (web) — label/value grid,
 // "Belirtilmedi" fallback'ları ve BMI rozeti aynı mantıkla native'e taşındı.
+// i18n: request.patientInfo.* (bkz. Faz M1 Task 4).
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { bmi } from '@/domain/health'
@@ -8,32 +10,24 @@ import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing, type Palette } from '@/theme'
 import type { RequestRow } from '@/types/db'
 
-const GENDER_LABEL: Record<NonNullable<RequestRow['gender']>, string> = {
-  female: 'Kadın',
-  male: 'Erkek',
-  other: 'Diğer',
-}
-
 function isEmpty(value: string | number | null | undefined): boolean {
   return value === null || value === undefined || value === ''
 }
 
-// Etiketler webdeki domain/lifestyle.ts ile aynı (mobil kopya).
-const SMOKING_LABEL: Record<NonNullable<RequestRow['smoking_status']>, string> = {
-  never: 'Hiç kullanmadı', former: 'Bıraktı', current: 'Aktif içici',
-}
-const ALCOHOL_LABEL: Record<NonNullable<RequestRow['alcohol_status']>, string> = {
-  never: 'Hiç', occasional: 'Sosyal', regular: 'Düzenli',
-}
-function smokingDisplay(req: RequestRow): string | null {
+// Etiketler webdeki domain/lifestyle.ts ile aynı (mobil kopya); metinler i18n'den gelir.
+function smokingDisplay(req: RequestRow, t: (key: string, opts?: Record<string, unknown>) => string): string | null {
   if (!req.smoking_status) return null
-  const base = SMOKING_LABEL[req.smoking_status]
-  return req.smoking_pack_years != null ? `${base} · ${req.smoking_pack_years} paket-yıl` : base
+  const base = t(`request:patientInfo.smoking.${req.smoking_status}`)
+  return req.smoking_pack_years != null
+    ? `${base} · ${t('request:patientInfo.smoking.packYears', { value: req.smoking_pack_years })}`
+    : base
 }
-function alcoholDisplay(req: RequestRow): string | null {
+function alcoholDisplay(req: RequestRow, t: (key: string, opts?: Record<string, unknown>) => string): string | null {
   if (!req.alcohol_status) return null
-  const base = ALCOHOL_LABEL[req.alcohol_status]
-  return req.alcohol_drinks_per_week != null ? `${base} · ${req.alcohol_drinks_per_week}/hafta` : base
+  const base = t(`request:patientInfo.alcohol.${req.alcohol_status}`)
+  return req.alcohol_drinks_per_week != null
+    ? `${base} · ${t('request:patientInfo.alcohol.perWeek', { value: req.alcohol_drinks_per_week })}`
+    : base
 }
 
 function InfoItem({
@@ -42,12 +36,14 @@ function InfoItem({
   numeric,
   children,
   styles,
+  notSpecifiedLabel,
 }: {
   label: string
   value?: string | number | null
   numeric?: boolean
   children?: ReactNode
   styles: ReturnType<typeof makeStyles>
+  notSpecifiedLabel: string
 }) {
   const empty = isEmpty(value)
   return (
@@ -60,7 +56,7 @@ function InfoItem({
             numeric && !empty && styles.numeric,
           ]}
         >
-          {empty ? 'Belirtilmedi' : value}
+          {empty ? notSpecifiedLabel : value}
         </Text>
       )}
     </View>
@@ -81,24 +77,27 @@ export function PatientInfoCard({
   operationName?: string | null
 }) {
   const { colors } = useTheme()
+  const { t } = useTranslation('request')
   const styles = makeStyles(colors)
   const bmiValue = req.weight_kg && req.height_cm ? bmi(req.weight_kg, req.height_cm) : null
   const categoryDisplay = [categoryName, subcategoryName].filter(Boolean).join(' / ')
+  const notSpecified = t('patientInfo.notSpecified')
+  const genderLabel = req.gender ? t(`patientInfo.gender.${req.gender}`) : null
 
   return (
     <View style={styles.card}>
-      <Text style={styles.cardTitle}>Hasta Bilgileri</Text>
+      <Text style={styles.cardTitle}>{t('patientInfo.title')}</Text>
       <View style={styles.grid}>
-        <InfoItem label="Hasta adı" value={patientName} styles={styles} />
-        <InfoItem label="Kategori" value={categoryDisplay || null} styles={styles} />
-        <InfoItem label="İstenen operasyon" value={operationName} styles={styles} />
-        <InfoItem label="Yaş" value={req.age} numeric styles={styles} />
-        <InfoItem label="Cinsiyet" value={req.gender ? GENDER_LABEL[req.gender] : null} styles={styles} />
-        <InfoItem label="Boy (cm)" value={req.height_cm} numeric styles={styles} />
-        <InfoItem label="Kilo (kg)" value={req.weight_kg} numeric styles={styles} />
-        <InfoItem label="BMI" styles={styles}>
+        <InfoItem label={t('patientInfo.fields.patientName')} value={patientName} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.category')} value={categoryDisplay || null} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.operation')} value={operationName} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.age')} value={req.age} numeric styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.gender')} value={genderLabel} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.height')} value={req.height_cm} numeric styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.weight')} value={req.weight_kg} numeric styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.bmi')} styles={styles} notSpecifiedLabel={notSpecified}>
           {bmiValue === null ? (
-            <Text style={styles.valueEmpty}>Belirtilmedi</Text>
+            <Text style={styles.valueEmpty}>{notSpecified}</Text>
           ) : (
             <View style={styles.bmiBadge}>
               <Text style={styles.bmiBadgeText}>{bmiValue}</Text>
@@ -107,20 +106,20 @@ export function PatientInfoCard({
         </InfoItem>
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label="Geçmiş ameliyatlar" value={req.past_surgeries} styles={styles} />
+        <InfoItem label={t('patientInfo.fields.pastSurgeries')} value={req.past_surgeries} styles={styles} notSpecifiedLabel={notSpecified} />
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label="Bilinen hastalıklar" value={req.known_conditions} styles={styles} />
+        <InfoItem label={t('patientInfo.fields.knownConditions')} value={req.known_conditions} styles={styles} notSpecifiedLabel={notSpecified} />
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label="Düzenli ilaçlar" value={req.medications} styles={styles} />
+        <InfoItem label={t('patientInfo.fields.medications')} value={req.medications} styles={styles} notSpecifiedLabel={notSpecified} />
       </View>
       <View style={styles.grid}>
-        <InfoItem label="Sigara" value={smokingDisplay(req)} styles={styles} />
-        <InfoItem label="Alkol" value={alcoholDisplay(req)} styles={styles} />
+        <InfoItem label={t('patientInfo.fields.smoking')} value={smokingDisplay(req, t)} styles={styles} notSpecifiedLabel={notSpecified} />
+        <InfoItem label={t('patientInfo.fields.alcohol')} value={alcoholDisplay(req, t)} styles={styles} notSpecifiedLabel={notSpecified} />
       </View>
       <View style={styles.fullWidth}>
-        <InfoItem label="Not" value={req.notes} styles={styles} />
+        <InfoItem label={t('patientInfo.fields.notes')} value={req.notes} styles={styles} notSpecifiedLabel={notSpecified} />
       </View>
     </View>
   )

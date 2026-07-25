@@ -24,6 +24,10 @@
     "escalated": "Eskalasyon",
     "closed": "Kapandı"
   },
+  "decision": {
+    "accept": "Kabul",
+    "reject": "Red"
+  },
   "language": {
     "sectionLabel": "Dil",
     "restartTitle": "Yeniden başlatma gerekli",

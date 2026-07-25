@@ -1,5 +1,6 @@
 import { Redirect, Stack, router, useLocalSearchParams } from 'expo-router'
 import { ChevronLeft } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import { PatientInfoCard } from '@/components/PatientInfoCard'
@@ -17,6 +18,7 @@ export default function AdminRequestDetail() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { role } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('request')
   const detail = useRequestDetail(id)
 
   // Bu ekran yalnız koordinatör/admin/super_admin içindir; doktor kendi ekranını kullanır.
@@ -35,9 +37,9 @@ export default function AdminRequestDetail() {
     return (
       <View style={[styles.root, styles.centered, { backgroundColor: colors.surface0 }]}>
         <Stack.Screen options={{ headerShown: false }} />
-        <Text style={[styles.errorText, { color: colors.textSecondary }]}>Talep yüklenemedi.</Text>
+        <Text style={[styles.errorText, { color: colors.textSecondary }]}>{t('errors.loadFailedShort')}</Text>
         <Pressable onPress={() => router.back()} style={styles.backLink}>
-          <Text style={[styles.backLinkText, { color: colors.brandText }]}>Geri dön</Text>
+          <Text style={[styles.backLinkText, { color: colors.brandText }]}>{t('admin.backLink')}</Text>
         </Pressable>
       </View>
     )
@@ -52,7 +54,7 @@ export default function AdminRequestDetail() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Pressable onPress={() => router.back()} accessibilityRole="button" style={styles.back} hitSlop={8}>
           <ChevronLeft color={colors.textSecondary} size={22} strokeWidth={1.75} />
-          <Text style={[styles.backText, { color: colors.textSecondary }]}>Talepler</Text>
+          <Text style={[styles.backText, { color: colors.textSecondary }]}>{t('admin.backToList')}</Text>
         </Pressable>
 
         <View style={styles.header}>
@@ -61,7 +63,7 @@ export default function AdminRequestDetail() {
               {title}
             </Text>
             <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-              Talep #{req.id.slice(0, 8)} · {timeAgo(req.created_at)}
+              {t('idSubtitle', { shortId: req.id.slice(0, 8), time: timeAgo(req.created_at) })}
             </Text>
           </View>
           <StatusPill status={req.status} />
@@ -76,17 +78,17 @@ export default function AdminRequestDetail() {
         />
 
         <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Fotoğraflar</Text>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('photos')}</Text>
           {photos.length > 0 ? (
             <PhotoStrip urls={photos} altLabel="Fotoğraf" />
           ) : (
-            <Text style={[styles.emptyText, { color: colors.textMuted }]}>Fotoğraf eklenmemiş</Text>
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('photosEmpty')}</Text>
           )}
         </View>
 
         {xrays.length > 0 && (
           <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
-            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Diş Röntgeni</Text>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('xrays')}</Text>
             <PhotoStrip urls={xrays} altLabel="Röntgen" />
           </View>
         )}

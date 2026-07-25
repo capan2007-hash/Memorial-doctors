@@ -3,6 +3,7 @@
 // server trigger'ı hesaplar) mobile'a taşındı.
 import { useState } from 'react'
 import { Redirect, Stack, router, useLocalSearchParams } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -34,6 +35,7 @@ export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { tenantId, doctorId, session, loading } = useAuth()
   const { colors } = useTheme()
+  const { t } = useTranslation('request')
   const styles = makeStyles(colors)
   const detail = useRequestDetail(id)
   const respond = useRespond()
@@ -54,7 +56,7 @@ export default function RequestDetailScreen() {
       <Pressable
         onPress={() => router.back()}
         accessibilityRole="button"
-        accessibilityLabel="Geri"
+        accessibilityLabel={t('backLabel')}
         hitSlop={8}
         style={styles.backButton}
       >
@@ -70,7 +72,7 @@ export default function RequestDetailScreen() {
     return (
       <View style={styles.center}>
         <Stack.Screen options={screenOptions} />
-        <Text style={styles.errorText}>Talep yüklenemedi. Bağlantınızı kontrol edin.</Text>
+        <Text style={styles.errorText}>{t('errors.loadFailed')}</Text>
       </View>
     )
   }
@@ -102,7 +104,7 @@ export default function RequestDetailScreen() {
       setMode('none')
       setSuccess(true)
     } catch (e) {
-      setRespError('Yanıt kaydedilemedi: ' + (e as Error).message)
+      setRespError(t('errors.respondFailed', { message: (e as Error).message }))
     }
   }
 
@@ -116,7 +118,7 @@ export default function RequestDetailScreen() {
               {title}
             </Text>
             <Text style={styles.subtitle}>
-              Talep #{req.id.slice(0, 8)} · {timeAgo(req.created_at)}
+              {t('idSubtitle', { shortId: req.id.slice(0, 8), time: timeAgo(req.created_at) })}
             </Text>
           </View>
           <StatusPill status={req.status} />
@@ -131,17 +133,17 @@ export default function RequestDetailScreen() {
         />
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Fotoğraflar</Text>
+          <Text style={styles.cardTitle}>{t('photos')}</Text>
           {photos.length > 0 ? (
             <PhotoStrip urls={photos} altLabel="Fotoğraf" />
           ) : (
-            <Text style={styles.emptyText}>Fotoğraf eklenmemiş</Text>
+            <Text style={styles.emptyText}>{t('photosEmpty')}</Text>
           )}
         </View>
 
         {xrays.length > 0 && (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Diş Röntgeni</Text>
+            <Text style={styles.cardTitle}>{t('xrays')}</Text>
             <PhotoStrip urls={xrays} altLabel="Röntgen" />
           </View>
         )}
@@ -151,18 +153,18 @@ export default function RequestDetailScreen() {
         {myResponse && (
           <View style={styles.card}>
             <View style={styles.decisionHeader}>
-              <Text style={styles.cardTitle}>Kararınız</Text>
+              <Text style={styles.cardTitle}>{t('decisionHeading')}</Text>
               <DecisionBadge decision={myResponse.decision} />
             </View>
             <Text style={styles.value}>
               {myResponse.decision === 'accept'
-                ? myResponse.treatment_plan || 'Tedavi planı belirtilmedi'
-                : myResponse.reject_reason || 'Gerekçe belirtilmedi'}
+                ? myResponse.treatment_plan || t('planNotSpecified')
+                : myResponse.reject_reason || t('reasonNotSpecified')}
             </Text>
           </View>
         )}
 
-        {success && !myResponse && <Text style={styles.successText}>Yanıtınız kaydedildi.</Text>}
+        {success && !myResponse && <Text style={styles.successText}>{t('responseSaved')}</Text>}
       </ScrollView>
 
       {!myResponse && (
@@ -172,20 +174,20 @@ export default function RequestDetailScreen() {
             <View style={styles.actionRow}>
               <Pressable style={[styles.button, styles.acceptButton]} onPress={() => setMode('accept')}>
                 <Check color={colors.brandOn} size={18} strokeWidth={2} />
-                <Text style={styles.acceptButtonText}>Kabul</Text>
+                <Text style={styles.acceptButtonText}>{t('actions.accept')}</Text>
               </Pressable>
               <Pressable style={[styles.button, styles.rejectButton]} onPress={() => setMode('reject')}>
                 <X color={colors.dangerText} size={18} strokeWidth={2} />
-                <Text style={styles.rejectButtonText}>Red</Text>
+                <Text style={styles.rejectButtonText}>{t('actions.reject')}</Text>
               </Pressable>
             </View>
           )}
           {mode === 'accept' && (
             <View style={styles.gap}>
-              <Text style={styles.label}>Tedavi planı</Text>
+              <Text style={styles.label}>{t('actions.planLabel')}</Text>
               <TextInput
                 style={styles.textArea}
-                placeholder="Tedavi planı"
+                placeholder={t('actions.planPlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 value={plan}
                 onChangeText={setPlan}
@@ -201,7 +203,7 @@ export default function RequestDetailScreen() {
                 ) : (
                   <>
                     <Check color={colors.brandOn} size={18} strokeWidth={2} />
-                    <Text style={styles.acceptButtonText}>Kabul et</Text>
+                    <Text style={styles.acceptButtonText}>{t('actions.acceptConfirm')}</Text>
                   </>
                 )}
               </Pressable>
@@ -209,10 +211,10 @@ export default function RequestDetailScreen() {
           )}
           {mode === 'reject' && (
             <View style={styles.gap}>
-              <Text style={styles.label}>Red gerekçesi</Text>
+              <Text style={styles.label}>{t('actions.reasonLabel')}</Text>
               <TextInput
                 style={styles.textArea}
-                placeholder="Red gerekçesi (zorunlu)"
+                placeholder={t('actions.reasonPlaceholder')}
                 placeholderTextColor={colors.textMuted}
                 value={reason}
                 onChangeText={setReason}
@@ -228,7 +230,7 @@ export default function RequestDetailScreen() {
                 ) : (
                   <>
                     <X color={colors.dangerText} size={18} strokeWidth={2} />
-                    <Text style={styles.rejectButtonText}>Reddet</Text>
+                    <Text style={styles.rejectButtonText}>{t('actions.rejectConfirm')}</Text>
                   </>
                 )}
               </Pressable>
