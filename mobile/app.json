@@ -8,7 +8,6 @@
     "scheme": "medtriage",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.rememore.medtriage",
       "buildNumber": "1",
       "supportsTablet": false,
