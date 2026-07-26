@@ -28,7 +28,7 @@ const ctx: TriageContext = {
     operationType: 'rinoplasti',
   },
   doctors: [
-    { title: 'Op. Dr.', specialty: 'Plastik Cerrahi', bio: 'Deneyimli', weightedWork: { items: [] } },
+    { title: 'Op. Dr.', specialty: 'Plastik Cerrahi' },
   ],
   feedbackHints: [
     { label: 'correct', note: 'İyi eşleşme', summary: 'Geçmişte doğru atama' },
@@ -166,6 +166,17 @@ describe('buildUserContent', () => {
     const summaryBlock = blocks[0] as { type: string; text: string }
     expect(summaryBlock.text).toContain('[maskelendi]')
     expect(summaryBlock.text).not.toContain('12345678901')
+  })
+
+  it('doktor bio ve ağırlıklı işler (weightedWork) LLM özetine GİTMEZ (yalnız unvan+branş)', () => {
+    const blocks = buildUserContent(ctx, [], [])
+    const summaryBlock = blocks[0] as { type: string; text: string }
+    // Unvan + branş kalır (triyaj eşleştirme bağlamı)
+    expect(summaryBlock.text).toContain('Plastik Cerrahi')
+    // bio içeriği + weightedWork alan etiketleri gitmez
+    expect(summaryBlock.text).not.toContain('Deneyimli')
+    expect(summaryBlock.text).not.toContain('bio=')
+    expect(summaryBlock.text).not.toContain('ağırlıklı işler')
   })
 
   it('serbest metne gömülü hasta adını (redactTokens) maskeler — LLM ismi görmez', () => {

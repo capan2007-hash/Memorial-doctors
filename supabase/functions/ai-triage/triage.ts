@@ -48,8 +48,8 @@ export interface TriageOperation {
 export interface TriageDoctorCard {
   title: string | null
   specialty: string | null
-  bio: string | null
-  weightedWork: unknown
+  // Not: bio + ağırlıklı işler (weightedWork) BİLEREK yok — doktorun serbest-metin
+  // biyografisi ve iş geçmişi (şirket/personel verisi) LLM'e gönderilmez (Section C).
 }
 
 export interface FeedbackHint {
@@ -103,14 +103,6 @@ function alcoholLabel(s: string | null): string {
   return s === 'regular' ? 'düzenli' : s === 'occasional' ? 'sosyal' : s === 'never' ? 'hiç' : 'belirtilmemiş'
 }
 
-function formatWeightedWork(weightedWork: unknown): string {
-  try {
-    return JSON.stringify(weightedWork ?? null)
-  } catch {
-    return 'null'
-  }
-}
-
 function buildSummaryText(ctx: TriageContext): string {
   const { patient, operation, doctors, feedbackHints } = ctx
   const tokens = ctx.redactTokens ?? []
@@ -146,10 +138,7 @@ function buildSummaryText(ctx: TriageContext): string {
     lines.push('')
     lines.push('Atanan doktor kartları:')
     doctors.forEach((d, i) => {
-      lines.push(
-        `- Doktor ${i + 1}: unvan=${d.title ?? 'yok'}, branş=${d.specialty ?? 'yok'}, ` +
-          `bio=${d.bio ?? 'yok'}, ağırlıklı işler=${formatWeightedWork(d.weightedWork)}`,
-      )
+      lines.push(`- Doktor ${i + 1}: unvan=${d.title ?? 'yok'}, branş=${d.specialty ?? 'yok'}`)
     })
   }
 

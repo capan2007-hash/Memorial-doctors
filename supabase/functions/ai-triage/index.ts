@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
 
     const doctorIds = (assignRes.data ?? []).map((a: { doctor_id: string }) => a.doctor_id)
     const { data: doctorRows } = doctorIds.length > 0
-      ? await admin.from('doctor').select('title, specialty, bio, weighted_work').in('id', doctorIds)
+      ? await admin.from('doctor').select('title, specialty').in('id', doctorIds)
       : { data: [] }
 
     // Tenant bazlı öğrenme bağlamı (FR-53): son 20 geri bildirim, correct olmayanlar öncelikli.
@@ -141,8 +141,8 @@ Deno.serve(async (req) => {
         subcategory: subRes.data?.name ?? null,
         operationType: opRes.data?.name ?? null,
       },
-      doctors: (doctorRows ?? []).map((d: { title: string | null; specialty: string | null; bio: string | null; weighted_work: unknown }) => ({
-        title: d.title, specialty: d.specialty, bio: d.bio, weightedWork: d.weighted_work,
+      doctors: (doctorRows ?? []).map((d: { title: string | null; specialty: string | null }) => ({
+        title: d.title, specialty: d.specialty,
       })),
       feedbackHints,
       // Serbest metinden silinecek isim belirteçleri (LLM'e gitmez).
