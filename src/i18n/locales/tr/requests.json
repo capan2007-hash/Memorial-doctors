@@ -90,6 +90,11 @@
       "medical": "Tıbbi geçmiş",
       "lifestyle": "Sigara/alkol bilgisi",
       "photos": "Fotoğraf"
+    },
+    "aiPreview": {
+      "title": "Yapay zekâ ön değerlendirmesi",
+      "subtitle": "Talep doktorlara iletildi. Ön değerlendirme sonucu aşağıda.",
+      "done": "Tamam"
     }
   },
   "patientInfo": {

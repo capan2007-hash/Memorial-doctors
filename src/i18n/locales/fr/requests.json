@@ -90,6 +90,11 @@
       "medical": "Antécédents médicaux",
       "lifestyle": "Informations tabac/alcool",
       "photos": "Photo"
+    },
+    "aiPreview": {
+      "title": "Pré-évaluation par l'IA",
+      "subtitle": "La demande a été envoyée aux médecins. Le résultat de la pré-évaluation est ci-dessous.",
+      "done": "Terminé"
     }
   },
   "patientInfo": {

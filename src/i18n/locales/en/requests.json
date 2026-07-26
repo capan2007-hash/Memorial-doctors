@@ -90,6 +90,11 @@
       "medical": "Medical history",
       "lifestyle": "Smoking/alcohol info",
       "photos": "Photo"
+    },
+    "aiPreview": {
+      "title": "AI pre-assessment",
+      "subtitle": "The request was sent to the doctors. The pre-assessment result is below.",
+      "done": "Done"
     }
   },
   "patientInfo": {

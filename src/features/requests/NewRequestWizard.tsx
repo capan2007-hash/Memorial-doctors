@@ -13,6 +13,8 @@ import { medicalValue, demographicsError } from '../../domain/health'
 import { packYears, lifestyleComplete, type SmokingStatus, type AlcoholStatus } from '../../domain/lifestyle'
 import { normalizePhone } from '../../domain/phone'
 import { Button } from '../../components/ui/Button'
+import { shouldShowAiPreview } from './aiPreview'
+import { AiPreviewScreen } from './AiPreviewScreen'
 import { Card } from '../../components/ui/Card'
 import { Field } from '../../components/ui/Field'
 import { Input } from '@/components/shadcn/input'
@@ -89,7 +91,7 @@ function MedicalBlock({
 
 export function NewRequestWizard() {
   const { t, i18n } = useTranslation('requests')
-  const { appUser } = useAuth()
+  const { appUser, role } = useAuth()
   const nav = useNavigate()
   const cats = useCategories()
   const [initialDraft] = useState<RequestDraft | null>(() => loadDraft())
@@ -201,6 +203,7 @@ export function NewRequestWizard() {
   const photosRequired = !!selectedPatient && selectedPatient.had_deleted_photos && !selectedPatient.has_available_photos
 
   const [submitErr, setSubmitErr] = useState<string | null>(null)
+  const [aiPreviewId, setAiPreviewId] = useState<string | null>(null)
 
   const submit = async () => {
     try {
@@ -235,6 +238,12 @@ export function NewRequestWizard() {
         setWarn(t('newRequest.noDoctorAssigned'))
         return
       }
+      // Onam alındı + doktorlara gitti + rol AI okuyabiliyorsa: satışçıya AI ön
+      // değerlendirmesini KENDİ ekranında göster (mükerrer/agent/onamsız durumda düz liste).
+      if (shouldShowAiPreview({ routed: res.routed, assignedCount: res.assignedCount, consentGiven, role })) {
+        setAiPreviewId(res.requestId)
+        return
+      }
       nav('/requests')
     } catch (e) {
       setSubmitErr(t('newRequest.submitFailed', { message: (e as Error).message }))
@@ -242,6 +251,11 @@ export function NewRequestWizard() {
   }
 
   const packYearsVal = packYears(Number(smokingCigs), Number(smokingYears))
+
+  // Gönderim sonrası AI ön-değerlendirme ekranı (satışçı onam verince).
+  if (aiPreviewId) {
+    return <AiPreviewScreen requestId={aiPreviewId} onDone={() => nav('/requests')} />
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 pb-28">

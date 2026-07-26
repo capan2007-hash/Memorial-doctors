@@ -90,6 +90,11 @@
       "medical": "Krankengeschichte",
       "lifestyle": "Angaben zu Rauchen/Alkohol",
       "photos": "Foto"
+    },
+    "aiPreview": {
+      "title": "KI-Vorabbewertung",
+      "subtitle": "Die Anfrage wurde an die Ärzte gesendet. Das Ergebnis der Vorabbewertung finden Sie unten.",
+      "done": "Fertig"
     }
   },
   "patientInfo": {
