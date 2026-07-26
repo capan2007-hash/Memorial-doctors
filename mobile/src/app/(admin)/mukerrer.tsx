@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Spinner } from '@/components/ui/Spinner'
+import { SkeletonList } from '@/components/ui/Skeleton'
 import { dupConfidenceClass, formatConfidencePct } from '@/domain/duplicate'
 import { useDuplicateQueue, useResolveDuplicate, type DuplicateItem } from '@/features/admin/useDuplicateQueue'
 import { useTheme } from '@/lib/theme'
@@ -214,7 +214,9 @@ export default function MukerrerScreen() {
   if (queue.isLoading) {
     return (
       <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
-        <Spinner />
+        <View style={styles.list}>
+          <SkeletonList count={6} />
+        </View>
       </View>
     )
   }
