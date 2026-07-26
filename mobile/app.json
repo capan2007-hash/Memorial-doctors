@@ -2,6 +2,7 @@
   "expo": {
     "name": "MedTriage Doktor",
     "slug": "medtriage-doktor",
+    "owner": "capan2007",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -50,7 +51,11 @@
     },
     "extra": {
       "supabaseUrl": "https://oxibdniwobetaksuxacs.supabase.co",
-      "supabaseAnonKey": "sb_publishable_FeQuiwKcVqApcQKG-7fphQ_KKhMnLSA"
+      "supabaseAnonKey": "sb_publishable_FeQuiwKcVqApcQKG-7fphQ_KKhMnLSA",
+      "router": {},
+      "eas": {
+        "projectId": "df6e80ad-ad3e-494b-8929-425cbe74e560"
+      }
     }
   }
 }
