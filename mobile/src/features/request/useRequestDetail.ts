@@ -4,9 +4,11 @@
 // response satırını görür (bkz. migration 0002 resp_doctor_read) — bu yüzden
 // responses[0] doğrudan "benim yanıtım" anlamına gelir.
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 import { supabase } from '@/lib/supabase'
 import { resolvePhotoUrls } from './photoUrl'
+import { catalogName } from '@/features/catalog/catalogName'
 import type { PhotoRow, RequestRow, ResponseRow } from '@/types/db'
 
 export interface RequestDetail {
@@ -21,8 +23,9 @@ export interface RequestDetail {
 }
 
 export function useRequestDetail(id?: string) {
+  const { i18n } = useTranslation()
   return useQuery({
-    queryKey: ['request-detail', id],
+    queryKey: ['request-detail', id, i18n.language],
     enabled: !!id,
     queryFn: async (): Promise<RequestDetail> => {
       const { data: reqData, error: reqErr } = await supabase.from('request').select('*').eq('id', id!).single()
@@ -33,12 +36,12 @@ export function useRequestDetail(id?: string) {
         await Promise.all([
           supabase.from('response').select('*').eq('request_id', id!),
           supabase.from('patient').select('first_name, last_name').eq('id', req.patient_id).single(),
-          supabase.from('category').select('name').eq('id', req.category_id).single(),
+          supabase.from('category').select('name, name_i18n').eq('id', req.category_id).single(),
           req.subcategory_id
-            ? supabase.from('subcategory').select('name').eq('id', req.subcategory_id).single()
+            ? supabase.from('subcategory').select('name, name_i18n').eq('id', req.subcategory_id).single()
             : Promise.resolve({ data: null }),
           req.operation_type_id
-            ? supabase.from('operation_type').select('name').eq('id', req.operation_type_id).single()
+            ? supabase.from('operation_type').select('name, name_i18n').eq('id', req.operation_type_id).single()
             : Promise.resolve({ data: null }),
           supabase.from('photo').select('*').eq('request_id', id!),
         ])
@@ -53,9 +56,13 @@ export function useRequestDetail(id?: string) {
       return {
         req,
         patientName: patient ? `${patient.first_name} ${patient.last_name}` : '—',
-        categoryName: (category as { name?: string } | null)?.name,
-        subcategoryName: (subcategory as { name?: string } | null)?.name ?? null,
-        operationName: (operationType as { name?: string } | null)?.name ?? null,
+        categoryName: category ? catalogName(category as { name: string; name_i18n?: Record<string, string> | null }, i18n.language) : undefined,
+        subcategoryName: subcategory
+          ? catalogName(subcategory as { name: string; name_i18n?: Record<string, string> | null }, i18n.language)
+          : null,
+        operationName: operationType
+          ? catalogName(operationType as { name: string; name_i18n?: Record<string, string> | null }, i18n.language)
+          : null,
         photos,
         xrays,
         myResponse: responseRows[0] ?? null,

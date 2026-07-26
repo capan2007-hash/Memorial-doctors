@@ -34,6 +34,7 @@ export interface CategoryRow {
   id: string
   tenant_id: string
   name: string
+  name_i18n?: Record<string, string> | null
   has_subcategories: boolean
 }
 
@@ -41,6 +42,7 @@ export interface SubcategoryRow {
   id: string
   category_id: string
   name: string
+  name_i18n?: Record<string, string> | null
 }
 
 export interface OwnDoctor {
@@ -97,7 +99,7 @@ export function useSubcategories(categoryId?: string) {
     queryFn: async (): Promise<SubcategoryRow[]> => {
       const { data, error } = await supabase
         .from('subcategory')
-        .select('id, category_id, name')
+        .select('id, category_id, name, name_i18n')
         .eq('category_id', categoryId!)
         .order('name')
       if (error) throw error

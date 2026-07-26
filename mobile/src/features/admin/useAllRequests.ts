@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
+import { catalogName } from '@/features/catalog/catalogName'
 import { slaInfo, type SlaInfo } from '@/domain/sla'
 import type { RequestStatus } from '@/domain/status'
 import type { RequestRow } from '@/types/db'
@@ -34,14 +35,15 @@ export function classify(
 
 /** Tüm talepler (en yeni → eski), hasta/kategori/kabul ile zenginleştirilmiş. */
 export function useAllRequests() {
+  const { i18n } = useTranslation()
   return useQuery({
-    queryKey: ['all-requests'],
+    queryKey: ['all-requests', i18n.language],
     queryFn: async (): Promise<EnrichedRequestRow[]> => {
       const { data } = await supabase.from('request').select('*').order('created_at', { ascending: false })
       const requests = (data ?? []) as RequestRow[]
       const [{ data: patients }, { data: categories }, { data: acceptResponses }] = await Promise.all([
         supabase.from('patient').select('id, first_name, last_name'),
-        supabase.from('category').select('id, name'),
+        supabase.from('category').select('id, name, name_i18n'),
         supabase.from('response').select('request_id').eq('decision', 'accept'),
       ])
       const patientMap = new Map(
@@ -50,14 +52,19 @@ export function useAllRequests() {
           `${p.first_name} ${p.last_name}`,
         ]),
       )
-      const categoryMap = new Map((categories ?? []).map((c: { id: string; name: string }) => [c.id, c.name]))
+      const categoryMap = new Map(
+        (categories ?? []).map((c: { id: string; name: string; name_i18n?: Record<string, string> | null }) => [c.id, c]),
+      )
       const acceptedIds = new Set((acceptResponses ?? []).map((r: { request_id: string }) => r.request_id))
-      return requests.map((r) => ({
-        ...r,
-        patientName: patientMap.get(r.patient_id) ?? '—',
-        categoryName: categoryMap.get(r.category_id) ?? '—',
-        hasAccept: acceptedIds.has(r.id),
-      }))
+      return requests.map((r) => {
+        const categoryRow = categoryMap.get(r.category_id)
+        return {
+          ...r,
+          patientName: patientMap.get(r.patient_id) ?? '—',
+          categoryName: categoryRow ? catalogName(categoryRow, i18n.language) : '—',
+          hasAccept: acceptedIds.has(r.id),
+        }
+      })
     },
   })
 }

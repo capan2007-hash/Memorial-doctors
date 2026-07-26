@@ -3,8 +3,10 @@
 // Map ile eşleme) mirror edilir; RLS tabloya özgü yetkilerle uyumludur.
 import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 import { supabase } from '@/lib/supabase'
+import { catalogName } from '@/features/catalog/catalogName'
 import type { RequestRow, ResponseRow } from '@/types/db'
 
 export type DoctorQueueRow = RequestRow & {
@@ -14,7 +16,7 @@ export type DoctorQueueRow = RequestRow & {
   myResponse: ResponseRow | null
 }
 
-async function fetchDoctorQueue(doctorId: string): Promise<DoctorQueueRow[]> {
+async function fetchDoctorQueue(doctorId: string, lang: string): Promise<DoctorQueueRow[]> {
   const { data: asgs, error: asgErr } = await supabase
     .from('assignment')
     .select('request_id, assigned_at')
@@ -29,7 +31,7 @@ async function fetchDoctorQueue(doctorId: string): Promise<DoctorQueueRow[]> {
   const [reqRes, patRes, catRes, respRes] = await Promise.all([
     supabase.from('request').select('*').in('id', ids).order('assigned_at', { ascending: false }),
     supabase.from('patient').select('id, first_name, last_name'),
-    supabase.from('category').select('id, name'),
+    supabase.from('category').select('id, name, name_i18n'),
     // RLS gereği doktor yalnız kendi response'unu görür (bkz. migration 0002 resp_doctor_read).
     supabase.from('response').select('*').eq('doctor_id', doctorId).in('request_id', ids),
   ])
@@ -42,17 +44,20 @@ async function fetchDoctorQueue(doctorId: string): Promise<DoctorQueueRow[]> {
 
   const requests = (data ?? []) as RequestRow[]
   const patientMap = new Map((patients ?? []).map((p: any) => [p.id, `${p.first_name} ${p.last_name}`]))
-  const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c.name as string]))
+  const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c]))
   const assignedAtMap = new Map(assignments.map((a) => [a.request_id as string, a.assigned_at as string | null]))
   const responseMap = new Map((responses ?? []).map((r: any) => [r.request_id, r as ResponseRow]))
 
-  return requests.map((r) => ({
-    ...r,
-    patientName: patientMap.get(r.patient_id) ?? '—',
-    categoryName: categoryMap.get(r.category_id) ?? '—',
-    assignedAt: assignedAtMap.get(r.id) ?? r.created_at,
-    myResponse: responseMap.get(r.id) ?? null,
-  }))
+  return requests.map((r) => {
+    const categoryRow = categoryMap.get(r.category_id)
+    return {
+      ...r,
+      patientName: patientMap.get(r.patient_id) ?? '—',
+      categoryName: categoryRow ? catalogName(categoryRow, lang) : '—',
+      assignedAt: assignedAtMap.get(r.id) ?? r.created_at,
+      myResponse: responseMap.get(r.id) ?? null,
+    }
+  })
 }
 
 // crypto.randomUUID Hermes/Expo SDK 57'de global olarak mevcuttur; yine de
@@ -75,10 +80,11 @@ async function fetchTenantSla(): Promise<TenantSla> {
 
 export function useDoctorQueue(doctorId?: string | null) {
   const qc = useQueryClient()
+  const { i18n } = useTranslation()
   const query = useQuery({
-    queryKey: ['doctor-queue', doctorId],
+    queryKey: ['doctor-queue', doctorId, i18n.language],
     enabled: !!doctorId,
-    queryFn: () => fetchDoctorQueue(doctorId!),
+    queryFn: () => fetchDoctorQueue(doctorId!, i18n.language),
   })
   const tenantSla = useQuery({
     queryKey: ['tenant-sla'],

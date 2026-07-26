@@ -10,6 +10,7 @@ import {
   type CategoryRow,
   type DoctorScope,
 } from '@/features/profile/useOwnProfile'
+import { catalogName } from '@/features/catalog/catalogName'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing, type Palette } from '@/theme'
 
@@ -53,13 +54,13 @@ function CategoryScopeRow({
   onChange: (next: DoctorScope[]) => void
   colors: Palette
 }) {
-  const { t } = useTranslation('admin')
+  const { t, i18n } = useTranslation('admin')
   const subs = useSubcategories(category.has_subcategories ? category.id : undefined)
 
   if (!category.has_subcategories) {
     return (
       <ScopeChip
-        label={category.name}
+        label={catalogName(category, i18n.language)}
         selected={hasScope(scopes, category.id, null)}
         onPress={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: null }))}
         colors={colors}
@@ -69,12 +70,12 @@ function CategoryScopeRow({
 
   return (
     <View style={styles.group}>
-      <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>{category.name}</Text>
+      <Text style={[styles.groupLabel, { color: colors.textSecondary }]}>{catalogName(category, i18n.language)}</Text>
       <View style={styles.chipWrap}>
         {subs.data?.map((sc) => (
           <ScopeChip
             key={sc.id}
-            label={sc.name}
+            label={catalogName(sc, i18n.language)}
             selected={hasScope(scopes, category.id, sc.id)}
             onPress={() => onChange(toggleScope(scopes, { categoryId: category.id, subcategoryId: sc.id }))}
             colors={colors}
