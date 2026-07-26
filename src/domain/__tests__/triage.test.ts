@@ -168,6 +168,21 @@ describe('buildUserContent', () => {
     expect(summaryBlock.text).not.toContain('12345678901')
   })
 
+  it('serbest metne gömülü hasta adını (redactTokens) maskeler — LLM ismi görmez', () => {
+    const ctxWithName: TriageContext = {
+      ...ctx,
+      patient: { ...ctx.patient, notes: 'Ayşe Yılmaz üç hafta önce kontrole geldi' },
+      redactTokens: ['Ayşe', 'Yılmaz'],
+    }
+    const blocks = buildUserContent(ctxWithName, [], [])
+    const summaryBlock = blocks[0] as { type: string; text: string }
+    expect(summaryBlock.text).not.toContain('Ayşe')
+    expect(summaryBlock.text).not.toContain('Yılmaz')
+    expect(summaryBlock.text).toContain('[maskelendi]')
+    // Klinik bağlam korunur (yalnız isim silinir).
+    expect(summaryBlock.text).toContain('üç hafta önce kontrole geldi')
+  })
+
   it('geri bildirim ipucundaki (note ve summary) PII maskelenir', () => {
     const ctxWithFeedbackPii: TriageContext = {
       ...ctx,

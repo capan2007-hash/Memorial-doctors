@@ -81,7 +81,10 @@ Deno.serve(async (req) => {
   try {
     // Bağlam topla: operasyon adları + fotoğraflar + atanan doktor kartları + geri bildirim ipuçları.
     // Hasta adı bilerek çekilmiyor (gizlilik K3): AI bağlamı ada ihtiyaç duymaz.
-    const [catRes, subRes, opRes, photosRes, assignRes] = await Promise.all([
+    const [patRes, catRes, subRes, opRes, photosRes, assignRes] = await Promise.all([
+      // Hasta adı YALNIZ maskeleme için çekilir (serbest metne gömülü ismi silmek);
+      // LLM'e asla gönderilmez (redactTokens sunucuda kalır).
+      admin.from('patient').select('first_name, last_name').eq('id', request.patient_id).single(),
       admin.from('category').select('name').eq('id', request.category_id).single(),
       request.subcategory_id
         ? admin.from('subcategory').select('name').eq('id', request.subcategory_id).single()
@@ -142,6 +145,8 @@ Deno.serve(async (req) => {
         title: d.title, specialty: d.specialty, bio: d.bio, weightedWork: d.weighted_work,
       })),
       feedbackHints,
+      // Serbest metinden silinecek isim belirteçleri (LLM'e gitmez).
+      redactTokens: [patRes.data?.first_name, patRes.data?.last_name].filter((s): s is string => !!s && s.trim().length >= 2),
     }
 
     const anthropic = new Anthropic({ apiKey })

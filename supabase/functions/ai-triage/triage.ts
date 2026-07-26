@@ -2,7 +2,7 @@
 // Hem Deno edge function (ai-triage/index.ts) hem de vitest tarafından
 // göreli yoldan import edilir.
 
-import { scrubPii } from './scrub.ts'
+import { scrubPii, redactNames } from './scrub.ts'
 
 export const MODEL_ID = 'claude-opus-4-8'
 
@@ -63,6 +63,9 @@ export interface TriageContext {
   operation: TriageOperation
   doctors: TriageDoctorCard[]
   feedbackHints: FeedbackHint[]
+  // Serbest metinden silinecek belirteçler (hasta ad/soyadı). Yalnız sunucuda
+  // bilinir, LLM'e GÖNDERİLMEZ — serbest alanlardaki gömülü isim sızıntısını kapatır.
+  redactTokens?: string[]
 }
 
 export function buildSystemPrompt(): string {
@@ -110,6 +113,10 @@ function formatWeightedWork(weightedWork: unknown): string {
 
 function buildSummaryText(ctx: TriageContext): string {
   const { patient, operation, doctors, feedbackHints } = ctx
+  const tokens = ctx.redactTokens ?? []
+  // Serbest metin temizliği: önce hasta adını sil (redactNames), sonra IBAN/tel/
+  // e-posta/TC maskele (scrubPii). Sıra önemli değil; ikisi de idempotent.
+  const clean = (t: string | null | undefined): string => scrubPii(redactNames(t ?? '', tokens))
   const lines: string[] = []
 
   lines.push('Hasta bilgileri (ad hariç):')
@@ -117,9 +124,9 @@ function buildSummaryText(ctx: TriageContext): string {
   lines.push(`- Cinsiyet: ${patient.gender ?? 'belirtilmemiş'}`)
   lines.push(`- Boy (cm): ${patient.heightCm ?? 'belirtilmemiş'}`)
   lines.push(`- Kilo (kg): ${patient.weightKg ?? 'belirtilmemiş'}`)
-  lines.push(`- Geçirilmiş ameliyatlar: ${scrubPii(patient.pastSurgeries)}`)
-  lines.push(`- Bilinen rahatsızlıklar: ${scrubPii(patient.knownConditions)}`)
-  lines.push(`- Kullanılan ilaçlar: ${scrubPii(patient.medications)}`)
+  lines.push(`- Geçirilmiş ameliyatlar: ${clean(patient.pastSurgeries)}`)
+  lines.push(`- Bilinen rahatsızlıklar: ${clean(patient.knownConditions)}`)
+  lines.push(`- Kullanılan ilaçlar: ${clean(patient.medications)}`)
   lines.push(
     `- Sigara: ${smokingLabel(patient.smokingStatus)}` +
       (patient.smokingPackYears != null ? `, ${patient.smokingPackYears} paket-yıl` : ''),
@@ -128,7 +135,7 @@ function buildSummaryText(ctx: TriageContext): string {
     `- Alkol: ${alcoholLabel(patient.alcoholStatus)}` +
       (patient.alcoholDrinksPerWeek != null ? `, ${patient.alcoholDrinksPerWeek}/hafta` : ''),
   )
-  lines.push(`- Not: ${patient.notes ? scrubPii(patient.notes) : 'yok'}`)
+  lines.push(`- Not: ${patient.notes ? clean(patient.notes) : 'yok'}`)
   lines.push('')
   lines.push('İstenen operasyon:')
   lines.push(`- Kategori: ${operation.category}`)
@@ -150,8 +157,8 @@ function buildSummaryText(ctx: TriageContext): string {
     lines.push('')
     lines.push('Geçmiş doktor geri bildirimlerinden ipuçları:')
     feedbackHints.forEach((f) => {
-      const summary = scrubPii(f.summary)
-      const note = f.note ? scrubPii(f.note) : null
+      const summary = clean(f.summary)
+      const note = f.note ? clean(f.note) : null
       lines.push(`- [${f.label}] ${summary}${note ? ` (${note})` : ''}`)
     })
   }

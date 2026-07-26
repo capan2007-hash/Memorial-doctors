@@ -34,3 +34,22 @@ export function scrubPii(text: string): string {
 
   return out
 }
+
+// Serbest metne gömülü kişi adlarını (özellikle hasta ad/soyadı) maskeler.
+// `names` yalnız SUNUCUDA bilinen maskelenecek belirteçlerdir (LLM'e gitmez).
+// Tam-kelime eşleşme: Türkçe/Unicode harf-rakam ile çevrili değilse eşleşir —
+// böylece "Ayşe" gömülü geçse maskelenir ama "Ayşegül" içindeki parça maskelenmez.
+// Büyük/küçük harf duyarsız; 2 karakterden kısa belirteçler yok sayılır
+// (yanlış-pozitif maskelemeyi önler).
+export function redactNames(text: string, names: string[]): string {
+  if (!text || !names || names.length === 0) return text
+  let out = text
+  for (const raw of names) {
+    const name = (raw ?? '').trim()
+    if (name.length < 2) continue
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const re = new RegExp(`(^|[^\\p{L}\\p{N}])(?:${escaped})(?=[^\\p{L}\\p{N}]|$)`, 'giu')
+    out = out.replace(re, (_m, pre) => `${pre}${MASK}`)
+  }
+  return out
+}

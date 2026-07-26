@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import Anthropic from 'npm:@anthropic-ai/sdk'
+import { scrubPii } from './scrub.ts'
 
 // Faz 3 — İçerik çevirisi (Task 2). Serbest metin çevirisi (hasta notu, doktor
 // yanıtı vb.) — katalog adları name_i18n ile ayrı çözülür (Faz 2), bu fonksiyon
@@ -111,13 +112,18 @@ Deno.serve(async (req) => {
       return json({ error: 'invalid target_lang' }, 400)
     }
 
-    // Kısa devre: boş metin veya kaynak=hedef → Claude çağrısı yok.
+    // Kısa devre: boş metin veya kaynak=hedef → Claude çağrısı yok (metin LLM'e gitmez).
     if (!text.trim() || sourceLang === targetLang) {
       return json({ translated: text, cached: true }, 200)
     }
 
+    // PHI maskeleme (Section A): LLM'e gitmeden önce serbest metindeki IBAN/telefon/
+    // e-posta/TC maskelenir. Hash + çağrı + önbellek maskelenmiş metin üzerinden —
+    // böylece çeviri de maskeli döner ve önbellekte PII tutulmaz.
+    const scrubbed = scrubPii(text)
+
     const admin = createClient(url, serviceKey)
-    const sourceHash = await sha256Hex(text)
+    const sourceHash = await sha256Hex(scrubbed)
 
     // Önbellek: service-role ile (tenant_id, source_hash, target_lang) sorgula.
     // tenant_id filtresi: PHI çeviri önbelleği firma sınırları arasında SIZMASIN.
@@ -138,7 +144,7 @@ Deno.serve(async (req) => {
       model: MODEL_ID,
       max_tokens: 2000,
       system: buildSystemPrompt(sourceLang, targetLang),
-      messages: [{ role: 'user', content: text }],
+      messages: [{ role: 'user', content: scrubbed }],
     })
 
     const textBlock = response.content.find((b) => b.type === 'text')

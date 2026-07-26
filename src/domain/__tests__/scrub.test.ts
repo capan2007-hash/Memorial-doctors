@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { scrubPii } from '../../../supabase/functions/ai-triage/scrub'
+import { scrubPii, redactNames } from '../../../supabase/functions/ai-triage/scrub'
 
 describe('scrubPii', () => {
   it('TC kimlik numarasını (11 ardışık hane) maskeler', () => {
@@ -77,5 +77,27 @@ describe('scrubPii', () => {
     const out = scrubPii('İletişim: ayşe.yılmaz@example.com')
     expect(out).toBe('İletişim: [maskelendi]')
     expect(out).not.toContain('ayş')
+  })
+})
+
+describe('redactNames', () => {
+  it('serbest metne gömülü hasta ad/soyadını maskeler', () => {
+    expect(redactNames('Hasta Ayşe Yılmaz burun estetiği istiyor', ['Ayşe', 'Yılmaz']))
+      .toBe('Hasta [maskelendi] [maskelendi] burun estetiği istiyor')
+  })
+  it('büyük/küçük harf duyarsız', () => {
+    expect(redactNames('ayşe geldi', ['Ayşe'])).toBe('[maskelendi] geldi')
+  })
+  it('metin başındaki adı da maskeler', () => {
+    expect(redactNames('Yılmaz ameliyat oldu', ['Yılmaz'])).toBe('[maskelendi] ameliyat oldu')
+  })
+  it('kelimenin PARÇASINI maskelemez (Ayşe ≠ Ayşegül)', () => {
+    expect(redactNames('Ayşegül geldi', ['Ayşe'])).toBe('Ayşegül geldi')
+  })
+  it('boş/tek-harf belirteçleri yok sayar (yanlış maskeleme önlenir)', () => {
+    expect(redactNames('A B tedavi', ['A', '', ' '])).toBe('A B tedavi')
+  })
+  it('isim listesi boşsa metni değiştirmez', () => {
+    expect(redactNames('herhangi bir metin', [])).toBe('herhangi bir metin')
   })
 })
