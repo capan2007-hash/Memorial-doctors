@@ -45,10 +45,17 @@
   "doctorAdmin": {
     "title": "Управление врачами",
     "newDoctorButton": "Новый врач",
-    "tabs": { "list": "Врачи", "reports": "Отчёты" },
+    "tabs": {
+      "list": "Врачи",
+      "reports": "Отчёты"
+    },
     "emptyTitle": "Пока нет врачей",
     "emptyDescription": "Используйте «Новый врач», чтобы создать первую запись.",
-    "levelLabels": { "high": "Высокий", "medium": "Средний", "low": "Низкий" },
+    "levelLabels": {
+      "high": "Высокий",
+      "medium": "Средний",
+      "low": "Низкий"
+    },
     "noSubcategories": "Нет подкатегорий",
     "noScopesAssigned": "Компетенции не назначены",
     "areaPlaceholder": "Область (напр. эндопротезирование колена)",
@@ -112,7 +119,11 @@
     }
   },
   "doctorPerformance": {
-    "periodTabs": { "all": "За всё время", "last30": "Последние 30 дней", "custom": "Произвольный период" },
+    "periodTabs": {
+      "all": "За всё время",
+      "last30": "Последние 30 дней",
+      "custom": "Произвольный период"
+    },
     "searchPlaceholder": "Поиск врача…",
     "metrics": {
       "totalDoctors": "Всего врачей",
@@ -207,7 +218,10 @@
   "billing": {
     "title": "Биллинг",
     "subtitle": "Затраты на ИИ и инфраструктуру по компаниям и еженедельная плата (USD).",
-    "periodTabs": { "week": "На этой неделе", "month": "В этом месяце" },
+    "periodTabs": {
+      "week": "На этой неделе",
+      "month": "В этом месяце"
+    },
     "loadError": "Не удалось загрузить данные биллинга: {{message}}",
     "totalCostLabel": "Общие затраты (ИИ + инфраструктура)",
     "weeklyChargeLabel": "Еженедельная плата (×2)",
@@ -224,12 +238,21 @@
     },
     "emptyTitle": "Нет затрат за этот период",
     "emptyDescription": "За выбранный период затраты на ИИ/инфраструктуру по компаниям не зафиксированы.",
-    "columns": { "service": "Сервис", "cost": "Стоимость", "calls": "Обращения", "tokens": "Токены (вх. / исх.)" },
+    "columns": {
+      "service": "Сервис",
+      "cost": "Стоимость",
+      "calls": "Обращения",
+      "tokens": "Токены (вх. / исх.)"
+    },
     "infraRowLabel": "Инфраструктура",
     "infraEstimated": "(оценочно)",
     "aiLabel": "ИИ:",
     "infraLabel": "Инфраструктура:",
     "totalLabel": "Итого:",
-    "services": { "triage": "ИИ Триаж", "vision": "ИИ Зрение" }
+    "services": {
+      "triage": "ИИ Триаж",
+      "vision": "ИИ Зрение",
+      "translation": "ИИ-перевод"
+    }
   }
 }

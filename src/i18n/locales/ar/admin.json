@@ -53,10 +53,17 @@
   "doctorAdmin": {
     "title": "إدارة الأطباء",
     "newDoctorButton": "طبيب جديد",
-    "tabs": { "list": "الأطباء", "reports": "التقارير" },
+    "tabs": {
+      "list": "الأطباء",
+      "reports": "التقارير"
+    },
     "emptyTitle": "لا يوجد أطباء بعد",
     "emptyDescription": "استخدم طبيب جديد لإنشاء أول سجل.",
-    "levelLabels": { "high": "مرتفع", "medium": "متوسط", "low": "منخفض" },
+    "levelLabels": {
+      "high": "مرتفع",
+      "medium": "متوسط",
+      "low": "منخفض"
+    },
     "noSubcategories": "لا توجد فئات فرعية",
     "noScopesAssigned": "لم تُعيَّن أي صلاحية",
     "areaPlaceholder": "المجال (مثال: تبديل الركبة)",
@@ -120,7 +127,11 @@
     }
   },
   "doctorPerformance": {
-    "periodTabs": { "all": "كل الأوقات", "last30": "آخر 30 يومًا", "custom": "نطاق مخصص" },
+    "periodTabs": {
+      "all": "كل الأوقات",
+      "last30": "آخر 30 يومًا",
+      "custom": "نطاق مخصص"
+    },
     "searchPlaceholder": "ابحث عن طبيب…",
     "metrics": {
       "totalDoctors": "إجمالي الأطباء",
@@ -219,7 +230,10 @@
   "billing": {
     "title": "الفوترة",
     "subtitle": "تكلفة الذكاء الاصطناعي والبنية التحتية حسب الشركة والتحصيل الأسبوعي (USD).",
-    "periodTabs": { "week": "هذا الأسبوع", "month": "هذا الشهر" },
+    "periodTabs": {
+      "week": "هذا الأسبوع",
+      "month": "هذا الشهر"
+    },
     "loadError": "تعذّر تحميل بيانات الفوترة: {{message}}",
     "totalCostLabel": "التكلفة الإجمالية (ذكاء اصطناعي + بنية تحتية)",
     "weeklyChargeLabel": "التحصيل الأسبوعي (2×)",
@@ -236,12 +250,21 @@
     },
     "emptyTitle": "لا توجد تكلفة في هذه الفترة",
     "emptyDescription": "لم تحدث تكلفة ذكاء اصطناعي/بنية تحتية لأي شركة في الفترة المحددة.",
-    "columns": { "service": "الخدمة", "cost": "التكلفة", "calls": "الاستدعاءات", "tokens": "الرموز (دخول / خروج)" },
+    "columns": {
+      "service": "الخدمة",
+      "cost": "التكلفة",
+      "calls": "الاستدعاءات",
+      "tokens": "الرموز (دخول / خروج)"
+    },
     "infraRowLabel": "البنية التحتية",
     "infraEstimated": "(تقديري)",
     "aiLabel": "الذكاء الاصطناعي:",
     "infraLabel": "البنية التحتية:",
     "totalLabel": "الإجمالي:",
-    "services": { "triage": "فرز بالذكاء الاصطناعي", "vision": "رؤية بالذكاء الاصطناعي" }
+    "services": {
+      "triage": "فرز بالذكاء الاصطناعي",
+      "vision": "رؤية بالذكاء الاصطناعي",
+      "translation": "ترجمة الذكاء الاصطناعي"
+    }
   }
 }

@@ -45,10 +45,17 @@
   "doctorAdmin": {
     "title": "Doktor Yönetimi",
     "newDoctorButton": "Yeni Doktor",
-    "tabs": { "list": "Doktorlar", "reports": "Raporlama" },
+    "tabs": {
+      "list": "Doktorlar",
+      "reports": "Raporlama"
+    },
     "emptyTitle": "Henüz doktor yok",
     "emptyDescription": "Yeni Doktor ile ilk kaydı oluşturun.",
-    "levelLabels": { "high": "Yüksek", "medium": "Orta", "low": "Düşük" },
+    "levelLabels": {
+      "high": "Yüksek",
+      "medium": "Orta",
+      "low": "Düşük"
+    },
     "noSubcategories": "Alt kırılım yok",
     "noScopesAssigned": "Yetkinlik atanmadı",
     "areaPlaceholder": "Alan (ör. diz protezi)",
@@ -112,7 +119,11 @@
     }
   },
   "doctorPerformance": {
-    "periodTabs": { "all": "Tüm zaman", "last30": "Son 30 gün", "custom": "Özel aralık" },
+    "periodTabs": {
+      "all": "Tüm zaman",
+      "last30": "Son 30 gün",
+      "custom": "Özel aralık"
+    },
     "searchPlaceholder": "Doktor ara…",
     "metrics": {
       "totalDoctors": "Toplam doktor",
@@ -207,7 +218,10 @@
   "billing": {
     "title": "Billing",
     "subtitle": "Firma bazlı AI + altyapı maliyeti ve haftalık tahsilat (USD).",
-    "periodTabs": { "week": "Bu hafta", "month": "Bu ay" },
+    "periodTabs": {
+      "week": "Bu hafta",
+      "month": "Bu ay"
+    },
     "loadError": "Billing verisi alınamadı: {{message}}",
     "totalCostLabel": "Toplam maliyet (AI + altyapı)",
     "weeklyChargeLabel": "Haftalık tahsilat (2×)",
@@ -224,12 +238,21 @@
     },
     "emptyTitle": "Bu dönemde maliyet yok",
     "emptyDescription": "Seçili dönemde firma bazlı AI/altyapı maliyeti oluşmadı.",
-    "columns": { "service": "Servis", "cost": "Maliyet", "calls": "Çağrı", "tokens": "Token (in / out)" },
+    "columns": {
+      "service": "Servis",
+      "cost": "Maliyet",
+      "calls": "Çağrı",
+      "tokens": "Token (in / out)"
+    },
     "infraRowLabel": "Altyapı",
     "infraEstimated": "(tahmini)",
     "aiLabel": "AI:",
     "infraLabel": "Altyapı:",
     "totalLabel": "Toplam:",
-    "services": { "triage": "AI Triyaj", "vision": "AI Görsel" }
+    "services": {
+      "triage": "AI Triyaj",
+      "vision": "AI Görsel",
+      "translation": "AI Çeviri"
+    }
   }
 }

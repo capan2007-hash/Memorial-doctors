@@ -51,6 +51,34 @@ function buildSystemPrompt(sourceLang: string, targetLang: string): string {
   )
 }
 
+// Billing: bir Anthropic çeviri çağrısının token+maliyetini ai_usage'a yazar
+// (best-effort — maliyet kaydı asla çeviri akışını bozmaz). ai-triage/duplicate-vision
+// recordUsage deseniyle birebir; çeviri bir talebe bağlı olmadığından request_id null.
+// deno-lint-ignore no-explicit-any
+async function recordUsage(admin: any, tenantId: string, model: string, usage: any) {
+  try {
+    if (!usage) return
+    const inTok = usage.input_tokens ?? 0
+    const outTok = usage.output_tokens ?? 0
+    const cacheW = usage.cache_creation_input_tokens ?? 0
+    const cacheR = usage.cache_read_input_tokens ?? 0
+    const { data: p } = await admin.from('model_price').select('*').eq('model', model).maybeSingle()
+    let cost = 0
+    if (p) {
+      const inP = Number(p.input_usd_per_mtok) / 1e6
+      const outP = Number(p.output_usd_per_mtok) / 1e6
+      cost = inTok * inP + outTok * outP
+        + cacheW * inP * Number(p.cache_write_multiplier)
+        + cacheR * inP * Number(p.cache_read_multiplier)
+    }
+    await admin.from('ai_usage').insert({
+      tenant_id: tenantId, service: 'translation', request_id: null, model,
+      input_tokens: inTok, output_tokens: outTok, cache_write_tokens: cacheW, cache_read_tokens: cacheR,
+      cost_usd: cost,
+    })
+  } catch { /* yut */ }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   // Üst-düzey try/catch: erken aşamadaki (auth/DB/model) istisna da CORS başlıklı
@@ -116,6 +144,10 @@ Deno.serve(async (req) => {
     const textBlock = response.content.find((b) => b.type === 'text')
     const translated = textBlock && 'text' in textBlock ? textBlock.text.trim() : ''
     if (!translated) return json({ error: 'model çıktısı boş' }, 500)
+
+    // Billing: çeviri maliyetini ai_usage'a yaz (best-effort). Yalnız gerçek Claude
+    // çağrısı yapıldığında buraya gelinir — cache/kaynak=hedef kısa devreleri yukarıda döndü.
+    await recordUsage(admin, me.tenant_id, MODEL_ID, response.usage)
 
     // Çakışmada yok say: aynı (tenant_id, source_hash, target_lang) için yarış
     // durumunda ilk yazan kazanır, ikinci istek hata almaz.

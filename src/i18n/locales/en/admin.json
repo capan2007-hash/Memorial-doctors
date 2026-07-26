@@ -45,10 +45,17 @@
   "doctorAdmin": {
     "title": "Doctor Management",
     "newDoctorButton": "New Doctor",
-    "tabs": { "list": "Doctors", "reports": "Reporting" },
+    "tabs": {
+      "list": "Doctors",
+      "reports": "Reporting"
+    },
     "emptyTitle": "No doctors yet",
     "emptyDescription": "Use New Doctor to create the first record.",
-    "levelLabels": { "high": "High", "medium": "Medium", "low": "Low" },
+    "levelLabels": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
     "noSubcategories": "No subcategories",
     "noScopesAssigned": "No scope assigned",
     "areaPlaceholder": "Area (e.g. knee replacement)",
@@ -112,7 +119,11 @@
     }
   },
   "doctorPerformance": {
-    "periodTabs": { "all": "All time", "last30": "Last 30 days", "custom": "Custom range" },
+    "periodTabs": {
+      "all": "All time",
+      "last30": "Last 30 days",
+      "custom": "Custom range"
+    },
     "searchPlaceholder": "Search doctor…",
     "metrics": {
       "totalDoctors": "Total doctors",
@@ -207,7 +218,10 @@
   "billing": {
     "title": "Billing",
     "subtitle": "Per-company AI + infrastructure cost and weekly charge (USD).",
-    "periodTabs": { "week": "This week", "month": "This month" },
+    "periodTabs": {
+      "week": "This week",
+      "month": "This month"
+    },
     "loadError": "Could not load billing data: {{message}}",
     "totalCostLabel": "Total cost (AI + infrastructure)",
     "weeklyChargeLabel": "Weekly charge (2×)",
@@ -224,12 +238,21 @@
     },
     "emptyTitle": "No cost in this period",
     "emptyDescription": "No per-company AI/infrastructure cost occurred in the selected period.",
-    "columns": { "service": "Service", "cost": "Cost", "calls": "Calls", "tokens": "Tokens (in / out)" },
+    "columns": {
+      "service": "Service",
+      "cost": "Cost",
+      "calls": "Calls",
+      "tokens": "Tokens (in / out)"
+    },
     "infraRowLabel": "Infrastructure",
     "infraEstimated": "(estimated)",
     "aiLabel": "AI:",
     "infraLabel": "Infrastructure:",
     "totalLabel": "Total:",
-    "services": { "triage": "AI Triage", "vision": "AI Vision" }
+    "services": {
+      "triage": "AI Triage",
+      "vision": "AI Vision",
+      "translation": "AI Translation"
+    }
   }
 }

@@ -45,10 +45,17 @@
   "doctorAdmin": {
     "title": "Ärzteverwaltung",
     "newDoctorButton": "Neuer Arzt",
-    "tabs": { "list": "Ärzte", "reports": "Berichte" },
+    "tabs": {
+      "list": "Ärzte",
+      "reports": "Berichte"
+    },
     "emptyTitle": "Noch keine Ärzte",
     "emptyDescription": "Verwenden Sie Neuer Arzt, um den ersten Datensatz zu erstellen.",
-    "levelLabels": { "high": "Hoch", "medium": "Mittel", "low": "Niedrig" },
+    "levelLabels": {
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    },
     "noSubcategories": "Keine Unterkategorien",
     "noScopesAssigned": "Kein Zuständigkeitsbereich zugewiesen",
     "areaPlaceholder": "Bereich (z. B. Kniegelenkersatz)",
@@ -112,7 +119,11 @@
     }
   },
   "doctorPerformance": {
-    "periodTabs": { "all": "Gesamter Zeitraum", "last30": "Letzte 30 Tage", "custom": "Benutzerdefinierter Zeitraum" },
+    "periodTabs": {
+      "all": "Gesamter Zeitraum",
+      "last30": "Letzte 30 Tage",
+      "custom": "Benutzerdefinierter Zeitraum"
+    },
     "searchPlaceholder": "Arzt suchen…",
     "metrics": {
       "totalDoctors": "Ärzte insgesamt",
@@ -207,7 +218,10 @@
   "billing": {
     "title": "Abrechnung",
     "subtitle": "KI- und Infrastrukturkosten pro Unternehmen sowie wöchentliche Belastung (USD).",
-    "periodTabs": { "week": "Diese Woche", "month": "Dieser Monat" },
+    "periodTabs": {
+      "week": "Diese Woche",
+      "month": "Dieser Monat"
+    },
     "loadError": "Abrechnungsdaten konnten nicht geladen werden: {{message}}",
     "totalCostLabel": "Gesamtkosten (KI + Infrastruktur)",
     "weeklyChargeLabel": "Wöchentliche Belastung (2×)",
@@ -224,12 +238,21 @@
     },
     "emptyTitle": "Keine Kosten in diesem Zeitraum",
     "emptyDescription": "Im ausgewählten Zeitraum sind keine KI-/Infrastrukturkosten pro Unternehmen angefallen.",
-    "columns": { "service": "Dienst", "cost": "Kosten", "calls": "Aufrufe", "tokens": "Tokens (ein / aus)" },
+    "columns": {
+      "service": "Dienst",
+      "cost": "Kosten",
+      "calls": "Aufrufe",
+      "tokens": "Tokens (ein / aus)"
+    },
     "infraRowLabel": "Infrastruktur",
     "infraEstimated": "(geschätzt)",
     "aiLabel": "KI:",
     "infraLabel": "Infrastruktur:",
     "totalLabel": "Gesamt:",
-    "services": { "triage": "KI-Triage", "vision": "KI-Bildanalyse" }
+    "services": {
+      "triage": "KI-Triage",
+      "vision": "KI-Bildanalyse",
+      "translation": "KI-Übersetzung"
+    }
   }
 }

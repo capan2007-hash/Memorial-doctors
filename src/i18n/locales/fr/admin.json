@@ -45,10 +45,17 @@
   "doctorAdmin": {
     "title": "Gestion des médecins",
     "newDoctorButton": "Nouveau médecin",
-    "tabs": { "list": "Médecins", "reports": "Rapports" },
+    "tabs": {
+      "list": "Médecins",
+      "reports": "Rapports"
+    },
     "emptyTitle": "Aucun médecin pour le moment",
     "emptyDescription": "Utilisez Nouveau médecin pour créer la première fiche.",
-    "levelLabels": { "high": "Élevé", "medium": "Moyen", "low": "Faible" },
+    "levelLabels": {
+      "high": "Élevé",
+      "medium": "Moyen",
+      "low": "Faible"
+    },
     "noSubcategories": "Aucune sous-catégorie",
     "noScopesAssigned": "Aucune compétence assignée",
     "areaPlaceholder": "Domaine (ex. prothèse de genou)",
@@ -112,7 +119,11 @@
     }
   },
   "doctorPerformance": {
-    "periodTabs": { "all": "Depuis toujours", "last30": "30 derniers jours", "custom": "Période personnalisée" },
+    "periodTabs": {
+      "all": "Depuis toujours",
+      "last30": "30 derniers jours",
+      "custom": "Période personnalisée"
+    },
     "searchPlaceholder": "Rechercher un médecin…",
     "metrics": {
       "totalDoctors": "Total médecins",
@@ -207,7 +218,10 @@
   "billing": {
     "title": "Facturation",
     "subtitle": "Coût IA + infrastructure par entreprise et facturation hebdomadaire (USD).",
-    "periodTabs": { "week": "Cette semaine", "month": "Ce mois-ci" },
+    "periodTabs": {
+      "week": "Cette semaine",
+      "month": "Ce mois-ci"
+    },
     "loadError": "Impossible de charger les données de facturation : {{message}}",
     "totalCostLabel": "Coût total (IA + infrastructure)",
     "weeklyChargeLabel": "Facturation hebdomadaire (2×)",
@@ -224,12 +238,21 @@
     },
     "emptyTitle": "Aucun coût sur cette période",
     "emptyDescription": "Aucun coût IA/infrastructure par entreprise n'est survenu sur la période sélectionnée.",
-    "columns": { "service": "Service", "cost": "Coût", "calls": "Appels", "tokens": "Jetons (entrée / sortie)" },
+    "columns": {
+      "service": "Service",
+      "cost": "Coût",
+      "calls": "Appels",
+      "tokens": "Jetons (entrée / sortie)"
+    },
     "infraRowLabel": "Infrastructure",
     "infraEstimated": "(estimé)",
     "aiLabel": "IA :",
     "infraLabel": "Infrastructure :",
     "totalLabel": "Total :",
-    "services": { "triage": "Triage IA", "vision": "Vision IA" }
+    "services": {
+      "triage": "Triage IA",
+      "vision": "Vision IA",
+      "translation": "Traduction IA"
+    }
   }
 }
