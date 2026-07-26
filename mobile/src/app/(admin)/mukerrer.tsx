@@ -9,7 +9,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { dupConfidenceClass, formatConfidencePct } from '@/domain/duplicate'
 import { useDuplicateQueue, useResolveDuplicate, type DuplicateItem } from '@/features/admin/useDuplicateQueue'
 import { useTheme } from '@/lib/theme'
-import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
+import { fontFamily, radius, roleColors, shadow, spacing, type Palette } from '@/theme'
 
 // AI güven eşiği (tenant.dup_confidence_threshold varsayılanı 0.75).
 const CONFIDENCE_THRESHOLD = 0.75
@@ -132,7 +132,7 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
   const busy = pending !== null
 
   return (
-    <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.surface2 }]}>
+    <View style={[styles.card, shadow.card, { borderColor: colors.border, backgroundColor: colors.surface2 }]}>
       <SidePanel
         label={t('duplicates.newApplication')}
         name={item.patientName}
@@ -193,7 +193,7 @@ function DuplicateCard({ item, colors }: { item: DuplicateItem; colors: Palette 
           onPress={() => decide('confirmed')}
           disabled={busy}
           accessibilityRole="button"
-          style={[styles.btnPrimary, { backgroundColor: colors.brandFill }, busy && styles.disabled]}
+          style={[styles.btnPrimary, shadow.card, { backgroundColor: colors.brandFill }, busy && styles.disabled]}
         >
           {pending === 'confirmed' ? (
             <ActivityIndicator color={colors.brandOn} size="small" />
@@ -242,16 +242,16 @@ export default function MukerrerScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   centered: { justifyContent: 'center' },
-  list: { padding: spacing.four, gap: spacing.three },
+  list: { padding: spacing.four, gap: spacing.four },
   card: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     padding: spacing.three,
     gap: spacing.two,
   },
   panel: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     padding: spacing.three,
     gap: spacing.one,
   },

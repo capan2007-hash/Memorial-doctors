@@ -33,7 +33,7 @@ function ScopeChip({
         styles.chip,
         selected
           ? { backgroundColor: colors.brandFill, borderColor: colors.brandFill }
-          : { backgroundColor: colors.surface1, borderColor: colors.border },
+          : { backgroundColor: colors.surface0, borderColor: colors.border },
       ]}
     >
       {selected && <Check color={colors.brandOn} size={13} strokeWidth={2} />}

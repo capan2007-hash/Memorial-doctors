@@ -3,13 +3,24 @@ import { KeyRound, Plus, Power, Users } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 
+import { Avatar } from '@/components/ui/Avatar'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Spinner } from '@/components/ui/Spinner'
+import { SkeletonList } from '@/components/ui/Skeleton'
 import { canManageTarget, creatableRoles } from '@/domain/userRoles'
 import { useManageUser, useUsers, type ManagedUser } from '@/features/admin/useUsers'
-import { useAuth } from '@/lib/auth'
+import { useAuth, type Role } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
-import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
+import { fontFamily, radius, roleColors, shadow, spacing, type Palette, type Role as ThemeRole } from '@/theme'
+
+// Görsel-yalnız rol → renk eşlemesi (fonksiyonel etkisi yok, yalnız rol pill tonu).
+const ROLE_TINT: Record<Role, ThemeRole> = {
+  super_admin: 'brand',
+  admin: 'brand',
+  coordinator: 'info',
+  sales: 'warning',
+  agent: 'neutral',
+  doctor: 'neutral',
+}
 
 function UserRow({
   user,
@@ -28,22 +39,24 @@ function UserRow({
 }) {
   const { t } = useTranslation('admin')
   const activeTint = roleColors(colors, user.is_active ? 'success' : 'danger')
+  const roleTint = roleColors(colors, ROLE_TINT[user.role])
   return (
-    <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+    <View style={[styles.card, shadow.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
       <View style={styles.rowTop}>
+        <Avatar name={user.full_name || user.email || '—'} size={44} />
         <View style={styles.rowHead}>
-          <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
-            {user.full_name || '—'}
-          </Text>
+          <View style={styles.nameLine}>
+            <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
+              {user.full_name || '—'}
+            </Text>
+            <View style={[styles.statusDot, { backgroundColor: activeTint.text, borderColor: colors.surface2 }]} />
+          </View>
           <Text style={[styles.email, { color: colors.textMuted }]} numberOfLines={1}>
             {user.email ?? '—'}
           </Text>
         </View>
-        <View style={styles.rowMeta}>
-          <View style={[styles.roleChip, { backgroundColor: colors.surface3, borderColor: colors.border }]}>
-            <Text style={[styles.roleChipText, { color: colors.textSecondary }]}>{t(`roles.${user.role}`)}</Text>
-          </View>
-          <View style={[styles.statusDot, { backgroundColor: activeTint.text }]} />
+        <View style={[styles.roleChip, { backgroundColor: roleTint.bg, borderColor: roleTint.border }]}>
+          <Text style={[styles.roleChipText, { color: roleTint.text }]}>{t(`roles.${user.role}`)}</Text>
         </View>
       </View>
 
@@ -137,7 +150,9 @@ export default function KullanicilarScreen() {
   if (users.isLoading) {
     return (
       <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
-        <Spinner />
+        <View style={styles.list}>
+          <SkeletonList count={6} />
+        </View>
       </View>
     )
   }
@@ -186,7 +201,7 @@ export default function KullanicilarScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  list: { padding: spacing.four, gap: spacing.two },
+  list: { padding: spacing.four, gap: spacing.three },
   header: { gap: spacing.two, marginBottom: spacing.one },
   info: {
     flexDirection: 'row',
@@ -207,15 +222,15 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   newBtnText: { fontFamily: fontFamily.semibold, fontSize: 15 },
-  card: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.md, padding: spacing.three, gap: spacing.two },
+  card: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.lg, padding: spacing.three, gap: spacing.two },
   rowTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
-  rowHead: { flex: 1, minWidth: 0 },
+  rowHead: { flex: 1, minWidth: 0, gap: 2 },
+  nameLine: { flexDirection: 'row', alignItems: 'center', gap: spacing.one },
   name: { fontFamily: fontFamily.semibold, fontSize: 15 },
-  email: { fontFamily: fontFamily.regular, fontSize: 13, marginTop: 1 },
-  rowMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.one },
-  roleChip: { borderRadius: radius.full, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: spacing.one + 2, paddingVertical: 2 },
-  roleChipText: { fontFamily: fontFamily.medium, fontSize: 11 },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  email: { fontFamily: fontFamily.regular, fontSize: 13 },
+  roleChip: { borderRadius: radius.full, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: spacing.two, paddingVertical: 4 },
+  roleChipText: { fontFamily: fontFamily.semibold, fontSize: 11 },
+  statusDot: { width: 9, height: 9, borderRadius: 5, borderWidth: 2 },
   actions: { flexDirection: 'row', gap: spacing.four, borderTopWidth: StyleSheet.hairlineWidth, paddingTop: spacing.two },
   actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.half },
   actionText: { fontFamily: fontFamily.medium, fontSize: 13 },

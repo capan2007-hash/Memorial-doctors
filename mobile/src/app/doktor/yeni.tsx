@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Redirect, Stack, router } from 'expo-router'
-import { ChevronLeft, UserPlus } from 'lucide-react-native'
+import { Briefcase, ChevronLeft, FileText, Lock, Mail, Stethoscope, User, UserPlus } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
 import {
   ActivityIndicator,
@@ -21,7 +21,7 @@ import type { DoctorScope } from '@/features/profile/scope'
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
 import { rtlIconStyle } from '@/lib/rtl'
-import { fontFamily, radius, spacing } from '@/theme'
+import { fontFamily, radius, shadow, spacing } from '@/theme'
 
 export default function NewDoctorScreen() {
   const { role } = useAuth()
@@ -66,11 +66,6 @@ export default function NewDoctorScreen() {
     }
   }
 
-  const inputStyle = [
-    styles.input,
-    { backgroundColor: colors.surface1, borderColor: colors.border, color: colors.textPrimary },
-  ]
-
   return (
     <KeyboardAvoidingView
       style={[styles.root, { backgroundColor: colors.surface0 }]}
@@ -85,33 +80,105 @@ export default function NewDoctorScreen() {
 
         <Text style={[styles.title, { color: colors.textPrimary }]}>{t('new.title')}</Text>
 
-        <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+        <View style={[styles.card, shadow.raised, { backgroundColor: colors.surface1 }]}>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('new.account.title')}</Text>
+
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('new.account.emailLabel')}</Text>
-          <TextInput style={inputStyle} value={email} onChangeText={setEmail} placeholder={t('new.account.emailPlaceholder')} placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" />
+          <View style={[styles.inputField, { backgroundColor: colors.surface0, borderColor: colors.border }]}>
+            <Mail color={colors.textMuted} size={18} strokeWidth={1.75} />
+            <TextInput
+              style={[styles.input, { color: colors.textPrimary }]}
+              value={email}
+              onChangeText={setEmail}
+              placeholder={t('new.account.emailPlaceholder')}
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+            />
+          </View>
+
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('new.account.passwordLabel')}</Text>
-          <TextInput style={inputStyle} value={password} onChangeText={setPassword} placeholder={t('new.account.passwordPlaceholder')} placeholderTextColor={colors.textMuted} autoCapitalize="none" autoCorrect={false} />
+          <View style={[styles.inputField, { backgroundColor: colors.surface0, borderColor: colors.border }]}>
+            <Lock color={colors.textMuted} size={18} strokeWidth={1.75} />
+            <TextInput
+              style={[styles.input, { color: colors.textPrimary }]}
+              value={password}
+              onChangeText={setPassword}
+              placeholder={t('new.account.passwordPlaceholder')}
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('new.account.fullNameLabel')}</Text>
-          <TextInput style={inputStyle} value={fullName} onChangeText={setFullName} placeholder={t('new.account.fullNamePlaceholder')} placeholderTextColor={colors.textMuted} />
+          <View style={[styles.inputField, { backgroundColor: colors.surface0, borderColor: colors.border }]}>
+            <User color={colors.textMuted} size={18} strokeWidth={1.75} />
+            <TextInput
+              style={[styles.input, { color: colors.textPrimary }]}
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder={t('new.account.fullNamePlaceholder')}
+              placeholderTextColor={colors.textMuted}
+            />
+          </View>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+        <View style={[styles.card, shadow.raised, { backgroundColor: colors.surface1 }]}>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('profile.title')}</Text>
+
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.titleLabel')}</Text>
-          <TextInput style={inputStyle} value={title} onChangeText={setTitle} placeholder={t('profile.titlePlaceholder')} placeholderTextColor={colors.textMuted} />
+          <View style={[styles.inputField, { backgroundColor: colors.surface0, borderColor: colors.border }]}>
+            <Briefcase color={colors.textMuted} size={18} strokeWidth={1.75} />
+            <TextInput
+              style={[styles.input, { color: colors.textPrimary }]}
+              value={title}
+              onChangeText={setTitle}
+              placeholder={t('profile.titlePlaceholder')}
+              placeholderTextColor={colors.textMuted}
+            />
+          </View>
+
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.specialtyLabel')}</Text>
-          <TextInput style={inputStyle} value={specialty} onChangeText={setSpecialty} placeholder={t('profile.specialtyPlaceholder')} placeholderTextColor={colors.textMuted} />
+          <View style={[styles.inputField, { backgroundColor: colors.surface0, borderColor: colors.border }]}>
+            <Stethoscope color={colors.textMuted} size={18} strokeWidth={1.75} />
+            <TextInput
+              style={[styles.input, { color: colors.textPrimary }]}
+              value={specialty}
+              onChangeText={setSpecialty}
+              placeholder={t('profile.specialtyPlaceholder')}
+              placeholderTextColor={colors.textMuted}
+            />
+          </View>
+
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.bioLabel')}</Text>
-          <TextInput style={[inputStyle, styles.multiline]} value={bio} onChangeText={setBio} placeholder={t('profile.bioPlaceholder')} placeholderTextColor={colors.textMuted} multiline textAlignVertical="top" />
+          <View style={[styles.inputField, styles.multilineField, { backgroundColor: colors.surface0, borderColor: colors.border }]}>
+            <FileText color={colors.textMuted} size={18} strokeWidth={1.75} style={styles.multilineIcon} />
+            <TextInput
+              style={[styles.input, styles.multiline, { color: colors.textPrimary }]}
+              value={bio}
+              onChangeText={setBio}
+              placeholder={t('profile.bioPlaceholder')}
+              placeholderTextColor={colors.textMuted}
+              multiline
+              textAlignVertical="top"
+            />
+          </View>
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+        <View style={[styles.card, shadow.raised, { backgroundColor: colors.surface1 }]}>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('scopes.title')}</Text>
           <ScopeEditor scopes={scopes} onChange={setScopes} />
           {!scopes.length && <Text style={[styles.warn, { color: colors.warningText }]}>{t('scopes.warnMin')}</Text>}
         </View>
 
-        <Pressable onPress={submit} disabled={create.isPending} accessibilityRole="button" style={[styles.primaryBtn, { backgroundColor: colors.brandFill }, create.isPending && styles.disabled]}>
+        <Pressable
+          onPress={submit}
+          disabled={create.isPending}
+          accessibilityRole="button"
+          style={[styles.primaryBtn, shadow.card, { backgroundColor: colors.brandFill }, create.isPending && styles.disabled]}
+        >
           {create.isPending ? (
             <ActivityIndicator color={colors.brandOn} />
           ) : (
@@ -132,19 +199,27 @@ const styles = StyleSheet.create({
   back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginStart: -6 },
   backText: { fontFamily: fontFamily.medium, fontSize: 15 },
   title: { fontFamily: fontFamily.display, fontSize: 22 },
-  card: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.md, padding: spacing.three, gap: spacing.one },
-  cardTitle: { fontFamily: fontFamily.semibold, fontSize: 16 },
+  card: { borderRadius: radius.lg, padding: spacing.three, gap: spacing.one },
+  cardTitle: { fontFamily: fontFamily.semibold, fontSize: 16, marginBottom: spacing.half },
   label: { fontFamily: fontFamily.medium, fontSize: 13, marginTop: spacing.one },
-  input: {
+  inputField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.two,
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.two,
-    paddingVertical: spacing.two,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.three,
+    minHeight: 50,
+  },
+  multilineField: { alignItems: 'flex-start', paddingVertical: spacing.two },
+  multilineIcon: { marginTop: 2 },
+  input: {
+    flex: 1,
     fontFamily: fontFamily.regular,
     fontSize: 15,
-    minHeight: 44,
+    paddingVertical: spacing.two,
   },
-  multiline: { minHeight: 88 },
+  multiline: { minHeight: 76, paddingVertical: 0 },
   warn: { fontFamily: fontFamily.medium, fontSize: 12, marginTop: spacing.half },
   primaryBtn: {
     flexDirection: 'row',
@@ -153,7 +228,7 @@ const styles = StyleSheet.create({
     gap: spacing.one,
     borderRadius: radius.md,
     paddingVertical: spacing.two,
-    minHeight: 48,
+    minHeight: 50,
   },
   primaryBtnText: { fontFamily: fontFamily.semibold, fontSize: 15 },
   disabled: { opacity: 0.5 },

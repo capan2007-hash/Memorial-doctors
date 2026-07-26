@@ -5,14 +5,14 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { Avatar } from '@/components/ui/Avatar'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Spinner } from '@/components/ui/Spinner'
+import { SkeletonList } from '@/components/ui/Skeleton'
 import { formatMins } from '@/domain/format'
 import { scoreTier } from '@/domain/score'
 import { useDoctorPerformance, useDoctorsFull, type DoctorPerformanceRow, type DoctorWithScopes } from '@/features/admin/useDoctors'
 import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 import { useTheme } from '@/lib/theme'
 import { rtlIconStyle } from '@/lib/rtl'
-import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
+import { fontFamily, radius, roleColors, shadow, spacing, type Palette } from '@/theme'
 
 function Stat({ label, value, colors }: { label: string; value: string | number; colors: Palette }) {
   return (
@@ -36,17 +36,22 @@ function DoctorCard({
   const name = doctor.title || t('roles.doctor')
   const tier = scoreTier(perf?.score ?? doctor.score, t)
   const tint = roleColors(colors, tier.role)
-  const activeTint = doctor.is_active ? roleColors(colors, 'success') : null
+  const inactiveTint = !doctor.is_active ? roleColors(colors, 'neutral') : null
 
   return (
     <Pressable
       onPress={() => router.push(`/doktor/${doctor.id}`)}
       accessibilityRole="button"
-      style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}
+      style={({ pressed }) => [
+        styles.card,
+        shadow.card,
+        { backgroundColor: colors.surface2, borderColor: colors.border },
+        pressed && { backgroundColor: colors.surface1, opacity: 0.9 },
+      ]}
     >
       <View style={styles.cardTop}>
         {/* Avatar baş-harfi HAM kalır (kanonik TR/orijinal unvan) — yalnız görünen metin çevrilir. */}
-        <Avatar name={name} size={40} />
+        <Avatar name={name} size={44} />
         <View style={styles.cardHead}>
           {doctor.title ? (
             <TranslatedText
@@ -75,9 +80,10 @@ function DoctorCard({
             </Text>
           )}
         </View>
-        {!doctor.is_active && activeTint === null && (
-          <View style={[styles.badge, { backgroundColor: colors.surface3, borderColor: colors.border }]}>
-            <Text style={[styles.badgeText, { color: colors.textMuted }]}>{t('doctorsList.inactiveBadge')}</Text>
+        {inactiveTint && (
+          <View style={[styles.badge, { backgroundColor: inactiveTint.bg, borderColor: inactiveTint.border }]}>
+            <View style={[styles.badgeDot, { backgroundColor: inactiveTint.text }]} />
+            <Text style={[styles.badgeText, { color: inactiveTint.text }]}>{t('doctorsList.inactiveBadge')}</Text>
           </View>
         )}
         <ChevronRight color={colors.textMuted} size={18} strokeWidth={1.75} style={rtlIconStyle} />
@@ -122,7 +128,9 @@ export default function DoktorlarScreen() {
   if (doctors.isLoading) {
     return (
       <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
-        <Spinner />
+        <View style={styles.list}>
+          <SkeletonList count={6} />
+        </View>
       </View>
     )
   }
@@ -143,7 +151,7 @@ export default function DoktorlarScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  list: { padding: spacing.four, gap: spacing.two },
+  list: { padding: spacing.four, gap: spacing.three },
   header: { marginBottom: spacing.one },
   newBtn: {
     flexDirection: 'row',
@@ -157,7 +165,7 @@ const styles = StyleSheet.create({
   newBtnText: { fontFamily: fontFamily.semibold, fontSize: 15 },
   card: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     padding: spacing.three,
     gap: spacing.two,
   },
@@ -165,7 +173,16 @@ const styles = StyleSheet.create({
   cardHead: { flex: 1, minWidth: 0 },
   name: { fontFamily: fontFamily.semibold, fontSize: 15 },
   specialty: { fontFamily: fontFamily.regular, fontSize: 13, marginTop: 1 },
-  badge: { borderRadius: radius.full, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: spacing.one + 2, paddingVertical: 2 },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: radius.full,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: spacing.one + 2,
+    paddingVertical: 3,
+  },
+  badgeDot: { width: 6, height: 6, borderRadius: 3 },
   badgeText: { fontFamily: fontFamily.medium, fontSize: 11 },
   statRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.three, borderTopWidth: StyleSheet.hairlineWidth, paddingTop: spacing.two },
   scoreChip: { alignItems: 'center', borderRadius: radius.sm, paddingHorizontal: spacing.two, paddingVertical: 4 },

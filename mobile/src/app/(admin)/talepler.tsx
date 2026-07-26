@@ -100,7 +100,7 @@ function RequestRow({
           pressed && { opacity: 0.9 },
         ]}
       >
-        <Avatar name={r.patientName} size={40} />
+        <Avatar name={r.patientName} size={44} />
         <View style={styles.cardBody}>
           <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
             {r.patientName}
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.one + 2,
   },
   tabText: { fontFamily: fontFamily.medium, fontSize: 13 },
-  list: { paddingHorizontal: spacing.four, paddingBottom: spacing.four, gap: spacing.two },
+  list: { paddingHorizontal: spacing.four, paddingBottom: spacing.four, gap: spacing.three },
   rowWrap: { gap: spacing.one },
   card: {
     flexDirection: 'row',
