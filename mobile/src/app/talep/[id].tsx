@@ -6,13 +6,14 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { PatientInfoCard } from '@/components/PatientInfoCard'
 import { PhotoStrip } from '@/components/PhotoStrip'
 import { StatusPill } from '@/components/StatusPill'
-import { Spinner } from '@/components/ui/Spinner'
+import { SkeletonList } from '@/components/ui/Skeleton'
 import { useRequestDetail } from '@/features/request/useRequestDetail'
 import { timeAgo } from '@/domain/format'
+import { STATUS_ROLE } from '@/domain/status'
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
 import { rtlIconStyle } from '@/lib/rtl'
-import { fontFamily, radius, spacing } from '@/theme'
+import { fontFamily, radius, roleColors, shadow, spacing } from '@/theme'
 
 /** Koordinatör talep detayı — salt okunur (kabul/red yok; yönetim listede). */
 export default function AdminRequestDetail() {
@@ -27,9 +28,11 @@ export default function AdminRequestDetail() {
 
   if (detail.isLoading) {
     return (
-      <View style={[styles.root, styles.centered, { backgroundColor: colors.surface0 }]}>
+      <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
         <Stack.Screen options={{ headerShown: false }} />
-        <Spinner />
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <SkeletonList count={4} />
+        </ScrollView>
       </View>
     )
   }
@@ -48,6 +51,7 @@ export default function AdminRequestDetail() {
 
   const { req, patientName, categoryName, subcategoryName, operationName, photos, xrays } = detail.data
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName ?? ''}`
+  const statusTint = roleColors(colors, STATUS_ROLE[req.status])
 
   return (
     <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
@@ -67,7 +71,14 @@ export default function AdminRequestDetail() {
               {t('idSubtitle', { shortId: req.id.slice(0, 8), time: timeAgo(req.created_at, t) })}
             </Text>
           </View>
-          <StatusPill status={req.status} />
+          <View
+            style={[
+              styles.statusBand,
+              { backgroundColor: statusTint.bg, borderColor: statusTint.border },
+            ]}
+          >
+            <StatusPill status={req.status} />
+          </View>
         </View>
 
         <PatientInfoCard
@@ -78,7 +89,7 @@ export default function AdminRequestDetail() {
           operationName={operationName}
         />
 
-        <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+        <View style={[styles.card, shadow.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('photos')}</Text>
           {photos.length > 0 ? (
             <PhotoStrip urls={photos} altLabel={t('photoAlt')} />
@@ -88,7 +99,7 @@ export default function AdminRequestDetail() {
         </View>
 
         {xrays.length > 0 && (
-          <View style={[styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+          <View style={[styles.card, shadow.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
             <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('xrays')}</Text>
             <PhotoStrip urls={xrays} altLabel={t('xrayAlt')} />
           </View>
@@ -104,17 +115,22 @@ const styles = StyleSheet.create({
   errorText: { fontFamily: fontFamily.medium, fontSize: 15 },
   backLink: { padding: spacing.two },
   backLinkText: { fontFamily: fontFamily.semibold, fontSize: 14 },
-  scrollContent: { padding: spacing.four, gap: spacing.three },
+  scrollContent: { padding: spacing.four, gap: spacing.four },
   back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginStart: -6 },
   backText: { fontFamily: fontFamily.medium, fontSize: 15 },
   header: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.two },
   headerText: { flex: 1 },
   title: { fontFamily: fontFamily.display, fontSize: 20 },
   subtitle: { fontFamily: fontFamily.regular, fontSize: 13, marginTop: 2 },
+  statusBand: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.lg,
+    padding: spacing.one,
+  },
   card: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.md,
-    padding: spacing.three,
+    borderRadius: radius.lg,
+    padding: spacing.four,
     gap: spacing.two,
   },
   cardTitle: { fontFamily: fontFamily.semibold, fontSize: 15 },

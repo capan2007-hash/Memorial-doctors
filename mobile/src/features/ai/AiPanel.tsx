@@ -6,11 +6,12 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import { AlertTriangle, Info, SlashIcon } from 'lucide-react-native'
+import type { LucideIcon } from 'lucide-react-native'
+import { AlertTriangle, FileWarning, ImageOff, Info, Ruler, SlashIcon } from 'lucide-react-native'
 
 import { useAuth } from '@/lib/auth'
 import { useTheme } from '@/lib/theme'
-import { fontFamily, radius, spacing, type Palette } from '@/theme'
+import { fontFamily, radius, shadow, spacing, type Palette } from '@/theme'
 import type { AiFeedbackRow } from '@/types/db'
 import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 import { useAiEvaluation, useAiFeedbackFor } from './useAiEvaluation'
@@ -20,6 +21,14 @@ const POLL_GIVE_UP_MS = 120_000
 
 // Uyarı tipi anahtarları ai.json'daki warnings.* ile birebir eşleşir.
 const WARNING_TYPES = ['photo_operation_mismatch', 'demographics_operation_risk', 'missing_data', 'photo_quality']
+
+// Uyarı tipi → ikon (web AiPanel.tsx WARNING_ICONS ile aynı eşleme).
+const WARNING_ICONS: Record<string, LucideIcon> = {
+  photo_operation_mismatch: ImageOff,
+  demographics_operation_risk: Ruler,
+  missing_data: FileWarning,
+  photo_quality: AlertTriangle,
+}
 
 const FEEDBACK_OPTIONS: AiFeedbackRow['label'][] = ['correct', 'partial', 'wrong']
 
@@ -161,22 +170,27 @@ export function AiPanel({ requestId, doctorId }: { requestId: string; doctorId?:
         <View style={styles.gap}>
           {evaluation.warnings
             .filter((w) => WARNING_TYPES.includes(w.type))
-            .map((w, i) => (
-              <View key={i} style={styles.warningItem}>
-                <View style={styles.warningHeaderRow}>
-                  <AlertTriangle color={colors.warningText} size={16} strokeWidth={1.75} />
-                  <Text style={styles.warningLabel}>{t(`warnings.${w.type}`)}</Text>
-                  <View style={styles.confidenceBadge}>
-                    <Text style={styles.confidenceBadgeText}>%{Math.round(w.confidence * 100)}</Text>
+            .map((w, i) => {
+              const WarningIcon = WARNING_ICONS[w.type] ?? AlertTriangle
+              return (
+                <View key={i} style={styles.warningItem}>
+                  <View style={styles.warningHeaderRow}>
+                    <WarningIcon color={colors.warningText} size={16} strokeWidth={1.75} />
+                    <Text style={styles.warningLabel}>{t(`warnings.${w.type}`)}</Text>
+                    <View style={styles.confidenceBadge}>
+                      <Text style={styles.confidenceBadgeText}>%{Math.round(w.confidence * 100)}</Text>
+                    </View>
                   </View>
+                  <TranslatedText text={w.rationale} sourceLang="tr" style={styles.rationale} />
                 </View>
-                <TranslatedText text={w.rationale} sourceLang="tr" style={styles.rationale} />
-              </View>
-            ))}
+              )
+            })}
         </View>
       )}
-      <Text style={styles.suitabilityHeading}>{t('panel.suitabilityHeading')}</Text>
-      <TranslatedText text={evaluation.suitability_note} sourceLang="tr" style={styles.suitabilityNote} />
+      <View style={styles.suitabilityBlock}>
+        <Text style={styles.suitabilityHeading}>{t('panel.suitabilityHeading')}</Text>
+        <TranslatedText text={evaluation.suitability_note} sourceLang="tr" style={styles.suitabilityNote} />
+      </View>
       {doctorId && tenantId && (
         <FeedbackSection
           tenantId={tenantId}
@@ -215,11 +229,12 @@ const makeStyles = (colors: Palette) =>
     },
     card: {
       backgroundColor: colors.surface2,
-      borderRadius: radius.md,
+      borderRadius: radius.lg,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border,
-      padding: spacing.three,
-      gap: spacing.two,
+      padding: spacing.four,
+      gap: spacing.three,
+      ...shadow.card,
     },
     cardTitle: {
       fontFamily: fontFamily.display,
@@ -231,9 +246,9 @@ const makeStyles = (colors: Palette) =>
       alignItems: 'center',
       gap: spacing.one,
       backgroundColor: colors.infoBg,
-      borderRadius: radius.sm,
+      borderRadius: radius.md,
       paddingHorizontal: spacing.two,
-      paddingVertical: spacing.one,
+      paddingVertical: spacing.two,
     },
     bandText: {
       flex: 1,
@@ -245,7 +260,12 @@ const makeStyles = (colors: Palette) =>
       gap: spacing.two,
     },
     warningItem: {
-      gap: 2,
+      gap: spacing.one,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.warningBorder,
+      backgroundColor: colors.warningBg,
+      borderRadius: radius.md,
+      padding: spacing.three,
     },
     warningHeaderRow: {
       flexDirection: 'row',
@@ -260,7 +280,9 @@ const makeStyles = (colors: Palette) =>
     },
     confidenceBadge: {
       borderRadius: radius.full,
-      backgroundColor: colors.warningBg,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.warningBorder,
+      backgroundColor: colors.surface1,
       paddingHorizontal: 8,
       paddingVertical: 2,
     },
@@ -274,6 +296,15 @@ const makeStyles = (colors: Palette) =>
       fontFamily: fontFamily.regular,
       fontSize: 13,
       color: colors.textSecondary,
+      marginStart: 24,
+    },
+    suitabilityBlock: {
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      backgroundColor: colors.surface1,
+      borderRadius: radius.md,
+      padding: spacing.three,
+      gap: spacing.half,
     },
     suitabilityHeading: {
       fontFamily: fontFamily.display,

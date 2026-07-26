@@ -18,7 +18,7 @@ import {
 
 import { supabase } from '@/lib/supabase'
 import { useTheme } from '@/lib/theme'
-import { fontFamily, radius, spacing, type Palette } from '@/theme'
+import { fontFamily, radius, shadow, spacing, type Palette } from '@/theme'
 import {
   hasScope,
   toggleScope,
@@ -124,11 +124,12 @@ function ScopeChip({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected }}
-      style={[
+      style={({ pressed }) => [
         styles.chip,
         selected
-          ? { backgroundColor: colors.brandFill, borderColor: colors.brandFill }
+          ? [shadow.card, { backgroundColor: colors.brandFill, borderColor: colors.brandFill }]
           : { backgroundColor: colors.surface1, borderColor: colors.border },
+        pressed && styles.chipPressed,
       ]}
     >
       {selected && <Check color={colors.brandOn} size={14} strokeWidth={2} />}
@@ -190,7 +191,7 @@ export default function ProfileScreen() {
   }
 
   const cardStyle = useMemo(
-    () => [styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }],
+    () => [styles.card, shadow.card, { backgroundColor: colors.surface2, borderColor: colors.border }],
     [colors],
   )
   const inputStyle = [
@@ -264,7 +265,12 @@ export default function ProfileScreen() {
             onPress={saveProfile}
             disabled={updateProfile.isPending}
             accessibilityRole="button"
-            style={[styles.primaryButton, { backgroundColor: colors.brandFill }, updateProfile.isPending && styles.disabled]}
+            style={({ pressed }) => [
+              styles.primaryButton,
+              { backgroundColor: colors.brandFill },
+              updateProfile.isPending && styles.disabled,
+              pressed && styles.buttonPressed,
+            ]}
           >
             {updateProfile.isPending ? (
               <ActivityIndicator color={colors.brandOn} />
@@ -301,10 +307,11 @@ export default function ProfileScreen() {
             onPress={saveScopes}
             disabled={!scopes.length || setScopes.isPending}
             accessibilityRole="button"
-            style={[
+            style={({ pressed }) => [
               styles.primaryButton,
               { backgroundColor: colors.brandFill },
               (!scopes.length || setScopes.isPending) && styles.disabled,
+              pressed && styles.buttonPressed,
             ]}
           >
             {setScopes.isPending ? (
@@ -329,9 +336,9 @@ const styles = StyleSheet.create({
   scrollContent: { padding: spacing.four, gap: spacing.four },
   card: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.md,
-    padding: spacing.three,
-    gap: spacing.two,
+    borderRadius: radius.lg,
+    padding: spacing.four,
+    gap: spacing.three,
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.one },
   cardTitle: { fontFamily: fontFamily.semibold, fontSize: 16 },
@@ -365,6 +372,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.two,
   },
   primaryButtonText: { fontFamily: fontFamily.semibold, fontSize: 15 },
+  buttonPressed: { opacity: 0.85 },
   disabled: { opacity: 0.5 },
   helperText: { fontFamily: fontFamily.regular, fontSize: 13 },
   scopeList: { gap: spacing.two, marginTop: spacing.half },
@@ -382,6 +390,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   chipText: { fontFamily: fontFamily.medium, fontSize: 13 },
+  chipPressed: { opacity: 0.85 },
   scopeEmpty: { fontFamily: fontFamily.regular, fontSize: 13 },
   warnText: { fontFamily: fontFamily.medium, fontSize: 12 },
 })

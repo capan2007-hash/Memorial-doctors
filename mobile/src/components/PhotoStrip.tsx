@@ -7,7 +7,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { X } from 'lucide-react-native'
 
 import { useTheme } from '@/lib/theme'
-import { radius, spacing } from '@/theme'
+import { radius, shadow, spacing } from '@/theme'
 
 export function PhotoStrip({ urls, altLabel }: { urls: string[]; altLabel: string }) {
   const { colors } = useTheme()
@@ -20,7 +20,7 @@ export function PhotoStrip({ urls, altLabel }: { urls: string[]; altLabel: strin
     <>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
         {urls.map((url) => (
-          <Pressable key={url} onPress={() => setSelected(url)}>
+          <Pressable key={url} onPress={() => setSelected(url)} style={shadow.card}>
             <Image
               source={{ uri: url }}
               style={[
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   thumb: {
     width: 96,
     height: 96,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     borderWidth: StyleSheet.hairlineWidth,
   },
   overlay: {

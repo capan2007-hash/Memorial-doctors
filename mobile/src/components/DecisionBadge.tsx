@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 import { DECISION_ROLE, type Decision } from '@/domain/status'
 import { useTheme } from '@/lib/theme'
-import { fontFamily, radius, roleColors } from '@/theme'
+import { fontFamily, radius, roleColors, shadow } from '@/theme'
 
 /** Karar rozeti (i18n: common.decision.*). */
 export function DecisionBadge({ decision }: { decision: Decision }) {
@@ -11,7 +11,7 @@ export function DecisionBadge({ decision }: { decision: Decision }) {
   const { t } = useTranslation()
   const c = roleColors(colors, DECISION_ROLE[decision])
   return (
-    <View style={[styles.root, { backgroundColor: c.bg, borderColor: c.border }]}>
+    <View style={[styles.root, shadow.card, { backgroundColor: c.bg, borderColor: c.border }]}>
       <View style={[styles.dot, { backgroundColor: c.text }]} />
       <Text style={[styles.text, { color: c.text }]}>{t(`common:decision.${decision}`)}</Text>
     </View>

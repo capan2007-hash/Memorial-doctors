@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import { useTheme } from '@/lib/theme'
-import { fontFamily, radius, roleColors, spacing, type Palette } from '@/theme'
+import { fontFamily, radius, roleColors, shadow, spacing, type Palette } from '@/theme'
 import { formatMins } from '@/domain/format'
 import { scoreTier } from '@/domain/score'
 import { comparable, rankTier, topPercentLabel } from '@/domain/rank'
@@ -29,6 +29,7 @@ function MetricTile({
     <View
       style={[
         styles.tile,
+        shadow.card,
         { backgroundColor: tint ? tint.bg : colors.surface1, borderColor: tint ? tint.border : colors.border },
       ]}
     >
@@ -89,7 +90,7 @@ function RankRow({
   const pctLabel = has && comparable(total) ? topPercentLabel(pct, t) : null
 
   return (
-    <View style={[styles.rankRow, { borderColor: colors.border, backgroundColor: colors.surface1 }]}>
+    <View style={[styles.rankRow, shadow.card, { borderColor: colors.border, backgroundColor: colors.surface1 }]}>
       <View style={styles.rankLeft}>
         {icon}
         <Text style={[styles.rankLabel, { color: colors.textSecondary }]}>{label}</Text>
@@ -148,7 +149,7 @@ export default function DashboardScreen() {
   const ranks = useOwnRanks()
 
   const cardStyle = useMemo(
-    () => [styles.card, { backgroundColor: colors.surface2, borderColor: colors.border }],
+    () => [styles.card, shadow.card, { backgroundColor: colors.surface2, borderColor: colors.border }],
     [colors],
   )
 
@@ -202,9 +203,9 @@ const styles = StyleSheet.create({
   scrollContent: { padding: spacing.four, gap: spacing.four },
   card: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.md,
-    padding: spacing.three,
-    gap: spacing.two,
+    borderRadius: radius.lg,
+    padding: spacing.four,
+    gap: spacing.three,
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.one },
   cardTitle: { fontFamily: fontFamily.semibold, fontSize: 16 },
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
     flexBasis: '30%',
     minWidth: 96,
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     paddingVertical: spacing.two,
     paddingHorizontal: spacing.one,
     alignItems: 'center',
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     paddingVertical: spacing.two,
     paddingHorizontal: spacing.two,
     minHeight: 56,

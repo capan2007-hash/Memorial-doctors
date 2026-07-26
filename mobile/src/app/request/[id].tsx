@@ -26,10 +26,12 @@ import { PatientInfoCard } from '@/components/PatientInfoCard'
 import { PhotoStrip } from '@/components/PhotoStrip'
 import { StatusPill } from '@/components/StatusPill'
 import { DecisionBadge } from '@/components/DecisionBadge'
+import { SkeletonList } from '@/components/ui/Skeleton'
 import { AiPanel } from '@/features/ai/AiPanel'
 import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 import { timeAgo } from '@/domain/format'
-import { fontFamily, radius, spacing, type Palette } from '@/theme'
+import { DECISION_ROLE, STATUS_ROLE } from '@/domain/status'
+import { fontFamily, radius, roleColors, shadow, spacing, type Palette } from '@/theme'
 
 type Mode = 'none' | 'accept' | 'reject'
 
@@ -81,15 +83,19 @@ export default function RequestDetailScreen() {
 
   if (detail.isLoading || !detail.data) {
     return (
-      <View style={styles.center}>
+      <View style={[styles.root]}>
         <Stack.Screen options={screenOptions} />
-        <ActivityIndicator color={colors.brandFill} />
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <SkeletonList count={4} />
+        </ScrollView>
       </View>
     )
   }
 
   const { req, patientName, categoryName, subcategoryName, operationName, photos, xrays, myResponse } = detail.data
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName ?? ''}`
+  const statusTint = roleColors(colors, STATUS_ROLE[req.status])
+  const decisionTint = myResponse ? roleColors(colors, DECISION_ROLE[myResponse.decision]) : null
 
   const submit = async () => {
     if (!tenantId || !doctorId) return
@@ -124,7 +130,9 @@ export default function RequestDetailScreen() {
               {t('idSubtitle', { shortId: req.id.slice(0, 8), time: timeAgo(req.created_at, t) })}
             </Text>
           </View>
-          <StatusPill status={req.status} />
+          <View style={[styles.statusBand, { backgroundColor: statusTint.bg, borderColor: statusTint.border }]}>
+            <StatusPill status={req.status} />
+          </View>
         </View>
 
         <PatientInfoCard
@@ -153,8 +161,10 @@ export default function RequestDetailScreen() {
 
         <AiPanel requestId={req.id} doctorId={doctorId} />
 
-        {myResponse && (
-          <View style={styles.card}>
+        {myResponse && decisionTint && (
+          <View
+            style={[styles.card, { backgroundColor: decisionTint.bg, borderColor: decisionTint.border }]}
+          >
             <View style={styles.decisionHeader}>
               <Text style={styles.cardTitle}>{t('decisionHeading')}</Text>
               <DecisionBadge decision={myResponse.decision} />
@@ -179,11 +189,17 @@ export default function RequestDetailScreen() {
           {respError && <Text style={styles.errorText}>{respError}</Text>}
           {mode === 'none' && (
             <View style={styles.actionRow}>
-              <Pressable style={[styles.button, styles.acceptButton]} onPress={() => setMode('accept')}>
+              <Pressable
+                style={({ pressed }) => [styles.button, styles.acceptButton, pressed && styles.buttonPressed]}
+                onPress={() => setMode('accept')}
+              >
                 <Check color={colors.brandOn} size={18} strokeWidth={2} />
                 <Text style={styles.acceptButtonText}>{t('actions.accept')}</Text>
               </Pressable>
-              <Pressable style={[styles.button, styles.rejectButton]} onPress={() => setMode('reject')}>
+              <Pressable
+                style={({ pressed }) => [styles.button, styles.rejectButton, pressed && styles.buttonPressed]}
+                onPress={() => setMode('reject')}
+              >
                 <X color={colors.dangerText} size={18} strokeWidth={2} />
                 <Text style={styles.rejectButtonText}>{t('actions.reject')}</Text>
               </Pressable>
@@ -201,7 +217,12 @@ export default function RequestDetailScreen() {
                 multiline
               />
               <Pressable
-                style={[styles.button, styles.acceptButton, !plan && styles.buttonDisabled]}
+                style={({ pressed }) => [
+                  styles.button,
+                  styles.acceptButton,
+                  !plan && styles.buttonDisabled,
+                  pressed && styles.buttonPressed,
+                ]}
                 disabled={!plan || respond.isPending}
                 onPress={submit}
               >
@@ -228,7 +249,12 @@ export default function RequestDetailScreen() {
                 multiline
               />
               <Pressable
-                style={[styles.button, styles.rejectButton, !reason && styles.buttonDisabled]}
+                style={({ pressed }) => [
+                  styles.button,
+                  styles.rejectButton,
+                  !reason && styles.buttonDisabled,
+                  pressed && styles.buttonPressed,
+                ]}
                 disabled={!reason || respond.isPending}
                 onPress={submit}
               >
@@ -270,7 +296,7 @@ const makeStyles = (colors: Palette) =>
     },
     scrollContent: {
       padding: spacing.four,
-      gap: spacing.three,
+      gap: spacing.four,
       paddingBottom: spacing.six,
     },
     header: {
@@ -289,13 +315,19 @@ const makeStyles = (colors: Palette) =>
       color: colors.textSecondary,
       marginTop: 2,
     },
+    statusBand: {
+      borderRadius: radius.lg,
+      borderWidth: StyleSheet.hairlineWidth,
+      padding: spacing.one,
+    },
     card: {
       backgroundColor: colors.surface2,
-      borderRadius: radius.md,
+      borderRadius: radius.lg,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border,
-      padding: spacing.three,
+      padding: spacing.four,
       gap: spacing.two,
+      ...shadow.card,
     },
     cardTitle: {
       fontFamily: fontFamily.display,
@@ -328,6 +360,7 @@ const makeStyles = (colors: Palette) =>
       backgroundColor: colors.surface1,
       padding: spacing.three,
       gap: spacing.two,
+      ...shadow.raised,
     },
     actionRow: {
       flexDirection: 'row',
@@ -356,7 +389,7 @@ const makeStyles = (colors: Palette) =>
       flexDirection: 'row',
       gap: spacing.one,
       minHeight: 44,
-      borderRadius: radius.sm,
+      borderRadius: radius.md,
       paddingVertical: spacing.two,
       alignItems: 'center',
       justifyContent: 'center',
@@ -368,6 +401,9 @@ const makeStyles = (colors: Palette) =>
       backgroundColor: colors.dangerBg,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.dangerBorder,
+    },
+    buttonPressed: {
+      opacity: 0.85,
     },
     buttonDisabled: {
       opacity: 0.5,

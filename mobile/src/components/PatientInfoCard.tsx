@@ -7,7 +7,7 @@ import { StyleSheet, Text, View } from 'react-native'
 
 import { bmi } from '@/domain/health'
 import { useTheme } from '@/lib/theme'
-import { fontFamily, radius, spacing, type Palette } from '@/theme'
+import { fontFamily, radius, shadow, spacing, type Palette } from '@/theme'
 import type { RequestRow } from '@/types/db'
 import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 
@@ -155,11 +155,12 @@ const makeStyles = (colors: Palette) =>
   StyleSheet.create({
     card: {
       backgroundColor: colors.surface2,
-      borderRadius: radius.md,
+      borderRadius: radius.lg,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border,
-      padding: spacing.three,
+      padding: spacing.four,
       gap: spacing.three,
+      ...shadow.card,
     },
     cardTitle: {
       fontFamily: fontFamily.display,
@@ -176,7 +177,7 @@ const makeStyles = (colors: Palette) =>
     },
     item: {
       width: '45%',
-      gap: 2,
+      gap: spacing.half,
     },
     label: {
       fontFamily: fontFamily.medium,
