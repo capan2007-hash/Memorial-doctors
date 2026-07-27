@@ -15,6 +15,7 @@ import {
   TextInput,
   View,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Check, ChevronLeft, X } from 'lucide-react-native'
 
 import { useAuth } from '@/lib/auth'
@@ -40,7 +41,11 @@ export default function RequestDetailScreen() {
   const { tenantId, doctorId, session, loading } = useAuth()
   const { colors } = useTheme()
   const { t, i18n } = useTranslation('request')
-  const styles = makeStyles(colors)
+  const insets = useSafeAreaInsets()
+  // iOS: KeyboardAvoidingView header'ın altında başlar → klavye yüksekliğini
+  // header kadar eksik hesaplar. Stack header'ı ≈ 44pt + üst güvenli alan.
+  const keyboardOffset = Platform.OS === 'ios' ? insets.top + 44 : 0
+  const styles = makeStyles(colors, insets.bottom)
   const detail = useRequestDetail(id)
   const respond = useRespond()
 
@@ -118,9 +123,16 @@ export default function RequestDetailScreen() {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.root}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      // Ekranda navigation header VAR (headerShown: true). KeyboardAvoidingView
+      // header'ın ALTINDA başladığı için offset verilmezse klavye yüksekliği
+      // header kadar eksik hesaplanır → yazı alanı klavyenin altında kalır.
+      keyboardVerticalOffset={keyboardOffset}
+    >
       <Stack.Screen options={screenOptions} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <Text style={styles.title} numberOfLines={2}>
@@ -275,7 +287,7 @@ export default function RequestDetailScreen() {
   )
 }
 
-const makeStyles = (colors: Palette) =>
+const makeStyles = (colors: Palette, bottomInset = 0) =>
   StyleSheet.create({
     root: {
       flex: 1,
@@ -359,6 +371,9 @@ const makeStyles = (colors: Palette) =>
       borderTopColor: colors.border,
       backgroundColor: colors.surface1,
       padding: spacing.three,
+      // Home indicator (çentiksiz alt boşluk) panelin altına girmesin; klavye
+      // açıkken KeyboardAvoidingView zaten yukarı ittiği için ekstra boşluk sorun olmaz.
+      paddingBottom: Math.max(spacing.three, bottomInset),
       gap: spacing.two,
       ...shadow.raised,
     },
@@ -379,6 +394,9 @@ const makeStyles = (colors: Palette) =>
       borderRadius: radius.sm,
       padding: spacing.two,
       minHeight: 80,
+      // Uzun metin yazıldıkça alan büyüyüp klavyenin üstündeki yeri taşırmasın;
+      // sınırdan sonra kendi içinde kaydırılır (yazılan satır görünür kalır).
+      maxHeight: 120,
       textAlignVertical: 'top',
       fontFamily: fontFamily.regular,
       color: colors.textPrimary,

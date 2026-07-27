@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Image } from 'expo-image'
 import { useQuery } from '@tanstack/react-query'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Check, Save, UserCircle } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
 import {
@@ -141,6 +142,9 @@ function ScopeChip({
 
 export default function ProfileScreen() {
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
+  // iOS: sekme header'ı ≈ 44pt + üst güvenli alan (bkz. request/[id].tsx).
+  const keyboardOffset = Platform.OS === 'ios' ? insets.top + 44 : 0
   const { t } = useTranslation('profile')
   const own = useOwnDoctor()
   const cats = useCategories()
@@ -220,6 +224,9 @@ export default function ProfileScreen() {
     <KeyboardAvoidingView
       style={[styles.root, { backgroundColor: colors.surface0 }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      // Sekme ekranlarında navigation header VAR → offset verilmezse klavye
+      // yüksekliği header kadar eksik hesaplanır ve yazılan alan altta kalır.
+      keyboardVerticalOffset={keyboardOffset}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         {/* Profil */}
