@@ -15,6 +15,7 @@ import { normalizePhone } from '../../domain/phone'
 import { Button } from '../../components/ui/Button'
 import { shouldShowAiPreview } from './aiPreview'
 import { AiPreviewScreen } from './AiPreviewScreen'
+import { useExtractRequest, type ExtractedRequest } from './useExtractRequest'
 import { Card } from '../../components/ui/Card'
 import { Field } from '../../components/ui/Field'
 import { Input } from '@/components/shadcn/input'
@@ -205,6 +206,53 @@ export function NewRequestWizard() {
   const [submitErr, setSubmitErr] = useState<string | null>(null)
   const [aiPreviewId, setAiPreviewId] = useState<string | null>(null)
 
+  // "Yapıştır ve doldur": WhatsApp'tan gelen serbest metni (herhangi bir dilde)
+  // AI ile alanlara çıkarır. TASLAK'tır — satışçı kontrol eder. Onam kapılı.
+  const [pasteText, setPasteText] = useState('')
+  const [extractErr, setExtractErr] = useState<string | null>(null)
+  const extract = useExtractRequest()
+
+  const applyExtracted = (x: ExtractedRequest) => {
+    // Yalnız AI'ın DOLDURDUĞU alanlar yazılır; null gelenler mevcut değeri bozmaz.
+    if (x.firstName) setFirst(x.firstName)
+    if (x.lastName) setLast(x.lastName)
+    if (x.phone) setPhone(x.phone)
+    if (x.age != null) setAge(String(Math.round(x.age)))
+    if (x.heightCm != null) setHeightCm(String(Math.round(x.heightCm)))
+    if (x.weightKg != null) setWeightKg(String(x.weightKg))
+    // Tıbbi alanlar: "yok" benzeri ifade → "Yok" kutusu işaretlenir.
+    const toMedical = (v: string | null): MedicalField | null => {
+      if (!v) return null
+      const norm = v.trim().toLocaleLowerCase('tr')
+      return /^(yok|yoktur|none|нет|لا يوجد|keine|aucun)\b/.test(norm)
+        ? { none: true, text: '' }
+        : { none: false, text: v }
+    }
+    const ps = toMedical(x.pastSurgeries); if (ps) setPastSurgeries(ps)
+    const kc = toMedical(x.knownConditions); if (kc) setKnownConditions(kc)
+    const md = toMedical(x.medications); if (md) setMedications(md)
+    if (x.smokingStatus) setSmokingStatus(x.smokingStatus)
+    if (x.smokingCigsPerDay != null) setSmokingCigs(String(Math.round(x.smokingCigsPerDay)))
+    if (x.smokingYears != null) setSmokingYears(String(Math.round(x.smokingYears)))
+    if (x.alcoholStatus) setAlcoholStatus(x.alcoholStatus)
+    if (x.alcoholDrinksPerWeek != null) setAlcoholDrinks(String(Math.round(x.alcoholDrinksPerWeek)))
+    // Katalog: sunucuda doğrulanmış id'ler (uydurma id gelmez).
+    if (x.categoryId) setCategoryId(x.categoryId)
+    if (x.subcategoryId) setSubcategoryId(x.subcategoryId)
+    if (x.operationTypeId) setOperationTypeId(x.operationTypeId)
+    if (x.notes) setNotes((prev) => (prev.trim() ? `${prev}\n${x.notes}` : x.notes!))
+  }
+
+  const runExtract = async () => {
+    setExtractErr(null)
+    try {
+      const x = await extract.mutateAsync({ text: pasteText, targetLang: i18n.language })
+      applyExtracted(x)
+    } catch (e) {
+      setExtractErr(t('newRequest.pasteFill.failed', { message: (e as Error).message }))
+    }
+  }
+
   const submit = async () => {
     try {
       const res = await create.mutateAsync({
@@ -281,6 +329,47 @@ export function NewRequestWizard() {
           </Button>
         </div>
       )}
+
+      {/* Yapıştır ve doldur: WhatsApp metnini (herhangi bir dilde) AI ile alanlara çıkarır.
+          Onam kapılı — hasta verisi LLM'e gideceği için açık rıza olmadan çalışmaz. */}
+      <Card title={t('newRequest.pasteFill.title')}>
+        <div className="space-y-2">
+          <p className="text-sm text-ink-secondary">{t('newRequest.pasteFill.description')}</p>
+          <textarea
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            rows={5}
+            placeholder={t('newRequest.pasteFill.placeholder')}
+            aria-label={t('newRequest.pasteFill.title')}
+            className="w-full rounded-control border border-line bg-surface-1 p-3 text-sm text-ink-primary placeholder:text-ink-muted focus:border-brand-fill focus:outline-none"
+          />
+          {!consentGiven && (
+            <p className="flex items-center gap-2 rounded-control border border-info-border bg-info-bg px-3 py-2 text-xs text-info-text">
+              <Info className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+              {t('newRequest.pasteFill.consentRequired')}
+            </p>
+          )}
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              type="button"
+              disabled={!consentGiven || !pasteText.trim()}
+              loading={extract.isPending}
+              onClick={runExtract}
+            >
+              {t('newRequest.pasteFill.button')}
+            </Button>
+            {extract.isSuccess && !extractErr && (
+              <span className="text-xs text-success-text">{t('newRequest.pasteFill.done')}</span>
+            )}
+          </div>
+          {extractErr && (
+            <p className="rounded-control border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger-text">
+              {extractErr}
+            </p>
+          )}
+        </div>
+      </Card>
 
       <Card title={t('patientInfo.title')}>
         <div className="space-y-4">

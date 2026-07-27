@@ -97,6 +97,15 @@
       "title": "KI-Vorabbewertung",
       "subtitle": "Die Anfrage wurde an die Ärzte gesendet. Das Ergebnis der Vorabbewertung finden Sie unten.",
       "done": "Fertig"
+    },
+    "pasteFill": {
+      "title": "Einfügen & ausfüllen (KI)",
+      "description": "Fügen Sie die Nachricht des Patienten (in beliebiger Sprache) ein; die KI füllt die Felder in Ihrer Sprache aus. Das Ergebnis ist ein Entwurf — bitte prüfen und korrigieren.",
+      "placeholder": "WhatsApp-Nachricht hier einfügen…",
+      "button": "Mit KI ausfüllen",
+      "consentRequired": "Diese Funktion sendet Patientendaten an die KI. Bitte kreuzen Sie unten das Einwilligungsfeld an.",
+      "done": "Felder ausgefüllt — bitte prüfen.",
+      "failed": "Ausfüllen fehlgeschlagen: {{message}}"
     }
   },
   "patientInfo": {

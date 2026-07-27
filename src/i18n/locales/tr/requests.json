@@ -97,6 +97,15 @@
       "title": "Yapay zekâ ön değerlendirmesi",
       "subtitle": "Talep doktorlara iletildi. Ön değerlendirme sonucu aşağıda.",
       "done": "Tamam"
+    },
+    "pasteFill": {
+      "title": "Yapıştır ve doldur (AI)",
+      "description": "Hastadan gelen mesajı (herhangi bir dilde) buraya yapıştırın; AI alanları sizin dilinizde doldursun. Sonuç taslaktır — kontrol edip düzeltin.",
+      "placeholder": "WhatsApp mesajını buraya yapıştırın…",
+      "button": "AI ile doldur",
+      "consentRequired": "Bu özellik hasta bilgisini yapay zekâya gönderir. Kullanmak için aşağıdaki onam kutusunu işaretleyin.",
+      "done": "Alanlar dolduruldu — lütfen kontrol edin.",
+      "failed": "Doldurulamadı: {{message}}"
     }
   },
   "patientInfo": {

@@ -97,6 +97,15 @@
       "title": "Pré-évaluation par l'IA",
       "subtitle": "La demande a été envoyée aux médecins. Le résultat de la pré-évaluation est ci-dessous.",
       "done": "Terminé"
+    },
+    "pasteFill": {
+      "title": "Coller et remplir (IA)",
+      "description": "Collez le message du patient (dans n'importe quelle langue) ; l'IA remplit les champs dans votre langue. Le résultat est un brouillon — veuillez vérifier et corriger.",
+      "placeholder": "Collez le message WhatsApp ici…",
+      "button": "Remplir avec l'IA",
+      "consentRequired": "Cette fonction envoie les données du patient à l'IA. Cochez la case de consentement ci-dessous pour l'utiliser.",
+      "done": "Champs remplis — veuillez vérifier.",
+      "failed": "Échec du remplissage : {{message}}"
     }
   },
   "patientInfo": {

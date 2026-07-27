@@ -97,6 +97,15 @@
       "title": "AI pre-assessment",
       "subtitle": "The request was sent to the doctors. The pre-assessment result is below.",
       "done": "Done"
+    },
+    "pasteFill": {
+      "title": "Paste & fill (AI)",
+      "description": "Paste the patient's message (in any language); AI fills the fields in your language. The result is a draft — please review and correct.",
+      "placeholder": "Paste the WhatsApp message here…",
+      "button": "Fill with AI",
+      "consentRequired": "This feature sends patient information to AI. Tick the consent box below to use it.",
+      "done": "Fields filled — please review.",
+      "failed": "Could not fill: {{message}}"
     }
   },
   "patientInfo": {
