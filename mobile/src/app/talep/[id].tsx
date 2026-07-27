@@ -6,6 +6,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { PatientInfoCard } from '@/components/PatientInfoCard'
 import { PhotoStrip } from '@/components/PhotoStrip'
 import { StatusPill } from '@/components/StatusPill'
+import { DecisionBadge } from '@/components/DecisionBadge'
+import { TranslatedText } from '@/features/i18n-content/TranslatedText'
 import { SkeletonList } from '@/components/ui/Skeleton'
 import { useRequestDetail } from '@/features/request/useRequestDetail'
 import { timeAgo } from '@/domain/format'
@@ -49,7 +51,7 @@ export default function AdminRequestDetail() {
     )
   }
 
-  const { req, patientName, categoryName, subcategoryName, operationName, photos, xrays } = detail.data
+  const { req, patientName, categoryName, subcategoryName, operationName, photos, xrays, responses } = detail.data
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName ?? ''}`
   const statusTint = roleColors(colors, STATUS_ROLE[req.status])
 
@@ -104,6 +106,33 @@ export default function AdminRequestDetail() {
             <PhotoStrip urls={xrays} altLabel={t('xrayAlt')} />
           </View>
         )}
+
+        {/* Doktor yanıtları — koordinatör/admin tüm yanıtları görür (mükerrer kontrolü). */}
+        <View style={[styles.card, shadow.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{t('doctorResponsesTitle')}</Text>
+          {responses.length === 0 ? (
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('noResponses')}</Text>
+          ) : (
+            responses.map((r) => (
+              <View key={r.id} style={[styles.responseItem, { borderColor: colors.border }]}>
+                <DecisionBadge decision={r.decision} />
+                {r.decision === 'accept' && r.treatment_plan ? (
+                  <TranslatedText
+                    text={r.treatment_plan}
+                    sourceLang={r.source_lang}
+                    style={[styles.responseText, { color: colors.textSecondary }]}
+                  />
+                ) : r.reject_reason ? (
+                  <TranslatedText
+                    text={r.reject_reason}
+                    sourceLang={r.source_lang}
+                    style={[styles.responseText, { color: colors.textSecondary }]}
+                  />
+                ) : null}
+              </View>
+            ))
+          )}
+        </View>
       </ScrollView>
     </View>
   )
@@ -135,4 +164,10 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontFamily: fontFamily.semibold, fontSize: 15 },
   emptyText: { fontFamily: fontFamily.regular, fontSize: 13 },
+  responseItem: {
+    gap: spacing.one,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: spacing.two,
+  },
+  responseText: { fontFamily: fontFamily.regular, fontSize: 14 },
 })

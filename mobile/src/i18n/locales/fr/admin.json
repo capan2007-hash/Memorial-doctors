@@ -39,7 +39,8 @@
       "noDoctorMessage": "Aucun médecin éligible n'a été trouvé pour cette catégorie.",
       "failedTitle": "Impossible d'assigner",
       "closedCannotReassign": "Une demande clôturée ne peut pas être réassignée"
-    }
+    },
+    "searchPlaceholder": "Rechercher nom, prénom ou téléphone"
   },
   "duplicates": {
     "newApplication": "Nouvelle soumission",

@@ -71,5 +71,7 @@
       "regular": "Régulier",
       "perWeek": "{{value}}/semaine"
     }
-  }
+  },
+  "doctorResponsesTitle": "Réponses des médecins",
+  "noResponses": "Aucune réponse du médecin pour le moment."
 }

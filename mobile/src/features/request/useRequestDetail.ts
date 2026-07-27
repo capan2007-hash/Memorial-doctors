@@ -20,6 +20,9 @@ export interface RequestDetail {
   photos: string[]
   xrays: string[]
   myResponse: ResponseRow | null
+  // Koordinatör/admin görünümü: TÜM doktor yanıtları (RLS resp_sales_admin_read).
+  // Doktorun kendi ekranında (request/[id]) RLS yalnız kendi satırını verir → tek eleman.
+  responses: ResponseRow[]
 }
 
 export function useRequestDetail(id?: string) {
@@ -66,6 +69,7 @@ export function useRequestDetail(id?: string) {
         photos,
         xrays,
         myResponse: responseRows[0] ?? null,
+        responses: responseRows,
       }
     },
   })

@@ -39,7 +39,8 @@
       "noDoctorMessage": "Bu kategoriye uygun doktor bulunamadı.",
       "failedTitle": "Atanamadı",
       "closedCannotReassign": "Kapanmış talep yeniden atanamaz"
-    }
+    },
+    "searchPlaceholder": "Ad, soyad veya telefon ara"
   },
   "duplicates": {
     "newApplication": "Yeni başvuru",

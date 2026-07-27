@@ -71,5 +71,7 @@
       "regular": "Düzenli",
       "perWeek": "{{value}}/hafta"
     }
-  }
+  },
+  "doctorResponsesTitle": "Doktor yanıtları",
+  "noResponses": "Henüz doktor yanıtı yok."
 }

@@ -71,5 +71,7 @@
       "regular": "Regelmäßig",
       "perWeek": "{{value}}/Woche"
     }
-  }
+  },
+  "doctorResponsesTitle": "Arztantworten",
+  "noResponses": "Noch keine Arztantwort."
 }

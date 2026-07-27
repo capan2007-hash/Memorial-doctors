@@ -71,5 +71,7 @@
       "regular": "منتظم",
       "perWeek": "{{value}}/أسبوعيًا"
     }
-  }
+  },
+  "doctorResponsesTitle": "ردود الأطباء",
+  "noResponses": "لا يوجد رد من الطبيب بعد."
 }

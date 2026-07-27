@@ -71,5 +71,7 @@
       "regular": "Регулярно",
       "perWeek": "{{value}}/нед."
     }
-  }
+  },
+  "doctorResponsesTitle": "Ответы врачей",
+  "noResponses": "Пока нет ответа врача."
 }

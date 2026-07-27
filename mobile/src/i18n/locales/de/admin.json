@@ -39,7 +39,8 @@
       "noDoctorMessage": "Für diese Kategorie wurde kein geeigneter Arzt gefunden.",
       "failedTitle": "Zuweisung fehlgeschlagen",
       "closedCannotReassign": "Eine geschlossene Anfrage kann nicht neu zugewiesen werden"
-    }
+    },
+    "searchPlaceholder": "Name, Nachname oder Telefon suchen"
   },
   "duplicates": {
     "newApplication": "Neue Einreichung",

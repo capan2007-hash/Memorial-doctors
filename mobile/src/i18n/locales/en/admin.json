@@ -39,7 +39,8 @@
       "noDoctorMessage": "No eligible doctor was found for this category.",
       "failedTitle": "Could not assign",
       "closedCannotReassign": "A closed request cannot be reassigned"
-    }
+    },
+    "searchPlaceholder": "Search name, surname or phone"
   },
   "duplicates": {
     "newApplication": "New submission",

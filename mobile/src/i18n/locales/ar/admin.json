@@ -39,7 +39,8 @@
       "noDoctorMessage": "لا يوجد طبيب مناسب لهذه الفئة.",
       "failedTitle": "تعذّر التعيين",
       "closedCannotReassign": "لا يمكن إعادة تعيين طلب مغلق"
-    }
+    },
+    "searchPlaceholder": "ابحث بالاسم أو اللقب أو الهاتف"
   },
   "duplicates": {
     "newApplication": "الطلب الجديد",

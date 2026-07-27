@@ -39,7 +39,8 @@
       "noDoctorMessage": "Не найден подходящий врач для этой категории.",
       "failedTitle": "Не удалось назначить",
       "closedCannotReassign": "Закрытую заявку нельзя переназначить"
-    }
+    },
+    "searchPlaceholder": "Поиск по имени, фамилии или телефону"
   },
   "duplicates": {
     "newApplication": "Новое обращение",

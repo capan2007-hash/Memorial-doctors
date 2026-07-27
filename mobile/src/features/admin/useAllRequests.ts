@@ -13,6 +13,7 @@ import type { RequestRow } from '@/types/db'
 
 export type EnrichedRequestRow = RequestRow & {
   patientName: string
+  patientPhone: string | null
   categoryName: string
   hasAccept: boolean
 }
@@ -42,14 +43,14 @@ export function useAllRequests() {
       const { data } = await supabase.from('request').select('*').order('created_at', { ascending: false })
       const requests = (data ?? []) as RequestRow[]
       const [{ data: patients }, { data: categories }, { data: acceptResponses }] = await Promise.all([
-        supabase.from('patient').select('id, first_name, last_name'),
+        supabase.from('patient').select('id, first_name, last_name, phone'),
         supabase.from('category').select('id, name, name_i18n'),
         supabase.from('response').select('request_id').eq('decision', 'accept'),
       ])
       const patientMap = new Map(
-        (patients ?? []).map((p: { id: string; first_name: string; last_name: string }) => [
+        (patients ?? []).map((p: { id: string; first_name: string; last_name: string; phone: string | null }) => [
           p.id,
-          `${p.first_name} ${p.last_name}`,
+          { name: `${p.first_name} ${p.last_name}`, phone: p.phone ?? null },
         ]),
       )
       const categoryMap = new Map(
@@ -58,9 +59,11 @@ export function useAllRequests() {
       const acceptedIds = new Set((acceptResponses ?? []).map((r: { request_id: string }) => r.request_id))
       return requests.map((r) => {
         const categoryRow = categoryMap.get(r.category_id)
+        const pat = patientMap.get(r.patient_id)
         return {
           ...r,
-          patientName: patientMap.get(r.patient_id) ?? '—',
+          patientName: pat?.name ?? '—',
+          patientPhone: pat?.phone ?? null,
           categoryName: categoryRow ? catalogName(categoryRow, i18n.language) : '—',
           hasAccept: acceptedIds.has(r.id),
         }

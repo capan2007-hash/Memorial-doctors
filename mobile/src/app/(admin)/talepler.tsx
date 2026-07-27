@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { router } from 'expo-router'
-import { AlertTriangle, ChevronRight, Clock, RefreshCw } from 'lucide-react-native'
+import { AlertTriangle, ChevronRight, Clock, RefreshCw, Search } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 
 import { Avatar } from '@/components/ui/Avatar'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -21,6 +21,7 @@ import {
   type EnrichedRequestRow,
   type SlaTab,
 } from '@/features/admin/useAllRequests'
+import { matchesSearch } from '@/features/admin/searchRequests'
 
 const TABS: SlaTab[] = ['all', 'pending', 'overdue', 'completed']
 
@@ -163,6 +164,7 @@ export default function TaleplerScreen() {
   const tenantSla = useTenantSla()
   const reassign = useReassign()
   const [tab, setTab] = useState<SlaTab>('all')
+  const [search, setSearch] = useState('')
   const [reassigningId, setReassigningId] = useState<string | null>(null)
 
   const slaHours = tenantSla.data?.sla_hours ?? 24
@@ -183,7 +185,9 @@ export default function TaleplerScreen() {
     [classified],
   )
 
-  const visible = tab === 'all' ? classified : classified.filter((c) => c.tab === tab)
+  const byTab = tab === 'all' ? classified : classified.filter((c) => c.tab === tab)
+  // Ad/soyad/telefon araması (biriken kayıtlar içinde mükerrer kontrolü).
+  const visible = search.trim() ? byTab.filter((c) => matchesSearch(c.row, search)) : byTab
 
   const onReassign = async (item: Row) => {
     setReassigningId(item.row.id)
@@ -213,6 +217,20 @@ export default function TaleplerScreen() {
   return (
     <View style={[styles.root, { backgroundColor: colors.surface0 }]}>
       <FilterTabs value={tab} counts={counts} onChange={setTab} colors={colors} />
+      <View style={styles.searchWrap}>
+        <View style={[styles.searchBox, { backgroundColor: colors.surface1, borderColor: colors.border }]}>
+          <Search color={colors.textMuted} size={16} strokeWidth={1.75} />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder={t('requests.searchPlaceholder')}
+            placeholderTextColor={colors.textMuted}
+            style={[styles.searchInput, { color: colors.textPrimary }]}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+      </View>
       {visible.length === 0 ? (
         <EmptyState
           title={counts.all === 0 ? t('requests.empty.noneTitle') : t('requests.empty.filteredTitle')}
@@ -255,6 +273,17 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.one + 2,
   },
   tabText: { fontFamily: fontFamily.medium, fontSize: 13 },
+  searchWrap: { paddingHorizontal: spacing.four, paddingBottom: spacing.three },
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.one,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.two,
+    minHeight: 40,
+  },
+  searchInput: { flex: 1, fontFamily: fontFamily.regular, fontSize: 14, paddingVertical: spacing.one },
   list: { paddingHorizontal: spacing.four, paddingBottom: spacing.four, gap: spacing.three },
   rowWrap: { gap: spacing.one },
   card: {
