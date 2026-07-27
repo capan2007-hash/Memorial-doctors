@@ -1,9 +1,12 @@
+import { useEffect } from 'react'
 import { Redirect, Tabs } from 'expo-router'
+import * as Notifications from 'expo-notifications'
 import { BarChart3, Clock, Inbox, LogOut, Settings, UserCircle } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { useAuth } from '@/lib/auth'
+import { useDoctorQueue } from '@/features/queue/useDoctorQueue'
 import { useTheme } from '@/lib/theme'
 import { fontFamily, radius, spacing } from '@/theme'
 
@@ -27,9 +30,18 @@ function BlockedScreen() {
 }
 
 export default function TabsLayout() {
-  const { session, role, loading } = useAuth()
+  const { session, role, loading, doctorId } = useAuth()
   const { colors } = useTheme()
   const { t } = useTranslation('common')
+
+  // Bekleyen (yanıtlanmamış atanmış talep) sayısı → sekme rozeti + uygulama
+  // ikonu rozeti. Hook'lar koşulsuz çağrılır (Rules of Hooks): erken return'lerden ÖNCE.
+  const { pending } = useDoctorQueue(role === 'doctor' ? doctorId : null)
+  const pendingCount = pending.length
+  useEffect(() => {
+    // iOS: ikon üzerinde kırmızı sayı. Android'de launcher desteğine bağlı.
+    Notifications.setBadgeCountAsync(pendingCount).catch(() => {})
+  }, [pendingCount])
 
   if (loading) {
     return (
@@ -64,6 +76,8 @@ export default function TabsLayout() {
         options={{
           title: t('doctorTabs.tabs.pending'),
           tabBarIcon: ({ color, size }) => <Inbox color={color} size={size} strokeWidth={1.75} />,
+          // Kırmızı bekleyen sayısı (0 ise rozet gösterilmez).
+          tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
         }}
       />
       <Tabs.Screen

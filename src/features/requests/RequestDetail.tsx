@@ -1,9 +1,11 @@
+import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useRequestDetail, useTenantPhotoSettings } from './useRequests'
 import { catalogName } from '../catalog/catalogName'
 import { useSetSaleStatus } from './useSetSaleStatus'
 import { useSiblingOpenRequests } from './useSiblingOpenRequests'
+import { useMarkSeen } from './useUnseen'
 import { useAuth } from '../../lib/auth'
 import { RoleGate } from '../../components/RoleGate'
 import { PageHeader } from '../../components/ui/PageHeader'
@@ -119,6 +121,18 @@ export function RequestDetail() {
   // Hooks koşulsuz çağrılmalı (Rules of Hooks): veri gelmeden patient_id yoksa
   // hook 'enabled' değil, undefined güvenli — erken return'lerden ÖNCE çağrılır.
   const siblingOpen = useSiblingOpenRequests(q.data?.req.patient_id, q.data?.req.id)
+  // Detay açıldığında "görüldü" damgası → nav'daki bekleyen rozeti düşer.
+  // Rol kapısı RPC içinde (doktor için no-op); burada yalnız bir kez tetiklenir.
+  const markSeen = useMarkSeen()
+  const seenRef = useRef<string | null>(null)
+  const loadedId = q.data?.req.id
+  useEffect(() => {
+    if (!loadedId || seenRef.current === loadedId) return
+    seenRef.current = loadedId
+    markSeen.mutate(loadedId)
+    // markSeen referansı her render'da değişebilir; yalnız talep kimliğine bağlı çalışır.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadedId])
   if (q.isError || (!q.isLoading && !q.data)) {
     return <EmptyState title={t('detail.notFoundTitle')} description={t('detail.notFoundDescription')} />
   }

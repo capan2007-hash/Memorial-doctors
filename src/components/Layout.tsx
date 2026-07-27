@@ -7,6 +7,7 @@ import { useAuth } from '../lib/auth'
 import { navLinks } from '../lib/nav'
 import { useMyDoctorId } from '../features/doctor/useMyDoctorId'
 import { usePendingCount } from '../features/doctor/usePendingCount'
+import { useUnseenCount } from '../features/requests/useUnseen'
 import { ThemeToggle } from './ui/ThemeToggle'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { Icon } from './ui/Icon'
@@ -55,6 +56,10 @@ export function Layout({ children }: { children: ReactNode }) {
   const myDoctorId = useMyDoctorId()
   const isDoctor = role === 'doctor'
   const pendingCount = usePendingCount(isDoctor ? myDoctorId.data ?? undefined : undefined)
+  // Satış tarafı rozeti: doktor yanıtı gelmiş ama HENÜZ BAKILMAMIŞ talep sayısı.
+  const isSalesSide = role === 'sales' || role === 'agent'
+  const unseen = useUnseenCount(isSalesSide)
+  const unseenCount = unseen.data ?? 0
   const links = navLinks(role)
 
   // En uzun eşleşen link aktif sayılır: /requests/new'de yalnız 'Yeni Talep'
@@ -87,6 +92,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <Icon of={navIcon(l.to)} size={16} />
                 {t(l.labelKey)}
                 {isDoctor && l.to === '/doctor' && <PendingBadge count={pendingCount} />}
+                {isSalesSide && l.to === '/requests' && <PendingBadge count={unseenCount} />}
               </Link>
             ))}
           </nav>
