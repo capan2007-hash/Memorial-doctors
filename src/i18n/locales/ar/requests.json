@@ -3,7 +3,9 @@
     "title": "الطلبات",
     "newRequestButton": "طلب جديد",
     "emptyTitle": "لا توجد طلبات بعد",
-    "emptyDescription": "انقر على طلب جديد لإنشاء أول طلب."
+    "emptyDescription": "انقر على طلب جديد لإنشاء أول طلب.",
+    "searchPlaceholder": "ابحث بالاسم أو اللقب أو الهاتف",
+    "noSearchResults": "لا توجد سجلات تطابق بحثك."
   },
   "newRequest": {
     "title": "طلب جديد",

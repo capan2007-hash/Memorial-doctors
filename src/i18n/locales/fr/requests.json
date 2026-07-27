@@ -3,7 +3,9 @@
     "title": "Demandes",
     "newRequestButton": "Nouvelle demande",
     "emptyTitle": "Aucune demande pour le moment",
-    "emptyDescription": "Cliquez sur Nouvelle demande pour créer la première."
+    "emptyDescription": "Cliquez sur Nouvelle demande pour créer la première.",
+    "searchPlaceholder": "Rechercher nom, prénom ou téléphone",
+    "noSearchResults": "Aucun enregistrement ne correspond à votre recherche."
   },
   "newRequest": {
     "title": "Nouvelle demande",

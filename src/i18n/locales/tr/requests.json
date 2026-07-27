@@ -3,7 +3,9 @@
     "title": "Talepler",
     "newRequestButton": "Yeni Talep",
     "emptyTitle": "Henüz talep yok",
-    "emptyDescription": "İlk talebi oluşturmak için Yeni Talep'e tıklayın."
+    "emptyDescription": "İlk talebi oluşturmak için Yeni Talep'e tıklayın.",
+    "searchPlaceholder": "Ad, soyad veya telefon ara",
+    "noSearchResults": "Aramanızla eşleşen kayıt yok."
   },
   "newRequest": {
     "title": "Yeni Talep",

@@ -3,7 +3,9 @@
     "title": "Anfragen",
     "newRequestButton": "Neue Anfrage",
     "emptyTitle": "Noch keine Anfragen",
-    "emptyDescription": "Klicken Sie auf Neue Anfrage, um die erste zu erstellen."
+    "emptyDescription": "Klicken Sie auf Neue Anfrage, um die erste zu erstellen.",
+    "searchPlaceholder": "Name, Nachname oder Telefon suchen",
+    "noSearchResults": "Keine Datensätze entsprechen Ihrer Suche."
   },
   "newRequest": {
     "title": "Neue Anfrage",

@@ -103,7 +103,7 @@ export function useCreateRequest() {
   })
 }
 
-export type EnrichedRequestRow = RequestRow & { patientName: string; category?: CatalogRef }
+export type EnrichedRequestRow = RequestRow & { patientName: string; patientPhone: string | null; category?: CatalogRef }
 
 export function useMyRequests() {
   return useQuery({ queryKey: ['requests'], queryFn: async (): Promise<EnrichedRequestRow[]> => {
@@ -111,14 +111,16 @@ export function useMyRequests() {
     if (error) throw error
     const requests = data as RequestRow[]
     const [{ data: patients }, { data: categories }] = await Promise.all([
-      supabase.from('patient').select('id, first_name, last_name'),
+      // Telefon: satışçı arama/mükerrer kontrolü için (RLS zaten satış-grubu hastasını verir).
+      supabase.from('patient').select('id, first_name, last_name, phone'),
       supabase.from('category').select('id, name, name_i18n'),
     ])
-    const patientMap = new Map((patients ?? []).map((p: any) => [p.id, `${p.first_name} ${p.last_name}`]))
+    const patientMap = new Map((patients ?? []).map((p: any) => [p.id, { name: `${p.first_name} ${p.last_name}`, phone: (p.phone ?? null) as string | null }]))
     const categoryMap = new Map((categories ?? []).map((c: any) => [c.id, c as CatalogRef]))
     return requests.map((r) => ({
       ...r,
-      patientName: patientMap.get(r.patient_id) ?? '—',
+      patientName: patientMap.get(r.patient_id)?.name ?? '—',
+      patientPhone: patientMap.get(r.patient_id)?.phone ?? null,
       category: categoryMap.get(r.category_id),
     }))
   }})

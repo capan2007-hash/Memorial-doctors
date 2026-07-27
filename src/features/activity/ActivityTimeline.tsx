@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Briefcase, Building2, Stethoscope, UserRound, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
@@ -97,9 +98,13 @@ function TimelineNode({
         {!isLastInGroup && <span className="mt-1 w-px flex-1 bg-line" aria-hidden />}
       </div>
 
-      {/* İçerik kartı: sol renkli şerit + role rozeti + doktor sayısı */}
+      {/* İçerik kartı: sol renkli şerit + role rozeti + doktor sayısı.
+          Tıklanınca talep detayına gider (satışçı foto+talep+doktor yanıtını görür → mükerrer kontrolü). */}
       <div className="flex-1 pb-4">
-        <div className="relative overflow-hidden rounded-card border border-line bg-surface-1 p-3 ps-4 shadow-card transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-pop">
+        <Link
+          to={`/requests/${entry.request_id}`}
+          className="relative block overflow-hidden rounded-card border border-line bg-surface-1 p-3 ps-4 shadow-card transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-pop"
+        >
           <span className={`absolute inset-y-0 start-0 w-1 ${tone.strip}`} aria-hidden />
 
           <div className="flex flex-wrap items-center gap-2">
@@ -125,7 +130,7 @@ function TimelineNode({
             </span>
             <span className="tnum text-[11px] text-ink-muted">{formatActivityDateTime(entry.created_at, lang)}</span>
           </div>
-        </div>
+        </Link>
       </div>
     </li>
   )

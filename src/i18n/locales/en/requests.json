@@ -3,7 +3,9 @@
     "title": "Requests",
     "newRequestButton": "New Request",
     "emptyTitle": "No requests yet",
-    "emptyDescription": "Click New Request to create the first one."
+    "emptyDescription": "Click New Request to create the first one.",
+    "searchPlaceholder": "Search name, surname or phone",
+    "noSearchResults": "No records match your search."
   },
   "newRequest": {
     "title": "New Request",
