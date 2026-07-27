@@ -56,3 +56,16 @@ describe('photoLifecycleInfo', () => {
     ).toBeNull()
   })
 })
+
+describe('offer_sent (fiyat teklifi verildi)', () => {
+  it('not_completed gibi davranır: geri sayım sürer, arşive geçmez', () => {
+    const info = photoLifecycleInfo(
+      'offer_sent',
+      { oldestUploadedAt: '2026-07-01T00:00:00.000Z', saleMarkedAt: null },
+      60,
+      30,
+      new Date('2026-07-27T00:00:00.000Z'),
+    )
+    expect(info).toEqual({ state: 'active_countdown', daysLeft: 34 })
+  })
+})

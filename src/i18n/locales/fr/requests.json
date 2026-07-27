@@ -149,7 +149,8 @@
     "saleStatus": {
       "notCompleted": "Vente en attente",
       "saleDone": "Vente conclue",
-      "operationDone": "Opération réalisée"
+      "operationDone": "Opération réalisée",
+      "offerSent": "Offre envoyée"
     },
     "markSaleDone": "Marquer la vente comme conclue",
     "confirmSaleDone": "Voulez-vous vraiment marquer la vente comme conclue ? Les photos seront déplacées vers les archives.",
@@ -168,7 +169,21 @@
     "waitingCount": "{{count}} en attente",
     "decisionAccept": "Accepté",
     "decisionReject": "Refusé",
-    "noDoctorResponses": "Aucune réponse de médecin pour le moment."
+    "noDoctorResponses": "Aucune réponse de médecin pour le moment.",
+    "offer": {
+      "currentTitle": "Offre actuelle",
+      "previous": "Offres précédentes",
+      "giveOffer": "Envoyer une offre",
+      "newOffer": "Nouvelle offre",
+      "amountLabel": "Montant",
+      "currencyLabel": "Devise",
+      "doctorsLabel": "Médecins concernés",
+      "noAcceptedDoctors": "Aucun médecin n'a encore accepté.",
+      "save": "Enregistrer l'offre",
+      "cancel": "Annuler"
+    },
+    "surgeryDateLabel": "Date de l'opération",
+    "completeSaleConfirm": "Finaliser la vente"
   },
   "duplicatePanel": {
     "matchCount_one": "{{count}} correspondance possible avec ces informations",

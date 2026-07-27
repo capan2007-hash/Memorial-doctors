@@ -149,7 +149,8 @@
     "saleStatus": {
       "notCompleted": "Sale pending",
       "saleDone": "Sale completed",
-      "operationDone": "Operation completed"
+      "operationDone": "Operation completed",
+      "offerSent": "Offer sent"
     },
     "markSaleDone": "Mark sale done",
     "confirmSaleDone": "Are you sure you want to mark the sale as completed? Photos will be moved to the archive.",
@@ -168,7 +169,21 @@
     "waitingCount": "{{count}} awaiting",
     "decisionAccept": "Accepted",
     "decisionReject": "Rejected",
-    "noDoctorResponses": "No doctor response yet."
+    "noDoctorResponses": "No doctor response yet.",
+    "offer": {
+      "currentTitle": "Current offer",
+      "previous": "Previous offers",
+      "giveOffer": "Send price offer",
+      "newOffer": "New offer",
+      "amountLabel": "Amount",
+      "currencyLabel": "Currency",
+      "doctorsLabel": "Doctors offered",
+      "noAcceptedDoctors": "No doctor has accepted yet.",
+      "save": "Save offer",
+      "cancel": "Cancel"
+    },
+    "surgeryDateLabel": "Surgery date",
+    "completeSaleConfirm": "Complete sale"
   },
   "duplicatePanel": {
     "matchCount_one": "{{count}} possible match with this info",

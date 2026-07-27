@@ -153,7 +153,8 @@
     "saleStatus": {
       "notCompleted": "البيع بانتظار",
       "saleDone": "تم البيع",
-      "operationDone": "تمت العملية"
+      "operationDone": "تمت العملية",
+      "offerSent": "تم إرسال العرض"
     },
     "markSaleDone": "تحديد البيع كمكتمل",
     "confirmSaleDone": "هل أنت متأكد من تحديد البيع كمكتمل؟ سيتم نقل الصور إلى الأرشيف.",
@@ -180,7 +181,21 @@
     "waitingCount": "{{count}} في الانتظار",
     "decisionAccept": "مقبول",
     "decisionReject": "مرفوض",
-    "noDoctorResponses": "لا توجد ردود من الأطباء بعد."
+    "noDoctorResponses": "لا توجد ردود من الأطباء بعد.",
+    "offer": {
+      "currentTitle": "العرض الحالي",
+      "previous": "العروض السابقة",
+      "giveOffer": "إرسال عرض سعر",
+      "newOffer": "عرض جديد",
+      "amountLabel": "المبلغ",
+      "currencyLabel": "العملة",
+      "doctorsLabel": "الأطباء المعنيون",
+      "noAcceptedDoctors": "لم يقبل أي طبيب بعد.",
+      "save": "حفظ العرض",
+      "cancel": "إلغاء"
+    },
+    "surgeryDateLabel": "تاريخ العملية",
+    "completeSaleConfirm": "إتمام البيع"
   },
   "duplicatePanel": {
     "matchCount_zero": "لا تطابقات محتملة بهذه البيانات",

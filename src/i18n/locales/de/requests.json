@@ -149,7 +149,8 @@
     "saleStatus": {
       "notCompleted": "Verkauf ausstehend",
       "saleDone": "Verkauf abgeschlossen",
-      "operationDone": "Operation abgeschlossen"
+      "operationDone": "Operation abgeschlossen",
+      "offerSent": "Angebot gesendet"
     },
     "markSaleDone": "Verkauf als abgeschlossen markieren",
     "confirmSaleDone": "Sind Sie sicher, dass der Verkauf als abgeschlossen markiert werden soll? Fotos werden ins Archiv verschoben.",
@@ -168,7 +169,21 @@
     "waitingCount": "{{count}} ausstehend",
     "decisionAccept": "Angenommen",
     "decisionReject": "Abgelehnt",
-    "noDoctorResponses": "Noch keine Arztantwort."
+    "noDoctorResponses": "Noch keine Arztantwort.",
+    "offer": {
+      "currentTitle": "Aktuelles Angebot",
+      "previous": "Frühere Angebote",
+      "giveOffer": "Preisangebot senden",
+      "newOffer": "Neues Angebot",
+      "amountLabel": "Betrag",
+      "currencyLabel": "Währung",
+      "doctorsLabel": "Angebotene Ärzte",
+      "noAcceptedDoctors": "Noch kein Arzt hat zugesagt.",
+      "save": "Angebot speichern",
+      "cancel": "Abbrechen"
+    },
+    "surgeryDateLabel": "OP-Termin",
+    "completeSaleConfirm": "Verkauf abschließen"
   },
   "duplicatePanel": {
     "matchCount_one": "{{count}} mögliche Übereinstimmung mit diesen Angaben",

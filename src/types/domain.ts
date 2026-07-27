@@ -5,4 +5,4 @@ export type RequestStatus =
 export type RequestEvent =
   | 'submit' | 'assign' | 'seen' | 'accept' | 'reject_all' | 'close'
 export type Decision = 'accept' | 'reject'
-export type SaleStatus = 'not_completed' | 'sale_done' | 'operation_done'
+export type SaleStatus = 'not_completed' | 'offer_sent' | 'sale_done' | 'operation_done'

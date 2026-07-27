@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useRequestDetail, useTenantPhotoSettings } from './useRequests'
@@ -6,6 +6,7 @@ import { catalogName } from '../catalog/catalogName'
 import { useSetSaleStatus } from './useSetSaleStatus'
 import { useSiblingOpenRequests } from './useSiblingOpenRequests'
 import { useMarkSeen } from './useUnseen'
+import { usePriceOffers, useCreateOffer, useCompleteSale, type OfferCurrency } from './usePriceOffer'
 import { useAuth } from '../../lib/auth'
 import { RoleGate } from '../../components/RoleGate'
 import { PageHeader } from '../../components/ui/PageHeader'
@@ -26,14 +27,75 @@ import { photoLifecycleInfo } from '../../domain/photoLifecycle'
 import type { SaleStatus } from '../../types/domain'
 import type { RequestRow } from '../../types/db'
 
-function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUploadedAt: string | null }) {
+function SaleStatusCard({
+  req,
+  oldestUploadedAt,
+  acceptedDoctors,
+}: {
+  req: RequestRow
+  oldestUploadedAt: string | null
+  /** Teklif verilebilecek doktorlar (kabul edenler) — id + görünen ad. */
+  acceptedDoctors: { id: string; name: string }[]
+}) {
   const { t } = useTranslation('requests')
   const { role, appUser } = useAuth()
   const tenantSettings = useTenantPhotoSettings(req.tenant_id)
   const setSaleStatus = useSetSaleStatus()
+  const offers = usePriceOffers(req.id)
+  const createOffer = useCreateOffer()
+  const completeSale = useCompleteSale()
+
+  // Teklif formu
+  const [showOfferForm, setShowOfferForm] = useState(false)
+  const [amount, setAmount] = useState('')
+  const [currency, setCurrency] = useState<OfferCurrency>('EUR')
+  const [offerDoctorIds, setOfferDoctorIds] = useState<string[]>([])
+  const [offerErr, setOfferErr] = useState<string | null>(null)
+  // Satış kapatma formu
+  const [showSaleForm, setShowSaleForm] = useState(false)
+  const [surgeryDate, setSurgeryDate] = useState('')
+
+  const currentOffer = offers.data?.[0] ?? null
+  const pastOffers = (offers.data ?? []).slice(1)
+  const amountNum = Number(amount.replace(',', '.'))
+  const canSaveOffer = Number.isFinite(amountNum) && amountNum > 0 && offerDoctorIds.length > 0
+
+  const toggleOfferDoctor = (id: string) =>
+    setOfferDoctorIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+
+  const doctorLabel = (id: string) => acceptedDoctors.find((d) => d.id === id)?.name ?? `#${id.slice(0, 8)}`
+  const formatMoney = (o: { amount: number; currency: string }) =>
+    `${o.amount.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${o.currency}`
+
+  const submitOffer = async () => {
+    setOfferErr(null)
+    if (!appUser || !canSaveOffer) return
+    try {
+      await createOffer.mutateAsync({
+        requestId: req.id,
+        tenantId: req.tenant_id,
+        createdBy: appUser.id,
+        amount: amountNum,
+        currency,
+        doctorIds: offerDoctorIds,
+      })
+      setShowOfferForm(false)
+      setAmount('')
+      setOfferDoctorIds([])
+    } catch (e) {
+      setOfferErr((e as Error).message)
+    }
+  }
+
+  const submitSale = async () => {
+    if (!surgeryDate) return
+    await completeSale.mutateAsync({ requestId: req.id, surgeryDate })
+    setShowSaleForm(false)
+  }
 
   const SALE_STATUS_LABEL: Record<SaleStatus, string> = {
     not_completed: t('detail.saleStatus.notCompleted'),
+    offer_sent: t('detail.saleStatus.offerSent'),
     sale_done: t('detail.saleStatus.saleDone'),
     operation_done: t('detail.saleStatus.operationDone'),
   }
@@ -71,13 +133,134 @@ function SaleStatusCard({ req, oldestUploadedAt }: { req: RequestRow; oldestUplo
           <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
           {SALE_STATUS_LABEL[req.sale_status]}
         </span>
+        {/* Güncel teklif özeti (varsa) — tutar + hangi doktorlar için + tarih */}
+        {currentOffer && (
+          <div className="rounded-card border border-line bg-surface-1 p-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">{t('detail.offer.currentTitle')}</p>
+            <p className="mt-0.5 font-display text-lg text-ink-primary tnum">{formatMoney(currentOffer)}</p>
+            <p className="mt-1 text-sm text-ink-secondary">
+              {currentOffer.doctorIds.map(doctorLabel).join(', ') || '—'}
+            </p>
+            <p className="mt-0.5 text-xs text-ink-muted">{formatDate(currentOffer.created_at)}</p>
+            {pastOffers.length > 0 && (
+              <p className="mt-2 border-t border-line pt-2 text-xs text-ink-muted">
+                {t('detail.offer.previous')}: {pastOffers.map((o) => formatMoney(o)).join(' · ')}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Ameliyat tarihi (satış kapandıysa) */}
+        {req.surgery_date && (
+          <p className="flex items-center gap-1.5 text-sm text-ink-secondary">
+            <Icon of={Clock} size={14} />
+            {t('detail.surgeryDateLabel')}: <span className="font-medium text-ink-primary">{formatDate(req.surgery_date)}</span>
+          </p>
+        )}
+
+        {/* TEKLİF FORMU: tutar + para birimi + doktor seçimi */}
+        {isSales && showOfferForm && (
+          <div className="space-y-3 rounded-card border border-line bg-surface-1 p-3">
+            <div className="flex flex-wrap items-end gap-2">
+              <label className="flex-1 min-w-[8rem] text-sm">
+                <span className="mb-1 block text-ink-secondary">{t('detail.offer.amountLabel')}</span>
+                <input
+                  type="number"
+                  min="1"
+                  step="any"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="3000"
+                  className="tnum w-full rounded-control border border-line bg-surface-2 px-3 py-2 text-ink-primary focus:border-brand-fill focus:outline-none"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="mb-1 block text-ink-secondary">{t('detail.offer.currencyLabel')}</span>
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value as OfferCurrency)}
+                  className="rounded-control border border-line bg-surface-2 px-3 py-2 text-ink-primary focus:border-brand-fill focus:outline-none"
+                >
+                  <option value="EUR">EUR</option>
+                  <option value="USD">USD</option>
+                </select>
+              </label>
+            </div>
+
+            <div>
+              <p className="mb-1 text-sm text-ink-secondary">{t('detail.offer.doctorsLabel')}</p>
+              {acceptedDoctors.length === 0 ? (
+                <p className="text-sm text-ink-muted">{t('detail.offer.noAcceptedDoctors')}</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {acceptedDoctors.map((d) => {
+                    const on = offerDoctorIds.includes(d.id)
+                    return (
+                      <button
+                        key={d.id}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => toggleOfferDoctor(d.id)}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition ${
+                          on
+                            ? 'border-brand-fill bg-brand-fill text-white'
+                            : 'border-line bg-surface-2 text-ink-secondary hover:border-line-strong'
+                        }`}
+                      >
+                        {on && <Icon of={Check} size={13} />}
+                        {d.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {offerErr && <p className="text-sm text-danger-text">{offerErr}</p>}
+            <div className="flex flex-wrap gap-2">
+              <Button variant="primary" disabled={!canSaveOffer} loading={createOffer.isPending} onClick={submitOffer}>
+                {t('detail.offer.save')}
+              </Button>
+              <Button variant="ghost" onClick={() => setShowOfferForm(false)}>
+                {t('detail.offer.cancel')}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* SATIŞ KAPATMA FORMU: ameliyat tarihi */}
+        {isSales && showSaleForm && (
+          <div className="space-y-3 rounded-card border border-line bg-surface-1 p-3">
+            <label className="block text-sm">
+              <span className="mb-1 block text-ink-secondary">{t('detail.surgeryDateLabel')}</span>
+              <input
+                type="date"
+                value={surgeryDate}
+                onChange={(e) => setSurgeryDate(e.target.value)}
+                className="rounded-control border border-line bg-surface-2 px-3 py-2 text-ink-primary focus:border-brand-fill focus:outline-none"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="primary" disabled={!surgeryDate} loading={completeSale.isPending} onClick={submitSale}>
+                {t('detail.completeSaleConfirm')}
+              </Button>
+              <Button variant="ghost" onClick={() => setShowSaleForm(false)}>
+                {t('detail.offer.cancel')}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2">
-          {isSales && req.sale_status !== 'sale_done' && req.sale_status !== 'operation_done' && (
-            <Button
-              variant="primary"
-              loading={setSaleStatus.isPending}
-              onClick={() => act('sale_done', t('detail.confirmSaleDone'))}
-            >
+          {/* Teklif ver / yeni teklif — satış kapanmadıysa */}
+          {isSales && req.sale_status !== 'sale_done' && req.sale_status !== 'operation_done' && !showOfferForm && (
+            <Button variant={currentOffer ? 'secondary' : 'primary'} onClick={() => setShowOfferForm(true)}>
+              {currentOffer ? t('detail.offer.newOffer') : t('detail.offer.giveOffer')}
+            </Button>
+          )}
+          {/* Satış tamamlandı — yalnız teklif verilmişse (ameliyat tarihi ister) */}
+          {isSales && req.sale_status === 'offer_sent' && !showSaleForm && (
+            <Button variant="primary" onClick={() => setShowSaleForm(true)}>
               {t('detail.markSaleDone')}
             </Button>
           )}
@@ -165,6 +348,11 @@ export function RequestDetail() {
   const rejected = responses.filter((r) => r.decision !== 'accept')
   // Kabul edenler önce (satış için öncelikli), red edenler altta — ama HEPSİ görünür.
   const orderedResponses = [...accepted, ...rejected]
+  // Teklif verilebilecek doktorlar: KABUL edenler (red edene teklif mantıksız).
+  const acceptedDoctors = accepted.map((r) => ({
+    id: r.doctor_id,
+    name: doctorNames.get(r.doctor_id) ?? `#${r.doctor_id.slice(0, 8)}`,
+  }))
   // Atanan doktorlardan henüz yanıtlamayanlar (assignment RLS satış grubuna açık; 0050).
   const waitingCount = Math.max(0, assignedCount - responses.length)
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
@@ -229,7 +417,7 @@ export function RequestDetail() {
             </p>
           </div>
         )}
-        <SaleStatusCard req={req} oldestUploadedAt={oldestUploadedAt} />
+        <SaleStatusCard req={req} oldestUploadedAt={oldestUploadedAt} acceptedDoctors={acceptedDoctors} />
         <AiPanel requestId={req.id} />
         <section className="space-y-2">
           <h3 className="flex flex-wrap items-center gap-2 border-b border-line pb-2 font-display text-base text-ink-primary">

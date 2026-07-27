@@ -149,7 +149,8 @@
     "saleStatus": {
       "notCompleted": "Продажа ожидается",
       "saleDone": "Продажа завершена",
-      "operationDone": "Операция завершена"
+      "operationDone": "Операция завершена",
+      "offerSent": "Предложение отправлено"
     },
     "markSaleDone": "Отметить продажу завершённой",
     "confirmSaleDone": "Вы уверены, что хотите отметить продажу как завершённую? Фото будут перемещены в архив.",
@@ -168,7 +169,21 @@
     "waitingCount": "{{count}} ожидается",
     "decisionAccept": "Принято",
     "decisionReject": "Отклонено",
-    "noDoctorResponses": "Пока нет ответов врачей."
+    "noDoctorResponses": "Пока нет ответов врачей.",
+    "offer": {
+      "currentTitle": "Текущее предложение",
+      "previous": "Предыдущие предложения",
+      "giveOffer": "Отправить предложение",
+      "newOffer": "Новое предложение",
+      "amountLabel": "Сумма",
+      "currencyLabel": "Валюта",
+      "doctorsLabel": "Врачи в предложении",
+      "noAcceptedDoctors": "Пока ни один врач не принял.",
+      "save": "Сохранить предложение",
+      "cancel": "Отмена"
+    },
+    "surgeryDateLabel": "Дата операции",
+    "completeSaleConfirm": "Завершить продажу"
   },
   "duplicatePanel": {
     "matchCount_one": "{{count}} возможное совпадение по этим данным",

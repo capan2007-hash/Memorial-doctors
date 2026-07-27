@@ -149,7 +149,8 @@
     "saleStatus": {
       "notCompleted": "Satış bekliyor",
       "saleDone": "Satış tamamlandı",
-      "operationDone": "Ameliyat tamamlandı"
+      "operationDone": "Ameliyat tamamlandı",
+      "offerSent": "Teklif verildi"
     },
     "markSaleDone": "Satış yapıldı",
     "confirmSaleDone": "Satışın tamamlandığını işaretlemek istediğinize emin misiniz? Fotoğraflar arşive taşınacak.",
@@ -168,7 +169,21 @@
     "waitingCount": "{{count}} bekleniyor",
     "decisionAccept": "Kabul",
     "decisionReject": "Red",
-    "noDoctorResponses": "Henüz doktor yanıtı yok."
+    "noDoctorResponses": "Henüz doktor yanıtı yok.",
+    "offer": {
+      "currentTitle": "Güncel teklif",
+      "previous": "Önceki teklifler",
+      "giveOffer": "Fiyat teklifi ver",
+      "newOffer": "Yeni teklif ver",
+      "amountLabel": "Tutar",
+      "currencyLabel": "Para birimi",
+      "doctorsLabel": "Teklif verilen doktorlar",
+      "noAcceptedDoctors": "Henüz kabul eden doktor yok.",
+      "save": "Teklifi kaydet",
+      "cancel": "Vazgeç"
+    },
+    "surgeryDateLabel": "Ameliyat tarihi",
+    "completeSaleConfirm": "Satışı tamamla"
   },
   "duplicatePanel": {
     "matchCount_one": "Bu bilgilerle {{count}} olası eşleşme",
