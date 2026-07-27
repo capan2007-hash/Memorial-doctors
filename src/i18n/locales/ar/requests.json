@@ -173,7 +173,14 @@
     "destructionCountdown_two": "الإتلاف: يومان متبقيان",
     "destructionCountdown_few": "الإتلاف: {{count}} أيام متبقية",
     "destructionCountdown_many": "الإتلاف: {{count}} يوم متبقٍ",
-    "destructionCountdown_other": "الإتلاف: {{count}} يوم متبقٍ"
+    "destructionCountdown_other": "الإتلاف: {{count}} يوم متبقٍ",
+    "doctorResponsesTitle": "ردود الأطباء",
+    "acceptedCount": "{{count}} قبول",
+    "rejectedCount": "{{count}} رفض",
+    "waitingCount": "{{count}} في الانتظار",
+    "decisionAccept": "مقبول",
+    "decisionReject": "مرفوض",
+    "noDoctorResponses": "لا توجد ردود من الأطباء بعد."
   },
   "duplicatePanel": {
     "matchCount_zero": "لا تطابقات محتملة بهذه البيانات",

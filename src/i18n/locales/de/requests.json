@@ -161,7 +161,14 @@
     "photosDeleteCountdown_other": "Fotos werden in {{count}} Tagen gelöscht",
     "photosArchived": "Fotos wurden archiviert",
     "destructionCountdown_one": "Löschung: noch {{count}} Tag",
-    "destructionCountdown_other": "Löschung: noch {{count}} Tage"
+    "destructionCountdown_other": "Löschung: noch {{count}} Tage",
+    "doctorResponsesTitle": "Arztantworten",
+    "acceptedCount": "{{count}} angenommen",
+    "rejectedCount": "{{count}} abgelehnt",
+    "waitingCount": "{{count}} ausstehend",
+    "decisionAccept": "Angenommen",
+    "decisionReject": "Abgelehnt",
+    "noDoctorResponses": "Noch keine Arztantwort."
   },
   "duplicatePanel": {
     "matchCount_one": "{{count}} mögliche Übereinstimmung mit diesen Angaben",

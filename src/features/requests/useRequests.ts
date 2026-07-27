@@ -145,6 +145,32 @@ export function useRequestDetail(id?: string) {
         : Promise.resolve({ data: null }),
       supabase.from('photo').select('*').eq('request_id', id!),
     ])
+
+    // Doktor yanıtı özeti: kaç doktora gitti + yanıt verenlerin ADI.
+    // RLS: assignment satış grubuna 0050 ile açıldı; doctor/app_user tenant içinde okunur.
+    const responseRows = (responses ?? []) as ResponseRow[]
+    const { data: assignmentRows } = await supabase
+      .from('assignment').select('doctor_id').eq('request_id', id!)
+    const doctorIds = Array.from(
+      new Set([...(assignmentRows ?? []).map((a: { doctor_id: string }) => a.doctor_id), ...responseRows.map((r) => r.doctor_id)]),
+    )
+    const doctorNames = new Map<string, string>()
+    if (doctorIds.length > 0) {
+      const { data: docs } = await supabase
+        .from('doctor').select('id, title, app_user_id').in('id', doctorIds)
+      const appUserIds = (docs ?? []).map((d: { app_user_id: string | null }) => d.app_user_id).filter(Boolean) as string[]
+      const { data: users } = appUserIds.length
+        ? await supabase.from('app_user').select('id, full_name').in('id', appUserIds)
+        : { data: [] }
+      const nameByUser = new Map((users ?? []).map((u: { id: string; full_name: string | null }) => [u.id, u.full_name ?? '']))
+      for (const d of docs ?? []) {
+        const doc = d as { id: string; title: string | null; app_user_id: string | null }
+        const full = doc.app_user_id ? nameByUser.get(doc.app_user_id) ?? '' : ''
+        const label = [doc.title, full].filter(Boolean).join(' ').trim()
+        if (label) doctorNames.set(doc.id, label)
+      }
+    }
+
     const allPhotos = (photoRows ?? []) as PhotoRow[]
     const activePhotoRows = allPhotos.filter((p) => p.kind === 'photo' && !p.deleted_at)
     const activeXrayRows = allPhotos.filter((p) => p.kind === 'xray' && !p.deleted_at)
@@ -163,7 +189,11 @@ export function useRequestDetail(id?: string) {
       : null
     return {
       req,
-      responses: (responses ?? []) as ResponseRow[],
+      responses: responseRows,
+      // Talep kaç doktora gitti (bekleyen sayısı = assignedCount - responses.length).
+      assignedCount: (assignmentRows ?? []).length,
+      // doctor_id → "Op. Dr. Ayşe Yılmaz" (yoksa arayüz kısaltılmış kimliğe düşer).
+      doctorNames,
       patientName: patient ? `${patient.first_name} ${patient.last_name}` : '—',
       category: (category as CatalogRef | null) ?? undefined,
       subcategory: (subcategory as CatalogRef | null) ?? null,

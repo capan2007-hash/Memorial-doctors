@@ -20,7 +20,7 @@ import { PatientInfoCard } from './PatientInfoCard'
 import { AiPanel } from '../ai/AiPanel'
 import { TranslatedText } from '../i18n-content/TranslatedText'
 import { Icon } from '../../components/ui/Icon'
-import { AlertTriangle, Check, Clock } from 'lucide-react'
+import { AlertTriangle, Check, Clock, X } from 'lucide-react'
 import { timeAgo, formatDate } from '../../lib/format'
 import { photoLifecycleInfo } from '../../domain/photoLifecycle'
 import type { SaleStatus } from '../../types/domain'
@@ -156,12 +156,17 @@ export function RequestDetail() {
       </div>
     )
   }
-  const { req, responses, patientName, category, subcategory, operationType, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
+  const { req, responses, assignedCount, doctorNames, patientName, category, subcategory, operationType, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
   const categoryName = category ? catalogName(category, i18n.language) : undefined
   const subcategoryName = subcategory ? catalogName(subcategory, i18n.language) : null
   const operationName = operationType ? catalogName(operationType, i18n.language) : null
   const siblingCount = siblingOpen.data?.length ?? 0
   const accepted = responses.filter((r) => r.decision === 'accept')
+  const rejected = responses.filter((r) => r.decision !== 'accept')
+  // Kabul edenler önce (satış için öncelikli), red edenler altta — ama HEPSİ görünür.
+  const orderedResponses = [...accepted, ...rejected]
+  // Atanan doktorlardan henüz yanıtlamayanlar (assignment RLS satış grubuna açık; 0050).
+  const waitingCount = Math.max(0, assignedCount - responses.length)
   const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
   return (
     <div className="space-y-4">
@@ -227,30 +232,72 @@ export function RequestDetail() {
         <SaleStatusCard req={req} oldestUploadedAt={oldestUploadedAt} />
         <AiPanel requestId={req.id} />
         <section className="space-y-2">
-          <h3 className="flex items-center gap-2 border-b border-line pb-2 font-display text-base text-ink-primary">
-            {t('detail.doctorOffersTitle')}
-            <span className="tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-fill/12 px-1.5 text-xs font-semibold text-brand-text">
-              {accepted.length}
+          <h3 className="flex flex-wrap items-center gap-2 border-b border-line pb-2 font-display text-base text-ink-primary">
+            {t('detail.doctorResponsesTitle')}
+            {/* Özet: kaç doktora gitti · kaç kabul · kaç red · kaç bekliyor */}
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium">
+              {accepted.length > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-2 py-0.5 text-success-text">
+                  <Icon of={Check} size={12} />
+                  {t('detail.acceptedCount', { count: accepted.length })}
+                </span>
+              )}
+              {rejected.length > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2 py-0.5 text-danger-text">
+                  <Icon of={X} size={12} />
+                  {t('detail.rejectedCount', { count: rejected.length })}
+                </span>
+              )}
+              {waitingCount > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-surface-3 px-2 py-0.5 text-ink-secondary">
+                  <Icon of={Clock} size={12} />
+                  {t('detail.waitingCount', { count: waitingCount })}
+                </span>
+              )}
             </span>
           </h3>
-          {accepted.map((r) => (
-            <Card key={r.id} hover>
-              <div className="flex items-start gap-3">
-                <Avatar name={t('detail.doctorLabel')} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-ink-secondary">
-                    {t('detail.doctorLabel')} <span className="font-mono text-ink-muted">#{r.doctor_id.slice(0, 8)}</span>
-                  </p>
-                  <TranslatedText
-                    text={r.treatment_plan}
-                    sourceLang={r.source_lang}
-                    className="mt-1.5 text-sm leading-relaxed text-ink-primary"
-                  />
+
+          {/* TÜM yanıtlar: kabul (tedavi planı) + red (gerekçe). Kabul edenler üstte. */}
+          {orderedResponses.map((r) => {
+            const isAccept = r.decision === 'accept'
+            const doctorName = doctorNames.get(r.doctor_id)
+            return (
+              <Card key={r.id} hover>
+                <div className="flex items-start gap-3">
+                  <Avatar name={doctorName ?? t('detail.doctorLabel')} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium text-ink-primary">
+                        {doctorName ?? (
+                          <>
+                            {t('detail.doctorLabel')}{' '}
+                            <span className="font-mono text-ink-muted">#{r.doctor_id.slice(0, 8)}</span>
+                          </>
+                        )}
+                      </p>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                          isAccept
+                            ? 'bg-success-bg text-success-text'
+                            : 'bg-danger-bg text-danger-text'
+                        }`}
+                      >
+                        <Icon of={isAccept ? Check : X} size={12} />
+                        {isAccept ? t('detail.decisionAccept') : t('detail.decisionReject')}
+                      </span>
+                    </div>
+                    {/* Kabul → tedavi planı; red → red gerekçesi (ikisi de çevrilir). */}
+                    <TranslatedText
+                      text={isAccept ? r.treatment_plan : r.reject_reason}
+                      sourceLang={r.source_lang}
+                      className="mt-1.5 text-sm leading-relaxed text-ink-primary"
+                    />
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-          {accepted.length === 0 && <EmptyState title={t('detail.noAcceptedDoctors')} />}
+              </Card>
+            )
+          })}
+          {orderedResponses.length === 0 && <EmptyState title={t('detail.noDoctorResponses')} />}
         </section>
       </RoleGate>
       <RoleGate allow={['agent']}>

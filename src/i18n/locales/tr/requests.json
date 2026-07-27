@@ -161,7 +161,14 @@
     "photosDeleteCountdown_other": "Fotoğraflar {{count}} gün sonra silinecek",
     "photosArchived": "Fotoğraflar arşivlendi",
     "destructionCountdown_one": "İmha: {{count}} gün kaldı",
-    "destructionCountdown_other": "İmha: {{count}} gün kaldı"
+    "destructionCountdown_other": "İmha: {{count}} gün kaldı",
+    "doctorResponsesTitle": "Doktor yanıtları",
+    "acceptedCount": "{{count}} kabul",
+    "rejectedCount": "{{count}} red",
+    "waitingCount": "{{count}} bekleniyor",
+    "decisionAccept": "Kabul",
+    "decisionReject": "Red",
+    "noDoctorResponses": "Henüz doktor yanıtı yok."
   },
   "duplicatePanel": {
     "matchCount_one": "Bu bilgilerle {{count}} olası eşleşme",

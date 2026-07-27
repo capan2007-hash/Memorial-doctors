@@ -161,7 +161,14 @@
     "photosDeleteCountdown_other": "Фото будут удалены через {{count}} дней",
     "photosArchived": "Фото были архивированы",
     "destructionCountdown_one": "Уничтожение: осталось {{count}} день",
-    "destructionCountdown_other": "Уничтожение: осталось {{count}} дней"
+    "destructionCountdown_other": "Уничтожение: осталось {{count}} дней",
+    "doctorResponsesTitle": "Ответы врачей",
+    "acceptedCount": "{{count}} принято",
+    "rejectedCount": "{{count}} отклонено",
+    "waitingCount": "{{count}} ожидается",
+    "decisionAccept": "Принято",
+    "decisionReject": "Отклонено",
+    "noDoctorResponses": "Пока нет ответов врачей."
   },
   "duplicatePanel": {
     "matchCount_one": "{{count}} возможное совпадение по этим данным",
