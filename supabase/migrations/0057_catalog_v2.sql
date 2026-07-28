@@ -1,0 +1,16 @@
+-- KATALOG v2 — 3 seviye (kategori→alt kırılım→işlem) yerine 2 seviye (kategori→alt kategori).
+-- Kullanıcı kararı: eski katalog + bağlı TEST verileri silindi; doktor yetkinlikleri
+-- yeni kategorilere otomatik eşlendi (koordinatör Doktor Yönetimi'nden ince ayar yapar).
+--
+-- Canlıya şu adımlarla uygulandı (Supabase migration geçmişi):
+--   catalog_v2_step1_cleanup_v2 — yetkinlik eşleme tablosu + eski veri temizliği
+--   catalog_v2_step2 (execute_sql) — 9 kategori + 43 alt kategori (6 dil) + yetkinlik yazımı
+--
+-- ÖNEMLİ NOTLAR (tekrar kurulumda dikkat):
+--  * ai_usage FATURALAMA kaydıdır → talep silinirken SİLİNMEZ, yalnız request_id null'lanır.
+--  * doctor.category_id NOT NULL idi (doctor_scope öncesi tasarım) → nullable yapıldı;
+--    gerçek yetkinlik kaynağı doctor_scope'tur.
+--  * Yeni kategoriler: Burun/Yüz/Vücut Estetiği, Obezite Cerrahisi, Diş Tedavileri,
+--    Erkek/Kadın Estetiği, Ortopedi, Saç Ekimi (hepsi has_subcategories = true).
+--  * operation_type seviyesi artık KULLANILMIYOR (2 seviyeli yapı).
+alter table doctor alter column category_id drop not null;
