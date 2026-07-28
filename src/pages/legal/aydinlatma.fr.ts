@@ -31,7 +31,7 @@ export const aydinlatmaFr = (id: ClinicIdentity, r: Retention): LegalDocument =>
       paragraphs: [
         'Sont traitées vos données d’identité (nom, prénom), vos données de contact (téléphone et, le cas échéant, adresse électronique) et vos données de santé (âge, poids, taille, sexe, opérations antérieures, maladies connues, médicaments pris, consommation de tabac et d’alcool).',
         'Les photographies et les radiographies que vous joignez à votre demande sont également traitées en tant que données à caractère personnel. Les informations de localisation et d’appareil (EXIF) des images téléversées sont automatiquement supprimées par le système.',
-        'Vos données de santé constituent des données à caractère personnel de nature particulière au sens de l’article 6 du KVKK et ne sont traitées que sur le fondement de votre consentement explicite.',
+        'Vos données de santé constituent des catégories particulières de données à caractère personnel au sens de l’article 6 du KVKK et ne sont traitées que sur le fondement de votre consentement explicite.',
       ],
     },
     {
@@ -47,7 +47,7 @@ export const aydinlatmaFr = (id: ClinicIdentity, r: Retention): LegalDocument =>
       heading: 'Méthode de collecte et base légale',
       paragraphs: [
         'Vos données à caractère personnel sont collectées au moyen de votre propre déclaration, via le canal de communication que vous utilisez pour contacter le personnel de notre clinique (WhatsApp, appel téléphonique ou entretien en personne à la clinique), et sont enregistrées dans notre système par notre personnel.',
-        'Vos données de santé étant des données à caractère personnel de nature particulière, la base légale de leur traitement est votre consentement explicite au sens de l’article 6/2 du KVKK. Vos données d’identité et de contact sont, quant à elles, traitées sur le fondement de l’article 5/2-c du KVKK, ces données étant directement liées à la conclusion et à l’exécution du contrat.',
+        'Vos données de santé étant des données à caractère personnel de nature particulière, la base légale de leur traitement est votre consentement explicite au sens de l’article 6, alinéa 2 du KVKK. Vos données d’identité et de contact sont, quant à elles, traitées sur le fondement de l’article 5, alinéa 2, point c du KVKK, ces données étant directement liées à la conclusion et à l’exécution du contrat.',
         'Vous pouvez retirer votre consentement explicite à tout moment. En cas de retrait, vos données ne font plus l’objet d’un traitement et sont supprimées à l’issue de la durée de conservation ; les traitements effectués avant la date du retrait n’en sont pas affectés.',
       ],
     },
@@ -75,7 +75,7 @@ export const aydinlatmaFr = (id: ClinicIdentity, r: Retention): LegalDocument =>
       heading: 'Vos droits en tant que personne concernée',
       paragraphs: [
         'Conformément à l’article 11 du KVKK, vous avez le droit : de savoir si vos données à caractère personnel font l’objet d’un traitement ; de demander des informations à ce sujet si elles ont été traitées ; de connaître la finalité du traitement et de savoir si les données sont utilisées conformément à cette finalité ; de connaître les tiers, en Turquie ou à l’étranger, auxquels elles ont été transférées ; d’en demander la rectification si elles ont été traitées de manière incomplète ou inexacte ; d’en demander l’effacement ou la destruction ; de demander que les opérations de rectification et d’effacement soient notifiées aux tiers auxquels les données ont été transférées ; de vous opposer à un résultat défavorable à votre égard découlant de l’analyse des données traitées exclusivement par des systèmes automatisés ; et de demander réparation du préjudice si vous subissez un dommage du fait d’un traitement illicite.',
-        `Vous pouvez exercer ces droits en adressant vos demandes à ${id.email}. Votre demande sera traitée dans un délai maximal de trente jours.`,
+        `Vous pouvez exercer ces droits en adressant vos demandes à ${id.email}. Votre demande sera finalisée dans un délai maximal de trente jours.`,
       ],
     },
   ],

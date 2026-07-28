@@ -38,7 +38,7 @@ export const aydinlatmaDe = (id: ClinicIdentity, r: Retention): LegalDocument =>
       id: 'purpose',
       heading: 'Zwecke der Verarbeitung',
       paragraphs: [
-        'Ihre Daten werden zu folgenden Zwecken verarbeitet: Weiterleitung Ihrer Anfrage an Ärzte des zuständigen Fachgebiets, Durchführung einer Vorbeurteilung durch den Arzt, Vorlage geeigneter Behandlungsoptionen und eines Preisangebots sowie Abwicklung der Kommunikation zwischen Klinik und Patient.',
+        'Ihre Daten werden zu folgenden Zwecken verarbeitet: Weiterleitung Ihrer Anfrage an Ärzte des geeigneten Fachgebiets, Durchführung einer Vorbeurteilung durch den Arzt, Vorlage geeigneter Behandlungsoptionen und eines Preisangebots sowie Abwicklung der Kommunikation zwischen Klinik und Patient.',
         'Ihre Daten werden nicht zu Marketing-, Werbe- oder Profiling-Zwecken verwendet; Werbe- und Tracking-Technologien Dritter werden nicht eingesetzt.',
       ],
     },
@@ -74,8 +74,8 @@ export const aydinlatmaDe = (id: ClinicIdentity, r: Retention): LegalDocument =>
       id: 'rights',
       heading: 'Ihre Rechte als betroffene Person',
       paragraphs: [
-        'Gemäß Artikel 11 KVKK haben Sie das Recht, zu erfahren, ob Ihre personenbezogenen Daten verarbeitet werden; Auskunft darüber zu verlangen, wenn sie verarbeitet wurden; den Zweck der Verarbeitung zu erfahren und zu wissen, ob die Daten zweckentsprechend verwendet werden; die Dritten im Inland oder im Ausland zu kennen, an die die Daten übermittelt wurden; die Berichtigung zu verlangen, wenn die Daten unvollständig oder unrichtig verarbeitet wurden; die Löschung oder Vernichtung zu verlangen; zu verlangen, dass die Berichtigungs- und Löschungsvorgänge den Dritten mitgeteilt werden, an die die Daten übermittelt wurden; einem für Sie nachteiligen Ergebnis zu widersprechen, das ausschließlich durch die automatisierte Analyse der verarbeiteten Daten entsteht; und Ersatz des Schadens zu verlangen, wenn Ihnen durch eine rechtswidrige Verarbeitung ein Schaden entstanden ist.',
-        `Sie können Ihre Anträge an ${id.email} richten. Ihr Antrag wird spätestens innerhalb von dreißig Tagen abgeschlossen.`,
+        'Gemäß Artikel 11 KVKK haben Sie das Recht, zu erfahren, ob Ihre personenbezogenen Daten verarbeitet werden; Auskunft darüber zu verlangen, wenn sie verarbeitet wurden; den Zweck der Verarbeitung zu erfahren und zu wissen, ob die Daten zweckentsprechend verwendet werden; die Dritten in der Türkei oder im Ausland zu kennen, an die die Daten übermittelt wurden; die Berichtigung zu verlangen, wenn die Daten unvollständig oder unrichtig verarbeitet wurden; die Löschung oder Vernichtung zu verlangen; zu verlangen, dass die Berichtigungs- und Löschungsvorgänge den Dritten mitgeteilt werden, an die die Daten übermittelt wurden; einem für Sie nachteiligen Ergebnis zu widersprechen, das ausschließlich durch die automatisierte Analyse der verarbeiteten Daten entsteht; und Ersatz des Schadens zu verlangen, wenn Ihnen durch eine rechtswidrige Verarbeitung ein Schaden entstanden ist.',
+        `Sie können diese Rechte ausüben, indem Sie Ihre Anträge an ${id.email} richten. Ihr Antrag wird spätestens innerhalb von dreißig Tagen abgeschlossen.`,
       ],
     },
   ],

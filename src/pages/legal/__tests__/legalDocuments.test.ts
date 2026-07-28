@@ -90,4 +90,10 @@ describe('altı dil paritesi', () => {
     const all = doc.sections.flatMap((s) => [s.heading, ...s.paragraphs]).join(' ')
     expect(all).not.toMatch(/[[\]]/)
   })
+
+  it.each(docs)('%s: yön kontrol karakteri içermez', (_lang, doc) => {
+    const all = [doc.title, doc.subtitle, doc.draftWarning, doc.shareMessage,
+      ...doc.sections.flatMap((s) => [s.heading, ...s.paragraphs])].join(' ')
+    expect(all).not.toMatch(/[‎‏؜‪-‮⁦-⁩]/)
+  })
 })
