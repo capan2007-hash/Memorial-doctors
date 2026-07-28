@@ -106,6 +106,14 @@
       "consentRequired": "Cette fonction envoie les données du patient à l'IA. Cochez la case de consentement ci-dessous pour l'utiliser.",
       "done": "Champs remplis — veuillez vérifier.",
       "failed": "Échec du remplissage : {{message}}"
+    },
+    "routing": {
+      "title": "Acheminement",
+      "allDoctors": "Tous les médecins éligibles",
+      "selectDoctors": "Choisir des médecins",
+      "allHint": "La demande sera envoyée à {{count}} médecins actifs qualifiés pour cette intervention.",
+      "loading": "Chargement des médecins…",
+      "noEligible": "Aucun médecin actif n'est qualifié pour cette intervention."
     }
   },
   "patientInfo": {

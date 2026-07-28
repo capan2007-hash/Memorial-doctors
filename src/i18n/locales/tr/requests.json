@@ -106,6 +106,14 @@
       "consentRequired": "Bu özellik hasta bilgisini yapay zekâya gönderir. Kullanmak için aşağıdaki onam kutusunu işaretleyin.",
       "done": "Alanlar dolduruldu — lütfen kontrol edin.",
       "failed": "Doldurulamadı: {{message}}"
+    },
+    "routing": {
+      "title": "Yönlendirme",
+      "allDoctors": "Tüm uygun doktorlar",
+      "selectDoctors": "Doktor seç",
+      "allHint": "Talep, bu işleme yetkin {{count}} aktif doktora gönderilecek.",
+      "loading": "Doktorlar yükleniyor…",
+      "noEligible": "Bu işlem için yetkin aktif doktor yok."
     }
   },
   "patientInfo": {

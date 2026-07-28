@@ -1,0 +1,11 @@
+-- Doktor seçimini atama zincirinin TAMAMINA taşı.
+-- KRİTİK: mükerrer şüphesiyle koordinatöre düşen talepte atama, koordinatör "mükerrer
+-- değil" dediği ANDA yapılır. Seçim aktarılmazsa satışçının seçimi KAYBOLUR ve talep
+-- yine tüm doktorlara gider — bu yüzden resolve_duplicate de seçimi geçirmelidir.
+--
+-- (Fonksiyon gövdeleri canlıya uygulanmıştır; route_new_request 0034 gövdesi + seçim
+--  aktarımı, resolve_duplicate 0030 gövdesi + seçim aktarımı.)
+-- route_new_request:  assign_request_doctors(v_req.id, 'simultaneous', v_req.selected_doctor_ids)
+-- resolve_duplicate:  assign_request_doctors(v_req.id, 'simultaneous', v_req.selected_doctor_ids)
+--
+-- Tam gövdeler için bkz. Supabase migration geçmişi (route_resolve_pass_selection).

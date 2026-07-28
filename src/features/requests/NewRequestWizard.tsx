@@ -16,6 +16,7 @@ import { Button } from '../../components/ui/Button'
 import { shouldShowAiPreview } from './aiPreview'
 import { AiPreviewScreen } from './AiPreviewScreen'
 import { useExtractRequest, type ExtractedRequest } from './useExtractRequest'
+import { useEligibleDoctors } from './useEligibleDoctors'
 import { Card } from '../../components/ui/Card'
 import { Field } from '../../components/ui/Field'
 import { Input } from '@/components/shadcn/input'
@@ -115,6 +116,9 @@ export function NewRequestWizard() {
   const [notes, setNotes] = useState(initialDraft?.notes ?? ''); const [files, setFiles] = useState<File[]>(initialDraft?.files ?? [])
   const [xrayFiles, setXrayFiles] = useState<File[]>(initialDraft?.xrayFiles ?? [])
   const [consentGiven, setConsentGiven] = useState(false)
+  // Yönlendirme: 'all' = tüm uygun doktorlar (varsayılan), 'selected' = seçilenler
+  const [routingMode, setRoutingMode] = useState<'all' | 'selected'>('all')
+  const [selectedDoctorIds, setSelectedDoctorIds] = useState<string[]>([])
   const [warn, setWarn] = useState<string | null>(null)
   const [matches, setMatches] = useState<MatchRow[]>([])
   const [selectedPatient, setSelectedPatient] = useState<MatchRow | null>(null)
@@ -178,6 +182,8 @@ export function NewRequestWizard() {
   const selectedCat = cats.data?.find((c) => c.id === categoryId)
   const needsSub = selectedCat?.has_subcategories
   const isDental = selectedCat?.name === 'Diş Tedavisi'
+  // Uygun doktorlar: sunucudaki scope kuralıyla aynı (alt-kırılım gerekliyse ona göre).
+  const eligible = useEligibleDoctors(categoryId || undefined, needsSub ? subcategoryId : null)
 
   const ageNum = Number(age); const weightNum = Number(weightKg); const heightNum = Number(heightCm)
   const medicalValid = (m: MedicalField) => m.none || !!m.text.trim()
@@ -193,7 +199,9 @@ export function NewRequestWizard() {
 
   const canSubmit = !!first && !!last && phoneOk && ageOk && weightOk && heightOk && !!gender &&
     !!categoryId && (!needsSub || !!subcategoryId) &&
-    medicalOk && lifestyleOk && files.length > 0
+    medicalOk && lifestyleOk && files.length > 0 &&
+    // Doktor seçimi modundaysa en az bir doktor seçilmiş olmalı (yoksa talep kimseye gitmez).
+    (routingMode === 'all' || selectedDoctorIds.length > 0)
 
   const missing = missingFields({
     first, last, phoneOk, ageOk, weightOk, heightOk, gender,
@@ -269,6 +277,7 @@ export function NewRequestWizard() {
         smokingYears: smokingStatus === 'current' || smokingStatus === 'former' ? Number(smokingYears) : null,
         alcoholStatus: (alcoholStatus || null) as AlcoholStatus | null,
         alcoholDrinksPerWeek: alcoholStatus === 'regular' ? Number(alcoholDrinks) : null,
+        selectedDoctorIds: routingMode === 'selected' ? selectedDoctorIds : null,
         categoryId, subcategoryId: needsSub ? subcategoryId : null,
         operationTypeId, notes, files,
         xrayFiles: isDental ? xrayFiles : undefined,
@@ -472,6 +481,75 @@ export function NewRequestWizard() {
           )}
         </div>
       </Card>
+
+      {/* Yönlendirme: tüm uygun doktorlara mı, seçilenlere mi? Sunucu (assign_request_doctors)
+          aynı scope filtresini yeniden uygular → seçim yalnız DARALTIR, yetki açmaz. */}
+      {categoryId && (
+        <Card title={t('newRequest.routing.title')}>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {(['all', 'selected'] as const).map((mode) => {
+                const active = routingMode === mode
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setRoutingMode(mode)}
+                    className={`rounded-control border px-3 py-2 text-sm font-medium transition ${
+                      active
+                        ? 'border-brand-fill bg-brand-fill/10 text-brand-text'
+                        : 'border-line bg-surface-1 text-ink-secondary hover:border-line-strong'
+                    }`}
+                  >
+                    {mode === 'all' ? t('newRequest.routing.allDoctors') : t('newRequest.routing.selectDoctors')}
+                  </button>
+                )
+              })}
+            </div>
+
+            {routingMode === 'all' && (
+              <p className="text-sm text-ink-muted">
+                {t('newRequest.routing.allHint', { count: eligible.data?.length ?? 0 })}
+              </p>
+            )}
+
+            {routingMode === 'selected' && (
+              eligible.isLoading ? (
+                <p className="text-sm text-ink-muted">{t('newRequest.routing.loading')}</p>
+              ) : (eligible.data?.length ?? 0) === 0 ? (
+                <p className="text-sm text-warning-text">{t('newRequest.routing.noEligible')}</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {eligible.data!.map((d) => {
+                    const on = selectedDoctorIds.includes(d.id)
+                    return (
+                      <button
+                        key={d.id}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() =>
+                          setSelectedDoctorIds((prev) =>
+                            prev.includes(d.id) ? prev.filter((x) => x !== d.id) : [...prev, d.id],
+                          )
+                        }
+                        className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                          on
+                            ? 'border-brand-fill bg-brand-fill text-white'
+                            : 'border-line bg-surface-1 text-ink-secondary hover:border-line-strong'
+                        }`}
+                      >
+                        {d.name}
+                        {d.specialty && <span className="ms-1 opacity-70">· {d.specialty}</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              )
+            )}
+          </div>
+        </Card>
+      )}
 
       <Card title={t('newRequest.medicalHistoryTitle')}>
         <div className="space-y-5">

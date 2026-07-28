@@ -106,6 +106,14 @@
       "consentRequired": "This feature sends patient information to AI. Tick the consent box below to use it.",
       "done": "Fields filled — please review.",
       "failed": "Could not fill: {{message}}"
+    },
+    "routing": {
+      "title": "Routing",
+      "allDoctors": "All eligible doctors",
+      "selectDoctors": "Choose doctors",
+      "allHint": "The request will be sent to {{count}} active doctors qualified for this procedure.",
+      "loading": "Loading doctors…",
+      "noEligible": "No active doctor is qualified for this procedure."
     }
   },
   "patientInfo": {

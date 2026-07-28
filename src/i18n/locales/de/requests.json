@@ -106,6 +106,14 @@
       "consentRequired": "Diese Funktion sendet Patientendaten an die KI. Bitte kreuzen Sie unten das Einwilligungsfeld an.",
       "done": "Felder ausgefüllt — bitte prüfen.",
       "failed": "Ausfüllen fehlgeschlagen: {{message}}"
+    },
+    "routing": {
+      "title": "Weiterleitung",
+      "allDoctors": "Alle geeigneten Ärzte",
+      "selectDoctors": "Ärzte auswählen",
+      "allHint": "Die Anfrage geht an {{count}} aktive Ärzte mit passender Qualifikation.",
+      "loading": "Ärzte werden geladen…",
+      "noEligible": "Kein aktiver Arzt ist für diesen Eingriff qualifiziert."
     }
   },
   "patientInfo": {

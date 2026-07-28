@@ -29,6 +29,8 @@ interface NewRequestInput {
   subcategoryId: string | null
   operationTypeId: string | null
   notes?: string
+  /** Yönlendirme seçimi: null = tüm uygun doktorlar; dizi = yalnız seçilen doktorlar. */
+  selectedDoctorIds?: string[] | null
   files: File[]
   xrayFiles?: File[]
   /** P1: satışçı WhatsApp'ta onam aldığını beyan ederse true — AI ön değerlendirmesi yalnız bu durumda çalışır. */
@@ -71,6 +73,9 @@ export function useCreateRequest() {
         alcohol_status: input.alcoholStatus ?? null,
         alcohol_drinks_per_week: input.alcoholDrinksPerWeek ?? null,
         photos_required: input.photosRequired ?? false,
+        // Seçim KALICI: mükerrer akışında koordinatör onayı sonrası atama yapılırken de
+        // aynı seçim kullanılır (bkz. resolve_duplicate / migration 0056).
+        selected_doctor_ids: input.selectedDoctorIds ?? null,
         status: 'submitted', submitted_at: new Date().toISOString(),
         source_lang: input.sourceLang,
         ...consent,
