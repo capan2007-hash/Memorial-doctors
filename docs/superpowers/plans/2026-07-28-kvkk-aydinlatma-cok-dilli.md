@@ -25,6 +25,15 @@
 
 Spec §4 "altı modülün `version`'ı eşit olmalı, test bunu doğrular" diyor. Bunun yerine **tek bir `LEGAL_VERSION` sabiti** kullanılıyor ve test her dokümanın `version`'ının bu sabite eşit olduğunu doğruluyor. Eşitliği tesadüfe bırakmak yerine yapısal olarak imkânsız kılıyor — aynı amaç, daha güçlü garanti.
 
+### Ön-uçuş denetimi kararları (2026-07-28, kullanıcı onaylı)
+
+Plan yürütülmeden önce iki test kusuru düzeltildi:
+
+1. **`IDENTITY_COMPLETE` test edilebilir hale getirildi.** Sabitten türeyen sabit test edilemez (testin kendisi tautoloji olur). Artık saf fonksiyon `isIdentityComplete(id: ClinicIdentity): boolean` var; `IDENTITY_COMPLETE` ondan türüyor. Test fixture'larla gerçek davranışı sınıyor.
+2. **`resolveLang` `LEGAL_DOCUMENTS` anahtarlarına bakıyor** (`SUPPORTED`'a değil). Böylece Task 2'de yalnız `tr` haritalıyken fallback testi gerçek bir davranışı sınar; Task 3 haritayı doldurdukça kapsam kendiliğinden genişler.
+
+Üçüncü bulgu **kabul edildi, düzeltilmedi:** Task 3'te beş dilin tam metni plana kopyalanmıyor (~6.000 kelime). Bu bilinçli bir sınırdır, eksik plan değildir — yapı, 7 maddelik çeviri sözleşmesi, çalışan bir örnek ve 9 parite testi teslimi denetler.
+
 ### Bekleyen girdi (kullanıcıdan)
 
 `CLINIC_IDENTITY` boş başlar; ticaret unvanı, adres ve başvuru e-postası gelene kadar sayfa TASLAK modunda kalır. **Bu plan bu veriler olmadan sonuna kadar uygulanabilir.**
@@ -36,7 +45,7 @@ Spec §4 "altı modülün `version`'ı eşit olmalı, test bunu doğrular" diyor
 | Dosya | Sorumluluk |
 |---|---|
 | `src/pages/legal/types.ts` | `LegalDocument`/`LegalSection`/`SectionId` tipleri, `SECTION_IDS`, `LEGAL_VERSION` |
-| `src/pages/legal/clinicIdentity.ts` | `ClinicIdentity` tipi, `CLINIC_IDENTITY` sabiti, `IDENTITY_COMPLETE` |
+| `src/pages/legal/clinicIdentity.ts` | `ClinicIdentity` tipi, `isIdentityComplete()`, `CLINIC_IDENTITY` sabiti, `IDENTITY_COMPLETE` |
 | `src/pages/legal/retention.ts` | `Retention` tipi, `RETENTION` sabiti (60/30) |
 | `src/pages/legal/aydinlatma.<lang>.ts` | Altı içerik modülü — dokümanın o dildeki tam metni |
 | `src/pages/legal/index.ts` | `LEGAL_DOCUMENTS` haritası, `getLegalDocument(lang)`, `buildShareText(lang, origin)` |
@@ -56,7 +65,9 @@ Spec §4 "altı modülün `version`'ı eşit olmalı, test bunu doğrular" diyor
 
 **Interfaces:**
 - Consumes: hiçbir şey (ilk task).
-- Produces: `SECTION_IDS`, `SectionId`, `LegalSection`, `LegalDocument`, `LEGAL_VERSION`, `ClinicIdentity`, `CLINIC_IDENTITY`, `IDENTITY_COMPLETE`, `Retention`, `RETENTION`.
+- Produces: `SECTION_IDS`, `SectionId`, `LegalSection`, `LegalDocument`, `LEGAL_VERSION`, `ClinicIdentity`, `isIdentityComplete`, `CLINIC_IDENTITY`, `IDENTITY_COMPLETE`, `Retention`, `RETENTION`.
+
+Sıra TDD'dir: tipler ve sabitler (Step 1-2) → başarısız test (Step 3-4) → `isIdentityComplete` implementasyonu (Step 5) → yeşil (Step 6). Step 1-2 saf tip/sabit tanımı olduğu için testten önce gelir; test edilecek davranış `isIdentityComplete`'te.
 
 - [ ] **Step 1: `types.ts` yaz**
 
@@ -102,7 +113,91 @@ export type LegalDocument = {
 export const LEGAL_VERSION = '2026-07-28'
 ```
 
-- [ ] **Step 2: `clinicIdentity.ts` yaz**
+- [ ] **Step 2: `retention.ts` yaz**
+
+```ts
+export type Retention = {
+  /** Fotoğrafların azami saklama süresi (gün). */
+  photoDays: number
+  /** Ameliyat tarihinden sonraki ek saklama tamponu (gün). */
+  opBufferDays: number
+}
+
+/**
+ * Kaynak: tenant.photo_retention_days (60) ve tenant.photo_op_buffer_days (30)
+ * varsayılanları — supabase/migrations/0016_photo_lifecycle.sql.
+ *
+ * Public aydınlatma sayfası oturumsuz olduğu için tenant satırı okunamaz;
+ * tek-klinik kararıyla sabit tutuluyor. tenant varsayılanları değişirse
+ * retention.test.ts kırılır ve HUKUKİ METNİN de güncellenmesi gerektiğini
+ * hatırlatır.
+ */
+export const RETENTION: Retention = {
+  photoDays: 60,
+  opBufferDays: 30,
+}
+```
+
+- [ ] **Step 3: Başarısız testi yaz**
+
+`src/pages/legal/__tests__/retention.test.ts`:
+
+```ts
+import { describe, it, expect } from 'vitest'
+import { RETENTION } from '../retention'
+import { isIdentityComplete, type ClinicIdentity } from '../clinicIdentity'
+
+const FULL: ClinicIdentity = {
+  legalName: 'Örnek Sağlık Hizmetleri A.Ş.',
+  address: 'Örnek Mah. Örnek Cad. No:1, İstanbul',
+  email: 'kvkk@ornek.com',
+  phone: '',
+  verbis: '',
+}
+
+describe('RETENTION', () => {
+  it('tenant varsayılanlarıyla eşleşir (0016_photo_lifecycle.sql)', () => {
+    // Bu test kırıldıysa: tenant.photo_retention_days / photo_op_buffer_days
+    // değişmiş olabilir. Sabiti güncellemekle YETMEZ — aydınlatma metnindeki
+    // saklama süresi cümlesi de gözden geçirilmeli.
+    expect(RETENTION.photoDays).toBe(60)
+    expect(RETENTION.opBufferDays).toBe(30)
+  })
+})
+
+describe('isIdentityComplete', () => {
+  it('zorunlu üç alan doluysa true (telefon/VERBİS opsiyonel)', () => {
+    expect(isIdentityComplete(FULL)).toBe(true)
+  })
+
+  it('unvan boşsa false', () => {
+    expect(isIdentityComplete({ ...FULL, legalName: '' })).toBe(false)
+  })
+
+  it('adres boşsa false', () => {
+    expect(isIdentityComplete({ ...FULL, address: '' })).toBe(false)
+  })
+
+  it('e-posta boşsa false', () => {
+    expect(isIdentityComplete({ ...FULL, email: '' })).toBe(false)
+  })
+
+  it('yalnız boşluk karakteri dolu sayılmaz', () => {
+    expect(isIdentityComplete({ ...FULL, address: '   ' })).toBe(false)
+  })
+
+  it('üç alan da boşsa false (üretimdeki başlangıç durumu)', () => {
+    expect(isIdentityComplete({ legalName: '', address: '', email: '', phone: '', verbis: '' })).toBe(false)
+  })
+})
+```
+
+- [ ] **Step 4: Testin başarısız olduğunu doğrula**
+
+Run: `npx vitest run src/pages/legal/__tests__/retention.test.ts`
+Expected: FAIL — `Failed to resolve import "../clinicIdentity"`.
+
+- [ ] **Step 5: `clinicIdentity.ts` yaz**
 
 ```ts
 export type ClinicIdentity = {
@@ -132,79 +227,32 @@ export const CLINIC_IDENTITY: ClinicIdentity = {
 }
 
 /**
- * Zorunlu üç kimlik alanı dolu mu? false ise sayfa TASLAK bannerı gösterir.
- * Banner ELLE kaldırılmaz — bu bayrak düşünce kendisi kaybolur.
+ * Zorunlu üç kimlik alanı (unvan, adres, e-posta) dolu mu? Telefon ve VERBİS
+ * opsiyoneldir. Saf fonksiyon — sabitten değil parametreden hesaplar, böylece
+ * fixture'larla gerçekten test edilebilir.
  */
-export const IDENTITY_COMPLETE = Boolean(
-  CLINIC_IDENTITY.legalName.trim() && CLINIC_IDENTITY.address.trim() && CLINIC_IDENTITY.email.trim(),
-)
-```
-
-- [ ] **Step 3: `retention.ts` yaz**
-
-```ts
-export type Retention = {
-  /** Fotoğrafların azami saklama süresi (gün). */
-  photoDays: number
-  /** Ameliyat tarihinden sonraki ek saklama tamponu (gün). */
-  opBufferDays: number
+export function isIdentityComplete(id: ClinicIdentity): boolean {
+  return Boolean(id.legalName.trim() && id.address.trim() && id.email.trim())
 }
 
 /**
- * Kaynak: tenant.photo_retention_days (60) ve tenant.photo_op_buffer_days (30)
- * varsayılanları — supabase/migrations/0016_photo_lifecycle.sql.
- *
- * Public aydınlatma sayfası oturumsuz olduğu için tenant satırı okunamaz;
- * tek-klinik kararıyla sabit tutuluyor. tenant varsayılanları değişirse
- * retention.test.ts kırılır ve HUKUKİ METNİN de güncellenmesi gerektiğini
- * hatırlatır.
+ * Üretimdeki kimliğin durumu. false ise sayfa TASLAK bannerı gösterir.
+ * Banner ELLE kaldırılmaz — bu bayrak düşünce kendisi kaybolur.
  */
-export const RETENTION: Retention = {
-  photoDays: 60,
-  opBufferDays: 30,
-}
+export const IDENTITY_COMPLETE = isIdentityComplete(CLINIC_IDENTITY)
 ```
 
-- [ ] **Step 4: Başarısız testi yaz**
+- [ ] **Step 6: Testin geçtiğini doğrula**
 
-`src/pages/legal/__tests__/retention.test.ts`:
+Run: `npx vitest run src/pages/legal/__tests__/retention.test.ts`
+Expected: PASS (7 test — 1 RETENTION + 6 isIdentityComplete).
 
-```ts
-import { describe, it, expect } from 'vitest'
-import { RETENTION } from '../retention'
-import { CLINIC_IDENTITY, IDENTITY_COMPLETE } from '../clinicIdentity'
-
-describe('RETENTION', () => {
-  it('tenant varsayılanlarıyla eşleşir (0016_photo_lifecycle.sql)', () => {
-    // Bu test kırıldıysa: tenant.photo_retention_days / photo_op_buffer_days
-    // değişmiş olabilir. Sabiti güncellemekle YETMEZ — aydınlatma metnindeki
-    // saklama süresi cümlesi de gözden geçirilmeli.
-    expect(RETENTION.photoDays).toBe(60)
-    expect(RETENTION.opBufferDays).toBe(30)
-  })
-})
-
-describe('IDENTITY_COMPLETE', () => {
-  it('zorunlu üç alan doluysa true, biri boşsa false', () => {
-    const expected = Boolean(
-      CLINIC_IDENTITY.legalName.trim() && CLINIC_IDENTITY.address.trim() && CLINIC_IDENTITY.email.trim(),
-    )
-    expect(IDENTITY_COMPLETE).toBe(expected)
-  })
-})
-```
-
-- [ ] **Step 5: Testi çalıştır**
-
-Run: `npx vitest run src/pages/legal`
-Expected: PASS (2 test). Dosyalar Step 1-3'te yazıldığı için doğrudan geçer — bu task saf veri tanımı, kırmızı-yeşil döngüsü Task 2'de başlar.
-
-- [ ] **Step 6: Tip kontrolü**
+- [ ] **Step 7: Tip kontrolü**
 
 Run: `npx tsc -b --noEmit`
 Expected: çıktı yok, exit 0.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add src/pages/legal
@@ -242,12 +290,22 @@ describe('getLegalDocument', () => {
     expect(doc.sections.map((s) => s.id)).toEqual([...SECTION_IDS])
   })
 
-  it('desteklenmeyen dilde tr fallback', () => {
+  it('bilinmeyen dil kodunda tr fallback', () => {
     expect(getLegalDocument('xx').title).toBe(getLegalDocument('tr').title)
+  })
+
+  it('metni henüz yazılmamış dilde tr fallback (bu task: ar)', () => {
+    // Task 3 Arapça metni ekleyince bu beklenti DEĞİŞİR — o task testi günceller.
+    expect(getLegalDocument('ar').title).toBe(getLegalDocument('tr').title)
   })
 
   it('bölge kodlu dili taban dile indirir (tr-TR → tr)', () => {
     expect(getLegalDocument('tr-TR').title).toBe(getLegalDocument('tr').title)
+  })
+
+  it('boş/null dilde tr fallback', () => {
+    expect(getLegalDocument(null).title).toBe(getLegalDocument('tr').title)
+    expect(getLegalDocument('').title).toBe(getLegalDocument('tr').title)
   })
 })
 
@@ -354,7 +412,7 @@ export const aydinlatmaTr = (id: ClinicIdentity, r: Retention): LegalDocument =>
 - [ ] **Step 4: `index.ts` yaz**
 
 ```ts
-import { SUPPORTED, type Lang } from '../../i18n'
+import type { Lang } from '../../i18n'
 import { CLINIC_IDENTITY } from './clinicIdentity'
 import { RETENTION } from './retention'
 import type { ClinicIdentity } from './clinicIdentity'
@@ -364,26 +422,28 @@ import { aydinlatmaTr } from './aydinlatma.tr'
 
 export type LegalDocumentFactory = (id: ClinicIdentity, r: Retention) => LegalDocument
 
-/** Diğer beş dil Task 3'te eklenir. */
-export const LEGAL_DOCUMENTS: Record<Lang, LegalDocumentFactory> = {
+/**
+ * Metni HAZIR olan diller. Task 3 kalan beş dili ekler.
+ *
+ * resolveLang bu haritanın anahtarlarına bakar (SUPPORTED'a DEĞİL): arayüzde
+ * desteklenen ama hukuki metni henüz yazılmamış bir dil, sessizce yarım metin
+ * göstermek yerine Türkçeye düşer.
+ */
+export const LEGAL_DOCUMENTS: Partial<Record<Lang, LegalDocumentFactory>> = {
   tr: aydinlatmaTr,
-  ar: aydinlatmaTr,
-  en: aydinlatmaTr,
-  ru: aydinlatmaTr,
-  de: aydinlatmaTr,
-  fr: aydinlatmaTr,
 }
 
 const FALLBACK: Lang = 'tr'
 
-/** 'tr-TR' → 'tr'; desteklenmeyen değer → FALLBACK. */
+/** 'tr-TR' → 'tr'; metni olmayan veya bilinmeyen dil → FALLBACK. */
 export function resolveLang(lang: string | undefined | null): Lang {
   const base = (lang ?? '').split('-')[0].toLowerCase()
-  return (SUPPORTED as readonly string[]).includes(base) ? (base as Lang) : FALLBACK
+  return base in LEGAL_DOCUMENTS ? (base as Lang) : FALLBACK
 }
 
 export function getLegalDocument(lang: string | undefined | null): LegalDocument {
-  return LEGAL_DOCUMENTS[resolveLang(lang)](CLINIC_IDENTITY, RETENTION)
+  const factory = LEGAL_DOCUMENTS[resolveLang(lang)] ?? aydinlatmaTr
+  return factory(CLINIC_IDENTITY, RETENTION)
 }
 
 /** Paylaşım metni: şablonun {{link}} yer tutucusuna ?lang= linki konur. */
@@ -394,7 +454,7 @@ export function buildShareText(lang: string, origin: string): string {
 }
 ```
 
-> Task 3'e kadar altı dil aynı Türkçe fabrikaya işaret ediyor. Bu bilinçli bir ara adım: `getLegalDocument`/`buildShareText` sözleşmesi Task 3'ten bağımsız olarak test edilebilir hale geliyor.
+> Task 2'de haritada yalnız `tr` var; bu yüzden fallback testi gerçek bir davranışı sınıyor (`ar` → `tr`, çünkü Arapça metin henüz yok). Task 3 haritayı doldurdukça kapsam kendiliğinden genişler ve aynı test o zaman yalnız geçersiz kodlar için fallback bekler.
 
 - [ ] **Step 5: Testin geçtiğini doğrula**
 
@@ -552,9 +612,12 @@ Kalan dört dil (`ar`, `ru`, `de`, `fr`) aynı iskeleti kendi dillerinde dolduru
 
 > **Not (plan sınırı):** Yedi bölümün tam metni beş dilde yaklaşık 6.000 kelime tutuyor ve bu planın içine kopyalanması dokümanı okunamaz hale getirir. Yapıyı, sözleşmeyi ve çalışan bir örneği veriyorum; çeviri metninin kendisi bu task'ın teslimidir ve §Step 1'deki dokuz parite testi ile Task 7'deki gözden geçirme onu denetler. Türkçe metin (Task 2) tek kaynaktır.
 
-- [ ] **Step 4: `index.ts` haritasını gerçek modüllere bağla**
+- [ ] **Step 4: `index.ts` haritasını tamamla**
+
+Altı dil de hazır olduğu için harita artık `Partial` değil **tam** `Record`; `getLegalDocument` içindeki `?? aydinlatmaTr` emniyet supabı da gereksizleşir ve **kaldırılır** (ölü kod bırakılmaz).
 
 ```ts
+import type { Lang } from '../../i18n'
 import { aydinlatmaTr } from './aydinlatma.tr'
 import { aydinlatmaEn } from './aydinlatma.en'
 import { aydinlatmaAr } from './aydinlatma.ar'
@@ -562,6 +625,7 @@ import { aydinlatmaRu } from './aydinlatma.ru'
 import { aydinlatmaDe } from './aydinlatma.de'
 import { aydinlatmaFr } from './aydinlatma.fr'
 
+/** Altı dilin tamamının metni hazır. */
 export const LEGAL_DOCUMENTS: Record<Lang, LegalDocumentFactory> = {
   tr: aydinlatmaTr,
   ar: aydinlatmaAr,
@@ -570,9 +634,39 @@ export const LEGAL_DOCUMENTS: Record<Lang, LegalDocumentFactory> = {
   de: aydinlatmaDe,
   fr: aydinlatmaFr,
 }
+
+const FALLBACK: Lang = 'tr'
+
+/** 'tr-TR' → 'tr'; bilinmeyen dil → FALLBACK. */
+export function resolveLang(lang: string | undefined | null): Lang {
+  const base = (lang ?? '').split('-')[0].toLowerCase()
+  return base in LEGAL_DOCUMENTS ? (base as Lang) : FALLBACK
+}
+
+export function getLegalDocument(lang: string | undefined | null): LegalDocument {
+  return LEGAL_DOCUMENTS[resolveLang(lang)](CLINIC_IDENTITY, RETENTION)
+}
 ```
 
-Task 2'deki "Task 3'te eklenir" yorumunu sil.
+Task 2'deki "Task 3 kalan beş dili ekler" yorumunu güncelle.
+
+- [ ] **Step 4b: Task 2'nin artık geçersiz olan fallback beklentisini güncelle**
+
+Task 2, Arapça metni olmadığı için `getLegalDocument('ar')`'ın Türkçeye düştüğünü test ediyordu. Arapça metin artık var — o test **yanlış** hale geldi. `legalDocuments.test.ts` içindeki şu testi sil:
+
+```ts
+  it('metni henüz yazılmamış dilde tr fallback (bu task: ar)', () => { ... })
+```
+
+Yerine Arapça'nın artık kendi metnini döndürdüğünü doğrula:
+
+```ts
+  it('ar artık kendi metnini döner (tr fallback DEĞİL)', () => {
+    expect(getLegalDocument('ar').title).not.toBe(getLegalDocument('tr').title)
+  })
+```
+
+`'xx'`, `null`, `''` ve `'tr-TR'` testleri **olduğu gibi kalır** — onlar hâlâ geçerli.
 
 - [ ] **Step 5: Testlerin geçtiğini doğrula**
 
