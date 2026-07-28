@@ -20,7 +20,11 @@
     "reassignClosedError": "Une demande clôturée ne peut pas être réassignée",
     "reassignSuccess": "Demande réassignée",
     "reassignNoDoctors": "Aucun médecin éligible pour cette catégorie",
-    "reassignFailed": "La demande n'a pas pu être réassignée"
+    "reassignFailed": "La demande n'a pas pu être réassignée",
+    "reassignPick": "Choisir des médecins",
+    "reassignLoading": "Chargement des médecins…",
+    "reassignNoEligible": "Aucun médecin actif éligible.",
+    "reassignSelected": "Assigner à {{count}} sélectionné(s)"
   },
   "duplicateReview": {
     "title": "Demande en double",

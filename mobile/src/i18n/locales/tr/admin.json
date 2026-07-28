@@ -40,7 +40,11 @@
       "failedTitle": "Atanamadı",
       "closedCannotReassign": "Kapanmış talep yeniden atanamaz"
     },
-    "searchPlaceholder": "Ad, soyad veya telefon ara"
+    "searchPlaceholder": "Ad, soyad veya telefon ara",
+    "reassignPick": "Doktor seç",
+    "reassignLoading": "Doktorlar yükleniyor…",
+    "reassignNoEligible": "Uygun aktif doktor yok.",
+    "reassignSelected": "Seçilen {{count}} doktora ata"
   },
   "duplicates": {
     "newApplication": "Yeni başvuru",

@@ -40,7 +40,11 @@
       "failedTitle": "Could not assign",
       "closedCannotReassign": "A closed request cannot be reassigned"
     },
-    "searchPlaceholder": "Search name, surname or phone"
+    "searchPlaceholder": "Search name, surname or phone",
+    "reassignPick": "Choose doctors",
+    "reassignLoading": "Loading doctors…",
+    "reassignNoEligible": "No eligible active doctor.",
+    "reassignSelected": "Assign to {{count}} selected"
   },
   "duplicates": {
     "newApplication": "New submission",

@@ -22,6 +22,7 @@ import {
   type SlaTab,
 } from '@/features/admin/useAllRequests'
 import { matchesSearch } from '@/features/admin/searchRequests'
+import { useEligibleDoctors } from '@/features/admin/useEligibleDoctors'
 
 const TABS: SlaTab[] = ['all', 'pending', 'overdue', 'completed']
 
@@ -75,11 +76,16 @@ function RequestRow({
   item,
   reassigning,
   onReassign,
+  onPick,
+  picking,
   colors,
 }: {
   item: Row
   reassigning: boolean
   onReassign: () => void
+  /** Doktor seçerek atama panelini aç/kapat */
+  onPick: () => void
+  picking: boolean
   colors: Palette
 }) {
   const { t } = useTranslation('admin')
@@ -153,6 +159,22 @@ function RequestRow({
           </>
         )}
       </Pressable>
+
+      <Pressable
+        onPress={onPick}
+        disabled={isClosed}
+        accessibilityRole="button"
+        style={({ pressed }) => [
+          styles.reassign,
+          { borderColor: picking ? colors.brandFill : colors.border, backgroundColor: colors.surface1 },
+          isClosed && styles.disabled,
+          pressed && !isClosed && { backgroundColor: colors.surface2 },
+        ]}
+      >
+        <Text style={[styles.reassignText, { color: picking ? colors.brandText : colors.textSecondary }]}>
+          {t('requests.reassignPick')}
+        </Text>
+      </Pressable>
     </View>
   )
 }
@@ -166,6 +188,10 @@ export default function TaleplerScreen() {
   const [tab, setTab] = useState<SlaTab>('all')
   const [search, setSearch] = useState('')
   const [reassigningId, setReassigningId] = useState<string | null>(null)
+  // Doktor seçerek atama: hangi talebin paneli açık + o talepte seçilenler
+  const [pickerFor, setPickerFor] = useState<EnrichedRequestRow | null>(null)
+  const [pickedIds, setPickedIds] = useState<string[]>([])
+  const pickerEligible = useEligibleDoctors(pickerFor?.category_id, pickerFor?.subcategory_id ?? null)
 
   const slaHours = tenantSla.data?.sla_hours ?? 24
   const reminderHours = tenantSla.data?.sla_reminder_hours ?? 4
@@ -192,11 +218,29 @@ export default function TaleplerScreen() {
   const onReassign = async (item: Row) => {
     setReassigningId(item.row.id)
     try {
-      const { assigned } = await reassign.mutateAsync(item.row)
+      const { assigned } = await reassign.mutateAsync({ req: item.row, doctorIds: null })
       Alert.alert(
         assigned ? t('requests.alerts.reassignedTitle') : t('requests.alerts.noDoctorTitle'),
         assigned ? t('requests.alerts.reassignedMessage') : t('requests.alerts.noDoctorMessage'),
       )
+    } catch (e) {
+      Alert.alert(t('requests.alerts.failedTitle'), (e as Error).message)
+    } finally {
+      setReassigningId(null)
+    }
+  }
+
+  const assignPicked = async () => {
+    if (!pickerFor || pickedIds.length === 0) return
+    setReassigningId(pickerFor.id)
+    try {
+      const { assigned } = await reassign.mutateAsync({ req: pickerFor, doctorIds: pickedIds })
+      Alert.alert(
+        assigned ? t('requests.alerts.reassignedTitle') : t('requests.alerts.noDoctorTitle'),
+        assigned ? t('requests.alerts.reassignedMessage') : t('requests.alerts.noDoctorMessage'),
+      )
+      setPickerFor(null)
+      setPickedIds([])
     } catch (e) {
       Alert.alert(t('requests.alerts.failedTitle'), (e as Error).message)
     } finally {
@@ -242,12 +286,74 @@ export default function TaleplerScreen() {
           keyExtractor={(item) => item.row.id}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
-            <RequestRow
-              item={item}
-              reassigning={reassigningId === item.row.id}
-              onReassign={() => onReassign(item)}
-              colors={colors}
-            />
+            <View>
+              <RequestRow
+                item={item}
+                reassigning={reassigningId === item.row.id}
+                onReassign={() => onReassign(item)}
+                onPick={() => {
+                  setPickedIds([])
+                  setPickerFor(pickerFor?.id === item.row.id ? null : item.row)
+                }}
+                picking={pickerFor?.id === item.row.id}
+                colors={colors}
+              />
+              {pickerFor?.id === item.row.id && (
+                <View style={[styles.pickerPanel, { backgroundColor: colors.surface1, borderColor: colors.border }]}>
+                  {pickerEligible.isLoading ? (
+                    <Text style={[styles.meta, { color: colors.textMuted }]}>{t('requests.reassignLoading')}</Text>
+                  ) : (pickerEligible.data?.length ?? 0) === 0 ? (
+                    <Text style={[styles.meta, { color: roleColors(colors, 'warning').text }]}>
+                      {t('requests.reassignNoEligible')}
+                    </Text>
+                  ) : (
+                    <>
+                      <View style={styles.pickerChips}>
+                        {pickerEligible.data!.map((d) => {
+                          const on = pickedIds.includes(d.id)
+                          return (
+                            <Pressable
+                              key={d.id}
+                              onPress={() =>
+                                setPickedIds((prev) =>
+                                  prev.includes(d.id) ? prev.filter((x) => x !== d.id) : [...prev, d.id],
+                                )
+                              }
+                              accessibilityRole="button"
+                              accessibilityState={{ selected: on }}
+                              style={[
+                                styles.chip,
+                                on
+                                  ? { backgroundColor: colors.brandFill, borderColor: colors.brandFill }
+                                  : { backgroundColor: colors.surface2, borderColor: colors.border },
+                              ]}
+                            >
+                              <Text style={[styles.chipText, { color: on ? colors.brandOn : colors.textSecondary }]}>
+                                {d.name}
+                              </Text>
+                            </Pressable>
+                          )
+                        })}
+                      </View>
+                      <Pressable
+                        onPress={assignPicked}
+                        disabled={pickedIds.length === 0}
+                        accessibilityRole="button"
+                        style={[
+                          styles.reassign,
+                          { backgroundColor: colors.brandFill, borderColor: colors.brandFill },
+                          pickedIds.length === 0 && styles.disabled,
+                        ]}
+                      >
+                        <Text style={[styles.reassignText, { color: colors.brandOn }]}>
+                          {t('requests.reassignSelected', { count: pickedIds.length })}
+                        </Text>
+                      </Pressable>
+                    </>
+                  )}
+                </View>
+              )}
+            </View>
           )}
         />
       )}
@@ -273,6 +379,21 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.one + 2,
   },
   tabText: { fontFamily: fontFamily.medium, fontSize: 13 },
+  pickerPanel: {
+    marginTop: spacing.one,
+    gap: spacing.two,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.md,
+    padding: spacing.three,
+  },
+  pickerChips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.one },
+  chip: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.three,
+    paddingVertical: spacing.one,
+  },
+  chipText: { fontFamily: fontFamily.medium, fontSize: 13 },
   searchWrap: { paddingHorizontal: spacing.four, paddingBottom: spacing.three },
   searchBox: {
     flexDirection: 'row',

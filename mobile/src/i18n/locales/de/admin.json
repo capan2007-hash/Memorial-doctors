@@ -40,7 +40,11 @@
       "failedTitle": "Zuweisung fehlgeschlagen",
       "closedCannotReassign": "Eine geschlossene Anfrage kann nicht neu zugewiesen werden"
     },
-    "searchPlaceholder": "Name, Nachname oder Telefon suchen"
+    "searchPlaceholder": "Name, Nachname oder Telefon suchen",
+    "reassignPick": "Ärzte auswählen",
+    "reassignLoading": "Ärzte werden geladen…",
+    "reassignNoEligible": "Kein geeigneter aktiver Arzt.",
+    "reassignSelected": "{{count}} ausgewählten zuweisen"
   },
   "duplicates": {
     "newApplication": "Neue Einreichung",

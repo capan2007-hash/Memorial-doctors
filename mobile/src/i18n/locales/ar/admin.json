@@ -40,7 +40,11 @@
       "failedTitle": "تعذّر التعيين",
       "closedCannotReassign": "لا يمكن إعادة تعيين طلب مغلق"
     },
-    "searchPlaceholder": "ابحث بالاسم أو اللقب أو الهاتف"
+    "searchPlaceholder": "ابحث بالاسم أو اللقب أو الهاتف",
+    "reassignPick": "اختيار الأطباء",
+    "reassignLoading": "جارٍ تحميل الأطباء…",
+    "reassignNoEligible": "لا يوجد طبيب نشط مؤهل.",
+    "reassignSelected": "تعيين إلى {{count}} محدد"
   },
   "duplicates": {
     "newApplication": "الطلب الجديد",

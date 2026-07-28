@@ -40,7 +40,11 @@
       "failedTitle": "Не удалось назначить",
       "closedCannotReassign": "Закрытую заявку нельзя переназначить"
     },
-    "searchPlaceholder": "Поиск по имени, фамилии или телефону"
+    "searchPlaceholder": "Поиск по имени, фамилии или телефону",
+    "reassignPick": "Выбрать врачей",
+    "reassignLoading": "Загрузка врачей…",
+    "reassignNoEligible": "Нет подходящего активного врача.",
+    "reassignSelected": "Назначить {{count}} выбранным"
   },
   "duplicates": {
     "newApplication": "Новое обращение",

@@ -20,7 +20,11 @@
     "reassignClosedError": "Закрытую заявку нельзя переназначить",
     "reassignSuccess": "Заявка переназначена",
     "reassignNoDoctors": "Нет подходящего врача для этой категории",
-    "reassignFailed": "Не удалось переназначить заявку"
+    "reassignFailed": "Не удалось переназначить заявку",
+    "reassignPick": "Выбрать врачей",
+    "reassignLoading": "Загрузка врачей…",
+    "reassignNoEligible": "Нет подходящего активного врача.",
+    "reassignSelected": "Назначить {{count}} выбранным"
   },
   "duplicateReview": {
     "title": "Повторная заявка",

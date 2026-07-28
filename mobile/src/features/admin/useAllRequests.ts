@@ -91,11 +91,18 @@ export function useReassign() {
   const qc = useQueryClient()
   const { t } = useTranslation('admin')
   return useMutation({
-    mutationFn: async (req: EnrichedRequestRow): Promise<{ assigned: boolean }> => {
+    mutationFn: async (
+      input: EnrichedRequestRow | { req: EnrichedRequestRow; doctorIds: string[] | null },
+    ): Promise<{ assigned: boolean }> => {
+      // Geriye uyumlu: doğrudan talep verilirse tüm uygun doktorlara atar.
+      const req = 'req' in input ? input.req : input
+      const doctorIds = 'req' in input ? input.doctorIds : null
       if (req.status === 'closed') throw new Error(t('requests.alerts.closedCannotReassign'))
       const { data: count, error } = await supabase.rpc('assign_request_doctors', {
         p_request_id: req.id,
         p_type: 'manual',
+        // null → tüm uygun doktorlar; dizi → yalnız seçilenler (sunucu scope'u yine uygular).
+        p_doctor_ids: doctorIds,
       })
       if (error) throw error
       return { assigned: ((count as number) ?? 0) > 0 }

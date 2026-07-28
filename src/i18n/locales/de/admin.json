@@ -20,7 +20,11 @@
     "reassignClosedError": "Eine geschlossene Anfrage kann nicht neu zugewiesen werden",
     "reassignSuccess": "Anfrage neu zugewiesen",
     "reassignNoDoctors": "Kein geeigneter Arzt für diese Kategorie",
-    "reassignFailed": "Anfrage konnte nicht neu zugewiesen werden"
+    "reassignFailed": "Anfrage konnte nicht neu zugewiesen werden",
+    "reassignPick": "Ärzte auswählen",
+    "reassignLoading": "Ärzte werden geladen…",
+    "reassignNoEligible": "Kein geeigneter aktiver Arzt.",
+    "reassignSelected": "{{count}} ausgewählten zuweisen"
   },
   "duplicateReview": {
     "title": "Doppelte Anfrage",

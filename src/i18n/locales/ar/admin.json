@@ -28,7 +28,11 @@
     "reassignClosedError": "لا يمكن إعادة تعيين طلب مغلق",
     "reassignSuccess": "أُعيد تعيين الطلب",
     "reassignNoDoctors": "لا يوجد طبيب مناسب لهذه الفئة",
-    "reassignFailed": "تعذّرت إعادة تعيين الطلب"
+    "reassignFailed": "تعذّرت إعادة تعيين الطلب",
+    "reassignPick": "اختيار الأطباء",
+    "reassignLoading": "جارٍ تحميل الأطباء…",
+    "reassignNoEligible": "لا يوجد طبيب نشط مؤهل.",
+    "reassignSelected": "تعيين إلى {{count}} محدد"
   },
   "duplicateReview": {
     "title": "طلب مكرر",

@@ -20,7 +20,11 @@
     "reassignClosedError": "A closed request cannot be reassigned",
     "reassignSuccess": "Request reassigned",
     "reassignNoDoctors": "No eligible doctor for this category",
-    "reassignFailed": "Request could not be reassigned"
+    "reassignFailed": "Request could not be reassigned",
+    "reassignPick": "Choose doctors",
+    "reassignLoading": "Loading doctors…",
+    "reassignNoEligible": "No eligible active doctor.",
+    "reassignSelected": "Assign to {{count}} selected"
   },
   "duplicateReview": {
     "title": "Duplicate Request",

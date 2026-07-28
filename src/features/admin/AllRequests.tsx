@@ -10,6 +10,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../components/ui/Toast'
+import { useEligibleDoctors } from '../requests/useEligibleDoctors'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { timeAgo } from '../../lib/format'
@@ -96,17 +97,23 @@ export function AllRequests() {
   }), [classified])
 
   const visible = tab === 'all' ? classified : classified.filter((c) => c.tab === tab)
+  // Yeniden atamada doktor seçimi: hangi talebin paneli açık + o talep için seçilenler
+  const [pickerFor, setPickerFor] = useState<RequestRow | null>(null)
+  const [pickedIds, setPickedIds] = useState<string[]>([])
+  const pickerEligible = useEligibleDoctors(pickerFor?.category_id, pickerFor?.subcategory_id ?? null)
   const reassign = useMutation({
     // Manuel: talebin kategorisindeki (alt kırılıma göre daraltılmış) doktorları yeniden ata (audit'li)
-    mutationFn: async (req: RequestRow) => {
+    mutationFn: async ({ req, doctorIds }: { req: RequestRow; doctorIds?: string[] | null }) => {
       if (req.status === 'closed') {
         throw new Error(t('allRequests.reassignClosedError'))
       }
-      // Atama + durum + audit sunucu tarafında (migration 0024 RPC'si);
+      // Atama + durum + audit sunucu tarafında (migration 0024/0055 RPC'si);
       // 0 uygun doktor dönerse durum/audit değişmez, kullanıcı bilgilendirilir.
+      // doctorIds null → tüm uygun doktorlar; dizi → yalnız seçilenler (sunucu scope'u yine uygular).
       const { data: count, error } = await supabase.rpc('assign_request_doctors', {
         p_request_id: req.id,
         p_type: 'manual',
+        p_doctor_ids: doctorIds ?? null,
       })
       if (error) throw error
       return { assigned: ((count as number) ?? 0) > 0 }
@@ -197,14 +204,72 @@ export function AllRequests() {
                     <StatusPill status={r.status} />
                   </div>
                 </Link>
-                <Button
-                  variant="secondary"
-                  disabled={isClosed}
-                  title={isClosed ? t('allRequests.reassignClosedError') : undefined}
-                  onClick={() => reassign.mutate(r)}
-                >
-                  {t('allRequests.reassignButton')}
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="secondary"
+                    disabled={isClosed}
+                    title={isClosed ? t('allRequests.reassignClosedError') : undefined}
+                    onClick={() => reassign.mutate({ req: r, doctorIds: null })}
+                  >
+                    {t('allRequests.reassignButton')}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    disabled={isClosed}
+                    onClick={() => {
+                      setPickedIds([])
+                      setPickerFor(pickerFor?.id === r.id ? null : r)
+                    }}
+                  >
+                    {t('allRequests.reassignPick')}
+                  </Button>
+                </div>
+                {pickerFor?.id === r.id && (
+                  <div className="mt-2 space-y-2 rounded-card border border-line bg-surface-1 p-3">
+                    {pickerEligible.isLoading ? (
+                      <p className="text-sm text-ink-muted">{t('allRequests.reassignLoading')}</p>
+                    ) : (pickerEligible.data?.length ?? 0) === 0 ? (
+                      <p className="text-sm text-warning-text">{t('allRequests.reassignNoEligible')}</p>
+                    ) : (
+                      <>
+                        <div className="flex flex-wrap gap-2">
+                          {pickerEligible.data!.map((d) => {
+                            const on = pickedIds.includes(d.id)
+                            return (
+                              <button
+                                key={d.id}
+                                type="button"
+                                aria-pressed={on}
+                                onClick={() =>
+                                  setPickedIds((prev) =>
+                                    prev.includes(d.id) ? prev.filter((x) => x !== d.id) : [...prev, d.id],
+                                  )
+                                }
+                                className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                                  on
+                                    ? 'border-brand-fill bg-brand-fill text-white'
+                                    : 'border-line bg-surface-2 text-ink-secondary hover:border-line-strong'
+                                }`}
+                              >
+                                {d.name}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <Button
+                          variant="primary"
+                          disabled={pickedIds.length === 0}
+                          onClick={() => {
+                            reassign.mutate({ req: r, doctorIds: pickedIds })
+                            setPickerFor(null)
+                          }}
+                        >
+                          {t('allRequests.reassignSelected', { count: pickedIds.length })}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                )}
               </li>
             )
           })}

@@ -20,7 +20,11 @@
     "reassignClosedError": "Kapanmış talep yeniden atanamaz",
     "reassignSuccess": "Talep yeniden atandı",
     "reassignNoDoctors": "Bu kategoriye uygun doktor yok",
-    "reassignFailed": "Talep yeniden atanamadı"
+    "reassignFailed": "Talep yeniden atanamadı",
+    "reassignPick": "Doktor seç",
+    "reassignLoading": "Doktorlar yükleniyor…",
+    "reassignNoEligible": "Uygun aktif doktor yok.",
+    "reassignSelected": "Seçilen {{count}} doktora ata"
   },
   "duplicateReview": {
     "title": "Mükerrer Talep",
