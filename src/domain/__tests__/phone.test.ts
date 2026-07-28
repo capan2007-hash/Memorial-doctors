@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizePhone, toE164, hasExplicitCountryCode } from '../phone'
+import { normalizePhone, toE164, hasExplicitCountryCode, isValidPhone } from '../phone'
 
 describe('normalizePhone', () => {
   it('+90 ile başlayan ve boşluklu girdiyi 10 haneye indirger', () => {
@@ -106,5 +106,65 @@ describe('hasExplicitCountryCode', () => {
 
   it('boş girdi için false döner', () => {
     expect(hasExplicitCountryCode('')).toBe(false)
+  })
+})
+
+describe('isValidPhone', () => {
+  it('10 haneli TR ulusal numarayı kabul eder', () => {
+    expect(isValidPhone('5321112233')).toBe(true)
+  })
+
+  it('trunk 0 ile yazılmış TR numarasını kabul eder', () => {
+    expect(isValidPhone('0532 111 22 33')).toBe(true)
+  })
+
+  it('ülke kodu varsayıldığında eksik haneli girdiyi eler', () => {
+    // toE164 başa "90" eklediği için toplam 10 haneye çıkar; tek bir
+    // "en az 10 hane" kuralı bu girdiyi yanlışlıkla geçerli sayardı.
+    expect(isValidPhone('12345678')).toBe(false)
+  })
+
+  it('kısa girdiyi eler', () => {
+    expect(isValidPhone('532111')).toBe(false)
+  })
+
+  it('ülke kodu açık verilmiş kısa ulusal numaralı ülkeyi kabul eder', () => {
+    expect(isValidPhone('+45 12345678')).toBe(true)
+  })
+
+  it('Suudi numarasını kabul eder', () => {
+    expect(isValidPhone('+966 51 234 5678')).toBe(true)
+  })
+
+  it('artısız ama ülke kodlu uzun girdiyi kabul eder', () => {
+    expect(isValidPhone('905321112233')).toBe(true)
+  })
+
+  it('E.164 üst sınırını (15 hane) aşan girdiyi eler', () => {
+    expect(isValidPhone('+1234567890123456')).toBe(false)
+  })
+
+  it('boş girdiyi eler', () => {
+    expect(isValidPhone('')).toBe(false)
+  })
+})
+
+describe('toE164 ↔ normalizePhone uyumu (mükerrer eşleştirme regresyonu)', () => {
+  // KİLİT VARSAYIM: E.164'e geçiş, DB'deki normalize_phone (son 10 hane)
+  // eşleştirmesini bozmamalı. toE164 yalnız başa ekleme yaptığı için 10+
+  // haneli her girdide son 10 hane aynı kalır. Bu test o varsayımı sabitler;
+  // kırılırsa eski kayıtlar yeni kayıtlarla eşleşmiyor demektir.
+  const inputs = [
+    '+90 532 111 2233',
+    '0532-111-22-33',
+    '905321112233',
+    '5321112233',
+    '(0532) 111 22 33',
+    '+966 51 234 5678',
+    '00966512345678',
+  ]
+
+  it.each(inputs)('normalize sonucu %s için değişmez', (input) => {
+    expect(normalizePhone(toE164(input))).toBe(normalizePhone(input))
   })
 })

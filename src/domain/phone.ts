@@ -93,3 +93,18 @@ export function toE164(raw: string): string {
 export function hasExplicitCountryCode(raw: string): boolean {
   return classify(raw).kind === 'explicit'
 }
+
+/**
+ * Sihirbazın "telefon tamam mı?" kapısı.
+ *
+ * Tek bir "en az 10 hane" kuralı kullanılamaz: toE164 varsayılan ülke kodunu
+ * başa eklediği için bugün elenen 8 haneli girdiler geçerli sayılırdı. Bu
+ * yüzden iki dal var — ülke kodu açık verilmişse E.164 sınırları, varsayılan
+ * uygulanmışsa ulusal kısmın tam uzunlukta olması aranır.
+ */
+export function isValidPhone(raw: string): boolean {
+  const shape = classify(raw)
+  if (shape.kind === 'empty') return false
+  if (shape.kind === 'explicit') return shape.digits.length >= 8 && shape.digits.length <= 15
+  return shape.national.length === DEFAULT_COUNTRY.nationalLength
+}
