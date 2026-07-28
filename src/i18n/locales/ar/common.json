@@ -17,6 +17,7 @@
     "selectedCount_many": "{{count}} صورة محددة",
     "selectedCount_other": "{{count}} صورة محددة"
   },
+  "languageSwitcherLabel": "اختيار اللغة",
   "autoTranslated": "ترجمة تلقائية",
   "showOriginal": "إظهار النص الأصلي",
   "showTranslation": "إظهار الترجمة",

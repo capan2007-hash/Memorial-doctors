@@ -13,6 +13,7 @@
     "selectedCount_one": "{{count}} photo selected",
     "selectedCount_other": "{{count}} photos selected"
   },
+  "languageSwitcherLabel": "Language selection",
   "autoTranslated": "Auto-translated",
   "showOriginal": "Show original",
   "showTranslation": "Show translation",

@@ -13,6 +13,7 @@
     "selectedCount_one": "Выбрано {{count}} фото",
     "selectedCount_other": "Выбрано {{count}} фото"
   },
+  "languageSwitcherLabel": "Выбор языка",
   "autoTranslated": "Автоматически переведено",
   "showOriginal": "Показать оригинал",
   "showTranslation": "Показать перевод",

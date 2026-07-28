@@ -13,6 +13,7 @@
     "selectedCount_one": "{{count}} fotoğraf seçili",
     "selectedCount_other": "{{count}} fotoğraf seçili"
   },
+  "languageSwitcherLabel": "Dil seçimi",
   "autoTranslated": "otomatik çeviri",
   "showOriginal": "orijinali göster",
   "showTranslation": "çeviriyi göster",
