@@ -28,6 +28,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { saveDraft, loadDraft, clearDraft, isDraftEmpty, type RequestDraft } from './requestDraft'
 import { missingFields } from './missingFields'
 import { DuplicateMatchPanel, type MatchRow } from './DuplicateMatchPanel'
+import { ConsentShare } from './ConsentShare'
+import type { Lang } from '../../i18n'
+import { resolveLang } from '../../pages/legal'
 
 type Gender = 'female' | 'male' | 'other'
 
@@ -121,6 +124,7 @@ export function NewRequestWizard() {
   const [notes, setNotes] = useState(initialDraft?.notes ?? ''); const [files, setFiles] = useState<File[]>(initialDraft?.files ?? [])
   const [xrayFiles, setXrayFiles] = useState<File[]>(initialDraft?.xrayFiles ?? [])
   const [consentGiven, setConsentGiven] = useState(false)
+  const [consentLang, setConsentLang] = useState<Lang>(() => resolveLang(i18n.language))
   // Yönlendirme: 'all' = tüm uygun doktorlar (varsayılan), 'selected' = seçilenler
   const [routingMode, setRoutingMode] = useState<'all' | 'selected'>('all')
   const [selectedDoctorIds, setSelectedDoctorIds] = useState<string[]>([])
@@ -608,6 +612,7 @@ export function NewRequestWizard() {
           </span>
         </label>
         <p className="mt-2 text-sm text-muted-foreground">{t('newRequest.consentHint')}</p>
+        <ConsentShare value={consentLang} onChange={setConsentLang} />
       </Card>
 
       {(demoError || submitErr || warn) && (
