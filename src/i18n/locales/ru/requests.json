@@ -15,7 +15,11 @@
     "firstNameLabel": "Имя",
     "lastNameLabel": "Фамилия",
     "phoneLabel": "Телефон",
-    "phonePlaceholder": "05XX XXX XX XX",
+    "phonePlaceholder": "+90 5XX XXX XX XX",
+    "phoneHint": {
+      "saved": "Будет сохранено: {{value}}",
+      "assumedCountry": "Код страны не указан, предполагается +90 (Турция)"
+    },
     "ageLabel": "Возраст",
     "genderLabel": "Пол",
     "gender": {

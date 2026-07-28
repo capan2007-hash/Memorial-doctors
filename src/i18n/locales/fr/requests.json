@@ -15,7 +15,11 @@
     "firstNameLabel": "Prénom",
     "lastNameLabel": "Nom",
     "phoneLabel": "Téléphone",
-    "phonePlaceholder": "05XX XXX XX XX",
+    "phonePlaceholder": "+90 5XX XXX XX XX",
+    "phoneHint": {
+      "saved": "Sera enregistré : {{value}}",
+      "assumedCountry": "Aucun indicatif pays saisi, +90 (Turquie) supposé"
+    },
     "ageLabel": "Âge",
     "genderLabel": "Sexe",
     "gender": {

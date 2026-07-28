@@ -15,7 +15,11 @@
     "firstNameLabel": "Vorname",
     "lastNameLabel": "Nachname",
     "phoneLabel": "Telefon",
-    "phonePlaceholder": "05XX XXX XX XX",
+    "phonePlaceholder": "+90 5XX XXX XX XX",
+    "phoneHint": {
+      "saved": "Wird gespeichert als: {{value}}",
+      "assumedCountry": "Keine Landesvorwahl eingegeben, +90 (Türkei) angenommen"
+    },
     "ageLabel": "Alter",
     "genderLabel": "Geschlecht",
     "gender": {

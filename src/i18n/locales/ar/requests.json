@@ -15,7 +15,11 @@
     "firstNameLabel": "الاسم",
     "lastNameLabel": "اللقب",
     "phoneLabel": "الهاتف",
-    "phonePlaceholder": "05XX XXX XX XX",
+    "phonePlaceholder": "+90 5XX XXX XX XX",
+    "phoneHint": {
+      "saved": "سيتم الحفظ كالتالي: {{value}}",
+      "assumedCountry": "لم يتم إدخال رمز الدولة، تم افتراض +90 (تركيا)"
+    },
     "ageLabel": "العمر",
     "genderLabel": "الجنس",
     "gender": {

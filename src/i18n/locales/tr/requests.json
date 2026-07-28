@@ -15,7 +15,11 @@
     "firstNameLabel": "Ad",
     "lastNameLabel": "Soyad",
     "phoneLabel": "Telefon",
-    "phonePlaceholder": "05XX XXX XX XX",
+    "phonePlaceholder": "+90 5XX XXX XX XX",
+    "phoneHint": {
+      "saved": "Kaydedilecek: {{value}}",
+      "assumedCountry": "Ülke kodu girilmedi, +90 (Türkiye) varsayıldı"
+    },
     "ageLabel": "Yaş",
     "genderLabel": "Cinsiyet",
     "gender": {

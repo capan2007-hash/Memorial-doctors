@@ -11,7 +11,7 @@ import { useCreateRequest } from './useRequests'
 import { PhotoUploader } from '../../components/PhotoUploader'
 import { medicalValue, demographicsError } from '../../domain/health'
 import { packYears, lifestyleComplete, type SmokingStatus, type AlcoholStatus } from '../../domain/lifestyle'
-import { normalizePhone, toE164, isValidPhone } from '../../domain/phone'
+import { normalizePhone, toE164, isValidPhone, hasExplicitCountryCode } from '../../domain/phone'
 import { Button } from '../../components/ui/Button'
 import { shouldShowAiPreview } from './aiPreview'
 import { AiPreviewScreen } from './AiPreviewScreen'
@@ -200,6 +200,22 @@ export function NewRequestWizard() {
   const demoError = age && weightKg && heightCm ? demographicsError(ageNum, weightNum, heightNum) : null
 
   const phoneOk = isValidPhone(phone)
+  // Kaydedilecek kanonik değeri kullanıcıya göster: ülke kodu yazılmadıysa
+  // varsayımın SESSİZ kalmaması gerekiyor (Suudi numarasını "+90..." diye
+  // kaydetmemenin tek güvencesi bu satır).
+  const phoneE164 = toE164(phone)
+  // \u2068/\u2069 (first-strong isolate): Arapça gibi RTL arayüzlerde
+  // "+905321112233" değerinin baştaki "+" ile birlikte doğru yönde kalmasını
+  // sağlar; olmazsa artı işareti numaranın diğer ucuna kayar. Kaçış dizisiyle
+  // yazılır — bu karakterler görünmezdir, düz yapıştırmada kaybolur.
+  const phoneHint = phoneE164
+    ? [
+        t('newRequest.phoneHint.saved', { value: `\u2068${phoneE164}\u2069` }),
+        hasExplicitCountryCode(phone) ? null : t('newRequest.phoneHint.assumedCountry'),
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : undefined
   const ageOk = ageNum > 0 && !demoError
   const weightOk = weightNum > 0 && !demoError
   const heightOk = heightNum > 0 && !demoError
@@ -402,7 +418,7 @@ export function NewRequestWizard() {
             <Field label={t('newRequest.lastNameLabel')}>
               <Input placeholder={t('newRequest.lastNameLabel')} value={last} onChange={(e) => setLast(e.target.value)} />
             </Field>
-            <Field label={t('newRequest.phoneLabel')}>
+            <Field label={t('newRequest.phoneLabel')} hint={phoneHint}>
               <Input type="tel" placeholder={t('newRequest.phonePlaceholder')} value={phone} onChange={(e) => setPhone(e.target.value)} />
             </Field>
           </div>
