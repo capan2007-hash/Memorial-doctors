@@ -294,6 +294,7 @@ export function NewRequestWizard() {
         operationTypeId, notes, files,
         xrayFiles: isDental ? xrayFiles : undefined,
         consentGiven,
+        consentLang,
         sourceLang: i18n.language,
       })
       setSubmitErr(null)

@@ -5,12 +5,13 @@ import { resolvePhotoUrls } from './photoUrl'
 import type { RequestRow, ResponseRow, PhotoRow } from '../../types/db'
 import type { CatalogRef } from '../catalog/catalogName'
 import { doctorLabel } from '../doctor/doctorLabel'
+import { LEGAL_VERSION } from '../../pages/legal/types'
 
 // Katalog adı lokalizasyonu render-anında `catalogName(ref, i18n.language)` ile yapılır
 // (bkz. src/features/catalog/catalogName.ts) — bu yüzden queryFn ham `name`+`name_i18n`'i taşır.
 export type { CatalogRef }
 
-interface NewRequestInput {
+export interface NewRequestInput {
   tenantId: string
   createdBy: string
   patient: { first_name: string; last_name: string; phone?: string }
@@ -39,8 +40,27 @@ interface NewRequestInput {
   xrayFiles?: File[]
   /** P1: satışçı WhatsApp'ta onam aldığını beyan ederse true — AI ön değerlendirmesi yalnız bu durumda çalışır. */
   consentGiven?: boolean
+  /** Aydınlatma metninin hastaya iletildiği dil (onam kartı seçicisi). */
+  consentLang?: string
   /** Faz 3: talebin girildiği dil (yazma-anında kaydedilir) — içerik çevirisi kaynak dili belirler. */
   sourceLang: string
+}
+
+/**
+ * Onam beyan edildiyse consent_at/consent_channel/consented_by + hastaya iletilen
+ * aydınlatma metninin sürümü/dili (consent_text_version/consent_lang) — AI kapısı
+ * ve KVKK izlenebilirliği bu alanlara bakar. Onam yoksa boş nesne (kolonlar null kalır).
+ */
+export function buildConsentFields(input: Pick<NewRequestInput, 'consentGiven' | 'createdBy' | 'consentLang' | 'sourceLang'>) {
+  return input.consentGiven
+    ? {
+        consent_at: new Date().toISOString(),
+        consent_channel: 'whatsapp',
+        consented_by: input.createdBy,
+        consent_text_version: LEGAL_VERSION,
+        consent_lang: input.consentLang ?? input.sourceLang,
+      }
+    : {}
 }
 
 export function useCreateRequest() {
@@ -61,10 +81,7 @@ export function useCreateRequest() {
         patientId = patient.id
       }
       // 2) talep (submitted)
-      // P1: onam beyan edildiyse consent_at/consent_channel/consented_by yazılır — AI kapısı bu alana bakar.
-      const consent = input.consentGiven
-        ? { consent_at: new Date().toISOString(), consent_channel: 'whatsapp', consented_by: input.createdBy }
-        : {}
+      const consent = buildConsentFields(input)
       const { data: req, error: rErr } = await supabase.from('request').insert({
         tenant_id: input.tenantId, patient_id: patientId, created_by: input.createdBy,
         category_id: input.categoryId, subcategory_id: input.subcategoryId,
