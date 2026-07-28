@@ -57,9 +57,33 @@ Apple soracak. İşaretlenecekler (hepsi **App Functionality** amaçlı, **kimli
 
 ## 4. Privacy Policy (ZORUNLU URL)
 Apple, hesaplı + sağlık verili uygulamada **gizlilik politikası URL'i** ister.
-- Mevcut sayfa: `https://medtriage.rememore.workers.dev/aydinlatma` (KVKK aydınlatma — public).
-- ⚠️ **Şu an TASLAK** (`src/pages/Aydinlatma.tsx`): "TASLAK" bannerı + `[Klinik unvanı]`, `[Adres]`, `[iletişim]`, `[saklama süreleri]` yer tutucuları var.
-- **Submit ÖNCESİ yapılacak:** KVKK danışmanı onaylı nihai metin + gerçek klinik unvanı/adres/iletişim/saklama süreleri girilip TASLAK bannerı kaldırılmalı. Apple reviewer bu sayfayı okuyabilir; yer tutuculu/taslak metin ret riski taşır.
+- **URL:** `https://medtriage.rememore.workers.dev/aydinlatma`
+- Sayfa **altı dilde** (tr, ar, en, ru, de, fr) tam metin sunar; `?lang=<kod>` ile
+  doğrudan istenen dilde açılır (ör. `/aydinlatma?lang=ar`). Arapça'da RTL.
+- Metin yapısı ve sürümleme: `src/pages/legal/` (bkz.
+  `docs/superpowers/specs/2026-07-28-kvkk-aydinlatma-cok-dilli-design.md`).
+- ⚠️ **Submit ÖNCESİ kalan TEK koşul:** `src/pages/legal/clinicIdentity.ts` içindeki
+  `CLINIC_IDENTITY` doldurulmalı (ticaret unvanı, açık adres, başvuru e-postası;
+  opsiyonel telefon/VERBİS). Bu alanlar boş olduğu sürece sayfa otomatik olarak
+  "TASLAK" bannerı gösterir ve Apple reviewer bunu görür.
+- Nihai metin KVKK danışmanı onayından geçmelidir (özellikle `legalBasis` bölümü).
+
+> ⚠️ **VERİTABANI UYARISI — deploy'dan ÖNCE uygulanmalı:**
+> `supabase/migrations/0060_consent_text_version.sql` migration'ı bu yazının
+> tarihinde **HENÜZ canlı (production) veritabanına uygulanmadı**. Bu migration
+> `request` tablosuna `consent_text_version` ve `consent_lang` kolonlarını ekler.
+>
+> **Sıra kritik:** migration canlıya uygulanmadan frontend deploy edilirse, onam
+> alınan HER talep oluşturma isteği başarısız olur. Sebep: `request` insert'i
+> artık var olmayan bir kolonu (`consent_text_version`) adlandırır; PostgREST
+> şemada olmayan bir kolona insert edildiğini görünce isteği reddeder. Bu insert
+> tip güvenli (typed) değildir, dolayısıyla derleme zamanında (`npx tsc -b
+> --noEmit`) YAKALANMAZ — hata yalnızca çalışma zamanında, canlıda ortaya çıkar.
+>
+> Bu migration'ın canlıya uygulanması **insan operatörün elle yapacağı bir
+> iştir** (bu ajan/otomasyon Supabase MCP aracı veya `supabase db push`
+> KULLANMADI ve kullanmamalıdır). Deploy sırası: **(1) migration'ı canlıya
+> uygula → (2) doğrula → (3) ancak sonra frontend'i deploy et.**
 
 ## 5. App Review (inceleme) notları
 - **Sign-in required** → **Demo hesabı ver:**
