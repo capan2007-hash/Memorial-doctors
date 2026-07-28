@@ -51,22 +51,43 @@ function InfoItem({ label, value, full, numeric, children }: {
   )
 }
 
-export function PatientInfoCard({ req, patientName, categoryName, subcategoryName, operationName }: {
+export function PatientInfoCard({ req, patientName, categoryName, subcategoryName, operationName, procedureNames }: {
   req: RequestRow
   patientName: string
   categoryName?: string
   subcategoryName?: string | null
   operationName?: string | null
+  /** Katalog v2: talepte seçili tüm işlemler. Doluysa tekil alt kategori/işlem tipi yerine bu gösterilir. */
+  procedureNames?: string[]
 }) {
   const { t } = useTranslation('requests')
   const bmiValue = req.weight_kg && req.height_cm ? bmi(req.weight_kg, req.height_cm) : null
-  const categoryDisplay = [categoryName, subcategoryName].filter(Boolean).join(' / ')
+  const hasProcedures = (procedureNames?.length ?? 0) > 0
+  // Çoklu işlem varsa kategori satırı yalnız ana kategoriyi gösterir; işlemler ayrı satırda rozet olarak.
+  const categoryDisplay = hasProcedures
+    ? categoryName ?? ''
+    : [categoryName, subcategoryName].filter(Boolean).join(' / ')
   return (
     <Card title={t('patientInfo.title')}>
       <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
         <InfoItem label={t('patientInfo.nameLabel')} value={patientName} />
         <InfoItem label={t('patientInfo.categoryLabel')} value={categoryDisplay || null} />
-        <InfoItem label={t('patientInfo.operationLabel')} value={operationName} />
+        {hasProcedures ? (
+          <InfoItem label={t('patientInfo.proceduresLabel')} full>
+            <span className="flex flex-wrap gap-1.5 pt-0.5">
+              {procedureNames!.map((name) => (
+                <span
+                  key={name}
+                  className="inline-flex rounded-full border border-brand-200 bg-brand-100 px-2 py-0.5 text-sm font-medium text-brand-text"
+                >
+                  {name}
+                </span>
+              ))}
+            </span>
+          </InfoItem>
+        ) : (
+          <InfoItem label={t('patientInfo.operationLabel')} value={operationName} />
+        )}
         <InfoItem label={t('patientInfo.ageLabel')} value={req.age} numeric />
         <InfoItem label={t('patientInfo.genderLabel')} value={genderDisplay(req, t)} />
         <InfoItem label={t('patientInfo.heightLabel')} value={req.height_cm} numeric />

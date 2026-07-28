@@ -126,6 +126,7 @@
     "nameLabel": "Имя пациента",
     "categoryLabel": "Категория",
     "operationLabel": "Запрашиваемая операция",
+    "proceduresLabel": "Выбранные процедуры",
     "ageLabel": "Возраст",
     "genderLabel": "Пол",
     "heightLabel": "Рост (см)",

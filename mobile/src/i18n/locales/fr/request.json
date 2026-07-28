@@ -42,6 +42,7 @@
       "patientName": "Nom du patient",
       "category": "Catégorie",
       "operation": "Opération demandée",
+      "procedures": "Interventions sélectionnées",
       "age": "Âge",
       "gender": "Sexe",
       "height": "Taille (cm)",

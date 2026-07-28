@@ -42,6 +42,7 @@
       "patientName": "اسم المريض",
       "category": "الفئة",
       "operation": "العملية المطلوبة",
+      "procedures": "العمليات المختارة",
       "age": "العمر",
       "gender": "الجنس",
       "height": "الطول (سم)",

@@ -126,6 +126,7 @@
     "nameLabel": "Patientenname",
     "categoryLabel": "Kategorie",
     "operationLabel": "Gewünschte Operation",
+    "proceduresLabel": "Ausgewählte Eingriffe",
     "ageLabel": "Alter",
     "genderLabel": "Geschlecht",
     "heightLabel": "Größe (cm)",

@@ -51,8 +51,13 @@ export default function AdminRequestDetail() {
     )
   }
 
-  const { req, patientName, categoryName, subcategoryName, operationName, photos, xrays, responses } = detail.data
-  const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName ?? ''}`
+  const { req, patientName, categoryName, subcategoryName, operationName, procedureNames, photos, xrays, responses } = detail.data
+  // Başlık: çoklu işlem varsa ilk iki işlem + "+N"; yoksa eski tekil alanlara düşer.
+  const procedureTitle =
+    procedureNames.length > 2
+      ? `${procedureNames.slice(0, 2).join(', ')} +${procedureNames.length - 2}`
+      : procedureNames.join(', ')
+  const title = `${patientName} — ${procedureTitle || operationName || subcategoryName || categoryName || ''}`
   const statusTint = roleColors(colors, STATUS_ROLE[req.status])
 
   return (
@@ -89,6 +94,7 @@ export default function AdminRequestDetail() {
           categoryName={categoryName}
           subcategoryName={subcategoryName}
           operationName={operationName}
+          procedureNames={procedureNames}
         />
 
         <View style={[styles.card, shadow.card, { backgroundColor: colors.surface2, borderColor: colors.border }]}>

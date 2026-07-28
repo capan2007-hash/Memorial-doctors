@@ -17,6 +17,8 @@ export interface RequestDetail {
   categoryName?: string
   subcategoryName: string | null
   operationName: string | null
+  /** Katalog v2: talepte seçili tüm işlemler (çoklu alt kategori). Eski taleplerde boş. */
+  procedureNames: string[]
   photos: string[]
   xrays: string[]
   myResponse: ResponseRow | null
@@ -49,6 +51,18 @@ export function useRequestDetail(id?: string) {
           supabase.from('photo').select('*').eq('request_id', id!),
         ])
 
+      // Çoklu işlem seçimi (katalog v2) — web useRequestDetail ile aynı sorgu.
+      const { data: procRows } = await supabase
+        .from('request_subcategory')
+        .select('sort_order, subcategory:subcategory_id(name, name_i18n)')
+        .eq('request_id', id!)
+        .order('sort_order')
+      const procedureNames = ((procRows ?? []) as unknown as {
+        subcategory: { name: string; name_i18n?: Record<string, string> | null } | null
+      }[])
+        .map((r) => (r.subcategory ? catalogName(r.subcategory, i18n.language) : null))
+        .filter((n): n is string => !!n)
+
       const allPhotos = (photoRows ?? []) as PhotoRow[]
       const [photos, xrays] = await Promise.all([
         resolvePhotoUrls(allPhotos.filter((p) => p.kind === 'photo' && !p.deleted_at)),
@@ -66,6 +80,7 @@ export function useRequestDetail(id?: string) {
         operationName: operationType
           ? catalogName(operationType as { name: string; name_i18n?: Record<string, string> | null }, i18n.language)
           : null,
+        procedureNames,
         photos,
         xrays,
         myResponse: responseRows[0] ?? null,

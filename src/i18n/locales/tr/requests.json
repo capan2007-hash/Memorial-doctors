@@ -126,6 +126,7 @@
     "nameLabel": "Hasta adı",
     "categoryLabel": "Kategori",
     "operationLabel": "İstenen operasyon",
+    "proceduresLabel": "Seçilen işlemler",
     "ageLabel": "Yaş",
     "genderLabel": "Cinsiyet",
     "heightLabel": "Boy (cm)",

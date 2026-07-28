@@ -53,6 +53,7 @@ function InfoItem({
   value,
   numeric,
   children,
+  full,
   styles,
   notSpecifiedLabel,
 }: {
@@ -60,12 +61,14 @@ function InfoItem({
   value?: string | number | null
   numeric?: boolean
   children?: ReactNode
+  /** Tüm satırı kaplasın (çoklu işlem rozetleri gibi geniş içerikler için). */
+  full?: boolean
   styles: ReturnType<typeof makeStyles>
   notSpecifiedLabel: string
 }) {
   const empty = isEmpty(value)
   return (
-    <View style={styles.item}>
+    <View style={[styles.item, full && styles.itemFull]}>
       <Text style={styles.label}>{label}</Text>
       {children ?? (
         <Text
@@ -87,18 +90,24 @@ export function PatientInfoCard({
   categoryName,
   subcategoryName,
   operationName,
+  procedureNames,
 }: {
   req: RequestRow
   patientName: string
   categoryName?: string
   subcategoryName?: string | null
   operationName?: string | null
+  /** Katalog v2: talepte seçili tüm işlemler; doluysa tekil işlem satırı yerine rozetler. */
+  procedureNames?: string[]
 }) {
   const { colors } = useTheme()
   const { t } = useTranslation('request')
   const styles = makeStyles(colors)
   const bmiValue = req.weight_kg && req.height_cm ? bmi(req.weight_kg, req.height_cm) : null
-  const categoryDisplay = [categoryName, subcategoryName].filter(Boolean).join(' / ')
+  const hasProcedures = (procedureNames?.length ?? 0) > 0
+  const categoryDisplay = hasProcedures
+    ? categoryName ?? ''
+    : [categoryName, subcategoryName].filter(Boolean).join(' / ')
   const notSpecified = t('patientInfo.notSpecified')
   const genderLabel = req.gender ? t(`patientInfo.gender.${req.gender}`) : null
 
@@ -108,7 +117,19 @@ export function PatientInfoCard({
       <View style={styles.grid}>
         <InfoItem label={t('patientInfo.fields.patientName')} value={patientName} styles={styles} notSpecifiedLabel={notSpecified} />
         <InfoItem label={t('patientInfo.fields.category')} value={categoryDisplay || null} styles={styles} notSpecifiedLabel={notSpecified} />
-        <InfoItem label={t('patientInfo.fields.operation')} value={operationName} styles={styles} notSpecifiedLabel={notSpecified} />
+        {hasProcedures ? (
+          <InfoItem label={t('patientInfo.fields.procedures')} full styles={styles} notSpecifiedLabel={notSpecified}>
+            <View style={styles.chipRow}>
+              {procedureNames!.map((name) => (
+                <View key={name} style={styles.chip}>
+                  <Text style={styles.chipText}>{name}</Text>
+                </View>
+              ))}
+            </View>
+          </InfoItem>
+        ) : (
+          <InfoItem label={t('patientInfo.fields.operation')} value={operationName} styles={styles} notSpecifiedLabel={notSpecified} />
+        )}
         <InfoItem label={t('patientInfo.fields.age')} value={req.age} numeric styles={styles} notSpecifiedLabel={notSpecified} />
         <InfoItem label={t('patientInfo.fields.gender')} value={genderLabel} styles={styles} notSpecifiedLabel={notSpecified} />
         <InfoItem label={t('patientInfo.fields.height')} value={req.height_cm} numeric styles={styles} notSpecifiedLabel={notSpecified} />
@@ -178,6 +199,27 @@ const makeStyles = (colors: Palette) =>
     item: {
       width: '45%',
       gap: spacing.half,
+    },
+    itemFull: {
+      width: '100%',
+    },
+    chipRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.half,
+    },
+    chip: {
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: colors.infoBorder,
+      backgroundColor: colors.infoBg,
+      paddingHorizontal: spacing.one,
+      paddingVertical: 2,
+    },
+    chipText: {
+      fontFamily: fontFamily.medium,
+      fontSize: 13,
+      color: colors.infoText,
     },
     label: {
       fontFamily: fontFamily.medium,

@@ -57,6 +57,11 @@ const OUTPUT_SCHEMA: Record<string, unknown> = {
     alcoholDrinksPerWeek: { type: 'string', description: 'yalnız rakam; yoksa boş string' },
     categoryId: STR,
     subcategoryId: STR,
+    subcategoryIds: {
+      type: 'string',
+      description:
+        'Hastanın istediği TÜM işlemlerin alt kategori idleri, virgülle ayrılmış (örn. "id1,id2"). Tek işlem varsa tek id. Yoksa boş string.',
+    },
     operationTypeId: STR,
     notes: STR,
   },
@@ -65,7 +70,7 @@ const OUTPUT_SCHEMA: Record<string, unknown> = {
     'pastSurgeries', 'knownConditions', 'medications',
     'smokingStatus', 'smokingCigsPerDay', 'smokingYears',
     'alcoholStatus', 'alcoholDrinksPerWeek',
-    'categoryId', 'subcategoryId', 'operationTypeId', 'notes',
+    'categoryId', 'subcategoryId', 'subcategoryIds', 'operationTypeId', 'notes',
   ],
   additionalProperties: false,
 }
@@ -101,9 +106,13 @@ function buildSystemPrompt(targetLang: string, catalog: unknown): string {
     '(categoryId zorunlu değil ama bulabiliyorsan doldur; subcategoryId/operationTypeId',
     'yalnız seçtiğin kategoriye ait olmalıdır). Emin değilsen boş string bırak.',
     '',
-    'ÇOKLU İŞLEM: Hasta birden fazla işlem istiyorsa EN KAPSAMLI/ANA işlemi kategori-',
-    `operasyon olarak seç; DİĞER işlemleri \`notes\` alanına ${target} dilinde açıkça yaz`,
-    '(örn. "Ek talepler: ..."). Hastanın kendi ifadelerinden önemli ayrıntıları da notes\'a ekle.',
+    'ÇOKLU İŞLEM: Hasta birden fazla işlem isteyebilir (ör. "BBL + 360 lipo + meme dikleştirme").',
+    'TEK bir kategori seç (işlemlerin ait olduğu ana kategori) ve istenen TÜM işlemlerin alt',
+    'kategori idlerini `subcategoryIds` alanına VİRGÜLLE AYIRARAK yaz. `subcategoryId` alanına',
+    'bunlardan birincil/en kapsamlı olanı yaz (geriye dönük uyumluluk için).',
+    'İşlemler farklı kategorilere düşüyorsa hastanın ASIL vurguladığı kategoriyi seç; kataloğa',
+    `eşleşmeyen istekleri \`notes\` alanına ${target} dilinde yaz (örn. "Ek talepler: ...").`,
+    'Hastanın kendi ifadelerinden önemli ayrıntıları da notes\'a ekle.',
     '',
     'KATALOG:',
     JSON.stringify(catalog),
@@ -229,6 +238,9 @@ Deno.serve(async (req) => {
     const opIds = new Set((opsRows ?? []).map((o: { id: string }) => o.id))
     const validId = (v: unknown, set: Set<string>): string | null =>
       typeof v === 'string' && set.has(v) ? v : null
+    // null'ları at, sırayı koru, tekrarları sil.
+    const dedupeIds = (ids: (string | null)[]): string[] =>
+      Array.from(new Set(ids.filter((x): x is string => !!x)))
 
     // Yaş: doğum tarihi varsa KODDA hesaplanır (model aritmetik yapmaz).
     const birthDate = str(parsed.birthDate)
@@ -262,6 +274,14 @@ Deno.serve(async (req) => {
       alcoholDrinksPerWeek: num(parsed.alcoholDrinksPerWeek),
       categoryId: validId(parsed.categoryId, catIds),
       subcategoryId: validId(parsed.subcategoryId, subIds),
+      // Katalog v2 çoklu işlem: virgüllü liste → doğrulanmış id dizisi (tekilleştirilmiş).
+      // Birincil (subcategoryId) listede yoksa başa eklenir; böylece istemci tek kaynaktan okur.
+      subcategoryIds: dedupeIds([
+        validId(parsed.subcategoryId, subIds),
+        ...String(parsed.subcategoryIds ?? '')
+          .split(',')
+          .map((s) => validId(s.trim(), subIds)),
+      ]),
       operationTypeId: validId(parsed.operationTypeId, opIds),
       notes: str(parsed.notes),
     }

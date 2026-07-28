@@ -126,6 +126,7 @@
     "nameLabel": "اسم المريض",
     "categoryLabel": "الفئة",
     "operationLabel": "العملية المطلوبة",
+    "proceduresLabel": "العمليات المختارة",
     "ageLabel": "العمر",
     "genderLabel": "الجنس",
     "heightLabel": "الطول (سم)",

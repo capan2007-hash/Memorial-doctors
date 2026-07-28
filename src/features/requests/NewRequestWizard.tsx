@@ -250,8 +250,10 @@ export function NewRequestWizard() {
     if (x.alcoholDrinksPerWeek != null) setAlcoholDrinks(String(Math.round(x.alcoholDrinksPerWeek)))
     // Katalog: sunucuda doğrulanmış id'ler (uydurma id gelmez).
     if (x.categoryId) setCategoryId(x.categoryId)
-    // Yapıştır-doldur tek işlem çıkarır; çoklu seçime ilk eleman olarak konur.
-    if (x.subcategoryId) setSubcategoryIds([x.subcategoryId])
+    // Çoklu işlem: AI birden fazla alt kategori döndürebilir (sunucuda doğrulanmış).
+    // Eski sürüm yanıtlarında subcategoryIds gelmezse tekil alana düşülür.
+    const ids = x.subcategoryIds?.length ? x.subcategoryIds : x.subcategoryId ? [x.subcategoryId] : []
+    if (ids.length) setSubcategoryIds(ids)
     if (x.operationTypeId) setOperationTypeId(x.operationTypeId)
     if (x.notes) setNotes((prev) => (prev.trim() ? `${prev}\n${x.notes}` : x.notes!))
   }

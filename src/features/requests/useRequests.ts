@@ -162,6 +162,17 @@ export function useRequestDetail(id?: string) {
       supabase.from('photo').select('*').eq('request_id', id!),
     ])
 
+    // Çoklu işlem seçimi (katalog v2): talepte seçili TÜM alt kategoriler.
+    // sort_order ile listelenir; boşsa arayüz tekil subcategory'ye düşer (eski talepler).
+    const { data: procRows } = await supabase
+      .from('request_subcategory')
+      .select('sort_order, subcategory:subcategory_id(name, name_i18n)')
+      .eq('request_id', id!)
+      .order('sort_order')
+    const procedures = ((procRows ?? []) as unknown as { subcategory: CatalogRef | null }[])
+      .map((r) => r.subcategory)
+      .filter((s): s is CatalogRef => !!s)
+
     // Doktor yanıtı özeti: kaç doktora gitti + yanıt verenlerin ADI.
     // RLS: assignment satış grubuna 0050 ile açıldı; doctor/app_user tenant içinde okunur.
     const responseRows = (responses ?? []) as ResponseRow[]
@@ -214,6 +225,8 @@ export function useRequestDetail(id?: string) {
       category: (category as CatalogRef | null) ?? undefined,
       subcategory: (subcategory as CatalogRef | null) ?? null,
       operationType: (operationType as CatalogRef | null) ?? null,
+      // Katalog v2 çoklu işlem; eski taleplerde boş dizi.
+      procedures,
       photos,
       xrays,
       deletedPhotos,

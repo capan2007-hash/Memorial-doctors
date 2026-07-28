@@ -97,8 +97,13 @@ export default function RequestDetailScreen() {
     )
   }
 
-  const { req, patientName, categoryName, subcategoryName, operationName, photos, xrays, myResponse } = detail.data
-  const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName ?? ''}`
+  const { req, patientName, categoryName, subcategoryName, operationName, procedureNames, photos, xrays, myResponse } = detail.data
+  // Başlık: çoklu işlem varsa ilk iki işlem + "+N"; yoksa eski tekil alanlara düşer.
+  const procedureTitle =
+    procedureNames.length > 2
+      ? `${procedureNames.slice(0, 2).join(', ')} +${procedureNames.length - 2}`
+      : procedureNames.join(', ')
+  const title = `${patientName} — ${procedureTitle || operationName || subcategoryName || categoryName || ''}`
   const statusTint = roleColors(colors, STATUS_ROLE[req.status])
   const decisionTint = myResponse ? roleColors(colors, DECISION_ROLE[myResponse.decision]) : null
 
@@ -153,6 +158,7 @@ export default function RequestDetailScreen() {
           categoryName={categoryName}
           subcategoryName={subcategoryName}
           operationName={operationName}
+          procedureNames={procedureNames}
         />
 
         <View style={styles.card}>

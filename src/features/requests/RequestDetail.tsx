@@ -339,10 +339,12 @@ export function RequestDetail() {
       </div>
     )
   }
-  const { req, responses, assignedCount, doctorNames, patientName, category, subcategory, operationType, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
+  const { req, responses, assignedCount, doctorNames, patientName, category, subcategory, operationType, procedures, photos, xrays, deletedPhotos, deletedXrays, oldestUploadedAt } = q.data
   const categoryName = category ? catalogName(category, i18n.language) : undefined
   const subcategoryName = subcategory ? catalogName(subcategory, i18n.language) : null
   const operationName = operationType ? catalogName(operationType, i18n.language) : null
+  // Katalog v2: talepte seçili tüm işlemler (eski taleplerde boş → tekil alanlara düşülür).
+  const procedureNames = procedures.map((p) => catalogName(p, i18n.language))
   const siblingCount = siblingOpen.data?.length ?? 0
   const accepted = responses.filter((r) => r.decision === 'accept')
   const rejected = responses.filter((r) => r.decision !== 'accept')
@@ -355,7 +357,12 @@ export function RequestDetail() {
   }))
   // Atanan doktorlardan henüz yanıtlamayanlar (assignment RLS satış grubuna açık; 0050).
   const waitingCount = Math.max(0, assignedCount - responses.length)
-  const title = `${patientName} — ${operationName ?? subcategoryName ?? categoryName}`
+  // Başlık: çoklu işlem varsa ilk iki işlem + "+N" (uzun başlık taşmasın).
+  const procedureTitle =
+    procedureNames.length > 2
+      ? `${procedureNames.slice(0, 2).join(', ')} +${procedureNames.length - 2}`
+      : procedureNames.join(', ')
+  const title = `${patientName} — ${procedureTitle || operationName || subcategoryName || categoryName}`
   return (
     <div className="space-y-4">
       <PageHeader
@@ -380,6 +387,7 @@ export function RequestDetail() {
         categoryName={categoryName}
         subcategoryName={subcategoryName}
         operationName={operationName}
+        procedureNames={procedureNames}
       />
       <Card title={t('newRequest.photosTitle')}>
         {req.photos_required && (

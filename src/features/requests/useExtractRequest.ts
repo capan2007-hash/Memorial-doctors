@@ -20,6 +20,8 @@ export interface ExtractedRequest {
   alcoholDrinksPerWeek: number | null
   categoryId: string | null
   subcategoryId: string | null
+  /** Katalog v2: hastanın istediği TÜM işlemler (sunucuda doğrulanmış id'ler, birincil başta). */
+  subcategoryIds: string[]
   operationTypeId: string | null
   notes: string | null
 }

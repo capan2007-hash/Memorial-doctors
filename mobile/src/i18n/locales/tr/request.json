@@ -42,6 +42,7 @@
       "patientName": "Hasta adı",
       "category": "Kategori",
       "operation": "İstenen operasyon",
+      "procedures": "Seçilen işlemler",
       "age": "Yaş",
       "gender": "Cinsiyet",
       "height": "Boy (cm)",
