@@ -16,6 +16,8 @@ export default defineConfig({
     // .claude/worktrees/ altındaki git worktree'leri repo İÇİNDE tam birer checkout
     // taşır; dışlanmazsa kök vitest onların spec'lerini de toplar ve tsconfig'i
     // çözemediği için "Tsconfig not found" ile dosya düzeyinde patlar.
-    exclude: ['tests/e2e/**', '**/node_modules/**', 'dist/**', 'mobile/**', '.claude/worktrees/**'],
+    // Desenler `**/` ile başlar: kök-göreli `mobile/**` gibi desenler iç içe
+    // kopyalarda (`.claude/worktrees/<ad>/mobile/...`) eşleşmez.
+    exclude: ['**/tests/e2e/**', '**/node_modules/**', 'dist/**', '**/mobile/**', '.claude/**'],
   },
 } as any)
