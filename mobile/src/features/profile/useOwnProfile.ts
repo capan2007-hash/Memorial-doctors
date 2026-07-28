@@ -23,6 +23,7 @@ export interface DoctorRow {
   weighted_work: unknown
   score: number
   is_active: boolean
+  hospital_id?: string | null
 }
 
 interface DoctorScopeRow {
@@ -48,6 +49,8 @@ export interface SubcategoryRow {
 export interface OwnDoctor {
   doctor: DoctorRow
   scopes: DoctorScope[]
+  /** Doktorun bağlı olduğu hastane adı (koordinatör/admin tarafından atanır; doktor değiştiremez). */
+  hospitalName: string | null
 }
 
 /** Doktorun kendi doctor satırı + kendi yetkinlik (doctor_scope) satırları. */
@@ -68,8 +71,18 @@ export function useOwnDoctor() {
         .select('category_id, subcategory_id')
         .eq('doctor_id', doctorId!)
       if (sErr) throw sErr
+
+      // Hastane adı: doctor.hospital_id → hospital.name (tenant_read_hospital ile okunur).
+      const hospitalId = (doctor as DoctorRow).hospital_id ?? null
+      let hospitalName: string | null = null
+      if (hospitalId) {
+        const { data: h } = await supabase.from('hospital').select('name').eq('id', hospitalId).maybeSingle()
+        hospitalName = (h as { name: string } | null)?.name ?? null
+      }
+
       return {
         doctor: doctor as DoctorRow,
+        hospitalName,
         scopes: ((scopes ?? []) as DoctorScopeRow[]).map((s) => ({
           categoryId: s.category_id,
           subcategoryId: s.subcategory_id,

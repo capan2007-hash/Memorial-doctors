@@ -9,11 +9,13 @@ import { useCategories, useSubcategories } from '../catalog/useCatalog'
 import { catalogName } from '../catalog/catalogName'
 import {
   useDoctorsFull, useDoctorMetrics, useUpdateDoctor, useCreateDoctor,
+  useUpdateDoctorIdentity, useHospitals,
   uploadDoctorPhoto, signDoctorPhoto,
   emptyWeightedWork, toWeightedWork,
   useScoreEvents,
 } from './useDoctors'
-import type { DoctorScope, DoctorWithScopes, WeightedWork, WeightedWorkLevel } from './useDoctors'
+import type { DoctorScope, DoctorWithScopes, HospitalRow, WeightedWork, WeightedWorkLevel } from './useDoctors'
+import { doctorLabel } from '../doctor/doctorLabel'
 import type { CategoryRow, SubcategoryRow } from '../../types/db'
 import { netChangeInRange, monthlyNetChanges, scoreTier } from '../../domain/score'
 import { Card } from '../../components/ui/Card'
@@ -40,6 +42,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/shadcn/select'
+
+/** Hastane seçimi. Boş değer = hastane atanmamış (SelectItem boş string kabul etmez → NONE sentinel). */
+const NO_HOSPITAL = '__none__'
+
+function HospitalSelect({ value, onChange, hospitals, loading }: {
+  value: string
+  onChange: (v: string) => void
+  hospitals: HospitalRow[]
+  loading?: boolean
+}) {
+  const { t } = useTranslation('admin')
+  return (
+    <Select
+      value={value || NO_HOSPITAL}
+      onValueChange={(v) => onChange(v === NO_HOSPITAL ? '' : v)}
+      disabled={loading}
+    >
+      <SelectTrigger>
+        <SelectValue placeholder={t('doctorAdmin.fields.hospitalPlaceholder')} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={NO_HOSPITAL}>{t('doctorAdmin.fields.hospitalNone')}</SelectItem>
+        {hospitals.map((h) => (
+          <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
 
 function scopeKey(s: DoctorScope) { return `${s.categoryId}::${s.subcategoryId ?? ''}` }
 
@@ -356,6 +387,8 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
   const { appUser } = useAuth()
   const toast = useToast()
   const createDoctor = useCreateDoctor()
+  const hospitals = useHospitals()
+  const [hospitalId, setHospitalId] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -370,12 +403,15 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
 
   const reset = () => {
     setEmail(''); setPassword(''); setFullName(''); setTitle(''); setSpecialty(''); setBio('')
-    setScopes([]); setWeightedWork(emptyWeightedWork); setPhotoFile(null)
+    setScopes([]); setWeightedWork(emptyWeightedWork); setPhotoFile(null); setHospitalId('')
   }
 
   const submit = async () => {
     try {
-      const result = await createDoctor.mutateAsync({ email, password, fullName, title, specialty, bio, weightedWork, scopes })
+      const result = await createDoctor.mutateAsync({
+        email, password, fullName, title, specialty, bio, weightedWork, scopes,
+        hospitalId: hospitalId || null,
+      })
       const newDoctorId = result?.doctorId ?? result?.doctor?.id
       if (photoFile && newDoctorId && appUser?.tenant_id) {
         const path = await uploadDoctorPhoto(appUser.tenant_id, newDoctorId, photoFile)
@@ -413,6 +449,14 @@ function NewDoctorDialog({ open, onClose }: { open: boolean; onClose: () => void
           </Field>
           <Field label={t('doctorAdmin.fields.title')}>
             <Input placeholder={t('doctorAdmin.fields.titlePlaceholder')} value={title} onChange={(e) => setTitle(e.target.value)} />
+          </Field>
+          <Field label={t('doctorAdmin.fields.hospital')}>
+            <HospitalSelect
+              value={hospitalId}
+              onChange={setHospitalId}
+              hospitals={hospitals.data ?? []}
+              loading={hospitals.isLoading}
+            />
           </Field>
           <Field label={t('doctorAdmin.fields.specialty')}>
             <Input value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
@@ -472,6 +516,8 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
   const qc = useQueryClient()
   const manageUser = useManageUser()
   const updateDoctor = useUpdateDoctor()
+  const updateDoctorIdentity = useUpdateDoctorIdentity()
+  const hospitals = useHospitals()
   const [expanded, setExpanded] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const canDelete = role === 'admin' || role === 'super_admin'
@@ -490,6 +536,9 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
       toast.show(t('doctorAdmin.deleteFailedToast', { message: (e as Error).message }), 'error')
     }
   }
+  const [fullName, setFullName] = useState(doctor.fullName ?? '')
+  const [title, setTitle] = useState(doctor.title ?? '')
+  const [hospitalId, setHospitalId] = useState<string>(doctor.hospitalId ?? '')
   const [specialty, setSpecialty] = useState(doctor.specialty ?? '')
   const [bio, setBio] = useState(doctor.bio ?? '')
   const [isActive, setIsActive] = useState(doctor.is_active)
@@ -499,6 +548,7 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(doctor.photo_url)
 
   useEffect(() => {
+    setFullName(doctor.fullName ?? ''); setTitle(doctor.title ?? ''); setHospitalId(doctor.hospitalId ?? '')
     setSpecialty(doctor.specialty ?? ''); setBio(doctor.bio ?? ''); setIsActive(doctor.is_active)
     setScopes(doctor.scopes); setWeightedWork(toWeightedWork(doctor.weighted_work))
     setPhotoUrl(doctor.photo_url)
@@ -510,8 +560,13 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
       if (photoFile && appUser?.tenant_id) {
         nextPhotoUrl = await uploadDoctorPhoto(appUser.tenant_id, doctor.id, photoFile)
       }
+      // Kimlik alanları (ad/unvan/branş/hastane) RPC ile: ad app_user'da ve o tabloda
+      // UPDATE policy'si yok. Diğer profil alanları doctor tablosuna doğrudan yazılır.
+      await updateDoctorIdentity.mutateAsync({
+        doctorId: doctor.id, fullName, title, specialty, hospitalId: hospitalId || null,
+      })
       await updateDoctor.mutateAsync({
-        id: doctor.id, specialty, bio, weightedWork, isActive, photoUrl: nextPhotoUrl, scopes,
+        id: doctor.id, bio, weightedWork, isActive, photoUrl: nextPhotoUrl, scopes,
       })
       setPhotoFile(null)
       setExpanded(false)
@@ -521,35 +576,30 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
     }
   }
 
+  // Kart başlığı: unvan + ad (ad yoksa yalnız unvan).
+  const headerName = doctorLabel(doctor.title, doctor.fullName)
+
   return (
     <li id={`doctor-${doctor.id}`}>
       <Card>
         <div className="flex justify-between items-center gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <DoctorAvatar photoUrl={doctor.photo_url} name={doctor.title || t('doctorAdmin.avatarFallbackName')} />
+            <DoctorAvatar photoUrl={doctor.photo_url} name={headerName || t('doctorAdmin.avatarFallbackName')} />
             <div className="min-w-0">
-              {doctor.title ? (
-                <TranslatedText
-                  as="p"
-                  text={doctor.title}
-                  sourceLang="tr"
-                  compact
-                  className="font-medium text-ink-primary truncate"
-                />
+              {/* Başlık: "Op. Dr. Ayşe Yılmaz" — unvan zaten adın içindeyse tekrarlanmaz (doctorLabel). */}
+              {headerName ? (
+                <p className="font-medium text-ink-primary truncate">{headerName}</p>
               ) : (
                 <p className="font-medium text-ink-primary truncate">{t('doctorAdmin.noTitle')}</p>
               )}
-              {doctor.specialty ? (
-                <TranslatedText
-                  as="p"
-                  text={doctor.specialty}
-                  sourceLang="tr"
-                  compact
-                  className="text-sm text-ink-muted truncate"
-                />
-              ) : (
-                <p className="text-sm text-ink-muted truncate">—</p>
-              )}
+              <p className="text-sm text-ink-muted truncate">
+                {doctor.specialty ? (
+                  <TranslatedText as="span" text={doctor.specialty} sourceLang="tr" compact />
+                ) : (
+                  '—'
+                )}
+                {doctor.hospitalName ? ` · ${doctor.hospitalName}` : ''}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
@@ -582,6 +632,20 @@ function DoctorCard({ doctor }: { doctor: DoctorWithScopes }) {
           <div className="space-y-3 pt-3 mt-3 border-t border-line">
             <ScopeChips scopes={doctor.scopes} />
 
+            <Field label={t('doctorAdmin.fields.fullName')}>
+              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            </Field>
+            <Field label={t('doctorAdmin.fields.title')}>
+              <Input placeholder={t('doctorAdmin.fields.titlePlaceholder')} value={title} onChange={(e) => setTitle(e.target.value)} />
+            </Field>
+            <Field label={t('doctorAdmin.fields.hospital')}>
+              <HospitalSelect
+                value={hospitalId}
+                onChange={setHospitalId}
+                hospitals={hospitals.data ?? []}
+                loading={hospitals.isLoading}
+              />
+            </Field>
             <Field label={t('doctorAdmin.fields.specialty')}>
               <Input value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
             </Field>

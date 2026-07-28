@@ -9,6 +9,8 @@
     "titlePlaceholder": "ör. Op. Dr.",
     "specialty": "Branş",
     "specialtyPlaceholder": "ör. Plastik Cerrahi",
+    "hospital": "Hastane",
+    "hospitalNone": "Hastane atanmamış",
     "bio": "Biyografi",
     "bioPlaceholder": "Biyografi / CV"
   },

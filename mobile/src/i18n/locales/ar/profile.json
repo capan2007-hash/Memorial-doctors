@@ -9,6 +9,8 @@
     "titlePlaceholder": "مثال: طبيب عمليات",
     "specialty": "التخصص",
     "specialtyPlaceholder": "مثال: جراحة تجميلية",
+    "hospital": "المستشفى",
+    "hospitalNone": "لم يتم تعيين مستشفى",
     "bio": "السيرة الذاتية",
     "bioPlaceholder": "السيرة الذاتية / CV"
   },

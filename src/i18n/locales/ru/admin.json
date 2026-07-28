@@ -82,6 +82,9 @@
       "title": "Звание",
       "titlePlaceholder": "напр. Др.",
       "specialty": "Специализация",
+      "hospital": "Больница",
+      "hospitalPlaceholder": "Выберите больницу",
+      "hospitalNone": "Больница не назначена",
       "bio": "Биография",
       "bioPlaceholder": "Биография / резюме"
     },

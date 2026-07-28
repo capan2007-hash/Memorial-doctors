@@ -9,6 +9,8 @@
     "titlePlaceholder": "напр. Оп. Др.",
     "specialty": "Специализация",
     "specialtyPlaceholder": "напр. Пластическая хирургия",
+    "hospital": "Больница",
+    "hospitalNone": "Больница не назначена",
     "bio": "Биография",
     "bioPlaceholder": "Биография / резюме"
   },

@@ -90,6 +90,9 @@
       "title": "اللقب",
       "titlePlaceholder": "مثال: د.",
       "specialty": "التخصص",
+      "hospital": "المستشفى",
+      "hospitalPlaceholder": "اختر المستشفى",
+      "hospitalNone": "لم يتم تعيين مستشفى",
       "bio": "السيرة الذاتية",
       "bioPlaceholder": "السيرة الذاتية / CV"
     },

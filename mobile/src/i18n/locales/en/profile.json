@@ -9,6 +9,8 @@
     "titlePlaceholder": "e.g. Op. Dr.",
     "specialty": "Specialty",
     "specialtyPlaceholder": "e.g. Plastic Surgery",
+    "hospital": "Hospital",
+    "hospitalNone": "No hospital assigned",
     "bio": "Bio",
     "bioPlaceholder": "Bio / CV"
   },

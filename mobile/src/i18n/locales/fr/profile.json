@@ -9,6 +9,8 @@
     "titlePlaceholder": "ex. Op. Dr.",
     "specialty": "Spécialité",
     "specialtyPlaceholder": "ex. Chirurgie plastique",
+    "hospital": "Hôpital",
+    "hospitalNone": "Aucun hôpital attribué",
     "bio": "Biographie",
     "bioPlaceholder": "Biographie / CV"
   },

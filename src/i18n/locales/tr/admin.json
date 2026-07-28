@@ -82,6 +82,9 @@
       "title": "Unvan",
       "titlePlaceholder": "ör. Op. Dr.",
       "specialty": "Branş",
+      "hospital": "Hastane",
+      "hospitalPlaceholder": "Hastane seçin",
+      "hospitalNone": "Hastane atanmamış",
       "bio": "Biyografi",
       "bioPlaceholder": "Biyografi / CV"
     },

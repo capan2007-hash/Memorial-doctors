@@ -82,6 +82,9 @@
       "title": "Titel",
       "titlePlaceholder": "z. B. Dr.",
       "specialty": "Fachgebiet",
+      "hospital": "Krankenhaus",
+      "hospitalPlaceholder": "Krankenhaus wählen",
+      "hospitalNone": "Kein Krankenhaus zugewiesen",
       "bio": "Biografie",
       "bioPlaceholder": "Biografie / Lebenslauf"
     },

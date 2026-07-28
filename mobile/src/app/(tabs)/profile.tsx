@@ -152,6 +152,7 @@ export default function ProfileScreen() {
   const setScopes = useSetOwnScopes()
 
   const doctor = own.data?.doctor ?? null
+  const hospitalName = own.data?.hospitalName ?? null
 
   const [title, setTitle] = useState('')
   const [specialty, setSpecialty] = useState('')
@@ -258,6 +259,12 @@ export default function ProfileScreen() {
             placeholderTextColor={colors.textMuted}
           />
 
+          {/* Hastane: koordinatör/admin tarafından atanır — doktor kendi ekranından değiştiremez (salt görüntü). */}
+          <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('fields.hospital')}</Text>
+          <Text style={[styles.readOnlyValue, { color: hospitalName ? colors.textPrimary : colors.textMuted }]}>
+            {hospitalName ?? t('fields.hospitalNone')}
+          </Text>
+
           <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('fields.bio')}</Text>
           <TextInput
             style={[inputStyle, styles.multiline]}
@@ -359,6 +366,7 @@ const styles = StyleSheet.create({
   },
   avatarInitial: { fontFamily: fontFamily.semibold, fontSize: 24 },
   fieldLabel: { fontFamily: fontFamily.medium, fontSize: 13, marginTop: spacing.one },
+  readOnlyValue: { fontFamily: fontFamily.regular, fontSize: 15, paddingVertical: spacing.one },
   input: {
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: radius.sm,

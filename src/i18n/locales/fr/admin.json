@@ -82,6 +82,9 @@
       "title": "Titre",
       "titlePlaceholder": "ex. Dr.",
       "specialty": "Spécialité",
+      "hospital": "Hôpital",
+      "hospitalPlaceholder": "Sélectionner un hôpital",
+      "hospitalNone": "Aucun hôpital attribué",
       "bio": "Bio",
       "bioPlaceholder": "Bio / CV"
     },

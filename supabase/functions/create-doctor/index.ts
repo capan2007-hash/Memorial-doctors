@@ -20,17 +20,28 @@ Deno.serve(async (req) => {
   const { data: userRes } = await caller.auth.getUser()
   if (!userRes?.user) return json({ error: 'unauthorized' }, 401)
   const { data: me } = await caller.from('app_user').select('tenant_id, role').eq('id', userRes.user.id).single()
-  if (!me || !['coordinator', 'admin'].includes(me.role)) return json({ error: 'forbidden' }, 403)
+  if (!me || !['coordinator', 'admin', 'super_admin'].includes(me.role)) return json({ error: 'forbidden' }, 403)
 
   const body = await req.json().catch(() => null)
   if (!body) return json({ error: 'bad json' }, 400)
-  const { email, password, fullName, title, specialty, bio, weightedWork, scopes } = body
+  const { email, password, fullName, title, specialty, bio, weightedWork, scopes, hospitalId } = body
   if (!email || !password || !fullName) return json({ error: 'missing fields' }, 400)
   // En az bir yetkinlik zorunlu: doctor.category_id NOT NULL ve scope olmadan
   // doktor hiçbir talebe düşmez. Ayrıca aşağıdaki yarım-hata riskini azaltır.
   if (!Array.isArray(scopes) || scopes.length === 0) return json({ error: 'scopes required' }, 400)
 
   const admin = createClient(url, serviceKey)
+
+  // Hastane verildiyse çağıranın tenant'ına ait olmalı (çapraz-tenant bağı kapatır).
+  // Auth kullanıcısı OLUŞTURULMADAN önce doğrulanır ki yetim hesap kalmasın.
+  let validHospitalId: string | null = null
+  if (hospitalId) {
+    const { data: h } = await admin
+      .from('hospital').select('id').eq('id', hospitalId).eq('tenant_id', me.tenant_id).maybeSingle()
+    if (!h) return json({ error: 'hospital not in tenant' }, 400)
+    validHospitalId = h.id
+  }
+
   const { data: created, error: cErr } = await admin.auth.admin.createUser({
     email, password, email_confirm: true,
   })
@@ -52,7 +63,7 @@ Deno.serve(async (req) => {
   const { data: doc, error: dErr } = await admin.from('doctor').insert({
     tenant_id: me.tenant_id, app_user_id: uid, title, specialty, bio,
     weighted_work: weightedWork ?? { items: [], note: '' },
-    category_id: primaryCategory, is_active: true,
+    category_id: primaryCategory, hospital_id: validHospitalId, is_active: true,
   }).select('id').single()
   if (dErr || !doc) {
     await admin.from('app_user').delete().eq('id', uid).catch(() => {})

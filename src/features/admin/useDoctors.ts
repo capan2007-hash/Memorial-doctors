@@ -5,7 +5,32 @@ import { safeExt, sanitizeImage } from '../requests/sanitizeImage'
 import type { DoctorRow, DoctorScopeRow } from '../../types/db'
 
 export interface DoctorScope { categoryId: string; subcategoryId: string | null }
-export interface DoctorWithScopes extends DoctorRow { scopes: DoctorScope[] }
+export interface DoctorWithScopes extends DoctorRow {
+  scopes: DoctorScope[]
+  /** app_user.full_name — doktorun ADI doctor tablosunda DEĞİL, bağlı kullanıcıda tutulur. */
+  fullName: string | null
+  hospitalId: string | null
+  hospitalName: string | null
+}
+
+export interface HospitalRow { id: string; name: string; sort_order: number; is_active: boolean }
+
+/** Tenant'ın hastane listesi (doktor tanımında seçilir). */
+export function useHospitals() {
+  const { appUser } = useAuth()
+  return useQuery({
+    queryKey: ['hospitals'],
+    enabled: !!appUser?.tenant_id,
+    queryFn: async (): Promise<HospitalRow[]> => {
+      const { data, error } = await supabase
+        .from('hospital').select('id, name, sort_order, is_active')
+        .eq('tenant_id', appUser!.tenant_id).eq('is_active', true)
+        .order('sort_order')
+      if (error) throw error
+      return (data ?? []) as HospitalRow[]
+    },
+  })
+}
 
 export type WeightedWorkLevel = 'high' | 'medium' | 'low'
 export interface WeightedWorkItem { area: string; level: WeightedWorkLevel }
@@ -36,11 +61,34 @@ export function useDoctorsFull() {
         .from('doctor_scope').select('*').eq('tenant_id', appUser!.tenant_id)
       if (sErr) throw sErr
       const scopeRows = (scopes ?? []) as DoctorScopeRow[]
-      return ((doctors ?? []) as DoctorRow[]).map((d) => ({
+      const doctorRows = (doctors ?? []) as DoctorRow[]
+
+      // Ad app_user'da, hastane adı hospital tablosunda — ikisini de tek seferde çöz.
+      const appUserIds = doctorRows.map((d) => d.app_user_id).filter(Boolean) as string[]
+      const hospitalIds = Array.from(new Set(doctorRows.map((d) => d.hospital_id).filter(Boolean))) as string[]
+      const [{ data: users }, { data: hospitals }] = await Promise.all([
+        appUserIds.length
+          ? supabase.from('app_user').select('id, full_name').in('id', appUserIds)
+          : Promise.resolve({ data: [] }),
+        hospitalIds.length
+          ? supabase.from('hospital').select('id, name').in('id', hospitalIds)
+          : Promise.resolve({ data: [] }),
+      ])
+      const nameByUser = new Map(
+        ((users ?? []) as { id: string; full_name: string | null }[]).map((u) => [u.id, u.full_name]),
+      )
+      const hospitalByIdName = new Map(
+        ((hospitals ?? []) as { id: string; name: string }[]).map((h) => [h.id, h.name]),
+      )
+
+      return doctorRows.map((d) => ({
         ...d,
         scopes: scopeRows
           .filter((s) => s.doctor_id === d.id)
           .map((s) => ({ categoryId: s.category_id, subcategoryId: s.subcategory_id })),
+        fullName: d.app_user_id ? nameByUser.get(d.app_user_id) ?? null : null,
+        hospitalId: d.hospital_id ?? null,
+        hospitalName: d.hospital_id ? hospitalByIdName.get(d.hospital_id) ?? null : null,
       })) as DoctorWithScopes[]
     },
   })
@@ -173,12 +221,43 @@ export function useUpdateDoctor() {
   })
 }
 
+export interface UpdateDoctorIdentityInput {
+  doctorId: string
+  fullName: string
+  title: string
+  specialty: string
+  hospitalId: string | null
+}
+
+/**
+ * Koordinatör/admin: doktorun ADINI (app_user.full_name), unvanını, branşını ve
+ * hastanesini güncelle. app_user'da UPDATE policy'si YOK — bu yüzden SECURITY DEFINER
+ * RPC üzerinden gider (migration 0059).
+ */
+export function useUpdateDoctorIdentity() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: UpdateDoctorIdentityInput) => {
+      const { error } = await supabase.rpc('admin_update_doctor_identity', {
+        p_doctor_id: input.doctorId,
+        p_full_name: input.fullName,
+        p_title: input.title,
+        p_specialty: input.specialty,
+        p_hospital_id: input.hospitalId,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['doctors'] }),
+  })
+}
+
 export interface CreateDoctorInput {
   email: string
   password: string
   fullName: string
   title: string
   specialty: string
+  hospitalId?: string | null
   bio: string
   weightedWork: WeightedWork
   scopes: DoctorScope[]

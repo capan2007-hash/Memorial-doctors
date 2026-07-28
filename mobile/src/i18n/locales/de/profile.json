@@ -9,6 +9,8 @@
     "titlePlaceholder": "z. B. Op. Dr.",
     "specialty": "Fachgebiet",
     "specialtyPlaceholder": "z. B. Plastische Chirurgie",
+    "hospital": "Krankenhaus",
+    "hospitalNone": "Kein Krankenhaus zugewiesen",
     "bio": "Biografie",
     "bioPlaceholder": "Biografie / Lebenslauf"
   },
