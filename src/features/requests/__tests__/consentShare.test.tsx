@@ -23,6 +23,22 @@ describe('ConsentShare', () => {
   it('kopyalama sonrası onay toast gösterir', async () => {
     render(<ConsentShare value="tr" onChange={() => {}} />)
     fireEvent.click(screen.getByRole('button', { name: /copy|kopyala/i }))
-    await waitFor(() => expect(show).toHaveBeenCalled())
+    await waitFor(() => expect(show).toHaveBeenCalledWith(expect.any(String), 'success'))
+    // Başarı mesajıyla çağrıldığını kontrol et, hata mesajıyla değil
+    const call = vi.mocked(show).mock.calls[0]
+    expect(call[0]).toContain('kopyalandı')
+  })
+
+  it('pano yazma hatasında hata toast gösterir', async () => {
+    // clipboard.writeText hatasını simüle et
+    const clipboardError = new Error('insecure origin')
+    Object.assign(navigator, { clipboard: { writeText: vi.fn().mockRejectedValue(clipboardError) } })
+
+    render(<ConsentShare value="tr" onChange={() => {}} />)
+    fireEvent.click(screen.getByRole('button', { name: /copy|kopyala/i }))
+    await waitFor(() => expect(show).toHaveBeenCalledWith(expect.any(String), 'error'))
+    // Hata mesajıyla çağrıldığını kontrol et
+    const call = vi.mocked(show).mock.calls[0]
+    expect(call[0]).toContain('Kopyalanamadı')
   })
 })
