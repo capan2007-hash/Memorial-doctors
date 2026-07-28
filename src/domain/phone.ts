@@ -105,6 +105,17 @@ export function hasExplicitCountryCode(raw: string): boolean {
 export function isValidPhone(raw: string): boolean {
   const shape = classify(raw)
   if (shape.kind === 'empty') return false
-  if (shape.kind === 'explicit') return shape.digits.length >= 8 && shape.digits.length <= 15
+  if (shape.kind === 'explicit') {
+    // Varsayılan ülke kodu (90) ile başlayan girdilerde genel E.164 alt sınırı
+    // (8 hane) yetersiz kalır: "+90532111" gibi kırpılmış bir numara da bu
+    // aralığa düşüp geçerli sayılırdı, oysa aynı numara ulusal biçimde
+    // ("532111") doğru şekilde elenirdi. Bu yüzden "90" ile başlayan
+    // girdilerde ulusal kısmın TAM uzunlukta (10 hane) olmasını zorunlu
+    // kılıyoruz; diğer ülkeler için genel E.164 aralığı (8-15) geçerli kalır.
+    if (shape.digits.startsWith(DEFAULT_COUNTRY.dialCode)) {
+      return shape.digits.length === DEFAULT_COUNTRY.dialCode.length + DEFAULT_COUNTRY.nationalLength
+    }
+    return shape.digits.length >= 8 && shape.digits.length <= 15
+  }
   return shape.national.length === DEFAULT_COUNTRY.nationalLength
 }

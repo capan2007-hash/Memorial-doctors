@@ -208,13 +208,26 @@ export function NewRequestWizard() {
   // "+905321112233" değerinin baştaki "+" ile birlikte doğru yönde kalmasını
   // sağlar; olmazsa artı işareti numaranın diğer ucuna kayar. Kaçış dizisiyle
   // yazılır — bu karakterler görünmezdir, düz yapıştırmada kaybolur.
-  const phoneHint = phoneE164
-    ? [
-        t('newRequest.phoneHint.saved', { value: `\u2068${phoneE164}\u2069` }),
-        hasExplicitCountryCode(phone) ? null : t('newRequest.phoneHint.assumedCountry'),
-      ]
-        .filter(Boolean)
-        .join(' · ')
+  // İpucu yalnız telefon GEÇERLİ olduğunda gösterilir: aksi hâlde form henüz
+  // kaydetmeyeceği bir değeri "Kaydedilecek: …" diye vaat etmiş olur (sticky
+  // eksik-alan çubuğu eksikliği zaten bildiriyor — ayrı bir hata mesajına
+  // gerek yok). "+90 varsayıldı" uyarısı sık görülen normal TR girişinde de
+  // sürekli tetiklendiği için nötr "Kaydedilecek" metninden görsel olarak
+  // ayrılır (mevcut uyarı deseni: `text-warning-text`, bu dosyada başka
+  // yerlerde de kullanılıyor) — yoksa göz sık tetiklenen sinyali filtreler
+  // ve nadir yabancı-numara durumunu da kaçırır.
+  const phoneHint = phoneOk
+    ? (
+        <>
+          {t('newRequest.phoneHint.saved', { value: `\u2068${phoneE164}\u2069` })}
+          {hasExplicitCountryCode(phone) ? null : (
+            <>
+              {' · '}
+              <span className="text-warning-text">{t('newRequest.phoneHint.assumedCountry')}</span>
+            </>
+          )}
+        </>
+      )
     : undefined
   const ageOk = ageNum > 0 && !demoError
   const weightOk = weightNum > 0 && !demoError

@@ -171,6 +171,16 @@ gösteriyor. Bugün iki aday ekranda `5321112233` ve `5321112233` olarak ayırt
 edilemiyor; tam E.164 saklandığında satışçı `+905321112233` ile `+9665321112233`'ü
 ayırt edip yanlış adayı reddedebilir.
 
+Bu çözüm yalnız **yeni hasta** yolunda tam işler. `useRequests.ts`daki
+`useCreateRequest`, `existingPatientId` seçiliyken hasta insert'ini tamamen
+atlıyor ve `patient.phone`'u hiç güncellemiyor — yani satışçı, panelde mevcut
+bir adayı seçip tam numarayı yazsa bile, o hastanın DB'deki eski (ülke kodu
+soyulmuş) `phone` değeri yükseltilmiyor. Dolayısıyla ayırt etme yeteneği yalnız
+**yeni kayıtlar arasında** ve **yeni kayıt ile hâlâ eski biçimde duran bir
+kayıt karşılaştırıldığında görünürde** işliyor; var olan bir hastanın kaydı bu
+akışla asla E.164'e yükseltilmiyor, dolayısıyla o hastaya ait çakışma sorunu
+zaman içinde kendiliğinden kapanmıyor.
+
 Bu karar ve gerekçesi `phone.ts` başındaki yorum bloğuna da yazılır — sonraki
 geliştirici "bu fonksiyon neden hâlâ son 10 hane alıyor" diye değiştirmeye
 kalkmasın diye.

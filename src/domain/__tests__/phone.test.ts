@@ -118,6 +118,10 @@ describe('isValidPhone', () => {
     expect(isValidPhone('0532 111 22 33')).toBe(true)
   })
 
+  it('+90 ile açıkça yazılmış tam TR numarasını kabul eder', () => {
+    expect(isValidPhone('+905321112233')).toBe(true)
+  })
+
   it('ülke kodu varsayıldığında eksik haneli girdiyi eler', () => {
     // toE164 başa "90" eklediği için toplam 10 haneye çıkar; tek bir
     // "en az 10 hane" kuralı bu girdiyi yanlışlıkla geçerli sayardı.
@@ -144,16 +148,43 @@ describe('isValidPhone', () => {
     expect(isValidPhone('+1234567890123456')).toBe(false)
   })
 
+  // 8-9 hane bölgesi: +90 varsayılan ülke kodu için TR taşıma kuralı burada
+  // devreye giriyor; genel 8-15 E.164 aralığı bu girdileri yanlışlıkla
+  // geçerli sayardı (bkz. finding 1 regresyonu).
+  it('+90 ile başlayıp ulusal kısmı 8 haneye kırpılmış girdiyi eler', () => {
+    expect(isValidPhone('+90532111')).toBe(false)
+  })
+
+  it('+90 ile başlayıp ulusal kısmı 9 haneye kırpılmış girdiyi eler', () => {
+    expect(isValidPhone('+905321112')).toBe(false)
+  })
+
+  it('aynı numara ulusal biçimde (0 ile) yazılınca doğru şekilde elenir', () => {
+    expect(isValidPhone('+90532111')).toBe(false)
+    expect(isValidPhone('532111')).toBe(false)
+  })
+
+  it('+90 dışındaki bir ülke kodunda 8 hane genel E.164 alt sınırını hâlâ geçer', () => {
+    expect(isValidPhone('+12345678')).toBe(true)
+  })
+
   it('boş girdiyi eler', () => {
     expect(isValidPhone('')).toBe(false)
   })
 })
 
 describe('toE164 ↔ normalizePhone uyumu (mükerrer eşleştirme regresyonu)', () => {
-  // KİLİT VARSAYIM: E.164'e geçiş, DB'deki normalize_phone (son 10 hane)
-  // eşleştirmesini bozmamalı. toE164 yalnız başa ekleme yaptığı için 10+
-  // haneli her girdide son 10 hane aynı kalır. Bu test o varsayımı sabitler;
-  // kırılırsa eski kayıtlar yeni kayıtlarla eşleşmiyor demektir.
+  // KİLİT VARSAYIM (KISITLI — evrensel değil): E.164'e geçiş, DB'deki
+  // normalize_phone (son 10 hane) eşleştirmesini bozmamalı. Bu yalnız
+  // toE164'ün rakam BAŞA EKLEDİĞİ veya hiç dokunmadığı durumlarda kesin
+  // doğru (ulusal biçim, "+" ile başlayan girdi, varsayılan ülke koduyla
+  // başlayan uzun girdi). "00" uluslararası çıkış öneki İSTİSNA: toE164 bu
+  // durumda BAŞTAN 2 hane SİLER (bkz. classify, kural 2). Toplam hane sayısı
+  // bu silmeden sonra 10'un altına düşecek kadar kısa yabancı numaralarda
+  // (ör. "00298123456") son-10 kırpması farklı noktadan başladığı için
+  // eşitlik bozulur — örn. normalizePhone('00298123456') = '0298123456' iken
+  // normalizePhone(toE164('00298123456')) = '298123456'. Aşağıdaki girdiler
+  // bilerek bu kırılgan bölgenin DIŞINDA (silme sonrası hâlâ 10+ hane) seçildi.
   const inputs = [
     '+90 532 111 2233',
     '0532-111-22-33',
@@ -166,5 +197,26 @@ describe('toE164 ↔ normalizePhone uyumu (mükerrer eşleştirme regresyonu)', 
 
   it.each(inputs)('normalize sonucu %s için değişmez', (input) => {
     expect(normalizePhone(toE164(input))).toBe(normalizePhone(input))
+  })
+})
+
+describe('legacy kayıt ile yeni E.164 kaydı AYNI hastayı gösterir (asıl köprü varsayımı)', () => {
+  // Yukarıdaki test yalnız "toE164(x) ile x kendi arasında" tutarlılığı
+  // sınar. Tasarımın dayandığı asıl iddia farklı: DAHA ÖNCE (eski rejimde,
+  // toE164 olmadan) `normalizePhone(girdi)` olarak kaydedilmiş bir hasta
+  // satırı, AYNI insan numarası BUGÜN farklı biçimde yazılıp toE164 ile
+  // kaydedildiğinde hâlâ eşleşmeli. İki farklı ZAMANDA, iki farklı BİÇİMDE
+  // girilen aynı numara DB'nin son-10 fonksiyonel indeksinde aynı satıra
+  // düşmeli.
+  it('TR numarası ulusal yazılmış legacy kayıt ile trunk-0 yazılmış yeni kayıt eşleşir', () => {
+    expect(normalizePhone('5321112233')).toBe(normalizePhone(toE164('0532 111 22 33')))
+  })
+
+  it('TR numarası çıplak 10 hane legacy kayıt ile +90 önekli yeni kayıt eşleşir', () => {
+    expect(normalizePhone('5321112233')).toBe(normalizePhone(toE164('+90 532 111 22 33')))
+  })
+
+  it('yabancı (Suudi) numarada legacy son-10 kaydı ile yeni E.164 kaydı eşleşir', () => {
+    expect(normalizePhone('6512345678')).toBe(normalizePhone(toE164('+966 51 234 5678')))
   })
 })
