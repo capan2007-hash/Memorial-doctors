@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { router } from 'expo-router'
-import { AlertTriangle, ChevronRight, Clock, RefreshCw, Search } from 'lucide-react-native'
+import { AlertTriangle, Check, ChevronRight, Clock, RefreshCw, Search } from 'lucide-react-native'
 import { useTranslation } from 'react-i18next'
 import { ActivityIndicator, Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 
@@ -328,9 +328,12 @@ export default function TaleplerScreen() {
                                   : { backgroundColor: colors.surface2, borderColor: colors.border },
                               ]}
                             >
-                              <Text style={[styles.chipText, { color: on ? colors.brandOn : colors.textSecondary }]}>
-                                {d.name}
-                              </Text>
+                              <View style={styles.chipInner}>
+                                {on && <Check color={colors.brandOn} size={13} strokeWidth={2.5} />}
+                                <Text style={[styles.chipText, { color: on ? colors.brandOn : colors.textSecondary }]}>
+                                  {d.name}
+                                </Text>
+                              </View>
                             </Pressable>
                           )
                         })}
@@ -393,6 +396,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.three,
     paddingVertical: spacing.one,
   },
+  chipInner: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   chipText: { fontFamily: fontFamily.medium, fontSize: 13 },
   searchWrap: { paddingHorizontal: spacing.four, paddingBottom: spacing.three },
   searchBox: {

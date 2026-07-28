@@ -3,6 +3,7 @@
 // assign_request_doctors scope kuralıyla birebir aynı).
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { doctorLabel } from './doctorLabel'
 
 export interface EligibleDoctor {
   id: string
@@ -44,7 +45,8 @@ export function useEligibleDoctors(categoryId?: string, subcategoryId?: string |
       return rows
         .map((d) => {
           const full = d.app_user_id ? nameByUser.get(d.app_user_id) ?? '' : ''
-          const label = [d.title, full].filter(Boolean).join(' ').trim()
+          // Çift unvan hatası ("Op. Dr. Op. Dr. Plastik") için ortak kural (web ile aynı).
+          const label = doctorLabel(d.title, full)
           return { id: d.id, name: label || `#${d.id.slice(0, 8)}`, specialty: d.specialty }
         })
         .sort((a, b) => a.name.localeCompare(b.name, 'tr'))

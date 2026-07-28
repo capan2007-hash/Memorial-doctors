@@ -17,6 +17,7 @@ import { shouldShowAiPreview } from './aiPreview'
 import { AiPreviewScreen } from './AiPreviewScreen'
 import { useExtractRequest, type ExtractedRequest } from './useExtractRequest'
 import { useEligibleDoctors } from './useEligibleDoctors'
+import { DoctorMultiSelect } from '../doctor/DoctorMultiSelect'
 import { Card } from '../../components/ui/Card'
 import { Field } from '../../components/ui/Field'
 import { Input } from '@/components/shadcn/input'
@@ -515,37 +516,12 @@ export function NewRequestWizard() {
             )}
 
             {routingMode === 'selected' && (
-              eligible.isLoading ? (
-                <p className="text-sm text-ink-muted">{t('newRequest.routing.loading')}</p>
-              ) : (eligible.data?.length ?? 0) === 0 ? (
-                <p className="text-sm text-warning-text">{t('newRequest.routing.noEligible')}</p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {eligible.data!.map((d) => {
-                    const on = selectedDoctorIds.includes(d.id)
-                    return (
-                      <button
-                        key={d.id}
-                        type="button"
-                        aria-pressed={on}
-                        onClick={() =>
-                          setSelectedDoctorIds((prev) =>
-                            prev.includes(d.id) ? prev.filter((x) => x !== d.id) : [...prev, d.id],
-                          )
-                        }
-                        className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                          on
-                            ? 'border-brand-fill bg-brand-fill text-white'
-                            : 'border-line bg-surface-1 text-ink-secondary hover:border-line-strong'
-                        }`}
-                      >
-                        {d.name}
-                        {d.specialty && <span className="ms-1 opacity-70">· {d.specialty}</span>}
-                      </button>
-                    )
-                  })}
-                </div>
-              )
+              <DoctorMultiSelect
+                doctors={eligible.data ?? []}
+                value={selectedDoctorIds}
+                onChange={setSelectedDoctorIds}
+                loading={eligible.isLoading}
+              />
             )}
           </div>
         </Card>

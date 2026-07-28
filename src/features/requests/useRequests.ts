@@ -4,6 +4,7 @@ import { uploadPhotos } from './usePhotoUpload'
 import { resolvePhotoUrls } from './photoUrl'
 import type { RequestRow, ResponseRow, PhotoRow } from '../../types/db'
 import type { CatalogRef } from '../catalog/catalogName'
+import { doctorLabel } from '../doctor/doctorLabel'
 
 // Katalog adı lokalizasyonu render-anında `catalogName(ref, i18n.language)` ile yapılır
 // (bkz. src/features/catalog/catalogName.ts) — bu yüzden queryFn ham `name`+`name_i18n`'i taşır.
@@ -171,7 +172,7 @@ export function useRequestDetail(id?: string) {
       for (const d of docs ?? []) {
         const doc = d as { id: string; title: string | null; app_user_id: string | null }
         const full = doc.app_user_id ? nameByUser.get(doc.app_user_id) ?? '' : ''
-        const label = [doc.title, full].filter(Boolean).join(' ').trim()
+        const label = doctorLabel(doc.title, full)
         if (label) doctorNames.set(doc.id, label)
       }
     }

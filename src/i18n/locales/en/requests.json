@@ -113,7 +113,9 @@
       "selectDoctors": "Choose doctors",
       "allHint": "The request will be sent to {{count}} active doctors qualified for this procedure.",
       "loading": "Loading doctors…",
-      "noEligible": "No active doctor is qualified for this procedure."
+      "noEligible": "No active doctor is qualified for this procedure.",
+      "pickPlaceholder": "Select doctors…",
+      "pickedCount": "{{count}} doctors selected"
     }
   },
   "patientInfo": {

@@ -113,7 +113,9 @@
       "selectDoctors": "Doktor seç",
       "allHint": "Talep, bu işleme yetkin {{count}} aktif doktora gönderilecek.",
       "loading": "Doktorlar yükleniyor…",
-      "noEligible": "Bu işlem için yetkin aktif doktor yok."
+      "noEligible": "Bu işlem için yetkin aktif doktor yok.",
+      "pickPlaceholder": "Doktor seçin…",
+      "pickedCount": "{{count}} doktor seçildi"
     }
   },
   "patientInfo": {

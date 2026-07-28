@@ -11,6 +11,7 @@ import { PageHeader } from '../../components/ui/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { useToast } from '../../components/ui/Toast'
 import { useEligibleDoctors } from '../requests/useEligibleDoctors'
+import { DoctorMultiSelect } from '../doctor/DoctorMultiSelect'
 import { Tabs, TabsList, TabsTrigger } from '@/components/shadcn/tabs'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { timeAgo } from '../../lib/format'
@@ -232,30 +233,12 @@ export function AllRequests() {
                       <p className="text-sm text-warning-text">{t('allRequests.reassignNoEligible')}</p>
                     ) : (
                       <>
-                        <div className="flex flex-wrap gap-2">
-                          {pickerEligible.data!.map((d) => {
-                            const on = pickedIds.includes(d.id)
-                            return (
-                              <button
-                                key={d.id}
-                                type="button"
-                                aria-pressed={on}
-                                onClick={() =>
-                                  setPickedIds((prev) =>
-                                    prev.includes(d.id) ? prev.filter((x) => x !== d.id) : [...prev, d.id],
-                                  )
-                                }
-                                className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                                  on
-                                    ? 'border-brand-fill bg-brand-fill text-white'
-                                    : 'border-line bg-surface-2 text-ink-secondary hover:border-line-strong'
-                                }`}
-                              >
-                                {d.name}
-                              </button>
-                            )
-                          })}
-                        </div>
+                        <DoctorMultiSelect
+                          doctors={pickerEligible.data ?? []}
+                          value={pickedIds}
+                          onChange={setPickedIds}
+                          loading={pickerEligible.isLoading}
+                        />
                         <Button
                           variant="primary"
                           disabled={pickedIds.length === 0}

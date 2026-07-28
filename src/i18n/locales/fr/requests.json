@@ -113,7 +113,9 @@
       "selectDoctors": "Choisir des médecins",
       "allHint": "La demande sera envoyée à {{count}} médecins actifs qualifiés pour cette intervention.",
       "loading": "Chargement des médecins…",
-      "noEligible": "Aucun médecin actif n'est qualifié pour cette intervention."
+      "noEligible": "Aucun médecin actif n'est qualifié pour cette intervention.",
+      "pickPlaceholder": "Sélectionner des médecins…",
+      "pickedCount": "{{count}} médecins sélectionnés"
     }
   },
   "patientInfo": {

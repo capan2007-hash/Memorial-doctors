@@ -113,7 +113,9 @@
       "selectDoctors": "Ärzte auswählen",
       "allHint": "Die Anfrage geht an {{count}} aktive Ärzte mit passender Qualifikation.",
       "loading": "Ärzte werden geladen…",
-      "noEligible": "Kein aktiver Arzt ist für diesen Eingriff qualifiziert."
+      "noEligible": "Kein aktiver Arzt ist für diesen Eingriff qualifiziert.",
+      "pickPlaceholder": "Ärzte auswählen…",
+      "pickedCount": "{{count}} Ärzte ausgewählt"
     }
   },
   "patientInfo": {
