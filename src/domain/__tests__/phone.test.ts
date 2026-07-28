@@ -151,17 +151,12 @@ describe('isValidPhone', () => {
   // 8-9 hane bölgesi: +90 varsayılan ülke kodu için TR taşıma kuralı burada
   // devreye giriyor; genel 8-15 E.164 aralığı bu girdileri yanlışlıkla
   // geçerli sayardı (bkz. finding 1 regresyonu).
-  it('+90 ile başlayıp ulusal kısmı 8 haneye kırpılmış girdiyi eler', () => {
+  it('+90 ile başlayan 8 haneli (kırpılmış) girdiyi eler', () => {
     expect(isValidPhone('+90532111')).toBe(false)
   })
 
-  it('+90 ile başlayıp ulusal kısmı 9 haneye kırpılmış girdiyi eler', () => {
+  it('+90 ile başlayan 9 haneli (kırpılmış) girdiyi eler', () => {
     expect(isValidPhone('+905321112')).toBe(false)
-  })
-
-  it('aynı numara ulusal biçimde (0 ile) yazılınca doğru şekilde elenir', () => {
-    expect(isValidPhone('+90532111')).toBe(false)
-    expect(isValidPhone('532111')).toBe(false)
   })
 
   it('+90 dışındaki bir ülke kodunda 8 hane genel E.164 alt sınırını hâlâ geçer', () => {

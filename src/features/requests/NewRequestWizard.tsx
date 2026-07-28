@@ -161,10 +161,12 @@ export function NewRequestWizard() {
     let cancelled = false
     const timer = setTimeout(() => {
       // RPC'ye HAM telefon gider (toE164 değil): DB tarafındaki normalize_phone
-      // zaten son 10 haneyi alıyor ve toE164 yalnız başa ekleme yaptığı için
-      // 10+ haneli girdilerde iki değerin son 10 hanesi aynı. Çevirmek fayda
+      // zaten son 10 haneyi alıyor ve toE164 bu girdilerde yalnız başa ekleme
+      // yaptığı için iki değerin son 10 hanesi aynı çıkıyor. Çevirmek fayda
       // sağlamaz, buna karşılık yazarken oluşan yarım girdileri ("053" →
       // "+9053") bozardı.
+      // (Not: toE164 her zaman "yalnız başa ekleme" yapmaz — "00" önekli
+      // girdide iki hane siler; ayrıntı phone.test.ts'teki regresyon bloğunda.)
       supabase.rpc('find_patient_matches', { p_phone: phone, p_first: first, p_last: last })
         .then(({ data, error }) => {
           if (cancelled || error) return
