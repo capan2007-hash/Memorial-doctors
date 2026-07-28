@@ -116,7 +116,9 @@
       "noEligible": "لا يوجد طبيب نشط مؤهل لهذا الإجراء.",
       "pickPlaceholder": "اختر الأطباء…",
       "pickedCount": "تم اختيار {{count}} طبيبًا"
-    }
+    },
+    "subcategorySelected": "تم اختيار {{count}} إجراء",
+    "subcategoryEmpty": "لا توجد إجراءات في هذه الفئة."
   },
   "patientInfo": {
     "title": "بيانات المريض",

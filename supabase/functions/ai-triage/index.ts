@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
   try {
     // Bağlam topla: operasyon adları + fotoğraflar + atanan doktor kartları + geri bildirim ipuçları.
     // Hasta adı bilerek çekilmiyor (gizlilik K3): AI bağlamı ada ihtiyaç duymaz.
-    const [patRes, catRes, subRes, opRes, photosRes, assignRes] = await Promise.all([
+    const [patRes, catRes, subRes, opRes, photosRes, assignRes, procRes] = await Promise.all([
       // Hasta adı YALNIZ maskeleme için çekilir (serbest metne gömülü ismi silmek);
       // LLM'e asla gönderilmez (redactTokens sunucuda kalır).
       admin.from('patient').select('first_name, last_name').eq('id', request.patient_id).single(),
@@ -94,6 +94,8 @@ Deno.serve(async (req) => {
         : Promise.resolve({ data: null }),
       admin.from('photo').select('storage_path, kind').eq('request_id', request.id).eq('layer', 'active'),
       admin.from('assignment').select('doctor_id').eq('request_id', request.id),
+      // Çoklu işlem seçimi (request_subcategory) — adlarıyla birlikte.
+      admin.from('request_subcategory').select('subcategory:subcategory_id(name)').eq('request_id', request.id),
     ])
 
     const doctorIds = (assignRes.data ?? []).map((a: { doctor_id: string }) => a.doctor_id)
@@ -140,6 +142,10 @@ Deno.serve(async (req) => {
         category: catRes.data?.name ?? 'bilinmiyor',
         subcategory: subRes.data?.name ?? null,
         operationType: opRes.data?.name ?? null,
+        // deno-lint-ignore no-explicit-any
+        procedures: ((procRes.data ?? []) as any[])
+          .map((r) => r.subcategory?.name)
+          .filter((n: unknown): n is string => typeof n === 'string' && n.length > 0),
       },
       doctors: (doctorRows ?? []).map((d: { title: string | null; specialty: string | null }) => ({
         title: d.title, specialty: d.specialty,

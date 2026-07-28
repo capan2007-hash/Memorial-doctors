@@ -116,7 +116,9 @@
       "noEligible": "Aucun médecin actif n'est qualifié pour cette intervention.",
       "pickPlaceholder": "Sélectionner des médecins…",
       "pickedCount": "{{count}} médecins sélectionnés"
-    }
+    },
+    "subcategorySelected": "{{count}} interventions sélectionnées",
+    "subcategoryEmpty": "Aucune intervention définie dans cette catégorie."
   },
   "patientInfo": {
     "title": "Informations du patient",

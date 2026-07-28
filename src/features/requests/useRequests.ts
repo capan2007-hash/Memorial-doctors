@@ -27,7 +27,10 @@ interface NewRequestInput {
   alcoholStatus?: 'never' | 'occasional' | 'regular' | null
   alcoholDrinksPerWeek?: number | null
   categoryId: string
+  /** Birincil işlem (liste/başlık/mükerrer akışı bunu kullanır) = seçilenlerin ilki. */
   subcategoryId: string | null
+  /** Talepte seçilen TÜM işlemler (çoklu). Birincil dahil. */
+  subcategoryIds?: string[]
   operationTypeId: string | null
   notes?: string
   /** Yönlendirme seçimi: null = tüm uygun doktorlar; dizi = yalnız seçilen doktorlar. */
@@ -82,6 +85,13 @@ export function useCreateRequest() {
         ...consent,
       }).select().single()
       if (rErr) throw rErr
+      // 2b) çoklu işlem seçimi (request_subcategory). Birincil zaten request'te.
+      if (input.subcategoryIds?.length) {
+        const { error: subErr } = await supabase.from('request_subcategory').insert(
+          input.subcategoryIds.map((subcategory_id) => ({ request_id: req.id, subcategory_id })),
+        )
+        if (subErr) throw subErr
+      }
       // 3) fotoğraflar
       if (input.files.length) await uploadPhotos(input.tenantId, req.id, input.files)
       // röntgenler

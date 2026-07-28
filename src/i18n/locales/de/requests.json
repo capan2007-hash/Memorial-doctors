@@ -116,7 +116,9 @@
       "noEligible": "Kein aktiver Arzt ist für diesen Eingriff qualifiziert.",
       "pickPlaceholder": "Ärzte auswählen…",
       "pickedCount": "{{count}} Ärzte ausgewählt"
-    }
+    },
+    "subcategorySelected": "{{count}} Eingriffe ausgewählt",
+    "subcategoryEmpty": "In dieser Kategorie ist kein Eingriff definiert."
   },
   "patientInfo": {
     "title": "Patienteninformationen",

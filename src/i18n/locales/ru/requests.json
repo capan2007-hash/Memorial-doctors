@@ -116,7 +116,9 @@
       "noEligible": "Нет активного врача с нужной квалификацией.",
       "pickPlaceholder": "Выберите врачей…",
       "pickedCount": "Выбрано врачей: {{count}}"
-    }
+    },
+    "subcategorySelected": "Выбрано процедур: {{count}}",
+    "subcategoryEmpty": "В этой категории нет процедур."
   },
   "patientInfo": {
     "title": "Информация о пациенте",

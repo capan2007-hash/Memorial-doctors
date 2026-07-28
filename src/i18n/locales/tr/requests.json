@@ -116,7 +116,9 @@
       "noEligible": "Bu işlem için yetkin aktif doktor yok.",
       "pickPlaceholder": "Doktor seçin…",
       "pickedCount": "{{count}} doktor seçildi"
-    }
+    },
+    "subcategorySelected": "{{count}} işlem seçildi",
+    "subcategoryEmpty": "Bu kategoride işlem tanımlı değil."
   },
   "patientInfo": {
     "title": "Hasta Bilgileri",

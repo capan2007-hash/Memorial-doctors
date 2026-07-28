@@ -116,7 +116,9 @@
       "noEligible": "No active doctor is qualified for this procedure.",
       "pickPlaceholder": "Select doctors…",
       "pickedCount": "{{count}} doctors selected"
-    }
+    },
+    "subcategorySelected": "{{count}} procedures selected",
+    "subcategoryEmpty": "No procedure defined in this category."
   },
   "patientInfo": {
     "title": "Patient Information",

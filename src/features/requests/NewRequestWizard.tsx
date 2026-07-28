@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, Info, User, X } from 'lucide-react'
+import { AlertTriangle, Info, Stethoscope, User, X } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
-import { useCategories, useSubcategories, useOperationTypes } from '../catalog/useCatalog'
+import { useCategories, useSubcategories } from '../catalog/useCatalog'
 import { catalogName } from '../catalog/catalogName'
 import { useCreateRequest } from './useRequests'
 import { PhotoUploader } from '../../components/PhotoUploader'
@@ -18,6 +18,7 @@ import { AiPreviewScreen } from './AiPreviewScreen'
 import { useExtractRequest, type ExtractedRequest } from './useExtractRequest'
 import { useEligibleDoctors } from './useEligibleDoctors'
 import { DoctorMultiSelect } from '../doctor/DoctorMultiSelect'
+import { MultiSelectDropdown } from '../../components/ui/MultiSelectDropdown'
 import { Card } from '../../components/ui/Card'
 import { Field } from '../../components/ui/Field'
 import { Input } from '@/components/shadcn/input'
@@ -36,7 +37,6 @@ interface MedicalField {
 }
 
 const emptyMedical: MedicalField = { none: false, text: '' }
-const NONE = '__none__'
 
 /** Etiketli shadcn Select — native <select>'lerin premium karşılığı. */
 function LabeledSelect({
@@ -100,7 +100,11 @@ export function NewRequestWizard() {
   const [initialDraft] = useState<RequestDraft | null>(() => loadDraft())
   const [draftRestored, setDraftRestored] = useState(!!initialDraft)
   const [categoryId, setCategoryId] = useState(initialDraft?.categoryId ?? '')
-  const [subcategoryId, setSubcategoryId] = useState<string | null>(initialDraft?.subcategoryId ?? null)
+  // Çoklu işlem seçimi; birincil (talebe yazılan) = ilk seçilen.
+  const [subcategoryIds, setSubcategoryIds] = useState<string[]>(
+    initialDraft?.subcategoryId ? [initialDraft.subcategoryId] : [],
+  )
+  const subcategoryId = subcategoryIds[0] ?? null
   const [operationTypeId, setOperationTypeId] = useState<string | null>(initialDraft?.operationTypeId ?? null)
   const [first, setFirst] = useState(initialDraft?.first ?? ''); const [last, setLast] = useState(initialDraft?.last ?? '')
   const [phone, setPhone] = useState(initialDraft?.phone ?? '')
@@ -124,7 +128,6 @@ export function NewRequestWizard() {
   const [matches, setMatches] = useState<MatchRow[]>([])
   const [selectedPatient, setSelectedPatient] = useState<MatchRow | null>(null)
   const subs = useSubcategories(categoryId)
-  const ops = useOperationTypes(categoryId, subcategoryId)
   const create = useCreateRequest()
 
   const draftRef = useRef<RequestDraft>({
@@ -169,7 +172,7 @@ export function NewRequestWizard() {
   const clearDraftAndReset = () => {
     clearDraft()
     setDraftRestored(false)
-    setCategoryId(''); setSubcategoryId(null); setOperationTypeId(null)
+    setCategoryId(''); setSubcategoryIds([]); setOperationTypeId(null)
     setFirst(''); setLast(''); setPhone('')
     setAge(''); setWeightKg(''); setHeightCm('')
     setGender('')
@@ -199,7 +202,7 @@ export function NewRequestWizard() {
   const lifestyleOk = lifestyleComplete({ smokingStatus, smokingCigs, smokingYears, alcoholStatus, alcoholDrinks })
 
   const canSubmit = !!first && !!last && phoneOk && ageOk && weightOk && heightOk && !!gender &&
-    !!categoryId && (!needsSub || !!subcategoryId) &&
+    !!categoryId && (!needsSub || subcategoryIds.length > 0) &&
     medicalOk && lifestyleOk && files.length > 0 &&
     // Doktor seçimi modundaysa en az bir doktor seçilmiş olmalı (yoksa talep kimseye gitmez).
     (routingMode === 'all' || selectedDoctorIds.length > 0)
@@ -247,7 +250,8 @@ export function NewRequestWizard() {
     if (x.alcoholDrinksPerWeek != null) setAlcoholDrinks(String(Math.round(x.alcoholDrinksPerWeek)))
     // Katalog: sunucuda doğrulanmış id'ler (uydurma id gelmez).
     if (x.categoryId) setCategoryId(x.categoryId)
-    if (x.subcategoryId) setSubcategoryId(x.subcategoryId)
+    // Yapıştır-doldur tek işlem çıkarır; çoklu seçime ilk eleman olarak konur.
+    if (x.subcategoryId) setSubcategoryIds([x.subcategoryId])
     if (x.operationTypeId) setOperationTypeId(x.operationTypeId)
     if (x.notes) setNotes((prev) => (prev.trim() ? `${prev}\n${x.notes}` : x.notes!))
   }
@@ -280,6 +284,7 @@ export function NewRequestWizard() {
         alcoholDrinksPerWeek: alcoholStatus === 'regular' ? Number(alcoholDrinks) : null,
         selectedDoctorIds: routingMode === 'selected' ? selectedDoctorIds : null,
         categoryId, subcategoryId: needsSub ? subcategoryId : null,
+        subcategoryIds: needsSub ? subcategoryIds : [],
         operationTypeId, notes, files,
         xrayFiles: isDental ? xrayFiles : undefined,
         consentGiven,
@@ -454,31 +459,29 @@ export function NewRequestWizard() {
           <LabeledSelect
             label={t('newRequest.categoryLabel')}
             value={categoryId}
-            onChange={(v) => { setCategoryId(v); setSubcategoryId(null); setOperationTypeId(null) }}
+            onChange={(v) => { setCategoryId(v); setSubcategoryIds([]); setOperationTypeId(null) }}
             placeholder={t('newRequest.categoryPlaceholder')}
           >
             {cats.data?.map((c) => <SelectItem key={c.id} value={c.id}>{catalogName(c, i18n.language)}</SelectItem>)}
           </LabeledSelect>
+          {/* Alt kategori (istenen işlem) ÇOKLU seçilebilir: ör. BBL + 360 Lipo + Meme Germe.
+              İlk seçilen "birincil işlem" olarak talebe yazılır (liste/başlık onu kullanır). */}
           {needsSub && (
-            <LabeledSelect
-              label={t('newRequest.subcategoryLabel')}
-              value={subcategoryId ?? ''}
-              onChange={(v) => setSubcategoryId(v || null)}
-              placeholder={t('newRequest.subcategoryPlaceholder')}
-            >
-              {subs.data?.map((s) => <SelectItem key={s.id} value={s.id}>{catalogName(s, i18n.language)}</SelectItem>)}
-            </LabeledSelect>
-          )}
-          {categoryId && (
-            <LabeledSelect
-              label={t('newRequest.operationTypeLabel')}
-              value={operationTypeId ?? NONE}
-              onChange={(v) => setOperationTypeId(v === NONE ? null : v)}
-              placeholder={t('newRequest.operationTypePlaceholder')}
-            >
-              <SelectItem value={NONE}>{t('newRequest.operationTypeNone')}</SelectItem>
-              {ops.data?.map((o) => <SelectItem key={o.id} value={o.id}>{catalogName(o, i18n.language)}</SelectItem>)}
-            </LabeledSelect>
+            <div className="space-y-1.5">
+              <span className="block text-sm font-medium text-foreground">
+                {t('newRequest.subcategoryLabel')}
+              </span>
+              <MultiSelectDropdown
+                options={(subs.data ?? []).map((sc) => ({ id: sc.id, label: catalogName(sc, i18n.language) }))}
+                value={subcategoryIds}
+                onChange={setSubcategoryIds}
+                placeholder={t('newRequest.subcategoryPlaceholder')}
+                summaryLabel={(count) => t('newRequest.subcategorySelected', { count })}
+                emptyLabel={t('newRequest.subcategoryEmpty')}
+                loading={subs.isLoading}
+                icon={Stethoscope}
+              />
+            </div>
           )}
         </div>
       </Card>

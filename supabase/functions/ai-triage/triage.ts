@@ -43,6 +43,8 @@ export interface TriageOperation {
   category: string
   subcategory: string | null
   operationType: string | null
+  /** Talepte SEÇİLİ tüm işlemler (çoklu alt kategori). Hasta birden fazla işlem isteyebilir. */
+  procedures?: string[]
 }
 
 export interface TriageDoctorCard {
@@ -91,6 +93,13 @@ export function buildSystemPrompt(): string {
     '',
     'Yanıtını daima Türkçe ver ve yalnızca istenen yapılandırılmış şemaya uygun çıktı üret.',
     '',
+    'Talepte BİRDEN FAZLA işlem seçili olabilir; her birini ayrı ayrı değerlendir ve ' +
+      'aralarındaki kombinasyon riskini (aynı seansta yapılabilirlik, anestezi süresi) göz önüne al.',
+    '',
+    'ÖNCELİK: Seçilen işlem listesi satış temsilcisinin kaydıdır; HASTANIN KENDİ YAZILI ' +
+      'TALEBİ (Not alanı) esastır. İkisi çelişirse hasta metnini temel al ve farkı ' +
+      'suitability_note içinde belirt.',
+    '',
     'Hastanın adını asla kullanma; çıktında hastayı tanımlayabilecek kişisel veri (ad, telefon, kimlik numarası) yazma.',
   ].join('\n')
 }
@@ -131,8 +140,13 @@ function buildSummaryText(ctx: TriageContext): string {
   lines.push('')
   lines.push('İstenen operasyon:')
   lines.push(`- Kategori: ${operation.category}`)
-  lines.push(`- Alt kırılım: ${operation.subcategory ?? 'yok'}`)
-  lines.push(`- İşlem tipi: ${operation.operationType ?? 'yok'}`)
+  if (operation.procedures && operation.procedures.length > 0) {
+    // Çoklu işlem: hasta birden fazla işlem isteyebilir (ör. BBL + 360 Lipo + Meme Germe).
+    lines.push(`- Seçilen işlemler: ${operation.procedures.join(', ')}`)
+  } else {
+    lines.push(`- Alt kırılım: ${operation.subcategory ?? 'yok'}`)
+    lines.push(`- İşlem tipi: ${operation.operationType ?? 'yok'}`)
+  }
 
   if (doctors.length > 0) {
     lines.push('')
