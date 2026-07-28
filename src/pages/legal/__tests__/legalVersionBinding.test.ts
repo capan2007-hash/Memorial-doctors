@@ -65,7 +65,7 @@ function digestOf(text: string): string {
  * uyumsuz hale gelirse (metin değişti ama sürüm aynı kaldı, ya da sürüm
  * değişti ama metin aynı kaldı) test kırılır.
  */
-const RECORDED_DIGEST = '43a4fbe7df415f8b472c06d5ef072436fb6a07bbfe3e02b9e89e98664604eb13'
+const RECORDED_DIGEST = '00f8a7e1aa79987765c8803a8c3e55d25ef4bb511a464c6dd92da3e65739c7e4'
 const RECORDED_LEGAL_VERSION = '2026-07-28'
 
 describe('LEGAL_VERSION — metin/sürüm bağlayıcılığı', () => {

@@ -5,7 +5,7 @@ import { resolvePhotoUrls } from './photoUrl'
 import type { RequestRow, ResponseRow, PhotoRow } from '../../types/db'
 import type { CatalogRef } from '../catalog/catalogName'
 import { doctorLabel } from '../doctor/doctorLabel'
-import { LEGAL_VERSION } from '../../pages/legal/types'
+import { LEGAL_VERSION, resolveLang } from '../../pages/legal'
 
 // Katalog adı lokalizasyonu render-anında `catalogName(ref, i18n.language)` ile yapılır
 // (bkz. src/features/catalog/catalogName.ts) — bu yüzden queryFn ham `name`+`name_i18n`'i taşır.
@@ -50,6 +50,10 @@ export interface NewRequestInput {
  * Onam beyan edildiyse consent_at/consent_channel/consented_by + hastaya iletilen
  * aydınlatma metninin sürümü/dili (consent_text_version/consent_lang) — AI kapısı
  * ve KVKK izlenebilirliği bu alanlara bakar. Onam yoksa boş nesne (kolonlar null kalır).
+ *
+ * consent_lang resolveLang ile normalize edilir: sourceLang ham i18n.language'ten
+ * gelir (ör. 'tr-TR' bölge kodlu olabilir), ama migration'daki kolon yorumu
+ * tr/ar/en/ru/de/fr'den birini vaat eder.
  */
 export function buildConsentFields(input: Pick<NewRequestInput, 'consentGiven' | 'createdBy' | 'consentLang' | 'sourceLang'>) {
   return input.consentGiven
@@ -58,7 +62,7 @@ export function buildConsentFields(input: Pick<NewRequestInput, 'consentGiven' |
         consent_channel: 'whatsapp',
         consented_by: input.createdBy,
         consent_text_version: LEGAL_VERSION,
-        consent_lang: input.consentLang ?? input.sourceLang,
+        consent_lang: resolveLang(input.consentLang ?? input.sourceLang),
       }
     : {}
 }

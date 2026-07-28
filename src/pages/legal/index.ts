@@ -13,6 +13,10 @@ import { aydinlatmaFr } from './aydinlatma.fr'
 
 export type LegalDocumentFactory = (id: ClinicIdentity, r: Retention) => LegalDocument
 
+// Paket giriş noktasından tekrar dışa verilir — tüketiciler (useRequests,
+// NewRequestWizard) types.ts'e derin import yapmak yerine buradan alsın.
+export { LEGAL_VERSION } from './types'
+
 /**
  * Altı dilin tamamının metni hazır — harita SUPPORTED ile birebir örtüşür.
  *

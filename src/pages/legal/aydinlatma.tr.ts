@@ -5,7 +5,7 @@ import { type LegalDocument, LEGAL_VERSION } from './types'
 export const aydinlatmaTr = (id: ClinicIdentity, r: Retention): LegalDocument => ({
   version: LEGAL_VERSION,
   title: 'Kişisel Verilerin İşlenmesine İlişkin Aydınlatma Metni',
-  subtitle: '6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca',
+  subtitle: '6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) uyarınca',
   updatedLabel: 'Son güncelleme',
   draftWarning: 'TASLAK — bu metin KVKK danışmanı onaylı nihai metinle değiştirilecektir.',
   shareMessage:
@@ -71,7 +71,7 @@ export const aydinlatmaTr = (id: ClinicIdentity, r: Retention): LegalDocument =>
       id: 'rights',
       heading: 'İlgili Kişi Olarak Haklarınız',
       paragraphs: [
-        'KVKK\'nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme, yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme, eksik veya yanlış işlenmişse düzeltilmesini isteme, silinmesini veya yok edilmesini isteme, düzeltme ve silme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme, işlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonuç doğmasına itiraz etme ve kanuna aykırı işleme sebebiyle zarara uğramanız halinde zararın giderilmesini talep etme haklarına sahipsiniz.',
+        'KVKK’nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme, yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme, eksik veya yanlış işlenmişse düzeltilmesini isteme, silinmesini veya yok edilmesini isteme, düzeltme ve silme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme, işlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonuç doğmasına itiraz etme ve kanuna aykırı işleme sebebiyle zarara uğramanız halinde zararın giderilmesini talep etme haklarına sahipsiniz.',
         `Taleplerinizi ${id.email} adresine ileterek kullanabilirsiniz. Başvurunuz en geç otuz gün içinde sonuçlandırılır.`,
       ],
     },

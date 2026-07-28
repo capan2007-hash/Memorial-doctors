@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { SUPPORTED } from '../../../i18n'
 import { getLegalDocument, buildShareText, LEGAL_DOCUMENTS } from '../index'
 import { CLINIC_IDENTITY, IDENTITY_COMPLETE } from '../clinicIdentity'
+import type { ClinicIdentity } from '../clinicIdentity'
 import { RETENTION } from '../retention'
 import { SECTION_IDS, LEGAL_VERSION } from '../types'
 
@@ -94,6 +95,46 @@ describe('altı dil paritesi', () => {
   it.each(docs)('%s: yön kontrol karakteri içermez', (_lang, doc) => {
     const all = [doc.title, doc.subtitle, doc.draftWarning, doc.shareMessage,
       ...doc.sections.flatMap((s) => [s.heading, ...s.paragraphs])].join(' ')
-    expect(all).not.toMatch(/[‎‏؜‪-‮⁦-⁩]/)
+    // LRM/RLM/ALM/LRE-RLO/LRI-PDI — görünmez oldukları için ham karakter
+    // DEĞİL, açık \u kaçış dizisiyle yazılır (bir editör bunları görmeden
+    // yanlışlıkla silemesin/değiştiremesin). Bkz. legalVersionBinding.test.ts'teki
+    // String.fromCharCode(0) — aynı amaçla ham baytın kaynağa girmesini önler.
+    expect(all).not.toMatch(/[\u200E\u200F\u061C\u202A-\u202E\u2066-\u2069]/)
+  })
+})
+
+describe('dolu kimlikte de yapısal parite (FIX 9 — koşullu satır sayısı diller arasında sapmasın)', () => {
+  // identityFilled.test.ts'teki fixture'la aynı şekil: telefon/VERBİS DOLU,
+  // böylece "controller" bölümündeki koşullu iki satır da her dilde üretilir.
+  // Boş kimlikle çalışan yukarıdaki "altı dil paritesi" bloğu bu iki satırı
+  // hiç görmez — bir dil bu koşullu satırları farklı sırada/sayıda eklerse
+  // (ör. phone/verbis konumu karışmışsa) yalnızca burada yakalanır.
+  const FULL_IDENTITY: ClinicIdentity = {
+    legalName: 'Anadolu Sağlık Kliniği A.Ş.',
+    address: 'Bağdat Caddesi No:123, Kadıköy, İstanbul',
+    email: 'kvkk@anadolusaglik.example',
+    phone: '+90 216 555 00 00',
+    verbis: '9876543',
+  }
+
+  const fullDocs = SUPPORTED.map(
+    (lang) => [lang, LEGAL_DOCUMENTS[lang](FULL_IDENTITY, RETENTION)] as const,
+  )
+  const trFull = LEGAL_DOCUMENTS.tr(FULL_IDENTITY, RETENTION)
+
+  it.each(fullDocs)('%s: bölüm kimlikleri ve sırası SECTION_IDS ile aynı (dolu kimlik)', (_lang, doc) => {
+    expect(doc.sections.map((s) => s.id)).toEqual([...SECTION_IDS])
+  })
+
+  it.each(fullDocs)('%s: paragraf sayıları Türkçe ile aynı (dolu kimlik)', (_lang, doc) => {
+    expect(doc.sections.map((s) => s.paragraphs.length)).toEqual(
+      trFull.sections.map((s) => s.paragraphs.length),
+    )
+  })
+
+  it.each(fullDocs)('%s: emphasis bayrakları Türkçe ile aynı (dolu kimlik)', (_lang, doc) => {
+    expect(doc.sections.map((s) => s.emphasis ?? false)).toEqual(
+      trFull.sections.map((s) => s.emphasis ?? false),
+    )
   })
 })

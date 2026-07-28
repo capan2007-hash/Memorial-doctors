@@ -21,6 +21,16 @@ describe('buildConsentFields', () => {
     expect((fields as { consent_lang?: string }).consent_lang).toBe('tr')
   })
 
+  it('consentLang belirtilmemiş ve sourceLang bölge kodlu ise (tr-TR) taban dile indirilir', () => {
+    const fields = buildConsentFields({ ...base, consentLang: undefined, sourceLang: 'tr-TR' })
+    expect((fields as { consent_lang?: string }).consent_lang).toBe('tr')
+  })
+
+  it('consentLang kendisi bölge kodlu ise (ar-SA) taban dile indirilir', () => {
+    const fields = buildConsentFields({ ...base, consentLang: 'ar-SA' })
+    expect((fields as { consent_lang?: string }).consent_lang).toBe('ar')
+  })
+
   it('onam verilmediyse hiçbir onam alanı üretilmez (kolonlar null kalır)', () => {
     const fields = buildConsentFields({ ...base, consentGiven: false })
     expect(fields).toEqual({})
