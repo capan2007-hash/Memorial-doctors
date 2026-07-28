@@ -5,31 +5,39 @@ import type { ClinicIdentity } from './clinicIdentity'
 import type { Retention } from './retention'
 import type { LegalDocument } from './types'
 import { aydinlatmaTr } from './aydinlatma.tr'
+import { aydinlatmaEn } from './aydinlatma.en'
+import { aydinlatmaAr } from './aydinlatma.ar'
+import { aydinlatmaRu } from './aydinlatma.ru'
+import { aydinlatmaDe } from './aydinlatma.de'
+import { aydinlatmaFr } from './aydinlatma.fr'
 
 export type LegalDocumentFactory = (id: ClinicIdentity, r: Retention) => LegalDocument
 
 /**
- * Metni HAZIR olan diller. Task 3 kalan beş dili ekler.
+ * Altı dilin tamamının metni hazır — harita SUPPORTED ile birebir örtüşür.
  *
- * resolveLang bu haritanın anahtarlarına bakar (SUPPORTED'a DEĞİL): arayüzde
- * desteklenen ama hukuki metni henüz yazılmamış bir dil, sessizce yarım metin
- * göstermek yerine Türkçeye düşer.
+ * resolveLang bu haritanın anahtarlarına bakar: haritada olmayan (arayüzde de
+ * desteklenmeyen) bir dil Türkçeye düşer.
  */
-export const LEGAL_DOCUMENTS: Partial<Record<Lang, LegalDocumentFactory>> = {
+export const LEGAL_DOCUMENTS: Record<Lang, LegalDocumentFactory> = {
   tr: aydinlatmaTr,
+  ar: aydinlatmaAr,
+  en: aydinlatmaEn,
+  ru: aydinlatmaRu,
+  de: aydinlatmaDe,
+  fr: aydinlatmaFr,
 }
 
 const FALLBACK: Lang = 'tr'
 
-/** 'tr-TR' → 'tr'; metni olmayan veya bilinmeyen dil → FALLBACK. */
+/** 'tr-TR' → 'tr'; bilinmeyen dil → FALLBACK. */
 export function resolveLang(lang: string | undefined | null): Lang {
   const base = (lang ?? '').split('-')[0].toLowerCase()
   return base in LEGAL_DOCUMENTS ? (base as Lang) : FALLBACK
 }
 
 export function getLegalDocument(lang: string | undefined | null): LegalDocument {
-  const factory = LEGAL_DOCUMENTS[resolveLang(lang)] ?? aydinlatmaTr
-  return factory(CLINIC_IDENTITY, RETENTION)
+  return LEGAL_DOCUMENTS[resolveLang(lang)](CLINIC_IDENTITY, RETENTION)
 }
 
 /** Paylaşım metni: şablonun {{link}} yer tutucusuna ?lang= linki konur. */
