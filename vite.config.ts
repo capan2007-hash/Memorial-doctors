@@ -13,6 +13,9 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     // Playwright E2E (tests/e2e) vitest ile çalıştırılmaz; ayrı `npm run e2e`.
     // mobile/ ayrı bir Expo uygulamasıdır (jest ile test edilir) — kök vitest dokunmaz.
-    exclude: ['tests/e2e/**', '**/node_modules/**', 'dist/**', 'mobile/**'],
+    // .claude/worktrees/ altındaki git worktree'leri repo İÇİNDE tam birer checkout
+    // taşır; dışlanmazsa kök vitest onların spec'lerini de toplar ve tsconfig'i
+    // çözemediği için "Tsconfig not found" ile dosya düzeyinde patlar.
+    exclude: ['tests/e2e/**', '**/node_modules/**', 'dist/**', 'mobile/**', '.claude/worktrees/**'],
   },
 } as any)
