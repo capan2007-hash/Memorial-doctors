@@ -11,7 +11,7 @@ import { useCreateRequest } from './useRequests'
 import { PhotoUploader } from '../../components/PhotoUploader'
 import { medicalValue, demographicsError } from '../../domain/health'
 import { packYears, lifestyleComplete, type SmokingStatus, type AlcoholStatus } from '../../domain/lifestyle'
-import { normalizePhone } from '../../domain/phone'
+import { normalizePhone, toE164, isValidPhone } from '../../domain/phone'
 import { Button } from '../../components/ui/Button'
 import { shouldShowAiPreview } from './aiPreview'
 import { AiPreviewScreen } from './AiPreviewScreen'
@@ -160,6 +160,11 @@ export function NewRequestWizard() {
     if (normalizePhone(phone).length < 7 || !first.trim() || !last.trim()) { setMatches([]); return }
     let cancelled = false
     const timer = setTimeout(() => {
+      // RPC'ye HAM telefon gider (toE164 değil): DB tarafındaki normalize_phone
+      // zaten son 10 haneyi alıyor ve toE164 yalnız başa ekleme yaptığı için
+      // 10+ haneli girdilerde iki değerin son 10 hanesi aynı. Çevirmek fayda
+      // sağlamaz, buna karşılık yazarken oluşan yarım girdileri ("053" →
+      // "+9053") bozardı.
       supabase.rpc('find_patient_matches', { p_phone: phone, p_first: first, p_last: last })
         .then(({ data, error }) => {
           if (cancelled || error) return
@@ -194,7 +199,7 @@ export function NewRequestWizard() {
 
   const demoError = age && weightKg && heightCm ? demographicsError(ageNum, weightNum, heightNum) : null
 
-  const phoneOk = normalizePhone(phone).length >= 10
+  const phoneOk = isValidPhone(phone)
   const ageOk = ageNum > 0 && !demoError
   const weightOk = weightNum > 0 && !demoError
   const heightOk = heightNum > 0 && !demoError
@@ -272,7 +277,7 @@ export function NewRequestWizard() {
     try {
       const res = await create.mutateAsync({
         tenantId: appUser!.tenant_id, createdBy: appUser!.id,
-        patient: { first_name: first, last_name: last, phone: normalizePhone(phone) },
+        patient: { first_name: first, last_name: last, phone: toE164(phone) },
         existingPatientId: selectedPatient?.patient_id,
         photosRequired,
         age: Math.round(ageNum), weightKg: weightNum, heightCm: Math.round(heightNum), gender: gender as Gender,
