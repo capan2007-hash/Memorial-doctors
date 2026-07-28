@@ -42,6 +42,8 @@
 - Produces:
   - `toE164(raw: string): string` — `'+' + rakamlar` veya rakam yoksa `''`
   - `hasExplicitCountryCode(raw: string): boolean`
+  - Dosya-içi (export EDİLMEYEN) `classify(raw: string): PhoneShape` — önek
+    kurallarının tek sahibi. Task 2'deki `isValidPhone` da bunu kullanır.
 
 - [ ] **Step 1: Failing testleri yaz**
 
@@ -166,42 +168,59 @@ Dosyanın sonuna:
 
 ```ts
 /**
- * Girdiyi kanonik E.164'e çevirir: `patient.phone`'a YAZILAN değer budur.
- * Kurallar sırayla denenir; sıralama tasarımın parçasıdır (aşağıdaki yorumlar).
- * Rakam içermeyen girdide boş döner.
+ * Girdinin hangi biçimde yazıldığı. `explicit` = ülke kodu girdide belli
+ * (rakamlar ülke kodu dahil), `national` = varsayılan ülke kodu eklenecek.
  */
-export function toE164(raw: string): string {
+type PhoneShape =
+  | { kind: 'empty' }
+  | { kind: 'explicit'; digits: string }
+  | { kind: 'national'; national: string }
+
+/**
+ * Önek kurallarının TEK sahibi — `toE164`, `hasExplicitCountryCode` ve
+ * `isValidPhone` üçü de buradan türer, böylece sıralama tek yerde yaşar.
+ * Kurallar sırayla denenir; sıralama tasarımın parçasıdır.
+ */
+function classify(raw: string): PhoneShape {
   const trimmed = raw.trim()
   const digits = trimmed.replace(/\D/g, '')
-  if (!digits) return ''
+  if (!digits) return { kind: 'empty' }
   // 1) "+..." → ülke kodu açıkça verilmiş; rakamlara olduğu gibi güvenilir.
-  if (trimmed.startsWith('+')) return `+${digits}`
+  if (trimmed.startsWith('+')) return { kind: 'explicit', digits }
   // 2) "00..." uluslararası çıkış öneki. Trunk "0" kuralından ÖNCE bakılmalı,
   //    yoksa "00966..." girdisi "+900966..." olurdu.
-  if (digits.startsWith('00')) return `+${digits.slice(2)}`
-  // 3) Baştaki trunk "0" → ulusal biçim; "0" atılıp varsayılan kod eklenir.
-  if (digits.startsWith('0')) return `+${DEFAULT_COUNTRY.dialCode}${digits.slice(1)}`
+  if (digits.startsWith('00')) return { kind: 'explicit', digits: digits.slice(2) }
+  // 3) Baştaki trunk "0" → ulusal biçim; "0" atılır.
+  if (digits.startsWith('0')) return { kind: 'national', national: digits.slice(1) }
   // 4) Varsayılan ülke koduyla başlıyor VE ulusal uzunluktan uzunsa zaten
   //    uluslararası ("905321112233"). TR'de "90" ile başlayan alan kodu veya
   //    mobil öneki yok, bu yüzden kural yanlış tetiklenemez.
   if (digits.startsWith(DEFAULT_COUNTRY.dialCode) && digits.length > DEFAULT_COUNTRY.nationalLength) {
-    return `+${digits}`
+    return { kind: 'explicit', digits }
   }
   // 5) Ulusal biçim.
-  return `+${DEFAULT_COUNTRY.dialCode}${digits}`
+  return { kind: 'national', national: digits }
 }
 
 /**
- * Girdi ülke kodunu KENDİSİ belirliyor mu? (toE164'ün 1, 2 ve 4 numaralı
- * kuralları). Arayüzdeki "varsayıldı" uyarısı ve doğrulama dalı buna bakar.
+ * Girdiyi kanonik E.164'e çevirir: `patient.phone`'a YAZILAN değer budur.
+ * Rakam içermeyen girdide boş döner.
+ */
+export function toE164(raw: string): string {
+  const shape = classify(raw)
+  switch (shape.kind) {
+    case 'empty': return ''
+    case 'explicit': return `+${shape.digits}`
+    case 'national': return `+${DEFAULT_COUNTRY.dialCode}${shape.national}`
+  }
+}
+
+/**
+ * Girdi ülke kodunu KENDİSİ belirliyor mu? Arayüzdeki "varsayıldı" uyarısı
+ * ve `isValidPhone`'un doğrulama dalı buna bakar.
  */
 export function hasExplicitCountryCode(raw: string): boolean {
-  const trimmed = raw.trim()
-  const digits = trimmed.replace(/\D/g, '')
-  if (!digits) return false
-  if (trimmed.startsWith('+')) return true
-  if (digits.startsWith('00')) return true
-  return digits.startsWith(DEFAULT_COUNTRY.dialCode) && digits.length > DEFAULT_COUNTRY.nationalLength
+  return classify(raw).kind === 'explicit'
 }
 ```
 
@@ -226,7 +245,7 @@ git commit -m "feat(telefon): toE164 ve hasExplicitCountryCode — ülke kodunu 
 - Test: `src/domain/__tests__/phone.test.ts`
 
 **Interfaces:**
-- Consumes: `toE164(raw: string): string`, `hasExplicitCountryCode(raw: string): boolean`, `normalizePhone(raw: string): string`
+- Consumes: Task 1'de eklenen dosya-içi `classify(raw): PhoneShape`; testlerde `toE164` ve `normalizePhone`
 - Produces: `isValidPhone(raw: string): boolean`
 
 - [ ] **Step 1: Failing testleri yaz**
@@ -320,11 +339,10 @@ Expected: FAIL — `isValidPhone` export edilmediği için import hatası.
  * uygulanmışsa ulusal kısmın tam uzunlukta olması aranır.
  */
 export function isValidPhone(raw: string): boolean {
-  const e164 = toE164(raw)
-  if (!e164) return false
-  const digits = e164.slice(1)
-  if (hasExplicitCountryCode(raw)) return digits.length >= 8 && digits.length <= 15
-  return digits.length === DEFAULT_COUNTRY.dialCode.length + DEFAULT_COUNTRY.nationalLength
+  const shape = classify(raw)
+  if (shape.kind === 'empty') return false
+  if (shape.kind === 'explicit') return shape.digits.length >= 8 && shape.digits.length <= 15
+  return shape.national.length === DEFAULT_COUNTRY.nationalLength
 }
 ```
 
